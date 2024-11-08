@@ -10,6 +10,7 @@ import (
 type Configured struct {
 	Server   Server   `mapstructure:"server"`
 	Database Database `mapstructure:"database"`
+	Wechat   Wechat   `mapstructure:"wechat"`
 }
 
 var Config *Configured
@@ -29,4 +30,11 @@ func Init() {
 	if err := viper.Unmarshal(&Config); err != nil {
 		fmt.Printf("无法解码配置文件, %v \n", err)
 	}
+	// 解析完成后调用Handlers
+	Handlers()
+}
+
+// 初始化处理器
+func Handlers() {
+	WechatHandler()
 }

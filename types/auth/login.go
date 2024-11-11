@@ -8,10 +8,6 @@ type LoginReq struct {
 	Captcha   string `json:"captcha" binding:"required"`
 }
 
-type LoginRes struct {
-	Token string `json:"token"`
-}
-
 type LoginOAuthReq struct {
 	Code  string `json:"code" binding:"required"`
 	State string `json:"state" binding:"required"`

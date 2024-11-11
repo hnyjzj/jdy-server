@@ -9,7 +9,7 @@ import (
 
 // 基础模型
 type BaseModel struct {
-	ID string `json:"id" gorm:"unique_index;primary_key;AUTO_INCREMENT:false;comment:ID"`
+	Id string `json:"id" gorm:"uniqueIndex;primaryKey;AUTO_INCREMENT:false;comment:ID"`
 }
 
 // 通用模型
@@ -40,6 +40,6 @@ func init() {
 
 // BeforeCreate GORM回调，在创建记录之前自动设置雪花ID
 func (pm *BaseModel) BeforeCreate(tx *gorm.DB) error {
-	pm.ID = Node.Generate().String()
+	pm.Id = Node.Generate().String()
 	return nil
 }

@@ -9,7 +9,9 @@ import (
 
 type Configured struct {
 	Server   Server   `mapstructure:"server"`
+	JWT      JWT      `mapstructure:"jwt"`
 	Database Database `mapstructure:"database"`
+	Redis    Redis    `mapstructure:"redis"`
 	Wechat   Wechat   `mapstructure:"wechat"`
 }
 

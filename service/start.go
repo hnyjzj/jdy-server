@@ -1,5 +1,8 @@
 package service
 
-func Start() {
+import "jdy/service/redis"
 
+func Start() {
+	// 初始化redis
+	redis.Init()
 }

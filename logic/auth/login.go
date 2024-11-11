@@ -4,24 +4,48 @@ import (
 	"errors"
 	"jdy/config"
 	commonlogic "jdy/logic/common"
+	usermodel "jdy/model/user"
 	authtype "jdy/types/auth"
+
+	"github.com/acmestack/gorm-plus/gplus"
+	"github.com/gin-gonic/gin"
 )
 
 type LoginLogic struct{}
 
 // Login 登录
-func (l *LoginLogic) Login(req *authtype.LoginReq) (*authtype.LoginRes, error) {
+func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.TokenRes, error) {
 	var (
-		res     = &authtype.LoginRes{}
-		err     error
-		captcha = &commonlogic.CaptchaLogic{}
+		res        = &authtype.TokenRes{}
+		err        error
+		captcha    = &commonlogic.CaptchaLogic{}
+		tokenlogic = &TokenLogic{}
 	)
 
-	if captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+	// 验证码校验
+	if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
 		return nil, errors.New("验证码错误")
 	}
 
-	res.Token = "1234567890"
+	// 查询用户
+	query, u := gplus.NewQuery[usermodel.User]()
+	query.Eq(&u.Phone, req.Phone)
+	user, db := gplus.SelectOne(query)
+	// 用户不存在
+	if db.Error != nil {
+		return nil, errors.New("用户不存在")
+	}
+
+	// 密码错误
+	if user.VerifyPassword(req.Password) != nil {
+		return nil, errors.New("密码不正确")
+	}
+
+	// 生成token
+	res, err = tokenlogic.GenerateToken(ctx, user)
+	if err != nil {
+		return nil, err
+	}
 
 	return res, err
 }

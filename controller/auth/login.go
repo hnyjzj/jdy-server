@@ -27,7 +27,7 @@ func (con LoginController) Login(ctx *gin.Context) {
 		return
 	}
 
-	res, err := con.logic.Login(&req)
+	res, err := con.logic.Login(ctx, &req)
 	if err != nil {
 		con.ErrorJson(ctx, http.StatusInternalServerError, err.Error())
 		return

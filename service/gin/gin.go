@@ -14,22 +14,18 @@ func Init() *gin.Engine {
 	var (
 		config = config.Config
 	)
-	// 初始化gin
-	Gin = gin.New()
 	// 设置gin运行模式
 	gin.SetMode(config.Server.Mode)
+	// 初始化gin
+	Gin = gin.New()
+	// 设置gin中间件
+	Gin.Use(gin.Recovery())
 	// 设置gin输出
 	if config.Server.Mode == "debug" {
 		Gin.Use(gin.Logger())
-		Gin.Use(gin.Recovery())
-	}
-	// 设置gin输出
-	if config.Server.Mode == "release" {
-		Gin.Use(gin.Recovery())
 	}
 	// 设置gin输出
 	if config.Server.Mode == "test" {
-		Gin.Use(gin.Recovery())
 		Gin.Use(gin.LoggerWithWriter(io.Discard))
 	}
 	// 设置gin输出

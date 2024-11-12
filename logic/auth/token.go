@@ -36,7 +36,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *usermodel.User) (*aut
 	}
 
 	// 存入redis
-	if err := redis.Client.Set(ctx, "token:"+*user.Phone, token, time.Duration(conf.Expire)*time.Second).Err(); err != nil {
+	if err := redis.Client.Set(ctx, authtype.GetTokenName(*user.Phone), token, time.Duration(conf.Expire)*time.Second).Err(); err != nil {
 		return nil, err
 	}
 

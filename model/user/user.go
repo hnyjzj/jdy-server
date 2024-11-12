@@ -21,6 +21,8 @@ type User struct {
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"size:255;comment:最后登录时间"`
 	LastLoginIp *string    `json:"-" gorm:"size:255;comment:最后登录IP"`
 	UpdatePwdAt *time.Time `json:"-" gorm:"comment:修改密码时间"`
+
+	IsDisabled bool `json:"is_disabled" gorm:"comment:是否禁用"`
 }
 
 // 加密密码

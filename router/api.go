@@ -3,6 +3,8 @@ package router
 import (
 	"jdy/controller/auth"
 	"jdy/controller/common"
+	"jdy/controller/user"
+	"jdy/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,6 +26,14 @@ func Api(g *gin.Engine) {
 		{
 			login.POST("/", auth.LoginController{}.Login)
 			login.POST("/oauth", auth.LoginController{}.OAuth)
+		}
+
+		r.Use(middlewares.JWTMiddleware())
+		{
+			users := r.Group("/user")
+			{
+				users.GET("/info", user.UserController{}.Info)
+			}
 		}
 	}
 }

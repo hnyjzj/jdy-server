@@ -40,13 +40,13 @@ func (l *CaptchaLogic) ImageCaptcha() (*CaptchaRes, error) {
 	return res, nil
 }
 
-var stroe = MyStore{
-	ctx: context.Background(),
-}
+var (
+	stroe = &MyStore{}
+	ctx   = context.Background()
+)
 
 // 生成图片验证码
 func (l *CaptchaLogic) CreateImage() (string, string, string, error) {
-
 	driver := &base64Captcha.DriverDigit{
 		Height:   50,
 		Width:    100,
@@ -56,7 +56,7 @@ func (l *CaptchaLogic) CreateImage() (string, string, string, error) {
 	}
 
 	// 创建验证码并传入创建的类型的配置，以及存储的对象
-	c := base64Captcha.NewCaptcha(driver, &stroe)
+	c := base64Captcha.NewCaptcha(driver, stroe)
 	id, b64s, answer, err := c.Generate()
 
 	return id, b64s, answer, err
@@ -70,15 +70,13 @@ func (l *CaptchaLogic) VerifyCaptcha(id string, VerifyValue string) bool {
 // 验证码存储
 type MyStore struct {
 	base64Captcha.Store
-	ctx context.Context
 }
-
-var prefix = "captcha_"
 
 // 设置验证码
 func (s *MyStore) Set(id string, value string) error {
+	key := GetRedisKey(id)
 	// 存到redis，设置过期时间为n秒
-	result := redis.Client.Set(s.ctx, prefix+id, value, time.Second*time.Duration(120))
+	result := redis.Client.Set(ctx, key, value, time.Second*time.Duration(120))
 	if result.Err() != nil {
 		return result.Err()
 	}
@@ -87,14 +85,15 @@ func (s *MyStore) Set(id string, value string) error {
 }
 
 // 获取验证码
-func (s *MyStore) Get(id string, clear bool) string {
-	result := redis.Client.Get(s.ctx, prefix+id)
+func (s MyStore) Get(id string, clear bool) string {
+	key := GetRedisKey(id)
+	result := redis.Client.Get(ctx, key)
 	if result.Err() != nil {
 		return ""
 	}
 
 	if clear {
-		redis.Client.Del(s.ctx, prefix+id)
+		redis.Client.Del(ctx, key)
 	}
 
 	return result.Val()
@@ -102,13 +101,14 @@ func (s *MyStore) Get(id string, clear bool) string {
 
 // 验证验证码
 func (MyStore) Verify(id, value string, clear bool) bool {
-	result := redis.Client.Get(stroe.ctx, prefix+id)
+	key := GetRedisKey(id)
+	result := redis.Client.Get(ctx, key)
 	if result.Err() != nil {
 		return false
 	}
 
 	if clear {
-		redis.Client.Del(stroe.ctx, prefix+id)
+		redis.Client.Del(ctx, key)
 	}
 
 	if result.Val() != value {
@@ -116,4 +116,9 @@ func (MyStore) Verify(id, value string, clear bool) bool {
 	}
 
 	return true
+}
+
+// 获取 redis 名称
+func GetRedisKey(id string) string {
+	return "captcha_" + id
 }

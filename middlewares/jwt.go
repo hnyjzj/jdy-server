@@ -4,6 +4,7 @@ import (
 	"errors"
 	"jdy/config"
 	"jdy/service/redis"
+	authtype "jdy/types/auth"
 	servertype "jdy/types/server"
 	"net/http"
 	"strings"
@@ -14,14 +15,12 @@ import (
 
 // 验证 token
 func verifyToken(tokenString string) (*jwt.Token, error) {
-	tokenString = strings.ReplaceAll(tokenString, "Bearer ", "")
-
 	token, err := jwt.ParseWithClaims(tokenString, &servertype.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
 
-		return config.Config.JWT.Secret, nil
+		return []byte(config.Config.JWT.Secret), nil
 	})
 
 	if err != nil {
@@ -45,7 +44,6 @@ func JWTMiddleware() gin.HandlerFunc {
 		} else if tokenQuery != "" {
 			tokenString = "Bearer " + tokenQuery
 		}
-
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code":    http.StatusUnauthorized,
@@ -54,6 +52,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		tokenString = strings.ReplaceAll(tokenString, "Bearer ", "")
 
 		// 解析并验证 token
 		token, err := verifyToken(tokenString)
@@ -76,13 +75,22 @@ func JWTMiddleware() gin.HandlerFunc {
 		// 将 token 中的数据解析出来
 		claims, ok := token.Claims.(*servertype.Claims)
 
-		// 获取缓存中的 token
-		if _, err := redis.Client.Get(c, *claims.User.Phone).Result(); err != nil {
-			ok = false
-		}
-
 		// 如果 token 验证通过，则将用户信息注入到 context 中，并继续处理请求
 		if ok && token.Valid {
+			// 获取缓存中的 token
+			res, err := redis.Client.Get(c, authtype.GetTokenName(*claims.User.Phone)).Result()
+			// 如果缓存中没有 token 或者 token 不一致，则返回 401
+			if err != nil || res != tokenString {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"code":    http.StatusUnauthorized,
+					"message": "令牌不符",
+				})
+
+				c.Abort()
+				return
+			}
+
+			// 将用户信息注入到 context 中
 			c.Set("user", claims.User)
 			c.Next()
 		} else {

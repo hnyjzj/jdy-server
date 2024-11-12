@@ -3,13 +3,16 @@ package commonlogic
 import (
 	"context"
 	"jdy/config"
+	"jdy/logic"
 	"jdy/service/redis"
 	"time"
 
 	"github.com/mojocn/base64Captcha"
 )
 
-type CaptchaLogic struct{}
+type CaptchaLogic struct {
+	logic.Base
+}
 
 type CaptchaRes struct {
 	Id   string `json:"id"`

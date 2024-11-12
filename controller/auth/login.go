@@ -40,13 +40,14 @@ func (con LoginController) OAuth(ctx *gin.Context) {
 	var (
 		req authtype.LoginOAuthReq
 	)
+
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.ExceptionJson(ctx, "参数错误")
 		return
 	}
 
-	res, err := con.logic.Oauth(&req)
+	res, err := con.logic.Oauth(ctx, &req)
 	if err != nil {
 		con.ErrorJson(ctx, http.StatusInternalServerError, err.Error())
 		return

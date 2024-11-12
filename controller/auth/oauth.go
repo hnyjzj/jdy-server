@@ -18,7 +18,7 @@ func (con OAuthController) GetUri(ctx *gin.Context) {
 	// 绑定参数
 	var (
 		req       authtype.OAuthWeChatWorkReq
-		authlogic = authlogic.OAuthLogic{}
+		authlogic authlogic.OAuthLogic
 	)
 
 	// 获取请求头

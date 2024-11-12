@@ -15,5 +15,4 @@ type LoginOAuthReq struct {
 
 type LoginOAuthRes struct {
 	Token string `json:"token"`
-	Res   any    `json:"res"`
 }

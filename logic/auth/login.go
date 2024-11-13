@@ -16,7 +16,7 @@ import (
 type LoginLogic struct {
 	logic.Base
 
-	captcha *commonlogic.CaptchaLogic
+	captcha commonlogic.CaptchaLogic
 	token   TokenLogic
 }
 

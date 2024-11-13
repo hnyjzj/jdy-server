@@ -22,11 +22,6 @@ type LoginLogic struct {
 
 // Login 登录
 func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.TokenRes, error) {
-	var (
-		res = &authtype.TokenRes{}
-		err error
-	)
-
 	// 验证码校验
 	if !l.captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
 		return nil, errors.New("验证码错误")
@@ -47,7 +42,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.
 	}
 
 	// 生成token
-	res, err = l.token.GenerateToken(ctx, user)
+	res, err := l.token.GenerateToken(ctx, user)
 	if err != nil {
 		return nil, err
 	}

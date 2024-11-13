@@ -14,7 +14,7 @@ type UserController struct {
 
 func (con UserController) Info(ctx *gin.Context) {
 	var (
-		logic *userlogic.UserLogic
+		logic userlogic.UserLogic
 	)
 	user := con.GetUser(ctx)
 

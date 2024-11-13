@@ -52,7 +52,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		tokenString = strings.ReplaceAll(tokenString, "Bearer ", "")
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
 		// 解析并验证 token
 		token, err := verifyToken(tokenString)

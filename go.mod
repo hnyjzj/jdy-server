@@ -2,7 +2,7 @@ module jdy
 
 go 1.23
 
-toolchain go1.23.1
+toolchain go1.23.3
 
 require (
 	github.com/ArtisanCloud/PowerWeChat/v3 v3.2.55

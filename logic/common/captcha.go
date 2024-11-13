@@ -41,7 +41,7 @@ func (l *CaptchaLogic) ImageCaptcha() (*CaptchaRes, error) {
 }
 
 var (
-	stroe = &MyStore{}
+	store = &MyStore{}
 	ctx   = context.Background()
 )
 
@@ -56,7 +56,7 @@ func (l *CaptchaLogic) CreateImage() (string, string, string, error) {
 	}
 
 	// 创建验证码并传入创建的类型的配置，以及存储的对象
-	c := base64Captcha.NewCaptcha(driver, stroe)
+	c := base64Captcha.NewCaptcha(driver, store)
 	id, b64s, answer, err := c.Generate()
 
 	return id, b64s, answer, err
@@ -64,7 +64,7 @@ func (l *CaptchaLogic) CreateImage() (string, string, string, error) {
 
 // 对比验证码
 func (l *CaptchaLogic) VerifyCaptcha(id string, VerifyValue string) bool {
-	return stroe.Verify(id, VerifyValue, true)
+	return store.Verify(id, VerifyValue, true)
 }
 
 // 验证码存储

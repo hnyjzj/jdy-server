@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"jdy/controller"
 	authlogic "jdy/logic/auth"
 	authtype "jdy/types/auth"
@@ -22,7 +21,6 @@ func (con LoginController) Login(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		fmt.Printf("Login err: %v \n", err.Error())
 		con.ExceptionJson(ctx, "参数错误")
 		return
 	}

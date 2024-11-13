@@ -12,7 +12,3 @@ type LoginOAuthReq struct {
 	Code  string `json:"code" binding:"required"`  // 授权码
 	State string `json:"state" binding:"required"` // 状态码
 }
-
-type LoginOAuthRes struct {
-	Token string `json:"token"` // token
-}

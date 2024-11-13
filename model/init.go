@@ -6,8 +6,10 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/acmestack/gorm-plus/gplus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -24,7 +26,9 @@ func Init() {
 
 	switch drive {
 	case "mysql":
-		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Error),
+		})
 	default:
 		panic("不支持的数据库驱动程序")
 	}
@@ -35,6 +39,9 @@ func Init() {
 
 	// 执行迁移
 	migrator()
+
+	// 初始化gplus
+	gplus.Init(DB)
 }
 
 // 需要迁移的表
@@ -69,7 +76,7 @@ func migrator() {
 		// 迁移模型
 		err := DB.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci").Migrator().AutoMigrate(table)
 		if err != nil {
-			panic(fmt.Sprintf("迁移表 %s 失败", strings.Split(reflect.TypeOf(table).Elem().Name(), "")))
+			panic(fmt.Sprintf("迁移表 %s 失败: %s", strings.Split(reflect.TypeOf(table).Elem().Name(), ""), err.Error()))
 		}
 		// fmt.Println("迁移了", reflect.TypeOf(table).Elem().Name())
 	}

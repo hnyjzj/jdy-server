@@ -1,16 +1,39 @@
 package router
 
 import (
-	"net/http"
+	"jdy/controller/auth"
+	"jdy/controller/common"
+	"jdy/controller/user"
+	"jdy/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Api(g *gin.Engine) {
-	a := g.Group("/api")
+	r := g.Group("/")
 	{
-		a.GET("/", func(c *gin.Context) {
-			c.String(http.StatusOK, "Hello World")
-		})
+		root := r.Group("/")
+		{
+			root.GET("/get_captcha_image", common.CaptchaController{}.GetImage)
+		}
+
+		oauth := r.Group("/")
+		{
+			oauth.POST("/oauth", auth.OAuthController{}.GetUri)
+		}
+
+		login := r.Group("/login")
+		{
+			login.POST("/", auth.LoginController{}.Login)
+			login.POST("/oauth", auth.LoginController{}.OAuth)
+		}
+
+		r.Use(middlewares.JWTMiddleware())
+		{
+			users := r.Group("/user")
+			{
+				users.GET("/info", user.UserController{}.Info)
+			}
+		}
 	}
 }

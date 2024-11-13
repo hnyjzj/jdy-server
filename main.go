@@ -6,15 +6,16 @@ import (
 	"jdy/router"
 	"jdy/service"
 	"jdy/service/gin"
+	"jdy/service/redis"
 )
 
 func main() {
 	// 初始化gin
 	g := gin.Init()
-	// 路由初始化
-	router.Init(g)
 	// 启动服务
 	service.Start()
+	// 路由初始化
+	router.Init(g)
 	// 启动 gin http 服务
 	gin.Run(g)
 }
@@ -24,4 +25,6 @@ func init() {
 	config.Init()
 	// 数据库初始化
 	model.Init()
+	// 初始化redis
+	redis.Init()
 }

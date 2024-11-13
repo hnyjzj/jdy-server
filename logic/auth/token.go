@@ -1,6 +1,7 @@
 package auth_logic
 
 import (
+	"errors"
 	"jdy/config"
 	usermodel "jdy/model/user"
 	"jdy/service/redis"
@@ -18,6 +19,10 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *usermodel.User) (*aut
 	var (
 		conf = config.Config.JWT
 	)
+
+	if user.Phone == nil || *user.Phone == "" {
+		return nil, errors.New("手机号不存在")
+	}
 
 	expires := time.Now().Add(time.Second * time.Duration(conf.Expire))
 

@@ -91,13 +91,16 @@ func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*authtype
 	if err != nil {
 		return nil, errors.New("获取企业微信用户详情失败")
 	}
+	if detail.Mobile == "" {
+		return nil, errors.New("非企业微信授权用户禁止登录")
+	}
 
 	// 查询用户
 	query, u := gplus.NewQuery[usermodel.User]()
 	query.Eq(&u.Phone, detail.Mobile)
 	user, db := gplus.SelectOne(query)
 	// 用户不存在
-	if errors.Is(db.Error, gorm.ErrRecordNotFound) {
+	if db.Error != nil || errors.Is(db.Error, gorm.ErrRecordNotFound) {
 		return nil, errors.New("用户不存在")
 	}
 
@@ -130,7 +133,7 @@ func (l *LoginLogic) oauth_wxwork_qrcode(ctx *gin.Context, code string) (*authty
 	query.Eq(&u.Username, userinfo.UserID)
 	user, db := gplus.SelectOne(query)
 	// 用户不存在
-	if errors.Is(db.Error, gorm.ErrRecordNotFound) {
+	if db.Error != nil || errors.Is(db.Error, gorm.ErrRecordNotFound) {
 		return nil, errors.New("用户不存在")
 	}
 

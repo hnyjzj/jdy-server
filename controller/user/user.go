@@ -3,7 +3,7 @@ package user
 import (
 	"jdy/controller"
 	userlogic "jdy/logic/user"
-	"net/http"
+	"jdy/logic_error"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,10 +20,10 @@ func (con UserController) Info(ctx *gin.Context) {
 
 	userinfo, err := logic.GetUserInfo(user.Id)
 	if err != nil {
-		con.ErrorJson(ctx, http.StatusNotFound, "用户不存在")
+		con.ErrorLogic(ctx, logic_error.ErrUserNotFound)
 		return
 	}
 
 	// 获取用户信息
-	con.SuccessJson(ctx, "ok", userinfo)
+	con.Success(ctx, "ok", userinfo)
 }

@@ -5,6 +5,7 @@ import (
 	"jdy/config"
 	"jdy/logic"
 	commonlogic "jdy/logic/common"
+	"jdy/logic_error"
 	usermodel "jdy/model/user"
 	authtype "jdy/types/auth"
 
@@ -24,7 +25,7 @@ type LoginLogic struct {
 func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.TokenRes, error) {
 	// 验证码校验
 	if !l.captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
-		return nil, errors.New("验证码错误")
+		return nil, logic_error.ErrInvalidCaptcha
 	}
 
 	// 查询用户
@@ -33,12 +34,12 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.
 	user, db := gplus.SelectOne(query)
 	// 用户不存在
 	if db.Error != nil {
-		return nil, errors.New("用户不存在")
+		return nil, logic_error.ErrUserNotFound
 	}
 
 	// 密码错误
 	if user.VerifyPassword(req.Password) != nil {
-		return nil, errors.New("密码不正确")
+		return nil, logic_error.ErrPasswordIncorrect
 	}
 
 	// 生成token

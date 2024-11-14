@@ -21,9 +21,9 @@ func (con CaptchaController) GetImage(c *gin.Context) {
 	res, err := logic.ImageCaptcha()
 
 	if err != nil {
-		con.ErrorJson(c, http.StatusInternalServerError, "获取失败")
+		con.Error(c, http.StatusInternalServerError, "获取失败")
 		return
 	}
 
-	con.SuccessJson(c, "ok", res)
+	con.Success(c, "ok", res)
 }

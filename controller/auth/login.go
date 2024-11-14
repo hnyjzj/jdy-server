@@ -1,10 +1,9 @@
 package auth
 
 import (
-	"errors"
 	"jdy/controller"
+	"jdy/errors"
 	authlogic "jdy/logic/auth"
-	"jdy/logic_error"
 	authtype "jdy/types/auth"
 	"net/http"
 
@@ -23,15 +22,15 @@ func (con LoginController) Login(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, logic_error.ErrInvalidParam.Error())
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
 	res, err := con.logic.Login(ctx, &req)
 	if err != nil {
 		// 验证码错误
-		if errors.Is(err, logic_error.ErrInvalidCaptcha) {
-			con.ErrorLogic(ctx, logic_error.ErrInvalidCaptcha)
+		if errors.Is(err, errors.ErrInvalidCaptcha) {
+			con.ErrorLogic(ctx, errors.ErrInvalidCaptcha)
 			return
 		}
 
@@ -49,7 +48,7 @@ func (con LoginController) OAuth(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, logic_error.ErrInvalidParam.Error())
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 

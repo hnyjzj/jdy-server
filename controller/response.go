@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"jdy/logic_error"
+	"jdy/errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +32,7 @@ func (con BaseController) Error(c *gin.Context, code int, message string) {
 }
 
 // 逻辑失败响应
-func (con BaseController) ErrorLogic(c *gin.Context, err *logic_error.Errors) {
+func (con BaseController) ErrorLogic(c *gin.Context, err *errors.Errors) {
 	response := gin.H{
 		"code":    err.Code,
 		"message": err.Message,

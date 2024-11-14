@@ -2,7 +2,7 @@ package auth_logic
 
 import (
 	"jdy/config"
-	"jdy/logic_error"
+	"jdy/errors"
 	usermodel "jdy/model/user"
 	"jdy/service/redis"
 	authtype "jdy/types/auth"
@@ -21,7 +21,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *usermodel.User) (*aut
 	)
 
 	if user.Phone == nil || *user.Phone == "" {
-		return nil, logic_error.ErrUserNotFound
+		return nil, errors.ErrUserNotFound
 	}
 
 	expires := time.Now().Add(time.Second * time.Duration(conf.Expire))

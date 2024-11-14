@@ -10,6 +10,9 @@ import (
 )
 
 func Api(g *gin.Engine) {
+	// 跨域
+	g.Use(middlewares.Cors())
+
 	r := g.Group("/")
 	{
 		root := r.Group("/")

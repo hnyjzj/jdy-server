@@ -37,7 +37,7 @@ func New(message string, code ...int) *Errors {
 	if len(code) > 0 {
 		c = code[0]
 	}
-	if code == nil {
+	if len(code) == 0 {
 		c = C500
 	}
 	return &Errors{

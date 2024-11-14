@@ -1,8 +1,8 @@
 package auth_logic
 
 import (
-	"errors"
 	"jdy/config"
+	"jdy/errors"
 	"jdy/logic"
 	commonlogic "jdy/logic/common"
 	usermodel "jdy/model/user"
@@ -24,7 +24,7 @@ type LoginLogic struct {
 func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.TokenRes, error) {
 	// 验证码校验
 	if !l.captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
-		return nil, errors.New("验证码错误")
+		return nil, errors.ErrInvalidCaptcha
 	}
 
 	// 查询用户
@@ -33,12 +33,12 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.
 	user, db := gplus.SelectOne(query)
 	// 用户不存在
 	if db.Error != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errors.ErrUserNotFound
 	}
 
 	// 密码错误
 	if user.VerifyPassword(req.Password) != nil {
-		return nil, errors.New("密码不正确")
+		return nil, errors.ErrPasswordIncorrect
 	}
 
 	// 生成token
@@ -96,7 +96,7 @@ func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*authtype
 	user, db := gplus.SelectOne(query)
 	// 用户不存在
 	if db.Error != nil || errors.Is(db.Error, gorm.ErrRecordNotFound) {
-		return nil, errors.New("用户不存在")
+		return nil, errors.ErrUserNotFound
 	}
 
 	// 生成token

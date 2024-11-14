@@ -1,7 +1,7 @@
 package userlogic
 
 import (
-	"errors"
+	"jdy/errors"
 	"jdy/logic"
 	usermodel "jdy/model/user"
 	usertype "jdy/types/user"
@@ -20,7 +20,7 @@ func (l *UserLogic) GetUserInfo(uid string) (*usertype.UserRes, error) {
 
 	user, db := gplus.SelectGeneric[usermodel.User, *usertype.UserRes](query)
 	if db.Error != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errors.ErrUserNotFound
 	}
 
 	return user, nil

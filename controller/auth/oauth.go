@@ -2,6 +2,7 @@ package auth
 
 import (
 	"jdy/controller"
+	"jdy/errors"
 	authlogic "jdy/logic/auth"
 	authtype "jdy/types/auth"
 	"net/http"
@@ -26,15 +27,15 @@ func (con OAuthController) GetUri(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		con.ExceptionJson(ctx, "参数错误")
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
 	res, err := authlogic.GetUri(&req)
 	if err != nil {
-		con.ErrorJson(ctx, http.StatusInternalServerError, err.Error())
+		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	con.SuccessJson(ctx, "ok", res)
+	con.Success(ctx, "ok", res)
 }

@@ -2,7 +2,6 @@ package commonlogic
 
 import (
 	"context"
-	"jdy/config"
 	"jdy/logic"
 	"jdy/service/redis"
 	"time"
@@ -23,18 +22,14 @@ type CaptchaRes struct {
 // 获取图片验证码
 func (l *CaptchaLogic) ImageCaptcha() (*CaptchaRes, error) {
 	var (
-		res    = &CaptchaRes{}
-		err    error
-		answer string
+		res = &CaptchaRes{}
+		err error
 	)
+
 	// 生成图片验证码
-	res.Id, res.Code, answer, err = l.CreateImage()
+	res.Id, res.Code, _, err = l.CreateImage()
 	if err != nil {
 		return nil, err
-	}
-
-	if config.Config.Server.Mode == "debug" {
-		res.Val = answer
 	}
 
 	return res, nil

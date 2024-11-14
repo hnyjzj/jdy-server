@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"jdy/errors"
 	usermodel "jdy/model/user"
 	"net/http"
 
@@ -17,8 +18,8 @@ func (BaseController) GetUser(ctx *gin.Context) *usermodel.User {
 
 	if db.Error != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"code":    http.StatusUnauthorized,
-			"message": "用户不存在",
+			"code":    errors.ErrUserNotFound.Code,
+			"message": errors.ErrUserNotFound.Message,
 		})
 		ctx.Abort()
 		return nil
@@ -26,8 +27,8 @@ func (BaseController) GetUser(ctx *gin.Context) *usermodel.User {
 
 	if user.IsDisabled {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"code":    http.StatusUnauthorized,
-			"message": "用户已被禁用",
+			"code":    errors.ErrUserDisabled.Code,
+			"message": errors.ErrUserDisabled.Message,
 		})
 		ctx.Abort()
 		return nil

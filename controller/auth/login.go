@@ -2,6 +2,7 @@ package auth
 
 import (
 	"jdy/controller"
+	"jdy/errors"
 	authlogic "jdy/logic/auth"
 	authtype "jdy/types/auth"
 	"net/http"
@@ -21,17 +22,23 @@ func (con LoginController) Login(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		con.ExceptionJson(ctx, "参数错误")
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
 	res, err := con.logic.Login(ctx, &req)
 	if err != nil {
-		con.ErrorJson(ctx, http.StatusInternalServerError, err.Error())
+		// 验证码错误
+		if errors.Is(err, errors.ErrInvalidCaptcha) {
+			con.ErrorLogic(ctx, errors.ErrInvalidCaptcha)
+			return
+		}
+
+		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	con.SuccessJson(ctx, "ok", res)
+	con.Success(ctx, "ok", res)
 }
 
 func (con LoginController) OAuth(ctx *gin.Context) {
@@ -41,15 +48,15 @@ func (con LoginController) OAuth(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		con.ExceptionJson(ctx, "参数错误")
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
 	res, err := con.logic.Oauth(ctx, &req)
 	if err != nil {
-		con.ErrorJson(ctx, http.StatusInternalServerError, err.Error())
+		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	con.SuccessJson(ctx, "ok", res)
+	con.Success(ctx, "ok", res)
 }

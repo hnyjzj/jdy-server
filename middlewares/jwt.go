@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"errors"
 	"jdy/config"
+	"jdy/errors"
 	"jdy/service/redis"
 	authtype "jdy/types/auth"
 	servertype "jdy/types/server"

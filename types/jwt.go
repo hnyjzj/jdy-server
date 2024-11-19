@@ -1,7 +1,7 @@
-package servertype
+package types
 
 import (
-	usermodel "jdy/model/user"
+	"jdy/model"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -9,5 +9,5 @@ import (
 // 定义 token 中的数据结构
 type Claims struct {
 	jwt.RegisteredClaims
-	User usermodel.User `json:"user"`
+	User model.User `json:"user"`
 }

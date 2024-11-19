@@ -1,4 +1,4 @@
-package commonlogic
+package common
 
 import (
 	"context"

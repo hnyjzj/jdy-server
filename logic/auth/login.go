@@ -1,12 +1,12 @@
-package auth_logic
+package auth
 
 import (
 	"jdy/config"
 	"jdy/errors"
 	"jdy/logic"
-	commonlogic "jdy/logic/common"
-	usermodel "jdy/model/user"
-	authtype "jdy/types/auth"
+	"jdy/logic/common"
+	"jdy/model"
+	"jdy/types"
 
 	"github.com/acmestack/gorm-plus/gplus"
 	"github.com/gin-gonic/gin"
@@ -16,19 +16,19 @@ import (
 type LoginLogic struct {
 	logic.Base
 
-	captcha commonlogic.CaptchaLogic
+	captcha common.CaptchaLogic
 	token   TokenLogic
 }
 
 // Login 登录
-func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.TokenRes, error) {
+func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenRes, error) {
 	// 验证码校验
 	if !l.captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
 		return nil, errors.ErrInvalidCaptcha
 	}
 
 	// 查询用户
-	query, u := gplus.NewQuery[usermodel.User]()
+	query, u := gplus.NewQuery[model.User]()
 	query.Eq(&u.Phone, req.Phone)
 	user, db := gplus.SelectOne(query)
 	// 用户不存在
@@ -51,7 +51,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *authtype.LoginReq) (*authtype.
 }
 
 // 企业微信登录
-func (l *LoginLogic) Oauth(ctx *gin.Context, req *authtype.LoginOAuthReq) (*authtype.TokenRes, error) {
+func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.TokenRes, error) {
 	switch req.State {
 	case "wxwork_auth":
 		res, err := l.oauth_wxwork_auth(ctx, req.Code)
@@ -71,7 +71,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *authtype.LoginOAuthReq) (*auth
 }
 
 // 企业微信授权登录
-func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*authtype.TokenRes, error) {
+func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*types.TokenRes, error) {
 	var (
 		wxwork = config.NewWechatService().JdyWork
 	)
@@ -91,7 +91,7 @@ func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*authtype
 	}
 
 	// 查询用户
-	query, u := gplus.NewQuery[usermodel.User]()
+	query, u := gplus.NewQuery[model.User]()
 	query.Eq(&u.Phone, detail.Mobile)
 	user, db := gplus.SelectOne(query)
 	// 用户不存在
@@ -109,7 +109,7 @@ func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*authtype
 }
 
 // 企业微信扫码登录
-func (l *LoginLogic) oauth_wxwork_qrcode(ctx *gin.Context, code string) (*authtype.TokenRes, error) {
+func (l *LoginLogic) oauth_wxwork_qrcode(ctx *gin.Context, code string) (*types.TokenRes, error) {
 	var (
 		wxwork = config.NewWechatService().JdyWork
 	)
@@ -124,7 +124,7 @@ func (l *LoginLogic) oauth_wxwork_qrcode(ctx *gin.Context, code string) (*authty
 	}
 
 	// 查询用户
-	query, u := gplus.NewQuery[usermodel.User]()
+	query, u := gplus.NewQuery[model.User]()
 	query.Eq(&u.Username, userinfo.UserID)
 	user, db := gplus.SelectOne(query)
 	// 用户不存在

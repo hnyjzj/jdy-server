@@ -1,4 +1,4 @@
-package usertype
+package types
 
 type UserRes struct {
 	Id       string `json:"id"`       // 用户ID

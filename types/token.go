@@ -1,4 +1,4 @@
-package authtype
+package types
 
 type TokenRes struct {
 	Token     string `json:"token"`      // token

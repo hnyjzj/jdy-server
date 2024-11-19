@@ -17,23 +17,28 @@ func Api(g *gin.Engine) {
 	{
 		root := r.Group("/")
 		{
-			root.GET("/get_captcha_image", common.CaptchaController{}.GetImage) // 获取验证码图片
+			// 验证码
+			captchas := root.Group("/captcha")
+			{
+				captchas.GET("/image", common.CaptchaController{}.Image) // 获取验证码图片
+			}
+
+			// 平台
+			platforms := r.Group("/")
+			{
+				platforms.POST("/oauth", auth.OAuthController{}.GetOauthUri) // 获取授权链接
+			}
 		}
 
-		oauth := r.Group("/")
+		logins := r.Group("/login")
 		{
-			oauth.POST("/oauth", auth.OAuthController{}.GetUri) // 获取授权链接
+			logins.POST("/", auth.LoginController{}.Login)      // 登录
+			logins.POST("/oauth", auth.LoginController{}.OAuth) // 授权登录
 		}
 
-		login := r.Group("/login")
+		users := r.Group("/user")
 		{
-			login.POST("/", auth.LoginController{}.Login)      // 登录
-			login.POST("/oauth", auth.LoginController{}.OAuth) // 授权登录
-		}
-
-		r.Use(middlewares.JWTMiddleware())
-		{
-			users := r.Group("/user")
+			users.Use(middlewares.JWTMiddleware())
 			{
 				users.GET("/info", user.UserController{}.Info) // 获取用户信息
 			}

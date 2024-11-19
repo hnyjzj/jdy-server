@@ -1,4 +1,4 @@
-package authtype
+package types
 
 type OAuthWeChatWorkReq struct {
 	Agent string `json:"agent"` // 用户浏览器环境

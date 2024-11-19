@@ -3,8 +3,8 @@ package auth
 import (
 	"jdy/controller"
 	"jdy/errors"
-	authlogic "jdy/logic/auth"
-	authtype "jdy/types/auth"
+	"jdy/logic/auth"
+	"jdy/types"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,12 +12,12 @@ import (
 
 type LoginController struct {
 	controller.BaseController
-	logic authlogic.LoginLogic
+	logic auth.LoginLogic
 }
 
 func (con LoginController) Login(ctx *gin.Context) {
 	var (
-		req authtype.LoginReq
+		req types.LoginReq
 	)
 
 	// 校验参数
@@ -43,7 +43,7 @@ func (con LoginController) Login(ctx *gin.Context) {
 
 func (con LoginController) OAuth(ctx *gin.Context) {
 	var (
-		req authtype.LoginOAuthReq
+		req types.LoginOAuthReq
 	)
 
 	// 校验参数

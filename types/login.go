@@ -1,4 +1,4 @@
-package authtype
+package types
 
 type LoginReq struct {
 	Phone    string `json:"phone" binding:"required,regex=^1\\d{10}$"` // 手机号

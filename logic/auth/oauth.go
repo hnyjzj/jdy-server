@@ -1,20 +1,21 @@
-package auth_logic
+package auth
 
 import (
 	"jdy/config"
-	authtype "jdy/types/auth"
+	"jdy/types"
 	"jdy/utils"
 )
 
 type OAuthLogic struct{}
 
-// oauth 登录
-func (l *OAuthLogic) GetUri(req *authtype.OAuthWeChatWorkReq) (*authtype.OAuthWeChatWorkRes, error) {
+// 获取授权链接
+func (l *OAuthLogic) OauthUri(req *types.OAuthWeChatWorkReq) (*types.OAuthWeChatWorkRes, error) {
 
 	var (
+		res = types.OAuthWeChatWorkRes{}
+		err error
+
 		wxwork = config.NewWechatService().JdyWork
-		res    = authtype.OAuthWeChatWorkRes{}
-		err    error
 	)
 
 	switch req.State {

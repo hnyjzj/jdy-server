@@ -2,7 +2,7 @@ package controller
 
 import (
 	"jdy/errors"
-	usermodel "jdy/model/user"
+	"jdy/model"
 	"net/http"
 
 	"github.com/acmestack/gorm-plus/gplus"
@@ -12,9 +12,9 @@ import (
 type BaseController struct{}
 
 // 获取 token 中的用户信息
-func (BaseController) GetUser(ctx *gin.Context) *usermodel.User {
-	userInfo := ctx.MustGet("user").(usermodel.User)
-	user, db := gplus.SelectById[usermodel.User](userInfo.Id)
+func (BaseController) GetUser(ctx *gin.Context) *model.User {
+	userInfo := ctx.MustGet("user").(model.User)
+	user, db := gplus.SelectById[model.User](userInfo.Id)
 
 	if db.Error != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{

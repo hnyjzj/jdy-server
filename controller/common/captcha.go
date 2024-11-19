@@ -2,7 +2,7 @@ package common
 
 import (
 	"jdy/controller"
-	commonlogic "jdy/logic/common"
+	"jdy/logic/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,9 +13,9 @@ type CaptchaController struct {
 }
 
 // 获取图片验证码
-func (con CaptchaController) GetImage(c *gin.Context) {
+func (con CaptchaController) Image(c *gin.Context) {
 	var (
-		logic commonlogic.CaptchaLogic
+		logic common.CaptchaLogic
 	)
 
 	res, err := logic.ImageCaptcha()

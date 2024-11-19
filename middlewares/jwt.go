@@ -4,8 +4,7 @@ import (
 	"jdy/config"
 	"jdy/errors"
 	"jdy/service/redis"
-	authtype "jdy/types/auth"
-	servertype "jdy/types/server"
+	"jdy/types"
 	"net/http"
 	"strings"
 
@@ -16,7 +15,7 @@ import (
 
 // 验证 token
 func verifyToken(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &servertype.Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &types.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
@@ -74,12 +73,12 @@ func JWTMiddleware() gin.HandlerFunc {
 		}
 
 		// 将 token 中的数据解析出来
-		claims, ok := token.Claims.(*servertype.Claims)
+		claims, ok := token.Claims.(*types.Claims)
 
 		// 如果 token 验证通过，则将用户信息注入到 context 中，并继续处理请求
 		if ok && token.Valid {
 			// 获取缓存中的 token
-			res, err := redis.Client.Get(c, authtype.GetTokenName(*claims.User.Phone)).Result()
+			res, err := redis.Client.Get(c, types.GetTokenName(*claims.User.Phone)).Result()
 			// 如果缓存中没有 token 或者 token 不一致，则返回 401
 			if err == redisv9.Nil || res != tokenString {
 				c.JSON(http.StatusUnauthorized, gin.H{

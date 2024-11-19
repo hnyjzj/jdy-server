@@ -1,6 +1,9 @@
 package config
 
 import (
+	"fmt"
+
+	"github.com/ArtisanCloud/PowerWeChat/v3/src/kernel"
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work"
 )
 
@@ -31,6 +34,7 @@ func WechatHandler() {
 	JdyAgent = NewJdyAgent()
 }
 
+// @see https://powerwechat.artisan-cloud.com/zh/wecom/
 func NewJdyAgent() *work.Work {
 	WeComApp, err := work.NewWork(&work.UserConfig{
 		CorpID:  Config.Wechat.Work.CorpID,     // 企业微信的app id，所有企业微信共用一个。
@@ -41,10 +45,16 @@ func NewJdyAgent() *work.Work {
 			Scopes:   []string{"snsapi_privateinfo"},
 		},
 		Log: work.Log{
-			Level:  "info",
-			File:   "./temp/logs/wechat.log",
+			Level:  "debug",
+			File:   ".logs/wechat/wxwork_info.log",
+			Error:  ".logs/wechat/wxwork_error.log",
 			Stdout: false, //  是否打印在终端
 		},
+		Cache: kernel.NewRedisClient(&kernel.UniversalOptions{
+			Addrs:    []string{fmt.Sprintf("%s:%d", Config.Redis.Host, Config.Redis.Port)},
+			Password: Config.Redis.Password,
+			DB:       Config.Redis.Db + 1,
+		}),
 		HttpDebug: false,
 	})
 

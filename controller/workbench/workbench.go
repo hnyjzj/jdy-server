@@ -11,12 +11,14 @@ import (
 
 type WorkbenchController struct {
 	controller.BaseController
-	logic workbench.WorkbenchLogic
 }
 
 // 获取列表
 func (con WorkbenchController) List(ctx *gin.Context) {
-	userinfo, err := con.logic.GetList()
+	var (
+		logic = workbench.WorkbenchLogic{}
+	)
+	userinfo, err := logic.GetList()
 	if err != nil {
 		con.ErrorLogic(ctx, err)
 		return
@@ -28,17 +30,19 @@ func (con WorkbenchController) List(ctx *gin.Context) {
 
 // 添加入口
 func (con WorkbenchController) Add(ctx *gin.Context) {
-
 	var (
 		req types.WorkbenchListReq
+
+		logic = workbench.WorkbenchLogic{}
 	)
+
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	res, err := con.logic.AddRoute(&req)
+	res, err := logic.AddRoute(&req)
 	if err != nil {
 		con.ErrorLogic(ctx, err)
 		return

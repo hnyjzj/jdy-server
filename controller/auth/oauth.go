@@ -18,8 +18,8 @@ type OAuthController struct {
 func (con OAuthController) GetOauthUri(ctx *gin.Context) {
 	// 绑定参数
 	var (
-		req       types.OAuthWeChatWorkReq
-		authlogic auth.OAuthLogic
+		req   types.OAuthWeChatWorkReq
+		logic = auth.OAuthLogic{}
 	)
 
 	// 获取请求头
@@ -31,7 +31,7 @@ func (con OAuthController) GetOauthUri(ctx *gin.Context) {
 		return
 	}
 
-	res, err := authlogic.OauthUri(&req)
+	res, err := logic.OauthUri(&req)
 	if err != nil {
 		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return

@@ -15,7 +15,7 @@ type CaptchaController struct {
 // 获取图片验证码
 func (con CaptchaController) Image(c *gin.Context) {
 	var (
-		logic common.CaptchaLogic
+		logic = common.CaptchaLogic{}
 	)
 
 	res, err := logic.ImageCaptcha()

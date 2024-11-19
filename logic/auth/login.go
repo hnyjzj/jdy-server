@@ -73,7 +73,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *authtype.LoginOAuthReq) (*auth
 // 企业微信授权登录
 func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*authtype.TokenRes, error) {
 	var (
-		wxwork = config.JdyAgent
+		wxwork = config.NewWechatService().JdyWork
 	)
 
 	// 获取用户信息
@@ -111,7 +111,7 @@ func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*authtype
 // 企业微信扫码登录
 func (l *LoginLogic) oauth_wxwork_qrcode(ctx *gin.Context, code string) (*authtype.TokenRes, error) {
 	var (
-		wxwork = config.JdyAgent
+		wxwork = config.NewWechatService().JdyWork
 	)
 
 	// 获取用户信息

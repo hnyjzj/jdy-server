@@ -12,7 +12,7 @@ type OAuthLogic struct{}
 func (l *OAuthLogic) GetUri(req *authtype.OAuthWeChatWorkReq) (*authtype.OAuthWeChatWorkRes, error) {
 
 	var (
-		wxwork = config.JdyAgent
+		wxwork = config.NewWechatService().JdyWork
 		res    = authtype.OAuthWeChatWorkRes{}
 		err    error
 	)

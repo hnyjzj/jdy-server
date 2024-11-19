@@ -28,14 +28,18 @@ type agent struct {
 	Callback string `mapstructure:"callback" default:"https://example.cn/wxwork/callback"` // 回调地址
 }
 
-var JdyAgent *work.Work
+type WechatService struct {
+	JdyWork *work.Work
+}
 
-func WechatHandler() {
-	JdyAgent = NewJdyAgent()
+func NewWechatService() *WechatService {
+	return &WechatService{
+		JdyWork: NewJdyWork(),
+	}
 }
 
 // @see https://powerwechat.artisan-cloud.com/zh/wecom/
-func NewJdyAgent() *work.Work {
+func NewJdyWork() *work.Work {
 	WeComApp, err := work.NewWork(&work.UserConfig{
 		CorpID:  Config.Wechat.Work.CorpID,     // 企业微信的app id，所有企业微信共用一个。
 		AgentID: Config.Wechat.Work.Jdy.Id,     // 内部应用的app id

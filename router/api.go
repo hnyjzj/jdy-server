@@ -49,8 +49,12 @@ func Api(g *gin.Engine) {
 		// 工作台
 		workbenchs := r.Group("/workbench")
 		{
+			workbenchs.Use(middlewares.JWTMiddleware())
+			{
+				workbenchs.POST("/add", workbench.WorkbenchController{}.Add) // 工作台添加
+			}
 			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
-			workbenchs.POST("/add", workbench.WorkbenchController{}.Add)  // 工作台添加
+
 		}
 	}
 }

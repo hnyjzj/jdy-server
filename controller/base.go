@@ -13,9 +13,18 @@ type BaseController struct{}
 
 // 获取 token 中的用户信息
 func (BaseController) GetUser(ctx *gin.Context) *model.User {
-	userInfo := ctx.MustGet("user").(model.User)
+	// 获取 token 中的用户信息
+	userInfo, ok := ctx.MustGet("user").(model.User)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    errors.ErrUserNotFound.Code,
+			"message": errors.ErrUserNotFound.Message,
+		})
+		ctx.Abort()
+		return nil
+	}
+	// 查询用户信息
 	user, db := gplus.SelectById[model.User](userInfo.Id)
-
 	if db.Error != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"code":    errors.ErrUserNotFound.Code,
@@ -24,7 +33,7 @@ func (BaseController) GetUser(ctx *gin.Context) *model.User {
 		ctx.Abort()
 		return nil
 	}
-
+	// 检查用户是否被禁用
 	if user.IsDisabled {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"code":    errors.ErrUserDisabled.Code,

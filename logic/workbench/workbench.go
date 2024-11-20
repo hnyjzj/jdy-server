@@ -32,11 +32,15 @@ func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
 // 添加路由
 func (l WorkbenchLogic) AddRoute(req *types.WorkbenchListReq) (*model.Router, *errors.Errors) {
 	user := model.Router{
-		Title:    req.Title,
-		Path:     req.Path,
-		Icon:     req.Icon,
-		ParentId: &req.ParentId,
+		Title: req.Title,
+		Path:  req.Path,
+		Icon:  req.Icon,
 	}
+
+	if req.ParentId != "" {
+		user.ParentId = &req.ParentId
+	}
+
 	result := gplus.Insert(&user)
 	if result.Error != nil {
 		return nil, errors.New(result.Error.Error())

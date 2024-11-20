@@ -8,11 +8,11 @@ import (
 type Router struct {
 	SoftDelete
 
-	Title string `json:"title" gorm:"size:255;comment:标题"`
-	Icon  string `json:"icon" gorm:"size:255;comment:图标"`
-	Path  string `json:"path" gorm:"size:255;comment:路径"`
+	Title    string  `json:"title" gorm:"size:255;comment:标题"`
+	Icon     string  `json:"icon" gorm:"size:255;comment:图标"`
+	Path     string  `json:"path" gorm:"size:255;comment:路径"`
+	ParentId *string `json:"parent_id" gorm:"size:255;comment:父级ID"`
 
-	ParentId *string   `json:"parent_id" gorm:"comment:父级ID"`
 	Children []*Router `json:"children,omitempty" gorm:"-"`
 }
 

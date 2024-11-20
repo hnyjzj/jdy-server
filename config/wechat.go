@@ -50,8 +50,8 @@ func NewJdyWork() *work.Work {
 		},
 		Log: work.Log{
 			Level:  "debug",
-			File:   ".logs/wechat/wxwork_info.log",
-			Error:  ".logs/wechat/wxwork_error.log",
+			File:   "./logs/wechat/wxwork_info.log",
+			Error:  "./logs/wechat/wxwork_error.log",
 			Stdout: false, //  是否打印在终端
 		},
 		Cache: kernel.NewRedisClient(&kernel.UniversalOptions{

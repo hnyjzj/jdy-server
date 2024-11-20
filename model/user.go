@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -13,15 +14,26 @@ type User struct {
 	Username *string `json:"username" gorm:"index;comment:用户名"`
 	Password string  `json:"-" gorm:"size:255;comment:密码"`
 
-	Name   string `json:"name" gorm:"index;comment:姓名"`
-	Avatar string `json:"avatar" gorm:"size:255;comment:头像"`
-	Email  string `json:"email" gorm:"index;comment:邮箱"`
+	NickName string `json:"nickname" gorm:"index;comment:姓名"`
+	Avatar   string `json:"avatar" gorm:"size:255;comment:头像"`
+	Email    string `json:"email" gorm:"index;comment:邮箱"`
 
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"size:255;comment:最后登录时间"`
 	LastLoginIp *string    `json:"-" gorm:"size:255;comment:最后登录IP"`
 	UpdatePwdAt *time.Time `json:"-" gorm:"comment:修改密码时间"`
 
 	IsDisabled bool `json:"is_disabled" gorm:"comment:是否禁用"`
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	if u.Password != "" {
+		if err := u.HashPassword(); err != nil {
+			return err
+		}
+	}
+
+	u.BaseModel.BeforeCreate(tx)
+	return
 }
 
 // 加密密码

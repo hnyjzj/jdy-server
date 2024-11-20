@@ -41,6 +41,7 @@ func Init() {
 	migrator()
 
 	// 初始化gplus
+	// @see https://github.com/acmestack/gorm-plus/wiki
 	gplus.Init(DB)
 }
 

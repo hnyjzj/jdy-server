@@ -1,10 +1,10 @@
-package userlogic
+package user
 
 import (
 	"jdy/errors"
 	"jdy/logic"
-	usermodel "jdy/model/user"
-	usertype "jdy/types/user"
+	"jdy/model"
+	"jdy/types"
 
 	"github.com/acmestack/gorm-plus/gplus"
 )
@@ -14,11 +14,11 @@ type UserLogic struct {
 }
 
 // 获取用户信息
-func (l *UserLogic) GetUserInfo(uid string) (*usertype.UserRes, error) {
-	query, u := gplus.NewQuery[usermodel.User]()
+func (l *UserLogic) GetUserInfo(uid string) (*types.UserRes, error) {
+	query, u := gplus.NewQuery[model.User]()
 	query.Eq(&u.Id, uid)
 
-	user, db := gplus.SelectGeneric[usermodel.User, *usertype.UserRes](query)
+	user, db := gplus.SelectGeneric[model.User, *types.UserRes](query)
 	if db.Error != nil {
 		return nil, errors.ErrUserNotFound
 	}

@@ -1,14 +1,13 @@
-package usermodel
+package model
 
 import (
-	"jdy/model"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	model.SoftDelete
+	SoftDelete
 
 	Phone    *string `json:"phone" gorm:"uniqueIndex;size:11;comment:手机号"`
 	Username *string `json:"username" gorm:"index;comment:用户名"`
@@ -42,11 +41,11 @@ func (u *User) VerifyPassword(password string) error {
 
 func init() {
 	// 注册模型
-	model.RegisterModels(
+	RegisterModels(
 		&User{},
 	)
 	// 重置表
-	model.RegisterRefreshModels(
+	RegisterRefreshModels(
 	// &User{},
 	)
 }

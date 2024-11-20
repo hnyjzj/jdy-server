@@ -1,12 +1,11 @@
-package auth_logic
+package auth
 
 import (
 	"jdy/config"
 	"jdy/errors"
-	usermodel "jdy/model/user"
+	"jdy/model"
 	"jdy/service/redis"
-	authtype "jdy/types/auth"
-	servertype "jdy/types/server"
+	"jdy/types"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +14,7 @@ import (
 
 type TokenLogic struct{}
 
-func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *usermodel.User) (*authtype.TokenRes, error) {
+func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *model.User) (*types.TokenRes, error) {
 	var (
 		conf = config.Config.JWT
 	)
@@ -26,7 +25,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *usermodel.User) (*aut
 
 	expires := time.Now().Add(time.Second * time.Duration(conf.Expire))
 
-	claims := &servertype.Claims{
+	claims := &types.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			NotBefore: jwt.NewNumericDate(time.Now().Add(time.Second * -10)),
 			ExpiresAt: jwt.NewNumericDate(expires),
@@ -41,11 +40,11 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *usermodel.User) (*aut
 	}
 
 	// 存入redis
-	if err := redis.Client.Set(ctx, authtype.GetTokenName(*user.Phone), token, time.Duration(conf.Expire)*time.Second).Err(); err != nil {
+	if err := redis.Client.Set(ctx, types.GetTokenName(*user.Phone), token, time.Duration(conf.Expire)*time.Second).Err(); err != nil {
 		return nil, err
 	}
 
-	res := authtype.TokenRes{
+	res := types.TokenRes{
 		Token:     token,
 		ExpiresAt: expires.Unix(),
 	}

@@ -3,7 +3,7 @@ package user
 import (
 	"jdy/controller"
 	"jdy/errors"
-	userlogic "jdy/logic/user"
+	"jdy/logic/user"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ type UserController struct {
 
 func (con UserController) Info(ctx *gin.Context) {
 	var (
-		logic userlogic.UserLogic
+		logic = user.UserLogic{}
 	)
 	user := con.GetUser(ctx)
 

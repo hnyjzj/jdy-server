@@ -3,8 +3,8 @@ package auth
 import (
 	"jdy/controller"
 	"jdy/errors"
-	authlogic "jdy/logic/auth"
-	authtype "jdy/types/auth"
+	"jdy/logic/auth"
+	"jdy/types"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,12 +12,12 @@ import (
 
 type LoginController struct {
 	controller.BaseController
-	logic authlogic.LoginLogic
 }
 
 func (con LoginController) Login(ctx *gin.Context) {
 	var (
-		req authtype.LoginReq
+		req   types.LoginReq
+		logic = auth.LoginLogic{}
 	)
 
 	// 校验参数
@@ -26,7 +26,7 @@ func (con LoginController) Login(ctx *gin.Context) {
 		return
 	}
 
-	res, err := con.logic.Login(ctx, &req)
+	res, err := logic.Login(ctx, &req)
 	if err != nil {
 		// 验证码错误
 		if errors.Is(err, errors.ErrInvalidCaptcha) {
@@ -43,7 +43,8 @@ func (con LoginController) Login(ctx *gin.Context) {
 
 func (con LoginController) OAuth(ctx *gin.Context) {
 	var (
-		req authtype.LoginOAuthReq
+		req   types.LoginOAuthReq
+		logic = auth.LoginLogic{}
 	)
 
 	// 校验参数
@@ -52,7 +53,7 @@ func (con LoginController) OAuth(ctx *gin.Context) {
 		return
 	}
 
-	res, err := con.logic.Oauth(ctx, &req)
+	res, err := logic.Oauth(ctx, &req)
 	if err != nil {
 		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return

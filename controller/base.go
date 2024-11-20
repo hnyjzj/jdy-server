@@ -2,7 +2,7 @@ package controller
 
 import (
 	"jdy/errors"
-	usermodel "jdy/model/user"
+	"jdy/model"
 	"net/http"
 
 	"github.com/acmestack/gorm-plus/gplus"
@@ -12,10 +12,19 @@ import (
 type BaseController struct{}
 
 // 获取 token 中的用户信息
-func (BaseController) GetUser(ctx *gin.Context) *usermodel.User {
-	userInfo := ctx.MustGet("user").(usermodel.User)
-	user, db := gplus.SelectById[usermodel.User](userInfo.Id)
-
+func (BaseController) GetUser(ctx *gin.Context) *model.User {
+	// 获取 token 中的用户信息
+	userInfo, ok := ctx.MustGet("user").(model.User)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    errors.ErrUserNotFound.Code,
+			"message": errors.ErrUserNotFound.Message,
+		})
+		ctx.Abort()
+		return nil
+	}
+	// 查询用户信息
+	user, db := gplus.SelectById[model.User](userInfo.Id)
 	if db.Error != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"code":    errors.ErrUserNotFound.Code,
@@ -24,7 +33,7 @@ func (BaseController) GetUser(ctx *gin.Context) *usermodel.User {
 		ctx.Abort()
 		return nil
 	}
-
+	// 检查用户是否被禁用
 	if user.IsDisabled {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"code":    errors.ErrUserDisabled.Code,

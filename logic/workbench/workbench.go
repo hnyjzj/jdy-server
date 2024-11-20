@@ -15,18 +15,12 @@ type WorkbenchLogic struct {
 
 // 获取路由列表
 func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
-	var (
-		workbenchList []*model.Router
-	)
-
 	list, err := model.Router{}.GetTree(nil)
 	if err != nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.New("获取工作台列表失败: " + err.Error())
 	}
 
-	workbenchList = list
-
-	return workbenchList, nil
+	return list, nil
 }
 
 // 添加路由

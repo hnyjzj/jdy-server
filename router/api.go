@@ -1,11 +1,14 @@
 package router
 
 import (
+	"jdy/config"
+	"jdy/controller"
 	"jdy/controller/auth"
 	"jdy/controller/common"
 	"jdy/controller/user"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,10 +28,33 @@ func Api(g *gin.Engine) {
 			}
 
 			// 平台
-			platforms := r.Group("/")
+			platforms := root.Group("/")
 			{
 				platforms.POST("/oauth", auth.OAuthController{}.GetOauthUri) // 获取授权链接
 			}
+
+			root.GET("/jssdk/wxwork", func(c *gin.Context) {
+				var (
+					wxwork = config.NewWechatService().JdyWork
+					client = wxwork.JSSDK.Client
+				)
+				wxwork.GetAccessToken()
+				client.TicketEndpoint = "/cgi-bin/get_jsapi_ticket"
+				jsapi, err := wxwork.JSSDK.Client.GetTicket(c, false, "jsapi")
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, err)
+				}
+				client.TicketEndpoint = "/cgi-bin/ticket/get"
+				agent, err := wxwork.JSSDK.Client.GetTicket(c, false, "agent_config")
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, err)
+				}
+
+				controller.BaseController{}.Success(c, "ok", gin.H{
+					"jsapi": jsapi.Get("ticket"),
+					"agent": agent.Get("ticket"),
+				})
+			})
 		}
 
 		// 认证

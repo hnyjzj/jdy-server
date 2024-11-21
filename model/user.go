@@ -14,7 +14,7 @@ type User struct {
 	Username *string `json:"username" gorm:"index;comment:用户名"`
 	Password string  `json:"-" gorm:"size:255;comment:密码"`
 
-	NickName string `json:"nickname" gorm:"index;comment:姓名"`
+	NickName string `json:"nickname" gorm:"column:nickname;index;comment:姓名"`
 	Avatar   string `json:"avatar" gorm:"size:255;comment:头像"`
 	Email    string `json:"email" gorm:"index;comment:邮箱"`
 

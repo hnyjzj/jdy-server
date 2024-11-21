@@ -31,7 +31,7 @@ func (con UserController) Create(ctx *gin.Context) {
 	}
 
 	// 创建用户
-	user, err := logic.CreateUser(&req)
+	user, err := logic.CreateUser(ctx, &req)
 	if err != nil {
 		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return

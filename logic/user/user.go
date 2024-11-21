@@ -1,12 +1,17 @@
 package user
 
 import (
+	"fmt"
+	"jdy/config"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/model"
 	"jdy/types"
+	"strings"
 
+	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/message/request"
 	"github.com/acmestack/gorm-plus/gplus"
+	"github.com/gin-gonic/gin"
 )
 
 type UserLogic struct {
@@ -14,7 +19,11 @@ type UserLogic struct {
 }
 
 // 创建用户逻辑
-func (l *UserLogic) CreateUser(req *types.UserReq) (*types.UserRes, *errors.Errors) {
+func (l *UserLogic) CreateUser(ctx *gin.Context, req *types.UserReq) (*types.UserRes, *errors.Errors) {
+	var (
+		wxwork = config.NewWechatService().JdyWork
+	)
+
 	// 检查用户名和手机号是否已存在
 	query, u := gplus.NewQuery[model.User]()
 	query.Eq(&u.Phone, req.Phone).Or().Eq(&u.Username, req.Username)
@@ -48,6 +57,35 @@ func (l *UserLogic) CreateUser(req *types.UserReq) (*types.UserRes, *errors.Erro
 		Username: *user.Username,
 		NickName: user.NickName,
 	}
+
+	func() {
+		var configTemplate string = strings.Join([]string{
+			"欢迎加入金斗云，您的账号已创建成功！",
+			">昵  称：%s",
+			">用户名：%s",
+			">手机号：%s",
+			">密  码：%s",
+			"",
+			">请及时修改默认密码，并妥善保管账号信息。",
+		}, "\n")
+		content := fmt.Sprintf(configTemplate,
+			user.NickName,
+			*user.Username,
+			*user.Phone,
+			user.Password,
+		)
+		messages := &request.RequestMessageSendMarkdown{
+			RequestMessageSend: request.RequestMessageSend{
+				ToUser:  *user.Username,
+				MsgType: "markdown",
+				AgentID: config.Config.Wechat.Work.Jdy.Id,
+			},
+			Markdown: &request.RequestMarkdown{
+				Content: content,
+			},
+		}
+		wxwork.Message.SendMarkdown(ctx, messages)
+	}()
 
 	return res, nil
 }

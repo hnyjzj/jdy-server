@@ -42,7 +42,8 @@ func Api(g *gin.Engine) {
 		{
 			users.Use(middlewares.JWTMiddleware())
 			{
-				users.GET("/info", user.UserController{}.Info) // 获取用户信息
+				users.POST("/create", user.UserController{}.Create) // 创建用户
+				users.GET("/info", user.UserController{}.Info)      // 获取用户信息
 			}
 		}
 

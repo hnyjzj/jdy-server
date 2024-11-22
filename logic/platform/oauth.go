@@ -1,36 +1,33 @@
-package auth
+package platform
 
 import (
+	"errors"
 	"jdy/config"
 	"jdy/types"
 	"jdy/utils"
 )
 
-type OAuthLogic struct{}
-
 // 获取授权链接
-func (l *OAuthLogic) OauthUri(req *types.OAuthWeChatWorkReq) (*types.OAuthWeChatWorkRes, error) {
-
+func (l *PlatformLogic) OauthUri(req *types.PlatformOAuthReq) (*types.PlatformOAuthRes, error) {
 	var (
-		res = types.OAuthWeChatWorkRes{}
+		res = types.PlatformOAuthRes{}
 		err error
-
-		wxwork = config.NewWechatService().JdyWork
 	)
 
-	switch req.State {
+	switch req.Platform {
 	case "wxwork":
+		wxwork := config.NewWechatService().JdyWork
 		// 设置跳转地址
 		wxwork.OAuth.Provider.WithRedirectURL(req.Uri)
 
 		// 判断是否是微信浏览器
 		if utils.IsWechat(req.Agent) {
 			// 直接跳转授权页面
-			wxwork.OAuth.Provider.WithState(req.State + "_auth")
+			wxwork.OAuth.Provider.WithState(req.Platform + "_auth")
 			res.RedirectURL, err = wxwork.OAuth.Provider.GetAuthURL()
 		} else {
 			// 跳转二维码页面
-			wxwork.OAuth.Provider.WithState(req.State + "_qrcode")
+			wxwork.OAuth.Provider.WithState(req.Platform + "_qrcode")
 			res.RedirectURL, err = wxwork.OAuth.Provider.GetQrConnectURL()
 		}
 
@@ -39,8 +36,8 @@ func (l *OAuthLogic) OauthUri(req *types.OAuthWeChatWorkReq) (*types.OAuthWeChat
 		}
 
 	default:
-		return nil, err
+		return nil, errors.New("不支持的授权类型")
 	}
 
-	return &res, err
+	return &res, nil
 }

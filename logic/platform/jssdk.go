@@ -11,12 +11,31 @@ import (
 // 获取授权链接
 func (l *PlatformLogic) GetJSSDK(ctx *gin.Context, req *types.PlatformJSSdkReq) (*types.PlatformJSSdkRes, error) {
 	switch req.Platform {
-	case "wxwork_jsapi":
-		var (
-			wxwork = config.NewWechatService().JdyWork
-			client = wxwork.JSSDK.Client
-		)
-		wxwork.GetAccessToken()
+	case "wxwork":
+		ticket, err := l.wxwork(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		res := &types.PlatformJSSdkRes{
+			Ticket: *ticket,
+		}
+		return res, nil
+
+	default:
+		return nil, errors.New("state error")
+	}
+
+}
+
+func (l *PlatformLogic) wxwork(ctx *gin.Context, req *types.PlatformJSSdkReq) (*string, error) {
+	var (
+		wxwork = config.NewWechatService().JdyWork
+		client = wxwork.JSSDK.Client
+	)
+
+	wxwork.GetAccessToken()
+	switch req.Type {
+	case "jsapi":
 		client.TicketEndpoint = "/cgi-bin/get_jsapi_ticket"
 		jsapi, err := wxwork.JSSDK.Client.GetTicket(ctx, false, "jsapi")
 		if err != nil {
@@ -28,19 +47,9 @@ func (l *PlatformLogic) GetJSSDK(ctx *gin.Context, req *types.PlatformJSSdkReq) 
 			return nil, errors.New("jsapi ticket error")
 		}
 
-		res := types.PlatformJSSdkRes{
-			Ticket: ticket,
-		}
+		return &ticket, err
 
-		return &res, err
-
-	case "wxwork_agent":
-		var (
-			wxwork = config.NewWechatService().JdyWork
-			client = wxwork.JSSDK.Client
-		)
-		wxwork.GetAccessToken()
-
+	case "agent":
 		client.TicketEndpoint = "/cgi-bin/ticket/get"
 		agent, err := wxwork.JSSDK.Client.GetTicket(ctx, false, "agent_config")
 		if err != nil {
@@ -52,14 +61,9 @@ func (l *PlatformLogic) GetJSSDK(ctx *gin.Context, req *types.PlatformJSSdkReq) 
 			return nil, errors.New("agent ticket error")
 		}
 
-		res := types.PlatformJSSdkRes{
-			Ticket: ticket,
-		}
-
-		return &res, err
+		return &ticket, err
 
 	default:
 		return nil, errors.New("state error")
 	}
-
 }

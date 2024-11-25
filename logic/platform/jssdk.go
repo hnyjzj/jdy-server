@@ -23,8 +23,13 @@ func (l *PlatformLogic) GetJSSDK(ctx *gin.Context, req *types.PlatformJSSdkReq) 
 			return nil, errors.New("jsapi ticket error")
 		}
 
+		ticket, ok := jsapi.Get("ticket").(string)
+		if !ok {
+			return nil, errors.New("jsapi ticket error")
+		}
+
 		res := types.PlatformJSSdkRes{
-			Ticket: jsapi.Get("ticket").(string),
+			Ticket: ticket,
 		}
 
 		return &res, err
@@ -42,8 +47,13 @@ func (l *PlatformLogic) GetJSSDK(ctx *gin.Context, req *types.PlatformJSSdkReq) 
 			return nil, errors.New("agent ticket error")
 		}
 
+		ticket, ok := agent.Get("ticket").(string)
+		if !ok {
+			return nil, errors.New("agent ticket error")
+		}
+
 		res := types.PlatformJSSdkRes{
-			Ticket: agent.Get("ticket").(string),
+			Ticket: ticket,
 		}
 
 		return &res, err

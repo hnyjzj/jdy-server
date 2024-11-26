@@ -18,9 +18,6 @@ func (con PlatformController) JSSDK(ctx *gin.Context) {
 		logic = platform.PlatformLogic{}
 	)
 
-	// 获取请求头
-	req.Agent = ctx.GetHeader("User-Agent")
-
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())

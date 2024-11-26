@@ -2,6 +2,7 @@ package platform
 
 import (
 	"errors"
+	"fmt"
 	"jdy/config"
 	"jdy/types"
 	"jdy/utils"
@@ -14,8 +15,10 @@ func (l *PlatformLogic) OauthUri(req *types.PlatformOAuthReq) (*types.PlatformOA
 		err error
 	)
 
+	platformType := fmt.Sprint(req.Platform)
+
 	switch req.Platform {
-	case "wxwork":
+	case types.PlatformTypeWxWork:
 		wxwork := config.NewWechatService().JdyWork
 		// 设置跳转地址
 		wxwork.OAuth.Provider.WithRedirectURL(req.Uri)
@@ -23,11 +26,11 @@ func (l *PlatformLogic) OauthUri(req *types.PlatformOAuthReq) (*types.PlatformOA
 		// 判断是否是微信浏览器
 		if utils.IsWechat(req.Agent) {
 			// 直接跳转授权页面
-			wxwork.OAuth.Provider.WithState(req.Platform + "_auth")
+			wxwork.OAuth.Provider.WithState(platformType)
 			res.RedirectURL, err = wxwork.OAuth.Provider.GetAuthURL()
 		} else {
 			// 跳转二维码页面
-			wxwork.OAuth.Provider.WithState(req.Platform + "_qrcode")
+			wxwork.OAuth.Provider.WithState(platformType)
 			res.RedirectURL, err = wxwork.OAuth.Provider.GetQrConnectURL()
 		}
 

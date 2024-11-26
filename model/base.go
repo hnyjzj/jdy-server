@@ -9,7 +9,7 @@ import (
 
 // 基础模型
 type BaseModel struct {
-	Id string `json:"id" gorm:"uniqueIndex;primaryKey;AUTO_INCREMENT:false;comment:ID"`
+	Id string `json:"id" gorm:"uniqueIndex;size:255;primaryKey;AUTO_INCREMENT:false;comment:ID"`
 }
 
 // 通用模型

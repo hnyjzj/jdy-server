@@ -29,6 +29,10 @@ func Is(err, target error) bool {
 	return errors.Is(err, target)
 }
 
+func As(err error, target any) bool {
+	return errors.As(err, target)
+}
+
 func New(message string, code ...int) *Errors {
 	var (
 		c = C0

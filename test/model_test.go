@@ -13,9 +13,9 @@ func init() {
 	model.Init()
 }
 
-func TestUser(t *testing.T) {
+func TestStaff(t *testing.T) {
 	var (
-	// user usermodel.User
+	// user usermodel.Staff
 	)
 	// phone := "18503857576"
 	// user.Phone = &phone

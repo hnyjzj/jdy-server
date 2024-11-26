@@ -14,13 +14,13 @@ import (
 
 type TokenLogic struct{}
 
-func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *model.User) (*types.TokenRes, error) {
+func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff) (*types.TokenRes, error) {
 	var (
 		conf = config.Config.JWT
 	)
 
-	if user.Phone == nil || *user.Phone == "" {
-		return nil, errors.ErrUserNotFound
+	if staff.Phone == nil || *staff.Phone == "" {
+		return nil, errors.ErrStaffNotFound
 	}
 
 	expires := time.Now().Add(time.Second * time.Duration(conf.Expire))
@@ -31,7 +31,10 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *model.User) (*types.T
 			ExpiresAt: jwt.NewNumericDate(expires),
 			Issuer:    "jdy",
 		},
-		User: *user,
+		Staff: &types.Staff{
+			Id:    staff.Id,
+			Phone: *staff.Phone,
+		},
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(conf.Secret))
@@ -40,7 +43,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, user *model.User) (*types.T
 	}
 
 	// 存入redis
-	if err := redis.Client.Set(ctx, types.GetTokenName(*user.Phone), token, time.Duration(conf.Expire)*time.Second).Err(); err != nil {
+	if err := redis.Client.Set(ctx, types.GetTokenName(*staff.Phone), token, time.Duration(conf.Expire)*time.Second).Err(); err != nil {
 		return nil, err
 	}
 

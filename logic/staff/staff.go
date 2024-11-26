@@ -52,12 +52,13 @@ func (l *StaffLogic) createAccount(ctx *gin.Context, req *types.StaffAccountReq)
 	aq, a := gplus.NewQuery[model.Account]()
 	aq.Eq(&a.Platform, types.PlatformTypeAccount).And().
 		Eq(&a.Phone, req.Phone)
+
 	account, resultDb := gplus.SelectOne(aq)
 	if resultDb.Error != nil && !errors.Is(resultDb.Error, gorm.ErrRecordNotFound) {
 		return errors.New("查询账号失败")
 	}
 	// 如果账号已存在，则返回错误
-	if account != nil {
+	if account.Id != "" {
 		return errors.New("账号已存在")
 	}
 
@@ -78,10 +79,12 @@ func (l *StaffLogic) createAccount(ctx *gin.Context, req *types.StaffAccountReq)
 		return errors.New("查询账号失败")
 	}
 	// 如果员工不存在，则创建员工
-	if staff == nil {
+	if staff.Id == "" {
 		staff = &model.Staff{
 			Phone:    &req.Phone,
 			NickName: req.NickName,
+			Avatar:   req.Avatar,
+			Email:    req.Email,
 		}
 		result := gplus.Insert(&staff)
 		if result.Error != nil {
@@ -172,9 +175,9 @@ func (l *StaffLogic) sendCreateMessage(ctx *gin.Context, account *model.Account,
 	}, "\n")
 	content := fmt.Sprintf(configTemplate,
 		staff.NickName,
-		*account.Username,
-		*staff.Phone,
-		*account.Password,
+		account.Username,
+		staff.Phone,
+		account.Password,
 	)
 
 	messages := &request.RequestMessageSendMarkdown{

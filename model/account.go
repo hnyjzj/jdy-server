@@ -10,10 +10,6 @@ import (
 
 type Account struct {
 	SoftDelete
-
-	StaffId *string `json:"staff_id" gorm:"size:255;comment:员工ID"`
-	Staff   Staff   `json:"-" gorm:"foreignKey:StaffId;references:Id"`
-
 	Platform types.PlatformType `json:"platform" gorm:"index;comment:平台"`
 
 	Phone    *string `json:"phone" gorm:"uniqueIndex;size:11;comment:手机号"`
@@ -29,6 +25,9 @@ type Account struct {
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`
 
 	IsDisabled bool `json:"is_disabled" gorm:"comment:是否禁用"`
+
+	StaffId *string `json:"staff_id" gorm:"size:255;comment:员工ID"`
+	Staff   Staff   `json:"-" gorm:"foreignKey:StaffId;references:Id"`
 }
 
 func (u *Account) BeforeCreate(tx *gorm.DB) (err error) {

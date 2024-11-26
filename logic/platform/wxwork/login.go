@@ -5,6 +5,7 @@ import (
 	"jdy/config"
 	"jdy/model"
 	"jdy/types"
+	"strconv"
 	"time"
 
 	"github.com/acmestack/gorm-plus/gplus"
@@ -27,6 +28,11 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 	if err != nil || user.UserID == "" {
 		return nil, errors.New("获取企业微信用户信息失败")
 	}
+	// 读取企业员工信息
+	userinfo, err := jdy.User.Get(ctx, user.UserID)
+	if err != nil || userinfo.UserID == "" {
+		return nil, errors.New("获取企业微信用户信息失败")
+	}
 
 	// 获取账号
 	account, err := logic.getAccount(user.UserID)
@@ -36,6 +42,10 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 
 	// 判断是否是首次登录
 	if account.Phone == nil && user.UserTicket == "" {
+		return nil, errors.New("首次登录需通过企业微信工作台打开并授权手机号")
+	}
+	// 判断是否已注册
+	if account.StaffId == nil && user.UserTicket == "" {
 		return nil, errors.New("首次登录需通过企业微信工作台打开并授权手机号")
 	}
 
@@ -61,19 +71,55 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 		if *account.Phone != detail.Mobile {
 			return nil, errors.New("手机号不一致")
 		}
+
+		// 判断是否已注册
+		if account.StaffId == nil {
+			// 查询员工
+			sq, s := gplus.NewQuery[model.Staff]()
+			sq.Eq(&s.Phone, detail.Mobile)
+			staff, sdb := gplus.SelectOne(sq)
+			// 数据库错误
+			if sdb.Error != nil && !errors.Is(sdb.Error, gorm.ErrRecordNotFound) {
+				return nil, errors.New("注册员工失败")
+			}
+			// 员工不存在
+			if errors.Is(sdb.Error, gorm.ErrRecordNotFound) {
+				staff.Phone = &detail.Mobile
+
+				staff.NickName = userinfo.Name
+				staff.Avatar = detail.Avatar
+				staff.Email = detail.Email
+
+				gender, err := strconv.Atoi(detail.Gender)
+				if err != nil {
+					gender = 0
+				}
+				staff.Gender = uint(gender)
+				if db := gplus.Insert(staff); db.Error != nil {
+					return nil, errors.New("员工注册失败")
+				}
+			}
+
+			account.StaffId = &staff.Id
+			if db := gplus.UpdateById(&account); db.Error != nil {
+				return nil, errors.New("更新账号信息失败")
+			}
+		}
+	}
+
+	// 查询员工
+	staff, err := logic.getStaff(*account.StaffId)
+	if err != nil {
+		return nil, err
 	}
 
 	// 更新账号
 	account.LastLoginIp = ctx.ClientIP()
 	now := time.Now()
 	account.LastLoginAt = &now
+
 	if db := gplus.UpdateById(&account); db.Error != nil {
 		return nil, errors.New("更新账号信息失败")
-	}
-
-	staff, err := logic.getStaff(*account.StaffId)
-	if err != nil {
-		return nil, err
 	}
 
 	return staff, nil

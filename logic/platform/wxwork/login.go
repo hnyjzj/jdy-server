@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/acmestack/gorm-plus/gplus"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -22,6 +21,13 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 
 		logic = wxwork_login_logic{}
 	)
+
+	tx := model.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
 	// 获取用户信息
 	user, err := jdy.OAuth.Provider.GetUserInfo(code)
@@ -75,18 +81,18 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 		// 判断是否已注册
 		if account.StaffId == nil {
 			// 查询员工
-			sq, s := gplus.NewQuery[model.Staff]()
-			sq.Eq(&s.Phone, detail.Mobile)
-			staff, sdb := gplus.SelectOne(sq)
-			// 数据库错误
-			if sdb.Error != nil && !errors.Is(sdb.Error, gorm.ErrRecordNotFound) {
-				return nil, errors.New("注册员工失败")
+			var staff model.Staff
+			err := tx.Where(&model.Staff{Phone: &detail.Mobile}).First(&staff).Error
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, errors.New("注册员工失败")
+				}
 			}
 			// 员工不存在
-			if errors.Is(sdb.Error, gorm.ErrRecordNotFound) {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
 				staff.Phone = &detail.Mobile
 
-				staff.NickName = userinfo.Name
+				staff.Nickname = userinfo.Name
 				staff.Avatar = detail.Avatar
 				staff.Email = detail.Email
 
@@ -95,14 +101,16 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 					gender = 0
 				}
 				staff.Gender = uint(gender)
-				if db := gplus.Insert(staff); db.Error != nil {
+				if db := tx.Save(&staff); db.Error != nil {
+					tx.Rollback()
 					return nil, errors.New("员工注册失败")
 				}
 			}
 
 			account.StaffId = &staff.Id
-			if db := gplus.UpdateById(&account); db.Error != nil {
-				return nil, errors.New("更新账号信息失败")
+			if db := tx.Save(&account); db.Error != nil {
+				tx.Rollback()
+				return nil, errors.New("注册员工失败，请联系管理员")
 			}
 		}
 	}
@@ -118,7 +126,7 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 	now := time.Now()
 	account.LastLoginAt = &now
 
-	if db := gplus.UpdateById(&account); db.Error != nil {
+	if db := tx.Save(&account); db.Error != nil {
 		return nil, errors.New("更新账号信息失败")
 	}
 
@@ -128,29 +136,21 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 // 获取账号
 func (wxwork_login_logic) getAccount(uid string) (*model.Account, error) {
 	// 查询账号
-	aq, a := gplus.NewQuery[model.Account]()
-	aq.Eq(&a.Username, uid).And().Eq(&a.Platform, types.PlatformTypeWxWork)
-	account, adb := gplus.SelectOne(aq)
-
-	// 账号不存在
-	if adb.Error != nil || errors.Is(adb.Error, gorm.ErrRecordNotFound) {
-		return nil, errors.New("非授权用户禁止登录")
+	var account model.Account
+	if err := model.DB.Where(&model.Account{Username: &uid, Platform: types.PlatformTypeWxWork}).First(&account).Error; err != nil {
+		return nil, errors.New("账号不存在")
 	}
 
-	return account, nil
+	return &account, nil
 }
 
 // 获取员工
 func (wxwork_login_logic) getStaff(id string) (*model.Staff, error) {
 	// 查询账号
-	sq, s := gplus.NewQuery[model.Staff]()
-	sq.Eq(&s.Id, id)
-	staff, sdb := gplus.SelectOne(sq)
-
-	// 账号不存在
-	if sdb.Error != nil || errors.Is(sdb.Error, gorm.ErrRecordNotFound) {
+	var staff model.Staff
+	if err := model.DB.Model(&model.Staff{}).First(&staff, id).Error; err != nil {
 		return nil, errors.New("员工不存在")
 	}
 
-	return staff, nil
+	return &staff, nil
 }

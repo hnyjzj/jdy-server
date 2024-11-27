@@ -27,7 +27,7 @@ type Account struct {
 	IsDisabled bool `json:"is_disabled" gorm:"comment:是否禁用"`
 
 	StaffId *string `json:"staff_id" gorm:"size:255;comment:员工ID"`
-	Staff   Staff   `json:"-" gorm:"foreignKey:StaffId;references:Id"`
+	Staff   *Staff  `json:"-" gorm:"foreignKey:StaffId;references:Id"`
 }
 
 func (u *Account) BeforeCreate(tx *gorm.DB) (err error) {

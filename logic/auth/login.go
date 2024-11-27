@@ -8,7 +8,6 @@ import (
 	"jdy/model"
 	"jdy/types"
 
-	"github.com/acmestack/gorm-plus/gplus"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,12 +26,17 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	}
 
 	// 查询用户
-	query, u := gplus.NewQuery[model.Account]()
-	query.Eq(&u.Phone, req.Phone).And().Eq(&u.Platform, types.PlatformTypeAccount)
+	var account model.Account
+	if err := model.DB.
+		Where(&model.Account{Phone: &req.Phone, Platform: types.PlatformTypeAccount}).
+		Preload("Staff").
+		First(&account).
+		Error; err != nil {
+		return nil, errors.ErrStaffNotFound
+	}
 
-	account, db := gplus.SelectOne(query)
 	// 用户不存在
-	if db.Error != nil {
+	if account.Staff == nil {
 		return nil, errors.ErrStaffNotFound
 	}
 
@@ -41,14 +45,8 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 		return nil, errors.ErrPasswordIncorrect
 	}
 
-	// 查询用户
-	staff, db := gplus.SelectById[model.Staff](account.StaffId)
-	if db.Error != nil {
-		return nil, errors.ErrStaffNotFound
-	}
-
 	// 生成token
-	res, err := l.token.GenerateToken(ctx, staff)
+	res, err := l.token.GenerateToken(ctx, account.Staff)
 	if err != nil {
 		return nil, err
 	}

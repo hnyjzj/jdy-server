@@ -32,8 +32,9 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff) (*types
 			Issuer:    "jdy",
 		},
 		Staff: &types.Staff{
-			Id:    staff.Id,
-			Phone: *staff.Phone,
+			Id:         staff.Id,
+			Phone:      *staff.Phone,
+			IsDisabled: staff.IsDisabled,
 		},
 	}
 

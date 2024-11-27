@@ -46,7 +46,7 @@ type StaffAccountReq struct {
 	Phone    string `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"`        // 手机号
 	Password string `json:"password" binding:"required"`                                    // 密码
 
-	NickName string `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
+	Nickname string `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
 	Avatar   string `json:"avatar"`                                                            // 头像
 	Email    string `json:"email"`                                                             // 邮箱
 }
@@ -60,7 +60,7 @@ type StaffWxWorkReq struct {
 type StaffRes struct {
 	Phone string `json:"phone"`
 
-	NickName string `json:"nickname"`
+	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
 	Email    string `json:"email"`
 	Gender   uint   `json:"gender"`

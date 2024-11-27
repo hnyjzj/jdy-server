@@ -52,7 +52,7 @@ func (con StaffController) Info(ctx *gin.Context) {
 
 	staff := con.GetStaff(ctx)
 
-	staffinfo, err := logic.GetStaffInfo(ctx, staff)
+	staffinfo, err := logic.GetStaffInfo(ctx, &staff.Id)
 	if err != nil {
 		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return

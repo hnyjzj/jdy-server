@@ -5,8 +5,6 @@ import (
 	"jdy/logic"
 	"jdy/model"
 	"jdy/types"
-
-	"github.com/acmestack/gorm-plus/gplus"
 )
 
 type WorkbenchLogic struct {
@@ -35,9 +33,8 @@ func (l WorkbenchLogic) AddRoute(req *types.WorkbenchListReq) (*model.Router, *e
 		route.ParentId = &req.ParentId
 	}
 
-	result := gplus.Insert(route)
-	if result.Error != nil {
-		return nil, errors.New(result.Error.Error())
+	if err := model.DB.Save(route).Error; err != nil {
+		return nil, errors.New("添加路由失败: " + err.Error())
 	}
 
 	return route, nil

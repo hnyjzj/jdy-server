@@ -1,10 +1,5 @@
 package model
 
-import (
-	"github.com/acmestack/gorm-plus/gplus"
-	"gorm.io/gorm"
-)
-
 type Router struct {
 	SoftDelete
 
@@ -29,18 +24,16 @@ func init() {
 
 // 获取树形结构
 func (Router) GetTree(Pid *string) ([]*Router, error) {
-	query, u := gplus.NewQuery[Router]()
+	var list []*Router
+	db := DB
 	if Pid != nil {
-		query.Eq(&u.ParentId, Pid)
+		db = db.Where(&Router{ParentId: Pid})
 	} else {
-		query.IsNull(&u.ParentId)
+		db = db.Where("parent_id IS NULL")
 	}
-
-	list, db := gplus.SelectList(query)
-	if db.Error != nil && db.Error != gorm.ErrRecordNotFound {
-		return nil, db.Error
+	if err := db.Find(&list).Error; err != nil {
+		return nil, err
 	}
-
 	for _, v := range list {
 		children, err := v.GetTree(&v.Id)
 		if err != nil {

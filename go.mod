@@ -29,7 +29,6 @@ require (
 )
 
 require (
-	github.com/acmestack/gorm-plus v0.1.5
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/bytedance/sonic v1.12.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect

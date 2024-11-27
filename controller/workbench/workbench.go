@@ -18,14 +18,14 @@ func (con WorkbenchController) List(ctx *gin.Context) {
 	var (
 		logic = workbench.WorkbenchLogic{}
 	)
-	staffinfo, err := logic.GetList()
+	workbenchs, err := logic.GetList()
 	if err != nil {
 		con.ErrorLogic(ctx, err)
 		return
 	}
 
 	// 获取用户信息
-	con.Success(ctx, "ok", staffinfo)
+	con.Success(ctx, "ok", workbenchs)
 }
 
 // 添加入口

@@ -12,14 +12,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type wxwork_login_logic struct{}
+type wxworkLoginLogic struct{}
 
 // 企业微信授权登录
 func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error) {
 	var (
 		jdy = config.NewWechatService().JdyWork
 
-		logic = wxwork_login_logic{}
+		logic = wxworkLoginLogic{}
 	)
 
 	tx := model.DB.Begin()
@@ -136,7 +136,7 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 }
 
 // 获取账号
-func (wxwork_login_logic) getAccount(uid string) (*model.Account, error) {
+func (wxworkLoginLogic) getAccount(uid string) (*model.Account, error) {
 	// 查询账号
 	var account model.Account
 	if err := model.DB.Where(&model.Account{Username: &uid, Platform: types.PlatformTypeWxWork}).First(&account).Error; err != nil {
@@ -147,7 +147,7 @@ func (wxwork_login_logic) getAccount(uid string) (*model.Account, error) {
 }
 
 // 获取员工
-func (wxwork_login_logic) getStaff(id string) (*model.Staff, error) {
+func (wxworkLoginLogic) getStaff(id string) (*model.Staff, error) {
 	// 查询账号
 	var staff model.Staff
 	if err := model.DB.Model(&model.Staff{}).First(&staff, id).Error; err != nil {

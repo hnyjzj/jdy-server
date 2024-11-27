@@ -118,6 +118,7 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 	// 查询员工
 	staff, err := logic.getStaff(*account.StaffId)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
@@ -127,10 +128,11 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 	account.LastLoginAt = &now
 
 	if db := tx.Save(&account); db.Error != nil {
+		tx.Rollback()
 		return nil, errors.New("更新账号信息失败")
 	}
 
-	return staff, nil
+	return staff, tx.Commit().Error
 }
 
 // 获取账号

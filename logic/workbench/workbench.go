@@ -25,7 +25,7 @@ func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
 
 // 添加路由
 func (l WorkbenchLogic) AddRoute(req *types.WorkbenchListReq) (*model.Router, *errors.Errors) {
-	route := model.Router{
+	route := &model.Router{
 		Title: req.Title,
 		Path:  req.Path,
 		Icon:  req.Icon,
@@ -35,10 +35,10 @@ func (l WorkbenchLogic) AddRoute(req *types.WorkbenchListReq) (*model.Router, *e
 		route.ParentId = &req.ParentId
 	}
 
-	result := gplus.Insert(&route)
+	result := gplus.Insert(route)
 	if result.Error != nil {
 		return nil, errors.New(result.Error.Error())
 	}
 
-	return &route, nil
+	return route, nil
 }

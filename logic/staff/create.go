@@ -44,6 +44,7 @@ func (l *StaffLogic) CreateAccount(ctx *gin.Context, req *types.StaffReq) *error
 // 创建账号（账号密码登录）
 func (l *StaffLogic) account(ctx *gin.Context, req *types.StaffAccountReq) *errors.Errors {
 	// 查询账号
+	gplus.Begin()
 	aq, a := gplus.NewQuery[model.Account]()
 	aq.Eq(&a.Platform, types.PlatformTypeAccount).And().
 		Eq(&a.Phone, req.Phone)
@@ -81,7 +82,7 @@ func (l *StaffLogic) account(ctx *gin.Context, req *types.StaffAccountReq) *erro
 			Avatar:   req.Avatar,
 			Email:    req.Email,
 		}
-		result := gplus.Insert(&staff)
+		result := gplus.Insert(staff)
 		if result.Error != nil {
 			return errors.New("创建员工失败")
 		}
@@ -90,7 +91,7 @@ func (l *StaffLogic) account(ctx *gin.Context, req *types.StaffAccountReq) *erro
 	}
 
 	// 创建账号
-	result := gplus.Insert(&account)
+	result := gplus.Insert(account)
 	if result.Error != nil {
 		return errors.New("创建账号失败")
 	}
@@ -140,7 +141,7 @@ func (l *StaffLogic) wxwork(ctx *gin.Context, req *types.StaffWxWorkReq) *errors
 		}
 		account.Gender = uint(gender)
 
-		if result := gplus.Insert(&account); result.Error != nil {
+		if result := gplus.Insert(account); result.Error != nil {
 			return errors.New(fmt.Sprintf("创建账号失败: %s", userid))
 		}
 

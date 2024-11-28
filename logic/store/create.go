@@ -15,7 +15,18 @@ func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 		wxwork = wxwork.WxWorkLogic{}
 	)
 
-	var source_id int
+	store := &model.Store{
+		ParentId: req.ParentId,
+
+		Name:     req.Name,
+		Address:  req.Address,
+		Contact:  req.Contact,
+		Logo:     req.Logo,
+		Sort:     req.Order,
+		Province: req.Province,
+		City:     req.City,
+		District: req.District,
+	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 创建企业微信部门
@@ -24,30 +35,17 @@ func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 			if err != nil {
 				return errors.New("同步企业微信失败: " + err.Error())
 			}
-			source_id = id
+			store.WxworkId = id
 		}
 
-		if err := tx.Create(&model.Store{
-			ParentId: req.ParentId,
-
-			Name:     req.Name,
-			Address:  req.Address,
-			Contact:  req.Contact,
-			Logo:     req.Logo,
-			Order:    req.Order,
-			Province: req.Province,
-			City:     req.City,
-			District: req.District,
-
-			SourceId: source_id,
-		}).Error; err != nil {
+		if err := tx.Create(store).Error; err != nil {
 			return err
 		}
 
 		return nil
 	}); err != nil {
-		if req.SyncWxwork && source_id != 0 {
-			if err := wxwork.StoreDelete(ctx, source_id); err != nil {
+		if req.SyncWxwork && store.WxworkId != 0 {
+			if err := wxwork.StoreDelete(ctx, store.WxworkId); err != nil {
 				return errors.New("同步企业微信失败: " + err.Error())
 			}
 		}

@@ -12,11 +12,19 @@ import (
 func (w *WxWorkLogic) StoreCreate(ctx *gin.Context, req *types.StoreCreateReq) (id int, err error) {
 	wxwork := config.NewWechatService().ContactsWork
 
-	res, err := wxwork.Department.Create(ctx, &request.RequestDepartmentInsert{
+	params := &request.RequestDepartmentInsert{
 		Name:     req.Name,
-		ParentID: req.SourceId,
-		Order:    req.Order,
-	})
+		Order:    1,
+		ParentID: 1,
+	}
+	if req.Order > 0 {
+		params.Order = req.Order
+	}
+	if req.WxworkId > 0 {
+		params.ParentID = req.WxworkId
+	}
+
+	res, err := wxwork.Department.Create(ctx, params)
 	if err != nil || res.ErrCode != 0 {
 		return 0, errors.New(res.ErrMsg)
 	}

@@ -2,7 +2,6 @@ package types
 
 type StoreCreateReq struct {
 	ParentId *string `json:"parent_id"`             // 父级门店id
-	SourceId int     `json:"source_id"`             // 来源门店id
 	Order    int     `json:"order" binding:"min=1"` // 排序
 
 	Name     string `json:"name" binding:"required"`     // 门店名称
@@ -14,4 +13,5 @@ type StoreCreateReq struct {
 	Logo     string `json:"logo"`                        // 门店logo
 
 	SyncWxwork bool `json:"sync_wxwork"` // 是否同步到企业微信
+	WxworkId   int  `json:"wxwork_id"`
 }

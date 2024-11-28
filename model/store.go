@@ -9,14 +9,41 @@ type Store struct {
 	Address  string `json:"address" gorm:"size:500;comment:地址"`
 	Contact  string `json:"contact" gorm:"size:255;comment:联系人"`
 	Logo     string `json:"logo" gorm:"size:255;comment:logo"`
-	Order    int    `json:"order" gorm:"size:10;comment:排序"`
+	Sort     int    `json:"sort" gorm:"size:10;comment:排序"`
 	Province string `json:"province" gorm:"size:255;comment:省份"`
 	City     string `json:"city" gorm:"size:255;comment:城市"`
 	District string `json:"district" gorm:"size:255;comment:区域"`
 
-	SourceId int `json:"store_id" gorm:"size:255;comment:门店id"`
+	WxworkId int `json:"wxwork_id" gorm:"size:10;comment:企业微信id"`
 
 	Children []*Store `json:"children,omitempty" gorm:"-"`
+}
+
+// 获取树形结构
+func (Store) GetTree(Pid *string) ([]*Store, error) {
+	var list []*Store
+	db := DB
+	if Pid != nil {
+		db = db.Where(&Store{ParentId: Pid})
+	} else {
+		db = db.Where("parent_id IS NULL")
+	}
+	db = db.Order("sort DESC")
+	if err := db.Find(&list).Error; err != nil {
+		return nil, err
+	}
+	for _, v := range list {
+		children, err := v.GetTree(&v.Id)
+		if err != nil {
+			return nil, err
+		}
+		if len(children) == 0 {
+			continue
+		}
+		v.Children = children
+	}
+
+	return list, nil
 }
 
 func init() {

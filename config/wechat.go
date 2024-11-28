@@ -15,7 +15,8 @@ type WechatWork struct {
 	CorpID string `mapstructure:"corp_id"` // 企业ID
 	Secret string `mapstructure:"secret"`  // 通讯录秘钥
 
-	Jdy agent `mapstructure:"jdy"` // 应用
+	Jdy      agent `mapstructure:"jdy"`      // 应用
+	Contacts agent `mapstructure:"contacts"` // 通讯录
 }
 
 type agent struct {
@@ -29,12 +30,14 @@ type agent struct {
 }
 
 type WechatService struct {
-	JdyWork *work.Work
+	JdyWork      *work.Work
+	ContactsWork *work.Work
 }
 
 func NewWechatService() *WechatService {
 	return &WechatService{
-		JdyWork: newJdyWork(),
+		JdyWork:      newJdyWork(),
+		ContactsWork: newContactsWork(),
 	}
 }
 
@@ -50,8 +53,36 @@ func newJdyWork() *work.Work {
 		},
 		Log: work.Log{
 			Level:  "debug",
-			File:   "./logs/wechat/wxwork_info.log",
-			Error:  "./logs/wechat/wxwork_error.log",
+			File:   "./logs/wechat/wxwork_info_jdy.log",
+			Error:  "./logs/wechat/wxwork_error_jdy.log",
+			Stdout: false, //  是否打印在终端
+		},
+		Cache: kernel.NewRedisClient(&kernel.UniversalOptions{
+			Addrs:    []string{fmt.Sprintf("%s:%d", Config.Redis.Host, Config.Redis.Port)},
+			Password: Config.Redis.Password,
+			DB:       Config.Redis.Db + 1,
+		}),
+		HttpDebug: false,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	return WeComApp
+}
+func newContactsWork() *work.Work {
+	WeComApp, err := work.NewWork(&work.UserConfig{
+		CorpID: Config.Wechat.Work.CorpID,          // 企业微信的app id，所有企业微信共用一个。
+		Secret: Config.Wechat.Work.Contacts.Secret, // 通讯录的secret
+		OAuth: work.OAuth{
+			Callback: Config.Wechat.Work.Contacts.Callback,
+			Scopes:   []string{"snsapi_privateinfo"},
+		},
+		Log: work.Log{
+			Level:  "debug",
+			File:   "./logs/wechat/wxwork_info_contacts.log",
+			Error:  "./logs/wechat/wxwork_error_contacts.log",
 			Stdout: false, //  是否打印在终端
 		},
 		Cache: kernel.NewRedisClient(&kernel.UniversalOptions{

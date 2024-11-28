@@ -9,6 +9,6 @@ type LoginReq struct {
 }
 
 type LoginOAuthReq struct {
-	Code  string `json:"code" binding:"required"`  // 授权码
-	State string `json:"state" binding:"required"` // 状态码
+	Code  string       `json:"code" binding:"required"`  // 授权码
+	State PlatformType `json:"state" binding:"required"` // 状态码
 }

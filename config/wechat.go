@@ -34,12 +34,12 @@ type WechatService struct {
 
 func NewWechatService() *WechatService {
 	return &WechatService{
-		JdyWork: NewJdyWork(),
+		JdyWork: newJdyWork(),
 	}
 }
 
 // @see https://powerwechat.artisan-cloud.com/zh/wecom/
-func NewJdyWork() *work.Work {
+func newJdyWork() *work.Work {
 	WeComApp, err := work.NewWork(&work.UserConfig{
 		CorpID:  Config.Wechat.Work.CorpID,     // 企业微信的app id，所有企业微信共用一个。
 		AgentID: Config.Wechat.Work.Jdy.Id,     // 内部应用的app id

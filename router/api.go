@@ -3,7 +3,8 @@ package router
 import (
 	"jdy/controller/auth"
 	"jdy/controller/common"
-	"jdy/controller/user"
+	"jdy/controller/platform"
+	"jdy/controller/staff"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
 
@@ -25,9 +26,10 @@ func Api(g *gin.Engine) {
 			}
 
 			// 平台
-			platforms := r.Group("/")
+			platforms := root.Group("/platform")
 			{
-				platforms.POST("/oauth", auth.OAuthController{}.GetOauthUri) // 获取授权链接
+				platforms.POST("/oauth", platform.PlatformController{}.OauthUri) // 获取授权链接
+				platforms.POST("/jssdk", platform.PlatformController{}.JSSDK)    // 获取JSSDK
 			}
 		}
 
@@ -38,12 +40,13 @@ func Api(g *gin.Engine) {
 			auths.POST("/oauth", auth.LoginController{}.OAuth) // 授权登录
 		}
 
-		users := r.Group("/user")
+		// 员工
+		staffs := r.Group("/staff")
 		{
-			users.Use(middlewares.JWTMiddleware())
+			staffs.Use(middlewares.JWTMiddleware())
 			{
-				users.POST("/create", user.UserController{}.Create) // 创建用户
-				users.GET("/info", user.UserController{}.Info)      // 获取用户信息
+				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
+				staffs.GET("/info", staff.StaffController{}.Info)      // 获取员工信息
 			}
 		}
 

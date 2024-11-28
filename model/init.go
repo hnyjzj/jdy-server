@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/acmestack/gorm-plus/gplus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -39,10 +38,6 @@ func Init() {
 
 	// 执行迁移
 	migrator()
-
-	// 初始化gplus
-	// @see https://github.com/acmestack/gorm-plus/wiki
-	gplus.Init(DB)
 }
 
 // 需要迁移的表

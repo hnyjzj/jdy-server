@@ -2,46 +2,27 @@ package controller
 
 import (
 	"jdy/errors"
-	"jdy/model"
-	"net/http"
+	"jdy/types"
 
-	"github.com/acmestack/gorm-plus/gplus"
 	"github.com/gin-gonic/gin"
 )
 
 type BaseController struct{}
 
 // 获取 token 中的用户信息
-func (BaseController) GetUser(ctx *gin.Context) *model.User {
+func (con BaseController) GetStaff(ctx *gin.Context) *types.Staff {
 	// 获取 token 中的用户信息
-	userInfo, ok := ctx.MustGet("user").(model.User)
-	if !ok {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"code":    errors.ErrUserNotFound.Code,
-			"message": errors.ErrUserNotFound.Message,
-		})
-		ctx.Abort()
-		return nil
-	}
-	// 查询用户信息
-	user, db := gplus.SelectById[model.User](userInfo.Id)
-	if db.Error != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"code":    errors.ErrUserNotFound.Code,
-			"message": errors.ErrUserNotFound.Message,
-		})
-		ctx.Abort()
+	staffInfo, ok := ctx.MustGet("staff").(*types.Staff)
+	// 检查用户是否正确
+	if staffInfo == nil || !ok {
+		con.Exception(ctx, errors.ErrStaffNotFound.Error())
 		return nil
 	}
 	// 检查用户是否被禁用
-	if user.IsDisabled {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"code":    errors.ErrUserDisabled.Code,
-			"message": errors.ErrUserDisabled.Message,
-		})
-		ctx.Abort()
+	if staffInfo.IsDisabled {
+		con.Exception(ctx, errors.ErrStaffNotFound.Error())
 		return nil
 	}
 
-	return user
+	return staffInfo
 }

@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"jdy/config"
 	"jdy/logic"
 	"jdy/service/redis"
 	"time"
@@ -26,10 +27,14 @@ func (l *CaptchaLogic) ImageCaptcha() (*CaptchaRes, error) {
 		err error
 	)
 
+	var val string
 	// 生成图片验证码
-	res.Id, res.Code, _, err = l.CreateImage()
+	res.Id, res.Code, val, err = l.CreateImage()
 	if err != nil {
 		return nil, err
+	}
+	if config.Config.Server.Mode == "debug" {
+		res.Val = val
 	}
 
 	return res, nil

@@ -8,7 +8,7 @@ import (
 )
 
 // 成功响应
-func (con BaseController) Success(c *gin.Context, message string, data interface{}) {
+func (con BaseController) Success(c *gin.Context, message string, data any) {
 	response := gin.H{
 		"code":    http.StatusOK,
 		"message": message,

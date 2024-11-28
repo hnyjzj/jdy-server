@@ -1,16 +1,14 @@
 package auth
 
 import (
-	"jdy/config"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/logic/common"
+	"jdy/logic/platform/wxwork"
 	"jdy/model"
 	"jdy/types"
 
-	"github.com/acmestack/gorm-plus/gplus"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type LoginLogic struct {
@@ -28,21 +26,27 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	}
 
 	// 查询用户
-	query, u := gplus.NewQuery[model.User]()
-	query.Eq(&u.Phone, req.Phone)
-	user, db := gplus.SelectOne(query)
+	var account model.Account
+	if err := model.DB.
+		Where(&model.Account{Phone: &req.Phone, Platform: types.PlatformTypeAccount}).
+		Preload("Staff").
+		First(&account).
+		Error; err != nil {
+		return nil, errors.ErrStaffNotFound
+	}
+
 	// 用户不存在
-	if db.Error != nil {
-		return nil, errors.ErrUserNotFound
+	if account.Staff == nil {
+		return nil, errors.ErrStaffNotFound
 	}
 
 	// 密码错误
-	if user.VerifyPassword(req.Password) != nil {
+	if account.VerifyPassword(req.Password) != nil {
 		return nil, errors.ErrPasswordIncorrect
 	}
 
 	// 生成token
-	res, err := l.token.GenerateToken(ctx, user)
+	res, err := l.token.GenerateToken(ctx, account.Staff)
 	if err != nil {
 		return nil, err
 	}
@@ -50,93 +54,21 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	return res, err
 }
 
-// 企业微信登录
+// 授权登录
 func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.TokenRes, error) {
 	switch req.State {
-	case "wxwork_auth":
-		res, err := l.oauth_wxwork_auth(ctx, req.Code)
+	case types.PlatformTypeWxWork:
+		var (
+			wxwork wxwork.WxWorkLogic
+		)
+
+		staff, err := wxwork.Login(ctx, req.Code)
 		if err != nil {
 			return nil, err
 		}
-		return res, err
-	case "wxwork_qrcode":
-		res, err := l.oauth_wxwork_qrcode(ctx, req.Code)
-		if err != nil {
-			return nil, err
-		}
-		return res, err
+
+		return l.token.GenerateToken(ctx, staff)
 	default:
 		return nil, errors.New("错误的授权方式")
 	}
-}
-
-// 企业微信授权登录
-func (l *LoginLogic) oauth_wxwork_auth(ctx *gin.Context, code string) (*types.TokenRes, error) {
-	var (
-		wxwork = config.NewWechatService().JdyWork
-	)
-
-	// 获取用户信息
-	userinfo, err := wxwork.OAuth.Provider.GetUserInfo(code)
-	if err != nil {
-		return nil, errors.New("获取企业微信用户信息失败")
-	}
-	// 获取用户详情
-	detail, err := wxwork.OAuth.Provider.GetUserDetail(userinfo.UserTicket)
-	if err != nil {
-		return nil, errors.New("获取企业微信用户详情失败")
-	}
-	if detail.Mobile == "" {
-		return nil, errors.New("非企业微信授权用户禁止登录")
-	}
-
-	// 查询用户
-	query, u := gplus.NewQuery[model.User]()
-	query.Eq(&u.Phone, detail.Mobile)
-	user, db := gplus.SelectOne(query)
-	// 用户不存在
-	if db.Error != nil || errors.Is(db.Error, gorm.ErrRecordNotFound) {
-		return nil, errors.ErrUserNotFound
-	}
-
-	// 生成token
-	res, err := l.token.GenerateToken(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, err
-}
-
-// 企业微信扫码登录
-func (l *LoginLogic) oauth_wxwork_qrcode(ctx *gin.Context, code string) (*types.TokenRes, error) {
-	var (
-		wxwork = config.NewWechatService().JdyWork
-	)
-
-	// 获取用户信息
-	userinfo, err := wxwork.OAuth.Provider.GetUserInfo(code)
-	if err != nil {
-		return nil, errors.New("获取企业微信用户信息失败")
-	}
-	if userinfo.UserID == "" {
-		return nil, errors.New("非企业微信授权用户禁止登录")
-	}
-
-	// 查询用户
-	query, u := gplus.NewQuery[model.User]()
-	query.Eq(&u.Username, userinfo.UserID)
-	user, db := gplus.SelectOne(query)
-	// 用户不存在
-	if db.Error != nil || errors.Is(db.Error, gorm.ErrRecordNotFound) {
-		return nil, errors.New("用户不存在")
-	}
-
-	// 生成token
-	res, err := l.token.GenerateToken(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, err
 }

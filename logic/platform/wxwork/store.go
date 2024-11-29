@@ -17,8 +17,8 @@ func (w *WxWorkLogic) StoreCreate(ctx *gin.Context, req *types.StoreCreateReq) (
 		Order:    1,
 		ParentID: 1,
 	}
-	if req.Order > 0 {
-		params.Order = req.Order
+	if req.Sort > 0 {
+		params.Order = req.Sort
 	}
 	if req.WxworkId > 0 {
 		params.ParentID = req.WxworkId

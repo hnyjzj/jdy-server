@@ -1,8 +1,8 @@
 package types
 
 type StoreCreateReq struct {
-	ParentId *string `json:"parent_id"`             // 父级门店id
-	Order    int     `json:"order" binding:"min=1"` // 排序
+	ParentId *string `json:"parent_id"`            // 父级门店id
+	Sort     int     `json:"sort" binding:"min=0"` // 排序
 
 	Name     string `json:"name" binding:"required"`     // 门店名称
 	Province string `json:"province" binding:"required"` // 省份

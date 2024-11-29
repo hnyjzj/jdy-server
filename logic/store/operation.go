@@ -54,3 +54,35 @@ func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 
 	return nil
 }
+
+// 删除门店
+func (l *StoreLogic) Delete(ctx *gin.Context, req *types.StoreDeleteReq) error {
+	var (
+		wxwork = wxwork.WxWorkLogic{}
+	)
+
+	// 查询门店信息
+	store := &model.Store{}
+	if err := model.DB.First(store, req.Id).Error; err != nil {
+		return errors.New("门店不存在或已被删除")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 删除企业微信部门
+		if req.SyncWxwork && store.WxworkId != 0 {
+			if err := wxwork.StoreDelete(ctx, store.WxworkId); err != nil {
+				return errors.New("同步企业微信失败: " + err.Error())
+			}
+		}
+
+		if err := tx.Delete(store).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}

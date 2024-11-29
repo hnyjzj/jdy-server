@@ -16,6 +16,12 @@ type StoreCreateReq struct {
 	WxworkId   int  `json:"wxwork_id"`
 }
 
+type StoreDeleteReq struct {
+	Id string `form:"id" binding:"required"`
+
+	SyncWxwork bool `json:"sync_wxwork"` // 是否同步到企业微信
+}
+
 type StoreInfoReq struct {
 	Id string `form:"id" binding:"required"`
 }

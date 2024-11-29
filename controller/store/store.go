@@ -2,7 +2,9 @@ package store
 
 import (
 	"jdy/controller"
+	"jdy/errors"
 	"jdy/logic/store"
+	"jdy/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,4 +27,27 @@ func (con StoreController) List(ctx *gin.Context) {
 	}
 
 	con.Success(ctx, "ok", list)
+}
+
+// 门店详情
+func (con StoreController) Info(ctx *gin.Context) {
+	var (
+		req   types.StoreInfoReq
+		logic = store.StoreLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 查询门店详情
+	info, err := logic.Info(ctx, &req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", info)
 }

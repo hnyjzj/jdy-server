@@ -17,6 +17,8 @@ type Store struct {
 	WxworkId int `json:"wxwork_id" gorm:"size:10;comment:企业微信id"`
 
 	Children []*Store `json:"children,omitempty" gorm:"-"`
+
+	Staffs []Staff `json:"staffs" gorm:"many2many:stores_staffs;"`
 }
 
 // 获取树形结构

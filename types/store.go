@@ -15,3 +15,7 @@ type StoreCreateReq struct {
 	SyncWxwork bool `json:"sync_wxwork"` // 是否同步到企业微信
 	WxworkId   int  `json:"wxwork_id"`
 }
+
+type StoreInfoReq struct {
+	Id string `form:"id" binding:"required"`
+}

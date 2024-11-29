@@ -68,6 +68,7 @@ func Api(g *gin.Engine) {
 			{
 				stores.POST("/create", store.StoreController{}.Create) // 创建门店
 				stores.GET("/list", store.StoreController{}.List)      // 门店列表
+				stores.GET("/info", store.StoreController{}.Info)      // 门店详情
 			}
 		}
 	}

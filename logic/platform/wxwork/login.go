@@ -39,9 +39,8 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 	if err != nil || userinfo.UserID == "" {
 		return nil, errors.New("获取企业微信用户信息失败")
 	}
-
 	// 获取账号
-	account, err := logic.getAccount(user.UserID)
+	account, err := logic.getAccount(tx, user.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +81,13 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 		if account.StaffId == nil {
 			// 查询员工
 			var staff model.Staff
-			err := tx.Where(&model.Staff{Phone: &detail.Mobile}).First(&staff).Error
-			if err != nil {
+			if err := tx.Where(&model.Staff{Phone: &detail.Mobile}).First(&staff).Error; err != nil {
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, errors.New("注册员工失败")
 				}
 			}
 			// 员工不存在
-			if errors.Is(err, gorm.ErrRecordNotFound) {
+			if staff.Id == "" {
 				staff.Phone = &detail.Mobile
 
 				staff.Nickname = userinfo.Name
@@ -101,14 +99,14 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 					gender = 0
 				}
 				staff.Gender = uint(gender)
-				if db := tx.Save(&staff); db.Error != nil {
+				if err := tx.Save(&staff).Error; err != nil {
 					tx.Rollback()
 					return nil, errors.New("员工注册失败")
 				}
 			}
 
 			account.StaffId = &staff.Id
-			if db := tx.Save(&account); db.Error != nil {
+			if err := tx.Save(&account).Error; err != nil {
 				tx.Rollback()
 				return nil, errors.New("注册员工失败，请联系管理员")
 			}
@@ -116,7 +114,7 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 	}
 
 	// 查询员工
-	staff, err := logic.getStaff(*account.StaffId)
+	staff, err := logic.getStaff(tx, account.StaffId)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -136,10 +134,10 @@ func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error)
 }
 
 // 获取账号
-func (wxworkLoginLogic) getAccount(uid string) (*model.Account, error) {
+func (wxworkLoginLogic) getAccount(tx *gorm.DB, uid string) (*model.Account, error) {
 	// 查询账号
 	var account model.Account
-	if err := model.DB.Where(&model.Account{Username: &uid, Platform: types.PlatformTypeWxWork}).First(&account).Error; err != nil {
+	if err := tx.Where(&model.Account{Username: &uid, Platform: types.PlatformTypeWxWork}).First(&account).Error; err != nil {
 		return nil, errors.New("账号不存在")
 	}
 
@@ -147,10 +145,10 @@ func (wxworkLoginLogic) getAccount(uid string) (*model.Account, error) {
 }
 
 // 获取员工
-func (wxworkLoginLogic) getStaff(id string) (*model.Staff, error) {
+func (wxworkLoginLogic) getStaff(tx *gorm.DB, id *string) (*model.Staff, error) {
 	// 查询账号
 	var staff model.Staff
-	if err := model.DB.Model(&model.Staff{}).First(&staff, id).Error; err != nil {
+	if err := tx.Model(&model.Staff{}).First(&staff, id).Error; err != nil {
 		return nil, errors.New("员工不存在")
 	}
 

@@ -11,6 +11,12 @@ func TagWhere(s interface{}) (map[string]map[string]interface{}, error) {
 
 	result := make(map[string]map[string]interface{})
 
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		tag := field.Tag

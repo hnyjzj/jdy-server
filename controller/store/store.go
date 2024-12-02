@@ -6,7 +6,6 @@ import (
 	"jdy/errors"
 	"jdy/logic/store"
 	"jdy/types"
-	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -60,26 +59,4 @@ func (con StoreController) Info(ctx *gin.Context) {
 	}
 
 	con.Success(ctx, "ok", info)
-}
-
-// 门店筛选条件
-func (con StoreController) Where(ctx *gin.Context) {
-	var (
-		where types.StoreWhereReq
-	)
-
-	// 门店筛选条件
-	res, err := utils.TagWhere(where)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	if parent_id, exists := res["parent_id"]; exists {
-		if _, exists := parent_id["enum"]; !exists {
-			parent_id["enum"] = make([]string, 0)
-		}
-	}
-
-	con.Success(ctx, "ok", res)
 }

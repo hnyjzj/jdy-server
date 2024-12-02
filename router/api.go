@@ -71,7 +71,6 @@ func Api(g *gin.Engine) {
 				stores.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
 				stores.POST("/list", store.StoreController{}.List)       // 门店列表
 				stores.GET("/info", store.StoreController{}.Info)        // 门店详情
-				stores.GET("/where", store.StoreController{}.Where)      // 门店筛选条件
 			}
 		}
 	}

@@ -11,13 +11,18 @@ import (
 type StoreLogic struct{}
 
 // 门店列表
-func (l *StoreLogic) List(ctx *gin.Context) ([]*model.Store, error) {
+func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) ([]*model.Store, error) {
 	var (
 		store model.Store
 	)
 
-	list, err := store.GetTree(nil)
-	if err != nil {
+	db := model.DB.Model(&store)
+	db = store.WhereCondition(db, &req.Where)
+	db = db.Order("sort desc, created_at desc")
+	db = model.PageCondition(db, req.Page, req.Limit)
+
+	var list []*model.Store
+	if err := db.Find(&list).Error; err != nil {
 		return nil, errors.New("获取门店列表失败: " + err.Error())
 	}
 

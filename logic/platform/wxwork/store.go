@@ -34,6 +34,30 @@ func (w *WxWorkLogic) StoreCreate(ctx *gin.Context, req *types.StoreCreateReq) (
 	return id, nil
 }
 
+func (w *WxWorkLogic) StoreUpdate(ctx *gin.Context, id int, req *types.StoreUpdateReq) error {
+	wxwork := config.NewWechatService().ContactsWork
+
+	params := &request.RequestDepartmentUpdate{
+		ID:       id,
+		Name:     req.Name,
+		Order:    1,
+		ParentID: 1,
+	}
+	if req.Sort > 0 {
+		params.Order = req.Sort
+	}
+	if req.WxworkId > 0 {
+		params.ParentID = req.WxworkId
+	}
+
+	res, err := wxwork.Department.Update(ctx, params)
+	if err != nil || res.ErrCode != 0 {
+		return errors.New(res.ErrMsg)
+	}
+
+	return nil
+}
+
 func (w *WxWorkLogic) StoreDelete(ctx *gin.Context, id int) error {
 	wxwork := config.NewWechatService().ContactsWork
 

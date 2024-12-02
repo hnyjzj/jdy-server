@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/types"
 
 	"gorm.io/gorm"
@@ -32,22 +33,22 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhereReq) *gorm.DB {
 		db = db.Where("parent_id = ?", query.ParentId)
 	}
 	if query.Name != nil {
-		db = db.Where("name LIKE ?", "%"+*query.Name+"%")
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", *query.Name))
 	}
 	if query.Address != "" {
-		db = db.Where("address LIKE ?", "%"+query.Address+"%")
+		db = db.Where("address LIKE ?", fmt.Sprintf("%%%s%%", query.Address))
 	}
 	if query.Contact != "" {
-		db = db.Where("contact LIKE ?", "%"+query.Contact+"%")
+		db = db.Where("contact LIKE ?", fmt.Sprintf("%%%s%%", query.Contact))
 	}
 	if query.Province != nil {
-		db = db.Where("province LIKE ?", "%"+*query.Province+"%")
+		db = db.Where("province LIKE ?", fmt.Sprintf("%%%s%%", *query.Province))
 	}
 	if query.City != nil {
-		db = db.Where("city LIKE ?", "%"+*query.City+"%")
+		db = db.Where("city LIKE ?", fmt.Sprintf("%%%s%%", *query.City))
 	}
 	if query.District != nil {
-		db = db.Where("district LIKE ?", "%"+*query.District+"%")
+		db = db.Where("district LIKE ?", fmt.Sprintf("%%%s%%", *query.District))
 	}
 	if query.WxworkId != 0 {
 		db = db.Where("wxwork_id = ?", query.WxworkId)

@@ -22,7 +22,7 @@ func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
 }
 
 // 添加路由
-func (l WorkbenchLogic) AddRoute(req *types.WorkbenchListReq) (*model.Router, *errors.Errors) {
+func (l WorkbenchLogic) AddRoute(req *types.WorkbenchAddReq) (*model.Router, *errors.Errors) {
 	route := model.Router{
 		Title: req.Title,
 		Path:  req.Path,
@@ -55,5 +55,19 @@ func (l WorkbenchLogic) DelRoute(id string) *errors.Errors {
 	if err := model.DB.Delete(&route).Error; err != nil {
 		return errors.New("删除失败: " + err.Error())
 	}
+	return nil
+}
+
+// 更新路由
+func (l WorkbenchLogic) UpdateRoute(req *types.WorkbenchUpdateReq) *errors.Errors {
+	var route model.Router
+	if err := model.DB.First(&route, req.Id).Error; err != nil {
+		return errors.New("更新失败，不存在或已被删除")
+	}
+
+	if err := model.DB.Model(&route).Updates(&req).Error; err != nil {
+		return errors.New("更新失败: " + err.Error())
+	}
+
 	return nil
 }

@@ -57,8 +57,9 @@ func Api(g *gin.Engine) {
 			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
 			workbenchs.Use(middlewares.JWTMiddleware())
 			{
-				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)   // 工作台添加
-				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del) // 工作台删除
+				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)      // 工作台添加
+				workbenchs.PUT("/update", workbench.WorkbenchController{}.Update) // 工作台更新
+				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del)    // 工作台删除
 			}
 		}
 

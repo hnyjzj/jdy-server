@@ -22,7 +22,7 @@ type Model struct {
 // 软删除模型
 type SoftDelete struct {
 	Model
-	DeletedAt *time.Time `json:"-" sql:"index" gorm:"size:0;comment:删除时间"`
+	DeletedAt gorm.DeletedAt `json:"-" sql:"index" gorm:"size:0;comment:删除时间"`
 }
 
 func PageCondition(db *gorm.DB, page, limit int) *gorm.DB {

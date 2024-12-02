@@ -12,7 +12,7 @@ type Account struct {
 	SoftDelete
 	Platform types.PlatformType `json:"platform" gorm:"index;comment:平台"`
 
-	Phone    *string `json:"phone" gorm:"uniqueIndex;size:11;comment:手机号"`
+	Phone    *string `json:"phone" gorm:"index;size:11;comment:手机号"`
 	Username *string `json:"username" gorm:"index;comment:用户名"`
 	Password *string `json:"-" gorm:"size:255;comment:密码"`
 

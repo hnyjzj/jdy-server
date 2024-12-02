@@ -5,6 +5,7 @@ import (
 	"jdy/controller/common"
 	"jdy/controller/platform"
 	"jdy/controller/staff"
+	"jdy/controller/store"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
 
@@ -58,7 +59,19 @@ func Api(g *gin.Engine) {
 				workbenchs.POST("/add", workbench.WorkbenchController{}.Add) // 工作台添加
 			}
 			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
+		}
 
+		// 门店
+		stores := r.Group("/store")
+		{
+			stores.Use(middlewares.JWTMiddleware())
+			{
+				stores.POST("/create", store.StoreController{}.Create)   // 创建门店
+				stores.PUT("/update", store.StoreController{}.Update)    // 门店更新
+				stores.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
+				stores.POST("/list", store.StoreController{}.List)       // 门店列表
+				stores.GET("/info", store.StoreController{}.Info)        // 门店详情
+			}
 		}
 	}
 }

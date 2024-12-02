@@ -38,13 +38,13 @@ type StoreListReq struct {
 }
 
 type StoreWhereReq struct {
-	Name     *string `json:"name" type:"text" desc:"门店名称"`       // 门店名称
-	Province *string `json:"province" type:"province" desc:"省份"` // 省份
-	City     *string `json:"city" type:"city" desc:"城市"`         // 城市
-	District *string `json:"district" type:"district" desc:"区域"` // 区域
-	Address  string  `json:"address" type:"text" desc:"门店地址"`    // 门店地址
-	Contact  string  `json:"contact" type:"text" desc:"联系方式"`    // 联系方式
+	Name     *string `json:"name"`     // 门店名称
+	Province *string `json:"province"` // 省份
+	City     *string `json:"city"`     // 城市
+	District *string `json:"district"` // 区域
+	Address  string  `json:"address"`  // 门店地址
+	Contact  string  `json:"contact"`  // 联系方式
 
-	WxworkId int     `json:"wxwork_id" type:"number" desc:"门店名称"`
-	ParentId *string `json:"parent_id" type:"select" desc:"上级门店"` // 父级门店id
+	WxworkId int     `json:"wxwork_id"`
+	ParentId *string `json:"parent_id"` // 父级门店id
 }

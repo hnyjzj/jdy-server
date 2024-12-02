@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"jdy/errors"
 	"jdy/logic/store"
 	"jdy/types"
@@ -40,7 +39,6 @@ func (con StoreController) Update(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		fmt.Printf("err: %v\n", err)
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

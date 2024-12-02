@@ -50,3 +50,25 @@ func (con WorkbenchController) Add(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+// 删除入口
+func (con WorkbenchController) Del(ctx *gin.Context) {
+	var (
+		req types.WorkbenchDelReq
+
+		logic = workbench.WorkbenchLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.DelRoute(req.Id); err != nil {
+		con.ErrorLogic(ctx, err)
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

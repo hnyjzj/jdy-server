@@ -54,11 +54,12 @@ func Api(g *gin.Engine) {
 		// 工作台
 		workbenchs := r.Group("/workbench")
 		{
+			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
 			workbenchs.Use(middlewares.JWTMiddleware())
 			{
-				workbenchs.POST("/add", workbench.WorkbenchController{}.Add) // 工作台添加
+				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)   // 工作台添加
+				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del) // 工作台删除
 			}
-			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
 		}
 
 		// 门店

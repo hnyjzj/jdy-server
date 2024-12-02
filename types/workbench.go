@@ -17,3 +17,7 @@ type WorkbenchListRes struct {
 	ParentId string             `json:"parent_id" `
 	Children []WorkbenchListRes `json:"children" `
 }
+
+type WorkbenchDelReq struct {
+	Id string `json:"id" binding:"required"`
+}

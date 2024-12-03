@@ -46,7 +46,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	}
 
 	// 生成token
-	res, err := l.token.GenerateToken(ctx, account.Staff)
+	res, err := l.token.GenerateToken(ctx, account.Staff, types.PlatformTypeAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 			return nil, err
 		}
 
-		return l.token.GenerateToken(ctx, staff)
+		return l.token.GenerateToken(ctx, staff, types.PlatformTypeWxWork)
 	default:
 		return nil, errors.New("错误的授权方式")
 	}

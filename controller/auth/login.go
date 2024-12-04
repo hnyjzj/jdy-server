@@ -61,3 +61,18 @@ func (con LoginController) OAuth(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+func (con LoginController) Logout(ctx *gin.Context) {
+	var (
+		logic = auth.LoginLogic{}
+	)
+
+	staff := con.GetStaff(ctx)
+
+	if err := logic.Logout(ctx, staff.Phone); err != nil {
+		con.Error(ctx, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

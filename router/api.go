@@ -37,8 +37,9 @@ func Api(g *gin.Engine) {
 		// 认证
 		auths := r.Group("/auth")
 		{
-			auths.POST("/login", auth.LoginController{}.Login) // 登录
-			auths.POST("/oauth", auth.LoginController{}.OAuth) // 授权登录
+			auths.POST("/login", auth.LoginController{}.Login)                                // 登录
+			auths.POST("/oauth", auth.LoginController{}.OAuth)                                // 授权登录
+			auths.POST("/logout", middlewares.JWTMiddleware(), auth.LoginController{}.Logout) // 登出
 		}
 
 		// 员工
@@ -48,6 +49,7 @@ func Api(g *gin.Engine) {
 			{
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
 				staffs.GET("/info", staff.StaffController{}.Info)      // 获取员工信息
+				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
 			}
 		}
 

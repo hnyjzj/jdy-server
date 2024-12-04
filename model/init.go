@@ -40,6 +40,7 @@ func Init() {
 					Colorful:                  true,        // Disable color
 				},
 			),
+			DisableForeignKeyConstraintWhenMigrating: true, // 禁用外键约束
 		})
 	default:
 		panic("不支持的数据库驱动程序")
@@ -54,18 +55,18 @@ func Init() {
 }
 
 // 需要迁移的表
-var Tables []interface{} = []interface{}{}
+var Tables []any = []any{}
 
 // 注册数据表
-func RegisterModels(models ...interface{}) {
+func RegisterModels(models ...any) {
 	Tables = append(Tables, models...)
 }
 
 // 需要重建的表
-var Refresh []interface{} = []interface{}{}
+var Refresh []any = []any{}
 
 // 注册需要重新迁移的数据表
-func RegisterRefreshModels(models ...interface{}) {
+func RegisterRefreshModels(models ...any) {
 	Refresh = append(Refresh, models...)
 }
 

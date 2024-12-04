@@ -5,152 +5,278 @@ import (
 	"jdy/config"
 	"jdy/model"
 	"jdy/types"
+	"jdy/utils"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type wxworkLoginLogic struct{}
+type wxworkLoginLogic struct {
+	Staff   *model.Staff
+	Account *model.Account
 
-// 企业微信授权登录
-func (w *WxWorkLogic) Login(ctx *gin.Context, code string) (*model.Staff, error) {
+	Ctx      *gin.Context
+	Db       *gorm.DB
+	UserInfo *model.Account
+}
+
+func (w *WxWorkLogic) CodeLogin(ctx *gin.Context, code string) (*model.Staff, error) {
+	l := &wxworkLoginLogic{
+		Ctx: ctx,
+		Db:  model.DB,
+	}
+
+	// 获取用户信息
+	if err := l.getCodeUserInfo(code); err != nil {
+		return nil, err
+	}
+
+	// 获取账号
+	if err := l.getAccount(); err != nil {
+		return nil, err
+	}
+
+	// 判断是否已注册
+	if l.Account.StaffId == nil {
+		return nil, errors.New("首次登录需通过企业微信工作台打开并授权手机号")
+	}
+
+	// 获取员工信息
+	if err := l.getStaff(); err != nil {
+		return nil, err
+	}
+
+	// 更新登录信息
+	if err := l.updateLogin(); err != nil {
+		return nil, err
+	}
+
+	return l.Staff, nil
+}
+
+func (w *WxWorkLogic) OauthLogin(ctx *gin.Context, code string) (*model.Staff, error) {
+	l := &wxworkLoginLogic{
+		Ctx: ctx,
+		Db:  model.DB.Begin(),
+	}
+
+	if err := l.getOathUserInfo(code); err != nil {
+		return nil, err
+	}
+
+	// 获取账号
+	if err := l.getAccount(); err != nil {
+		return nil, err
+	}
+
+	// 判断是否需要注册
+	if err := l.register(); err != nil {
+		return nil, err
+	}
+
+	// 获取员工信息
+	if err := l.getStaff(); err != nil {
+		return nil, err
+	}
+
+	// 更新登录信息
+	if err := l.updateLogin(); err != nil {
+		return nil, err
+	}
+
+	// 提交事务
+	if err := l.Db.Commit().Error; err != nil {
+		return nil, errors.New("授权登录失败")
+	}
+
+	return l.Staff, nil
+}
+
+func (l *wxworkLoginLogic) getCodeUserInfo(code string) error {
+
 	var (
 		jdy = config.NewWechatService().JdyWork
-
-		logic = wxworkLoginLogic{}
 	)
-
-	tx := model.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	// 获取用户信息
 	user, err := jdy.OAuth.Provider.GetUserInfo(code)
 	if err != nil || user.UserID == "" {
-		return nil, errors.New("获取企业微信用户信息失败")
-	}
-	// 读取企业员工信息
-	userinfo, err := jdy.User.Get(ctx, user.UserID)
-	if err != nil || userinfo.UserID == "" {
-		return nil, errors.New("获取企业微信用户信息失败")
-	}
-	// 获取账号
-	account, err := logic.getAccount(tx, user.UserID)
-	if err != nil {
-		return nil, err
+		return errors.New("获取企业微信用户信息失败")
 	}
 
-	// 判断是否是首次登录
-	if account.Phone == nil && user.UserTicket == "" {
-		return nil, errors.New("首次登录需通过企业微信工作台打开并授权手机号")
-	}
-	// 判断是否已注册
-	if account.StaffId == nil && user.UserTicket == "" {
-		return nil, errors.New("首次登录需通过企业微信工作台打开并授权手机号")
+	l.UserInfo = &model.Account{
+		Platform: types.PlatformTypeWxWork,
+		Username: &user.UserID,
 	}
 
+	return nil
+}
+
+func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
+	var (
+		jdy = config.NewWechatService().JdyWork
+	)
+
+	// 获取用户信息
+	user, err := jdy.OAuth.Provider.GetUserInfo(code)
+	if err != nil || user.UserID == "" || user.UserTicket == "" {
+		return errors.New("获取企业微信用户信息失败")
+	}
 	// 获取用户详情
-	if user.UserTicket != "" {
-		// 获取用户详情
-		detail, err := jdy.OAuth.Provider.GetUserDetail(user.UserTicket)
-		if err != nil {
-			return nil, errors.New("获取企业微信用户详情失败")
-		}
-
-		// 获取不到手机号
-		if detail.Mobile == "" {
-			return nil, errors.New("非企业微信授权用户禁止登录")
-		}
-
-		// 账号没有手机号
-		if account.Phone == nil {
-			account.Phone = &detail.Mobile
-		}
-
-		// 手机号不一致
-		if *account.Phone != detail.Mobile {
-			return nil, errors.New("手机号不一致")
-		}
-
-		// 判断是否已注册
-		if account.StaffId == nil {
-			// 查询员工
-			var staff model.Staff
-			if err := tx.Where(&model.Staff{Phone: &detail.Mobile}).First(&staff).Error; err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, errors.New("注册员工失败")
-				}
-			}
-			// 员工不存在
-			if staff.Id == "" {
-				staff.Phone = &detail.Mobile
-
-				staff.Nickname = userinfo.Name
-				staff.Avatar = detail.Avatar
-				staff.Email = detail.Email
-
-				gender, err := strconv.Atoi(detail.Gender)
-				if err != nil {
-					gender = 0
-				}
-				staff.Gender = uint(gender)
-				if err := tx.Save(&staff).Error; err != nil {
-					tx.Rollback()
-					return nil, errors.New("员工注册失败")
-				}
-			}
-
-			account.StaffId = &staff.Id
-			if err := tx.Save(&account).Error; err != nil {
-				tx.Rollback()
-				return nil, errors.New("注册员工失败，请联系管理员")
-			}
-		}
+	detail, err := jdy.OAuth.Provider.GetUserDetail(user.UserTicket)
+	if err != nil || detail.Mobile == "" {
+		return errors.New("获取企业微信用户详情失败")
+	}
+	// 读取员工信息
+	userinfo, err := jdy.User.Get(l.Ctx, user.UserID)
+	if err != nil || userinfo.UserID == "" {
+		return errors.New("读取员工信息失败")
 	}
 
-	// 查询员工
-	staff, err := logic.getStaff(tx, account.StaffId)
+	// 获取性别
+	gender, err := strconv.Atoi(detail.Gender)
 	if err != nil {
-		tx.Rollback()
-		return nil, err
+		gender = 0
 	}
 
-	// 更新账号
-	account.LastLoginIp = ctx.ClientIP()
-	now := time.Now()
-	account.LastLoginAt = &now
+	l.UserInfo = &model.Account{
+		Platform: types.PlatformTypeWxWork,
 
-	if db := tx.Save(&account); db.Error != nil {
-		tx.Rollback()
-		return nil, errors.New("更新账号信息失败")
+		Phone:    &detail.Mobile,
+		Username: &user.UserID,
+		Nickname: &userinfo.Name,
+		Avatar:   &detail.Avatar,
+		Email:    &detail.Email,
+		Gender:   uint(gender),
 	}
 
-	return staff, tx.Commit().Error
+	return nil
 }
 
 // 获取账号
-func (wxworkLoginLogic) getAccount(tx *gorm.DB, uid string) (*model.Account, error) {
+func (l *wxworkLoginLogic) getAccount() error {
 	// 查询账号
-	var account model.Account
-	if err := tx.Where(&model.Account{Username: &uid, Platform: types.PlatformTypeWxWork}).First(&account).Error; err != nil {
-		return nil, errors.New("账号不存在")
+	if err := l.Db.Where(&model.Account{
+		Platform: types.PlatformTypeWxWork,
+		Username: l.UserInfo.Username,
+	}).First(&l.Account).Error; err != nil {
+		return errors.New("账号不存在")
 	}
 
-	return &account, nil
+	// 判断是否是首次登录
+	if l.Account.Phone == nil && l.UserInfo.Phone == nil {
+		return errors.New("首次登录需通过企业微信工作台打开并授权手机号")
+	}
+
+	return nil
+}
+
+func (l *wxworkLoginLogic) register() error {
+	// 账号没有手机号
+	if l.Account.Phone == nil {
+		l.Account.Phone = l.UserInfo.Phone
+	}
+
+	// 手机号不一致
+	if *l.Account.Phone != *l.UserInfo.Phone {
+		return errors.New("手机号不一致")
+	}
+
+	if l.Account.StaffId == nil {
+		// 查询员工
+		var data *model.Staff
+		err := l.Db.Where(&model.Staff{Phone: l.UserInfo.Phone}).First(&data).Error
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			l.Db.Rollback()
+			return errors.New("注册员工失败")
+		}
+		// 员工不存在
+		if data.Id == "" {
+			data = &model.Staff{
+				Phone:    l.UserInfo.Phone,
+				Nickname: *l.UserInfo.Nickname,
+				Avatar:   *l.UserInfo.Avatar,
+				Email:    *l.UserInfo.Email,
+				Gender:   l.UserInfo.Gender,
+			}
+			if err := l.Db.Create(&data).Error; err != nil {
+				l.Db.Rollback()
+				return errors.New("员工注册失败")
+			}
+			// 查询账号
+			var account *model.Account
+			err := l.Db.Where(&model.Account{
+				Platform: types.PlatformTypeAccount,
+				Phone:    l.UserInfo.Phone,
+			}).First(&account).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				l.Db.Rollback()
+				return errors.New("注册员工失败")
+			}
+			// 账号不存在
+			if account.Id == "" {
+				password := utils.RandomAlphanumeric(8)
+				account = &model.Account{
+					Platform: types.PlatformTypeAccount,
+					Phone:    l.UserInfo.Phone,
+					Password: &password,
+					Username: l.UserInfo.Username,
+					Nickname: l.UserInfo.Nickname,
+					Avatar:   l.UserInfo.Avatar,
+					Email:    l.UserInfo.Email,
+					Gender:   l.UserInfo.Gender,
+					StaffId:  &data.Id,
+				}
+				if err := l.Db.Create(&account).Error; err != nil {
+					l.Db.Rollback()
+					return errors.New("创建账号失败")
+				}
+
+				go func() {
+					SendRegisterMessage(l.Ctx, &RegisterMessageContent{
+						Nickname: *l.UserInfo.Nickname,
+						Username: *l.UserInfo.Username,
+						Phone:    *l.UserInfo.Phone,
+						Password: password,
+					})
+				}()
+			}
+		}
+		l.Account.StaffId = &data.Id
+	}
+
+	return nil
 }
 
 // 获取员工
-func (wxworkLoginLogic) getStaff(tx *gorm.DB, id *string) (*model.Staff, error) {
+func (l *wxworkLoginLogic) getStaff() error {
 	// 查询账号
-	var staff model.Staff
-	if err := tx.Model(&model.Staff{}).First(&staff, id).Error; err != nil {
-		return nil, errors.New("员工不存在")
+	if err := l.Db.
+		Preload("Account", func(db *gorm.DB) *gorm.DB {
+			return db.Where(&model.Account{Platform: types.PlatformTypeWxWork})
+		}).First(&l.Staff, l.Account.StaffId).Error; err != nil {
+		return errors.New("员工不存在")
 	}
 
-	return &staff, nil
+	// 判断是否被禁用
+	if l.Staff.IsDisabled {
+		return errors.New("员工已被禁用")
+	}
+
+	return nil
+}
+
+// 更新登录信息
+func (l *wxworkLoginLogic) updateLogin() error {
+	// 更新账号
+	l.Account.UpdateLoginInfo(l.Ctx.ClientIP())
+
+	// 更新员工
+	if db := l.Db.Save(&l.Account); db.Error != nil {
+		l.Db.Rollback()
+		return errors.New("登录失败")
+	}
+
+	return nil
 }

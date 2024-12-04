@@ -1,8 +1,15 @@
 package wxwork
 
 import (
+	"fmt"
 	"jdy/config"
+	"jdy/types"
 	"jdy/utils"
+)
+
+const (
+	WxWorkOauth types.PlatformType = "wxwork_oauth"
+	WxWorkCode  types.PlatformType = "wxwork_code"
 )
 
 // 获取授权链接
@@ -14,7 +21,7 @@ func (w *WxWorkLogic) OauthUri(agent string, state string, uri string) (string, 
 	// 判断是否是微信浏览器
 	if utils.IsWechat(agent) {
 		// 直接跳转授权页面
-		wxwork.OAuth.Provider.WithState(state)
+		wxwork.OAuth.Provider.WithState(fmt.Sprint(WxWorkOauth))
 		redirect_url, err := wxwork.OAuth.Provider.GetAuthURL()
 		if err != nil {
 			return "", err
@@ -23,7 +30,7 @@ func (w *WxWorkLogic) OauthUri(agent string, state string, uri string) (string, 
 
 	} else {
 		// 跳转二维码页面
-		wxwork.OAuth.Provider.WithState(state)
+		wxwork.OAuth.Provider.WithState(fmt.Sprint(WxWorkCode))
 		redirect_url, err := wxwork.OAuth.Provider.GetQrConnectURL()
 		if err != nil {
 			return "", err

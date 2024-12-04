@@ -56,6 +56,9 @@ func init() {
 
 // BeforeCreate GORM回调，在创建记录之前自动设置雪花ID
 func (pm *BaseModel) BeforeCreate(tx *gorm.DB) error {
-	pm.Id = Node.Generate().String()
+	if pm.Id == "" {
+		pm.Id = Node.Generate().String()
+	}
+
 	return nil
 }

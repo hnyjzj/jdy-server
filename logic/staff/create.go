@@ -4,27 +4,39 @@ import (
 	"fmt"
 	"jdy/config"
 	"jdy/errors"
+	"jdy/logic/platform/wxwork"
 	"jdy/model"
 	"jdy/types"
 	"strconv"
-	"strings"
 
-	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/message/request"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 // 创建员工
-func (l *StaffLogic) CreateAccount(ctx *gin.Context, req *types.StaffReq) *errors.Errors {
+func (StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffReq) *errors.Errors {
+	l := &AccountCreateLogic{
+		Ctx: ctx,
+		Req: req,
+		Db:  model.DB.Begin(),
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			l.Db.Rollback()
+		}
+	}()
+
 	// 创建账号
-	switch req.Platform {
+	switch l.Req.Platform {
 	case types.PlatformTypeAccount:
-		if err := l.account(ctx, req.Account); err != nil {
+		if err := l.account(); err != nil {
+			l.Db.Rollback()
 			return errors.New(err.Error())
 		}
 	case types.PlatformTypeWxWork:
 
-		if err := l.wxwork(ctx, req.WxWork); err != nil {
+		if err := l.wxwork(); err != nil {
+			l.Db.Rollback()
 			return errors.New(err.Error())
 		}
 	default:
@@ -34,88 +46,80 @@ func (l *StaffLogic) CreateAccount(ctx *gin.Context, req *types.StaffReq) *error
 	return nil
 }
 
+type AccountCreateLogic struct {
+	Ctx *gin.Context
+	Req *types.StaffReq
+	Db  *gorm.DB
+}
+
 // 创建账号（账号密码登录）
-func (l *StaffLogic) account(ctx *gin.Context, req *types.StaffAccountReq) error {
-	// 启动事务
-	tx := model.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+func (l *AccountCreateLogic) account() error {
+	var (
+		req = l.Req.Account
+		tx  = l.Db
+		ctx = l.Ctx
+	)
 
-	// 查询员工
-	var staff model.Staff
-	if err := tx.
-		Unscoped().
-		Where(&model.Staff{
-			Phone: &req.Phone,
-		}).
-		First(&staff).
-		Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			tx.Rollback()
-			return errors.New("查询账号失败")
-		}
-	}
-
-	// 如果账号已存在，则返回错误
-	if staff.Id != "" {
-		return errors.New("账号已存在")
-	}
-
-	// 查询员工
+	// 查询账号存不存在
 	var account model.Account
-	if err := tx.
-		Unscoped().
+	if err := tx.Unscoped().
 		Where(&model.Account{
-			Phone: &req.Phone,
+			Platform: types.PlatformTypeAccount,
+			Phone:    &req.Phone,
 		}).
-		Or(&model.Account{
-			Username: &req.Username,
-		}).
-		First(&account).
-		Error; err != nil {
+		First(&account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			tx.Rollback()
 			return errors.New("查询账号失败")
 		}
 	}
-
 	// 如果账号已存在，则返回错误
 	if account.Id != "" {
 		return errors.New("账号已存在")
 	}
 
-	// 创建账号
-	data := &model.Staff{
-		Phone:    &req.Phone,
-		Nickname: req.Nickname,
-		Avatar:   req.Avatar,
-		Email:    req.Email,
-
-		Account: &model.Account{
-			Platform: types.PlatformTypeAccount,
-
-			Phone:    &req.Phone,
-			Username: &req.Username,
-			Password: &req.Password,
-
-			Nickname: &req.Nickname,
-			Avatar:   &req.Avatar,
-			Email:    &req.Email,
-		},
+	// 查询手机号是否已注册
+	if err := tx.Unscoped().
+		Where(&model.Staff{
+			Phone: &req.Phone,
+		}).
+		First(&account.Staff).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("查询账号失败")
+		}
+	}
+	// 如果手机号已注册，则返回错误
+	if account.Staff.Id != "" {
+		return errors.New("手机号已注册")
 	}
 
 	// 创建账号
-	if err := tx.Save(data).Error; err != nil {
+	account = model.Account{
+		Platform: types.PlatformTypeAccount,
+
+		Phone:    &req.Phone,
+		Username: &req.Username,
+		Password: &req.Password,
+
+		Nickname: &req.Nickname,
+		Avatar:   &req.Avatar,
+		Email:    &req.Email,
+
+		Staff: &model.Staff{
+			Phone:    &req.Phone,
+			Nickname: req.Nickname,
+			Avatar:   req.Avatar,
+			Email:    req.Email,
+		},
+	}
+	// 创建账号
+	if err := tx.Save(&account).Error; err != nil {
 		tx.Rollback()
 		return errors.New("创建账号失败")
 	}
 
 	go func() {
-		l.sendCreateMessage(ctx, &MessageContent{
-			Nickname: data.Nickname,
+		wxwork.SendRegisterMessage(ctx, &wxwork.RegisterMessageContent{
+			Nickname: req.Nickname,
 			Username: req.Username,
 			Phone:    req.Phone,
 			Password: req.Password,
@@ -125,23 +129,20 @@ func (l *StaffLogic) account(ctx *gin.Context, req *types.StaffAccountReq) error
 	return tx.Commit().Error
 }
 
-func (l *StaffLogic) wxwork(ctx *gin.Context, req *types.StaffWxWorkReq) error {
+func (l *AccountCreateLogic) wxwork() error {
 	var (
-		wxwork = config.NewWechatService().JdyWork
-	)
+		ctx = l.Ctx
+		req = l.Req.WxWork
+		tx  = l.Db
 
-	tx := model.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+		jdy = config.NewWechatService().JdyWork
+	)
 
 	// 循环 req.userid 获取企业微信用户信息
 	for _, userid := range req.UserId {
 		// 获取企业微信用户信息
-		user, err := wxwork.User.Get(ctx, fmt.Sprint(userid))
-		if err != nil {
+		user, err := jdy.User.Get(ctx, fmt.Sprint(userid))
+		if err != nil || user.UserID == "" {
 			return errors.New(fmt.Sprintf("获取企业微信用户信息失败：%s", userid))
 		}
 
@@ -150,8 +151,8 @@ func (l *StaffLogic) wxwork(ctx *gin.Context, req *types.StaffWxWorkReq) error {
 		if err := tx.
 			Unscoped().
 			Where(&model.Account{
-				Username: &user.UserID,
 				Platform: types.PlatformTypeWxWork,
+				Username: &user.UserID,
 			}).
 			First(&account).
 			Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -184,7 +185,7 @@ func (l *StaffLogic) wxwork(ctx *gin.Context, req *types.StaffWxWorkReq) error {
 		}
 
 		go func() {
-			l.sendCreateMessage(ctx, &MessageContent{
+			wxwork.SendRegisterMessage(ctx, &wxwork.RegisterMessageContent{
 				Nickname: user.Name,
 				Username: user.UserID,
 				Phone:    "暂未授权",
@@ -194,50 +195,4 @@ func (l *StaffLogic) wxwork(ctx *gin.Context, req *types.StaffWxWorkReq) error {
 	}
 
 	return tx.Commit().Error
-}
-
-// 消息内容
-type MessageContent struct {
-	Nickname string `json:"nickname"`
-	Username string `json:"username"`
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
-}
-
-func (l *StaffLogic) sendCreateMessage(ctx *gin.Context, message *MessageContent) error {
-	var (
-		wxwork = config.NewWechatService().JdyWork
-	)
-
-	var configTemplate string = strings.Join([]string{
-		"欢迎加入金斗云 ！",
-		">昵  称：%v",
-		">账  号：%v",
-		">手机号：%v",
-		">密  码：%v",
-		"",
-		">请妥善保管账号信息。",
-		">如果手机号未授权，请通过其他方式登录。",
-		">如有疑问，请联系管理员。",
-	}, "\n")
-	content := fmt.Sprintf(configTemplate,
-		message.Nickname,
-		message.Username,
-		message.Phone,
-		message.Password,
-	)
-
-	messages := &request.RequestMessageSendMarkdown{
-		RequestMessageSend: request.RequestMessageSend{
-			ToUser:  message.Username,
-			MsgType: "markdown",
-			AgentID: config.Config.Wechat.Work.Jdy.Id,
-		},
-		Markdown: &request.RequestMarkdown{
-			Content: content,
-		},
-	}
-	_, err := wxwork.Message.SendMarkdown(ctx, messages)
-
-	return err
 }

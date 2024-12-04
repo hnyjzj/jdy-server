@@ -7,6 +7,7 @@ import (
 	"jdy/logic/platform/wxwork"
 	"jdy/model"
 	"jdy/types"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,9 +36,9 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 		return nil, errors.ErrStaffNotFound
 	}
 
-	// 用户不存在
+	// 员工不存在
 	if account.Staff == nil {
-		return nil, errors.ErrStaffNotFound
+		return nil, errors.ErrStaffUnauthorized
 	}
 
 	// 密码错误
@@ -51,24 +52,47 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 		return nil, err
 	}
 
+	// 更新登录时间
+	account.UpdateLoginInfo(ctx.ClientIP())
+
+	// 更新账号
+	if err := model.DB.Save(&account).Error; err != nil {
+		return nil, errors.New("更新账号信息失败")
+	}
+
 	return res, err
 }
 
 // 授权登录
 func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.TokenRes, error) {
-	switch req.State {
-	case types.PlatformTypeWxWork:
-		var (
-			wxwork wxwork.WxWorkLogic
-		)
+	var (
+		staff *model.Staff
+		err   error
 
-		staff, err := wxwork.Login(ctx, req.Code)
+		wxwork_logic wxwork.WxWorkLogic
+	)
+	log.Println(req.State)
+	switch req.State {
+	case wxwork.WxWorkOauth:
+		staff, err = wxwork_logic.OauthLogin(ctx, req.Code)
 		if err != nil {
 			return nil, err
 		}
 
-		return l.token.GenerateToken(ctx, staff, types.PlatformTypeWxWork)
+	case wxwork.WxWorkCode:
+		staff, err = wxwork_logic.CodeLogin(ctx, req.Code)
+		if err != nil {
+			return nil, err
+		}
+
 	default:
 		return nil, errors.New("错误的授权方式")
 	}
+
+	return l.token.GenerateToken(ctx, staff, types.PlatformTypeWxWork)
+}
+
+// 登出
+func (l *LoginLogic) Logout(ctx *gin.Context, phone string) error {
+	return l.token.RevokeToken(ctx, phone)
 }

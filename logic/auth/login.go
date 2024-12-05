@@ -73,7 +73,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 
 	switch req.State {
 	case wxwork.WxWorkOauth:
-		staff, err = wxwork_logic.OauthLogin(ctx, req.Code)
+		staff, err = wxwork_logic.OauthLogin(ctx, req.Code, false)
 		if err != nil {
 			return nil, err
 		}

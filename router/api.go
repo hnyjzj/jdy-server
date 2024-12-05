@@ -32,6 +32,12 @@ func Api(g *gin.Engine) {
 				platforms.POST("/oauth", platform.PlatformController{}.OauthUri) // 获取授权链接
 				platforms.POST("/jssdk", platform.PlatformController{}.JSSDK)    // 获取JSSDK
 			}
+
+			// 上传
+			uploads := root.Group("/upload", middlewares.JWTMiddleware())
+			{
+				uploads.POST("/avatar", common.UploadController{}.Avatar) // 上传头像
+			}
 		}
 
 		// 认证
@@ -56,13 +62,13 @@ func Api(g *gin.Engine) {
 		// 工作台
 		workbenchs := r.Group("/workbench")
 		{
-			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
 			workbenchs.Use(middlewares.JWTMiddleware())
 			{
 				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)      // 工作台添加
 				workbenchs.PUT("/update", workbench.WorkbenchController{}.Update) // 工作台更新
 				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del)    // 工作台删除
 			}
+			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
 		}
 
 		// 门店

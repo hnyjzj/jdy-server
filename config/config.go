@@ -12,6 +12,7 @@ type Configured struct {
 	JWT      JWT      `mapstructure:"jwt"`
 	Database Database `mapstructure:"database"`
 	Redis    Redis    `mapstructure:"redis"`
+	Storage  Storage  `mapstructure:"storage"`
 	Wechat   Wechat   `mapstructure:"wechat"`
 }
 

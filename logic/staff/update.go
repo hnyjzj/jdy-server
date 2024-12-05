@@ -102,7 +102,7 @@ func (l *StaffUpdateLogic) wxwork() error {
 		wxwork = wxwork.WxWorkLogic{}
 	)
 
-	staff, err := wxwork.OauthLogin(l.ctx, l.req.WxWork.Code)
+	staff, err := wxwork.OauthLogin(l.ctx, l.req.WxWork.Code, true)
 	if err != nil {
 		return err
 	}

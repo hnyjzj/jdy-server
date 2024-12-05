@@ -33,7 +33,7 @@ func (w *WxWorkLogic) CodeLogin(ctx *gin.Context, code string) (*model.Staff, er
 	}
 
 	// 获取账号
-	if err := l.getAccount(); err != nil {
+	if err := l.getAccount(false); err != nil {
 		return nil, err
 	}
 
@@ -55,7 +55,7 @@ func (w *WxWorkLogic) CodeLogin(ctx *gin.Context, code string) (*model.Staff, er
 	return l.Staff, nil
 }
 
-func (w *WxWorkLogic) OauthLogin(ctx *gin.Context, code string) (*model.Staff, error) {
+func (w *WxWorkLogic) OauthLogin(ctx *gin.Context, code string, isRegister bool) (*model.Staff, error) {
 	l := &wxworkLoginLogic{
 		Ctx: ctx,
 		Db:  model.DB.Begin(),
@@ -66,12 +66,17 @@ func (w *WxWorkLogic) OauthLogin(ctx *gin.Context, code string) (*model.Staff, e
 	}
 
 	// 获取账号
-	if err := l.getAccount(); err != nil {
+	if err := l.getAccount(isRegister); err != nil {
 		return nil, err
 	}
 
 	// 判断是否需要注册
 	if err := l.register(); err != nil {
+		return nil, err
+	}
+
+	// 更新账号
+	if err := l.updateAccount(); err != nil {
 		return nil, err
 	}
 
@@ -155,18 +160,51 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 }
 
 // 获取账号
-func (l *wxworkLoginLogic) getAccount() error {
+func (l *wxworkLoginLogic) getAccount(isRegister bool) error {
 	// 查询账号
 	if err := l.Db.Where(&model.Account{
 		Platform: types.PlatformTypeWxWork,
 		Username: l.UserInfo.Username,
 	}).First(&l.Account).Error; err != nil {
-		return errors.New("账号不存在")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("查询账号失败")
+		}
+	}
+
+	// 账号不存在
+	if l.Account.Id == "" {
+		if !isRegister {
+			return errors.New("账号不存在")
+		}
+		l.Account = &model.Account{
+			Platform: types.PlatformTypeWxWork,
+			Username: l.UserInfo.Username,
+		}
+
+		if err := l.Db.Save(&l.Account).Error; err != nil {
+			return errors.New("账号注册失败")
+		}
 	}
 
 	// 判断是否是首次登录
 	if l.Account.Phone == nil && l.UserInfo.Phone == nil {
 		return errors.New("首次登录需通过企业微信工作台打开并授权手机号")
+	}
+
+	return nil
+}
+
+// 更新账号
+func (l *wxworkLoginLogic) updateAccount() error {
+	// 更新账号信息
+	if err := l.Db.Model(&l.Account).Updates(&model.Account{
+		Phone:    l.UserInfo.Phone,
+		Nickname: l.UserInfo.Nickname,
+		Avatar:   l.UserInfo.Avatar,
+		Email:    l.UserInfo.Email,
+		Gender:   l.UserInfo.Gender,
+	}).Error; err != nil {
+		return errors.New("更新账号失败")
 	}
 
 	return nil

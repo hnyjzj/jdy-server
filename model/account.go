@@ -27,18 +27,17 @@ type Account struct {
 	IsDisabled bool `json:"is_disabled" gorm:"comment:是否禁用"`
 
 	StaffId *string `json:"staff_id" gorm:"size:255;comment:员工ID"`
-	Staff   *Staff  `json:"-" gorm:"foreignKey:StaffId;references:Id"`
+	Staff   *Staff  `json:"staff" gorm:"foreignKey:StaffId;references:Id;"`
 }
 
-func (u *Account) BeforeCreate(tx *gorm.DB) (err error) {
+func (u *Account) BeforeSave(tx *gorm.DB) (err error) {
 	if u.Password != nil {
 		if err := u.HashPassword(); err != nil {
 			return err
 		}
 	}
 
-	u.BaseModel.BeforeCreate(tx)
-	return
+	return nil
 }
 
 // 加密密码
@@ -56,6 +55,14 @@ func (u *Account) HashPassword() error {
 func (u *Account) VerifyPassword(password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(*u.Password), []byte(password))
 }
+
+// 更新登录信息
+func (u *Account) UpdateLoginInfo(ip string) {
+	now := time.Now()
+	u.LastLoginIp = ip
+	u.LastLoginAt = &now
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

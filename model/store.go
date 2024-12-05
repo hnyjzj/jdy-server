@@ -14,7 +14,7 @@ type Store struct {
 
 	Name     string `json:"name" gorm:"size:255;comment:名称"`
 	Address  string `json:"address" gorm:"size:500;comment:地址"`
-	Contact  string `json:"contact" gorm:"size:255;comment:联系人"`
+	Contact  string `json:"contact" gorm:"size:255;comment:联系方式"`
 	Logo     string `json:"logo" gorm:"size:255;comment:logo"`
 	Sort     int    `json:"sort" gorm:"size:10;comment:排序"`
 	Province string `json:"province" gorm:"size:255;comment:省份"`

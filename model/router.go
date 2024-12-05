@@ -11,17 +11,6 @@ type Router struct {
 	Children []*Router `json:"children,omitempty" gorm:"-"`
 }
 
-func init() {
-	// 注册模型
-	RegisterModels(
-		&Router{},
-	)
-	// 重置表
-	RegisterRefreshModels(
-	// &Router{},
-	)
-}
-
 // 获取树形结构
 func (Router) GetTree(Pid *string) ([]*Router, error) {
 	var list []*Router
@@ -46,4 +35,15 @@ func (Router) GetTree(Pid *string) ([]*Router, error) {
 	}
 
 	return list, nil
+}
+
+func init() {
+	// 注册模型
+	RegisterModels(
+		&Router{},
+	)
+	// 重置表
+	RegisterRefreshModels(
+	// &Router{},
+	)
 }

@@ -14,7 +14,7 @@ import (
 
 type TokenLogic struct{}
 
-func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff) (*types.TokenRes, error) {
+func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff, platform types.PlatformType) (*types.TokenRes, error) {
 	var (
 		conf = config.Config.JWT
 	)
@@ -35,6 +35,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff) (*types
 			Id:         staff.Id,
 			Phone:      *staff.Phone,
 			IsDisabled: staff.IsDisabled,
+			Platform:   platform,
 		},
 	}
 
@@ -54,4 +55,8 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff) (*types
 	}
 
 	return &res, nil
+}
+
+func (t *TokenLogic) RevokeToken(ctx *gin.Context, phone string) error {
+	return redis.Client.Del(ctx, types.GetTokenName(phone)).Err()
 }

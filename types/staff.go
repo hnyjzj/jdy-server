@@ -14,24 +14,24 @@ type StaffReq struct {
 	WxWork  *StaffWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
 }
 
-func (StaffReq) ValidateStaffReq(staffReq *StaffReq) error {
+func (req *StaffReq) ValidateStaffReq() error {
 	validate := validator.New()
-	switch staffReq.Platform {
+	switch req.Platform {
 	case PlatformTypeAccount:
-		if staffReq.Account == nil {
+		if req.Account == nil {
 			return errors.New("账号信息是必填项")
 		}
 		// 可以在这里对Account进行进一步的验证
-		if err := validate.Struct(staffReq.Account); err != nil {
+		if err := validate.Struct(req.Account); err != nil {
 			return err
 		}
 	case PlatformTypeWxWork:
-		if staffReq.WxWork == nil {
+		if req.WxWork == nil {
 			return errors.New("企业微信信息是必填项")
 		}
 
 		// 可以在这里对WxWork进行进一步的验证
-		if err := validate.Struct(staffReq.WxWork); err != nil {
+		if err := validate.Struct(req.WxWork); err != nil {
 			return err
 		}
 	default:
@@ -64,4 +64,51 @@ type StaffRes struct {
 	Avatar   string `json:"avatar"`
 	Email    string `json:"email"`
 	Gender   uint   `json:"gender"`
+}
+
+// 更新请求
+type StaffUpdateReq struct {
+	Platform PlatformType `json:"platform" binding:"required"` // 平台
+
+	Account *StaffUpdateAccountReq `json:"account,omitempty"` // 账号信息
+	WxWork  *StaffUpdateWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
+}
+
+type StaffUpdateAccountReq struct {
+	Password string `json:"password" ` // 密码
+
+	Nickname string `json:"nickname" binding:"min=2,max=50"` // 姓名
+	Avatar   string `json:"avatar"`                          // 头像
+	Email    string `json:"email" binding:"email"`           // 邮箱
+	Gender   uint   `json:"gender" binding:"oneof=0 1 2"`    // 性别
+}
+
+type StaffUpdateWxWorkReq struct {
+	Code string `json:"code" binding:"required"`
+}
+
+func (req *StaffUpdateReq) ValidateStaffReq() error {
+	validate := validator.New()
+	switch req.Platform {
+	case PlatformTypeAccount:
+		if req.Account == nil {
+			return errors.New("账号信息是必填项")
+		}
+		// 可以在这里对Account进行进一步的验证
+		if err := validate.Struct(req.Account); err != nil {
+			return err
+		}
+	case PlatformTypeWxWork:
+		if req.WxWork == nil {
+			return errors.New("企业微信信息是必填项")
+		}
+
+		// 可以在这里对WxWork进行进一步的验证
+		if err := validate.Struct(req.WxWork); err != nil {
+			return err
+		}
+	default:
+		return errors.New("invalid Platform value")
+	}
+	return nil
 }

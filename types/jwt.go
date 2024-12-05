@@ -16,4 +16,6 @@ type Staff struct {
 	Phone string `json:"phone"`
 
 	IsDisabled bool `json:"is_disabled"`
+
+	Platform PlatformType `json:"platform"`
 }

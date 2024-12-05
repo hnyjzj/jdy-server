@@ -32,13 +32,20 @@ func Api(g *gin.Engine) {
 				platforms.POST("/oauth", platform.PlatformController{}.OauthUri) // 获取授权链接
 				platforms.POST("/jssdk", platform.PlatformController{}.JSSDK)    // 获取JSSDK
 			}
+
+			// 上传
+			uploads := root.Group("/upload", middlewares.JWTMiddleware())
+			{
+				uploads.POST("/avatar", common.UploadController{}.Avatar) // 上传头像
+			}
 		}
 
 		// 认证
 		auths := r.Group("/auth")
 		{
-			auths.POST("/login", auth.LoginController{}.Login) // 登录
-			auths.POST("/oauth", auth.LoginController{}.OAuth) // 授权登录
+			auths.POST("/login", auth.LoginController{}.Login)                                // 登录
+			auths.POST("/oauth", auth.LoginController{}.OAuth)                                // 授权登录
+			auths.POST("/logout", middlewares.JWTMiddleware(), auth.LoginController{}.Logout) // 登出
 		}
 
 		// 员工
@@ -48,19 +55,20 @@ func Api(g *gin.Engine) {
 			{
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
 				staffs.GET("/info", staff.StaffController{}.Info)      // 获取员工信息
+				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
 			}
 		}
 
 		// 工作台
 		workbenchs := r.Group("/workbench")
 		{
-			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
 			workbenchs.Use(middlewares.JWTMiddleware())
 			{
 				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)      // 工作台添加
 				workbenchs.PUT("/update", workbench.WorkbenchController{}.Update) // 工作台更新
 				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del)    // 工作台删除
 			}
+			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
 		}
 
 		// 门店

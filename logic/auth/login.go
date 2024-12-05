@@ -7,7 +7,6 @@ import (
 	"jdy/logic/platform/wxwork"
 	"jdy/model"
 	"jdy/types"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -71,7 +70,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 
 		wxwork_logic wxwork.WxWorkLogic
 	)
-	log.Println(req.State)
+
 	switch req.State {
 	case wxwork.WxWorkOauth:
 		staff, err = wxwork_logic.OauthLogin(ctx, req.Code)

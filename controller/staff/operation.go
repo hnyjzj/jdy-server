@@ -4,7 +4,6 @@ import (
 	"jdy/errors"
 	"jdy/logic/staff"
 	"jdy/types"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,14 +51,12 @@ func (con StaffController) Update(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		log.Println(err)
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
 	// 使用自定义验证器进行验证
 	if err := req.ValidateStaffReq(); err != nil {
-		log.Println(err)
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

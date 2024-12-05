@@ -1,7 +1,6 @@
 package staff
 
 import (
-	"fmt"
 	"jdy/errors"
 	"jdy/logic/auth"
 	"jdy/logic/platform/wxwork"
@@ -115,8 +114,6 @@ func (l *StaffUpdateLogic) wxwork() error {
 		First(&staff, l.uid).Error; err != nil {
 		return err
 	}
-
-	fmt.Printf("staff.Account: %+v\n", staff.Account)
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&staff).Updates(model.Staff{

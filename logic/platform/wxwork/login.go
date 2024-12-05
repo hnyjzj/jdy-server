@@ -1,8 +1,8 @@
 package wxwork
 
 import (
-	"errors"
 	"jdy/config"
+	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
@@ -217,7 +217,7 @@ func (l *wxworkLoginLogic) register() error {
 	}
 
 	// 手机号不一致
-	if *l.Account.Phone != *l.UserInfo.Phone {
+	if (l.Account.Phone == nil || l.UserInfo.Phone == nil) || *l.Account.Phone != *l.UserInfo.Phone {
 		return errors.New("手机号不一致")
 	}
 
@@ -271,14 +271,14 @@ func (l *wxworkLoginLogic) register() error {
 					return errors.New("创建账号失败")
 				}
 
-				go func() {
+				go func(UserInfo *model.Account) {
 					SendRegisterMessage(l.Ctx, &RegisterMessageContent{
-						Nickname: *l.UserInfo.Nickname,
-						Username: *l.UserInfo.Username,
-						Phone:    *l.UserInfo.Phone,
+						Nickname: *UserInfo.Nickname,
+						Username: *UserInfo.Username,
+						Phone:    *UserInfo.Phone,
 						Password: password,
 					})
-				}()
+				}(l.UserInfo)
 			}
 		}
 		l.Account.StaffId = &data.Id
@@ -294,12 +294,12 @@ func (l *wxworkLoginLogic) getStaff() error {
 		Preload("Account", func(db *gorm.DB) *gorm.DB {
 			return db.Where(&model.Account{Platform: types.PlatformTypeWxWork})
 		}).First(&l.Staff, l.Account.StaffId).Error; err != nil {
-		return errors.New("员工不存在")
+		return errors.ErrStaffNotFound
 	}
 
 	// 判断是否被禁用
 	if l.Staff.IsDisabled {
-		return errors.New("员工已被禁用")
+		return errors.ErrStaffDisabled
 	}
 
 	return nil

@@ -29,6 +29,8 @@ func (con UploadController) Avatar(ctx *gin.Context) {
 		s Res
 	)
 
+	staff := con.GetStaff(ctx)
+
 	// 验证参数
 	if err := ctx.ShouldBind(&r); err != nil {
 		log.Println(err)
@@ -38,10 +40,11 @@ func (con UploadController) Avatar(ctx *gin.Context) {
 
 	// 上传文件
 	upload := &common.Upload{
-		Ctx:   ctx,
-		File:  r.File,
-		Model: types.UploadModelAvatar,
-		Type:  types.UploadTypeImage,
+		Ctx:    ctx,
+		File:   r.File,
+		Model:  types.UploadModelAvatar,
+		Type:   types.UploadTypeImage,
+		Prefix: staff.Id,
 	}
 
 	url, err := upload.Save()

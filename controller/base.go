@@ -20,7 +20,7 @@ func (con BaseController) GetStaff(ctx *gin.Context) *types.Staff {
 	}
 	// 检查用户是否被禁用
 	if staffInfo.IsDisabled {
-		con.Exception(ctx, errors.ErrStaffNotFound.Error())
+		con.Exception(ctx, errors.ErrStaffDisabled.Error())
 		return nil
 	}
 

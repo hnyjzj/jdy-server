@@ -53,6 +53,6 @@ func (con UploadController) Avatar(ctx *gin.Context) {
 		return
 	}
 
-	s.Url = url
+	s.Url = url.Uris[0]
 	con.Success(ctx, "ok", s)
 }

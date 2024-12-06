@@ -1,11 +1,11 @@
 package model
 
 import (
+	"errors"
 	"jdy/types"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type Account struct {
@@ -30,25 +30,17 @@ type Account struct {
 	Staff   *Staff  `json:"staff" gorm:"foreignKey:StaffId;references:Id;"`
 }
 
-func (u *Account) BeforeSave(tx *gorm.DB) (err error) {
-	if u.Password != nil {
-		if err := u.HashPassword(); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 // 加密密码
-func (u *Account) HashPassword() error {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(*u.Password), 10)
-	if err != nil {
-		return err
+func (Account) HashPassword(password *string) (string, error) {
+	if password == nil {
+		return "", errors.New("password is nil")
 	}
-	password := string(bytes)
-	u.Password = &password
-	return nil
+	bytes, err := bcrypt.GenerateFromPassword([]byte(*password), 10)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), nil
 }
 
 // 校验密码

@@ -69,21 +69,45 @@ func (l *StaffUpdateLogic) account() error {
 		}).Error; err != nil {
 			return err
 		}
+
 		// 更新账号信息
-		if err := tx.Model(&staff.Account).Updates(model.Account{
+		account := model.Account{
+			Platform: types.PlatformTypeAccount,
+			Phone:    staff.Phone,
+
 			Nickname: &req.Nickname,
 			Password: &req.Password,
 			Avatar:   &req.Avatar,
 			Email:    &req.Email,
 			Gender:   req.Gender,
-		}).Error; err != nil {
-			return err
 		}
 
+		// 加密密码
 		if req.Password != "" {
+			password, err := model.Account{}.HashPassword(&req.Password)
+			if err != nil {
+				return err
+			}
+			account.Password = &password
+		}
+
+		if staff.Account == nil {
+			staff.Account = &account
+			// 创建账号
+			if err := tx.Save(&staff).Error; err != nil {
+				return err
+			}
+		} else {
+			// 更新账号信息
+			if err := tx.Model(&staff.Account).Updates(account).Error; err != nil {
+				return err
+			}
+		}
+
+		if req.Password != "" && staff.Account.Phone != nil {
 			// 退出登录
 			auth := auth.LoginLogic{}
-			if err := auth.Logout(l.ctx, l.uid); err != nil {
+			if err := auth.Logout(l.ctx, *staff.Account.Phone); err != nil {
 				return errors.New("更新账号信息失败")
 			}
 		}

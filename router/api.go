@@ -36,7 +36,8 @@ func Api(g *gin.Engine) {
 			// 上传
 			uploads := root.Group("/upload", middlewares.JWTMiddleware())
 			{
-				uploads.POST("/avatar", common.UploadController{}.Avatar) // 上传头像
+				uploads.POST("/avatar", common.UploadController{}.Avatar)       // 上传头像
+				uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
 			}
 		}
 

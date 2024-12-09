@@ -10,6 +10,8 @@ func (s UploadModel) String() string {
 const (
 	// 头像
 	UploadModelAvatar UploadModel = "avatar"
+	// 工作台
+	UploadModelWorkbench UploadModel = "workbench"
 )
 
 // 类型

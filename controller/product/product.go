@@ -2,6 +2,7 @@ package product
 
 import (
 	"jdy/controller"
+	"jdy/logic/product"
 	"jdy/types"
 	"jdy/utils"
 
@@ -32,4 +33,29 @@ func (con ProductController) Where(ctx *gin.Context) {
 	})
 
 	con.Success(ctx, "ok", where)
+}
+
+// 产品列表
+func (con ProductController) List(ctx *gin.Context) {
+	var (
+		req types.ProductListReq
+
+		logic = product.ProductLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, "参数错误")
+		return
+	}
+
+	res, err := logic.List(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
 }

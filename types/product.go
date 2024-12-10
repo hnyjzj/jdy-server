@@ -18,7 +18,7 @@ type ProductEnterReqProduct struct {
 	WeightOther float64           `json:"weight_other" binding:"-"`       // 杂料重
 	NumGem      int               `json:"num_gem" binding:"-"`            // 主石数
 	NumOther    int               `json:"num_other" binding:"-"`          // 杂料数
-	ColorMetal  ProductColor      `json:"color" binding:"-"`              // 金颜色
+	ColorMetal  ProductColor      `json:"color_metal" binding:"-"`        // 金颜色
 	ColorGem    ProductColor      `json:"color_gem" binding:"-"`          // 主石色
 	Clarity     ProductClarity    `json:"clarity" binding:"-"`            // 净度
 	RetailType  ProductRetailType `json:"retail_type" binding:"required"` // 零售方式
@@ -52,7 +52,7 @@ type ProductWhere struct {
 	WeightOther float64           `json:"weight_other" where:"label:杂料重;type:number;"`                       // 杂料重
 	NumGem      int               `json:"num_gem" where:"label:主石数;type:number;"`                            // 主石数
 	NumOther    int               `json:"num_other" where:"label:杂料数;type:number;"`                          // 杂料数
-	ColorMetal  ProductColor      `json:"color" where:"label:金颜色;type:select;preset:{{.ColorMetal}}"`        // 金颜色
+	ColorMetal  ProductColor      `json:"color_metal" where:"label:金颜色;type:select;preset:{{.ColorMetal}}"`  // 金颜色
 	ColorGem    ProductColor      `json:"color_gem" where:"label:主石色;type:select;preset:{{.ColorGem}}"`      // 主石色
 	Clarity     ProductClarity    `json:"clarity" where:"label:净度;type:select;preset:{{.Clarity}}"`          // 净度
 	RetailType  ProductRetailType `json:"retail_type" where:"label:零售方式;type:select;preset:{{.RetailType}}"` // 零售方式
@@ -73,4 +73,9 @@ type ProductWhere struct {
 	Status         ProductStatus `json:"status" where:"label:状态;type:select;preset:{{.Status}}"`                     // 状态
 
 	ProductEnterId string `json:"product_enter_id" where:"label:入库单;type:text;"` // 产品入库单ID
+}
+
+type ProductListReq struct {
+	PageReq
+	Where ProductWhere `json:"where" binding:"required"`
 }

@@ -93,6 +93,7 @@ func Api(g *gin.Engine) {
 			products.Use(middlewares.JWTMiddleware())
 			{
 				products.POST("/enter", product.ProductController{}.Enter) // 产品入库
+				products.POST("/list", product.ProductController{}.List)   // 产品列表
 			}
 		}
 	}

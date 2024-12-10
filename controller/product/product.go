@@ -2,7 +2,6 @@ package product
 
 import (
 	"jdy/controller"
-	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
 
@@ -15,7 +14,7 @@ type ProductController struct {
 
 // 产品筛选条件
 func (con ProductController) Where(ctx *gin.Context) {
-	where := utils.ModelToWhere(model.Product{}, map[string]any{
+	where := utils.ModelToWhere(types.ProductWhere{}, map[string]any{
 		"ColorMetal":     types.ProductColorMap,          // 金颜色
 		"ColorGem":       types.ProductColorMap,          // 主石色
 		"Clarity":        types.ProductClarityMap,        // 净度

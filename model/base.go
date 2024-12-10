@@ -15,14 +15,14 @@ type BaseModel struct {
 // 通用模型
 type Model struct {
 	BaseModel
-	CreatedAt *time.Time `json:"created_at" gorm:"not null;autoCreateTime;size:0;index;comment:创建时间"`
-	UpdatedAt *time.Time `json:"updated_at" gorm:"not null;autoUpdateTime;size:0;index;comment:更新时间"`
+	CreatedAt *time.Time `json:"created_at" gorm:"type:datetime;not null;autoCreateTime;index;comment:创建时间"`
+	UpdatedAt *time.Time `json:"updated_at" gorm:"type:datetime;not null;autoUpdateTime;index;comment:更新时间"`
 }
 
 // 软删除模型
 type SoftDelete struct {
 	Model
-	DeletedAt gorm.DeletedAt `json:"-" sql:"index" gorm:"size:0;comment:删除时间"`
+	DeletedAt gorm.DeletedAt `json:"-" sql:"index" gorm:"type:datetime;comment:删除时间"`
 }
 
 func PageCondition(db *gorm.DB, page, limit int) *gorm.DB {

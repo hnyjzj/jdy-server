@@ -4,6 +4,7 @@ import (
 	"jdy/controller/auth"
 	"jdy/controller/common"
 	"jdy/controller/platform"
+	"jdy/controller/product"
 	"jdy/controller/staff"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
@@ -82,6 +83,16 @@ func Api(g *gin.Engine) {
 				stores.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
 				stores.POST("/list", store.StoreController{}.List)       // 门店列表
 				stores.POST("/info", store.StoreController{}.Info)       // 门店详情
+			}
+		}
+
+		// 产品
+		products := r.Group("/product")
+		{
+			products.GET("/where", product.ProductController{}.Where) // 产品筛选
+			products.Use(middlewares.JWTMiddleware())
+			{
+				products.POST("/enter", product.ProductController{}.Enter) // 产品入库
 			}
 		}
 	}

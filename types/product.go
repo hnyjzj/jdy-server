@@ -79,3 +79,7 @@ type ProductListReq struct {
 	PageReq
 	Where ProductWhere `json:"where" binding:"required"`
 }
+
+type ProductInfoReq struct {
+	Code string `json:"code" binding:"required"` // 条码
+}

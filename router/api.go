@@ -94,6 +94,7 @@ func Api(g *gin.Engine) {
 			{
 				products.POST("/enter", product.ProductController{}.Enter) // 产品入库
 				products.POST("/list", product.ProductController{}.List)   // 产品列表
+				products.POST("/info", product.ProductController{}.Info)   // 产品详情
 			}
 		}
 	}

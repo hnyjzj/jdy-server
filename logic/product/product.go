@@ -13,6 +13,7 @@ type ProductLogic struct {
 	Staff *types.Staff
 }
 
+// 产品列表
 func (p *ProductLogic) List(req *types.ProductListReq) (*types.PageRes[model.Product], error) {
 	var (
 		product model.Product
@@ -36,4 +37,19 @@ func (p *ProductLogic) List(req *types.ProductListReq) (*types.PageRes[model.Pro
 	}
 
 	return &res, nil
+}
+
+// 产品详情
+func (p *ProductLogic) Info(req *types.ProductInfoReq) (*model.Product, error) {
+	var (
+		product model.Product
+	)
+
+	if err := model.DB.Where(model.Product{
+		Code: req.Code,
+	}).First(&product).Error; err != nil {
+		return nil, errors.New("获取产品信息失败")
+	}
+
+	return &product, nil
 }

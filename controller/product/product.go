@@ -59,3 +59,28 @@ func (con ProductController) List(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+// 产品详情
+func (con ProductController) Info(ctx *gin.Context) {
+	var (
+		req types.ProductInfoReq
+
+		logic = product.ProductLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, "参数错误")
+		return
+	}
+
+	res, err := logic.Info(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}

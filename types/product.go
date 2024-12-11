@@ -83,3 +83,39 @@ type ProductListReq struct {
 type ProductInfoReq struct {
 	Code string `json:"code" binding:"required"` // 条码
 }
+
+type ProductUpdateReq struct {
+	Id string `json:"id" binding:"required"` // 产品ID
+
+	Name   string   `json:"name"`   // 名称
+	Images []string `json:"images"` // 图片
+
+	AccessFee float64 `json:"access_fee"` // 入网费
+	Price     float64 `json:"price"`      // 标签价
+	LaborFee  float64 `json:"labor_fee"`  // 工费
+
+	Weight      float64           `json:"weight"`       // 总重量
+	WeightMetal float64           `json:"weight_metal"` // 金重
+	WeightGem   float64           `json:"weight_gem"`   // 主石重
+	WeightOther float64           `json:"weight_other"` // 杂料重
+	NumGem      int               `json:"num_gem"`      // 主石数
+	NumOther    int               `json:"num_other"`    // 杂料数
+	ColorMetal  ProductColor      `json:"color_metal"`  // 金颜色
+	ColorGem    ProductColor      `json:"color_gem"`    // 主石色
+	Clarity     ProductClarity    `json:"clarity"`      // 净度
+	RetailType  ProductRetailType `json:"retail_type"`  // 零售方式
+	Class       ProductClass      `json:"class"`        // 大类
+	Supplier    ProductSupplier   `json:"supplier"`     // 供应商
+	Material    ProductMaterial   `json:"material"`     // 材质
+	Quality     ProductQuality    `json:"quality"`      // 成色
+	Gem         ProductGem        `json:"gem"`          // 宝石
+	Category    ProductCategory   `json:"category"`     // 品类
+	Brand       ProductBrand      `json:"brand"`        // 品牌
+	Craft       ProductCraft      `json:"craft"`        // 工艺
+	Style       string            `json:"style"`        // 款式
+	Size        string            `json:"size"`         // 手寸
+
+	IsSpecialOffer bool     `json:"is_special_offer"` // 是否特价
+	Remark         string   `json:"remark"`           // 备注
+	Certificate    []string `json:"certificate"`      // 证书
+}

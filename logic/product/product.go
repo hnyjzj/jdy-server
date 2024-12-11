@@ -4,8 +4,10 @@ import (
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
+	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type ProductLogic struct {
@@ -52,4 +54,25 @@ func (p *ProductLogic) Info(req *types.ProductInfoReq) (*model.Product, error) {
 	}
 
 	return &product, nil
+}
+
+// 更新产品信息
+func (p *ProductLogic) Update(req *types.ProductUpdateReq) error {
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		data, err := utils.StructToStruct[model.Product](req)
+		if err != nil {
+			return errors.New("验证参数失败")
+		}
+
+		if err := tx.Model(&model.Product{}).Where("id = ?", req.Id).Updates(data).Error; err != nil {
+			return errors.New("更新产品信息失败")
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -13,6 +13,7 @@ import (
 func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *errors.Errors) {
 	// 添加产品的结果
 	products := map[string]bool{}
+	success := 0
 	// 添加产品入库
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 转换数据结构
@@ -26,13 +27,13 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 
 		enter := model.ProductEnter{
 			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
 		}
 		if err := tx.Create(&enter).Error; err != nil {
 			return err
 		}
 
-		for i, v := range data {
-			data[i].ProductEnterId = enter.Id
+		for _, v := range data {
 			products[v.Code] = false
 
 			var p model.Product
@@ -44,12 +45,22 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 			if p.Id != "" {
 				continue
 			}
+
+			// 产品入库
+			v.Status = types.ProductStatusNormal
+			v.ProductEnterId = enter.Id
 			if err := tx.Create(&v).Error; err != nil {
 				continue
 			}
 
 			products[v.Code] = true
+			success++
 		}
+
+		if success == 0 {
+			return errors.New("产品录入失败")
+		}
+
 		return nil
 	}); err != nil {
 		return nil, errors.New("产品录入失败")

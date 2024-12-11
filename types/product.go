@@ -119,3 +119,8 @@ type ProductUpdateReq struct {
 	Remark         string   `json:"remark"`           // 备注
 	Certificate    []string `json:"certificate"`      // 证书
 }
+
+type ProductDamageReq struct {
+	Code   string `json:"code" binding:"required"`   // 条码
+	Reason string `json:"reason" binding:"required"` // 损坏原因
+}

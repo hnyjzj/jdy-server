@@ -47,6 +47,8 @@ type Product struct {
 
 	ProductEnterId string        `json:"product_enter_id" gorm:"type:varchar(255);not NULL;comment:产品入库单ID;"`         // 产品入库单ID
 	ProductEnter   *ProductEnter `json:"product_enter" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品入库单;"` // 产品入库单
+
+	ProductDamages []ProductDamage `json:"product_damage" gorm:"foreignKey:ProductId;references:Id;comment:报损记录;"` // 报损记录
 }
 
 func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
@@ -145,10 +147,25 @@ func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
 type ProductEnter struct {
 	SoftDelete
 
-	Products []Product `json:"products" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品;"`
+	Products []Product `json:"products" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品;"` // 产品
 
-	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`
-	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"`
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
+	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
+
+	IP string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"` // IP
+}
+
+type ProductDamage struct {
+	SoftDelete
+
+	ProductId string   `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`
+	Product   *Product `json:"product" gorm:"foreignKey:ProductId;references:Id;comment:产品;"`
+
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
+	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
+
+	Reason string `json:"reason" gorm:"type:text;not NULL;comment:原因;"`     // 原因
+	IP     string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"` // IP
 }
 
 func init() {
@@ -156,10 +173,12 @@ func init() {
 	RegisterModels(
 		&Product{},
 		&ProductEnter{},
+		&ProductDamage{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &Product{},
 	// &ProductEnter{},
+	// &ProductDamage{},
 	)
 }

@@ -402,15 +402,19 @@ var ProductRetailTypeMap = map[ProductRetailType]string{
 type ProductStatus int
 
 const (
-	ProductStatusAll      ProductStatus = iota // 全部
-	ProductStatusInStock                       // 在库
-	ProductStatusInRepair                      // 维修中
-	ProductStatusOutStock                      // 调出在途
+	ProductStatusAll    ProductStatus = iota // 全部
+	ProductStatusNormal                      /* 正常 */ // 在库
+	ProductStatusDamage                      /* 报损 */ // 维修中
+	ProductStatusInvoke                      /* 调拨 */ // 调出在途
+	ProductStatusSold                        /* 已售 */ // 已售
+	ProductStatusReturn                      /* 退货 */ // 退货中
 )
 
 var ProductStatusMap = map[ProductStatus]string{
-	ProductStatusAll:      "全部",
-	ProductStatusInStock:  "在库",
-	ProductStatusInRepair: "维修中",
-	ProductStatusOutStock: "调出在途",
+	ProductStatusAll:    "全部",
+	ProductStatusNormal: "在库",
+	ProductStatusDamage: "维修中",
+	ProductStatusInvoke: "调出在途",
+	ProductStatusSold:   "已售",
+	ProductStatusReturn: "退货中",
 }

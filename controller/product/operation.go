@@ -8,10 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 更新商品信息
-func (con ProductController) Update(ctx *gin.Context) {
+// 产品报损
+func (con ProductController) Damage(ctx *gin.Context) {
 	var (
-		req types.ProductUpdateReq
+		req types.ProductDamageReq
 
 		logic = product.ProductLogic{
 			Ctx:   ctx,
@@ -19,14 +19,12 @@ func (con ProductController) Update(ctx *gin.Context) {
 		}
 	)
 
-	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	// 调用逻辑层
-	if err := logic.Update(&req); err != nil {
+	if err := logic.Damage(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

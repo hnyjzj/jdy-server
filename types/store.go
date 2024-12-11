@@ -38,6 +38,7 @@ type StoreListReq struct {
 }
 
 type StoreWhereReq struct {
+	Id       *string `json:"id"`
 	Name     *string `json:"name"`     // 门店名称
 	Province *string `json:"province"` // 省份
 	City     *string `json:"city"`     // 城市

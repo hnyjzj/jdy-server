@@ -2,6 +2,7 @@ package product
 
 import (
 	"jdy/controller"
+	"jdy/errors"
 	"jdy/logic/product"
 	"jdy/types"
 	"jdy/utils"
@@ -47,7 +48,7 @@ func (con ProductController) List(ctx *gin.Context) {
 	)
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, "参数错误")
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
@@ -72,7 +73,7 @@ func (con ProductController) Info(ctx *gin.Context) {
 	)
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, "参数错误")
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 

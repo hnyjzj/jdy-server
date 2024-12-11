@@ -21,14 +21,14 @@ func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) (*types.Pag
 	db := model.DB.Model(&store)
 	db = store.WhereCondition(db, &req.Where)
 	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取门店列表失败: " + err.Error())
+		return nil, errors.New("获取门店列表数量失败")
 	}
 
 	db = db.Order("sort desc, created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit).Preload("Parent")
 
 	if err := db.Debug().Find(&res.List).Error; err != nil {
-		return nil, errors.New("获取门店列表失败: " + err.Error())
+		return nil, errors.New("获取门店列表失败")
 	}
 
 	return &res, nil

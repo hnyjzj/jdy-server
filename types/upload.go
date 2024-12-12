@@ -12,6 +12,8 @@ const (
 	UploadModelAvatar UploadModel = "avatar"
 	// 工作台
 	UploadModelWorkbench UploadModel = "workbench"
+	// 门店
+	UploadModelStore UploadModel = "store"
 )
 
 // 类型

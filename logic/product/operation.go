@@ -1,6 +1,7 @@
 package product
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
@@ -17,14 +18,14 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 	}
 
 	// 判断产品状态
-	if product.Status != types.ProductStatusNormal {
+	if product.Status != enums.ProductStatusNormal {
 		return errors.New("产品不在库存中")
 	}
 
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 更新产品状态
-		product.Status = types.ProductStatusDamage
+		product.Status = enums.ProductStatusDamage
 		if err := tx.Save(&product).Error; err != nil {
 			return err
 		}
@@ -44,5 +45,33 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 		return errors.New("报损失败")
 	}
 
+	return nil
+}
+
+// 产品调拨
+func (l *ProductLogic) Allocate(req *types.ProductAllocateReq) *errors.Errors {
+	// 开启事务
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		data := model.ProductAllocate{
+			Method: req.Method,
+			Type:   req.Type,
+			Reason: req.Reason,
+			Remark: req.Remark,
+
+			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
+		}
+		if req.Method == enums.ProductAllocateMethodStore {
+			data.StoreId = req.StoreId
+		}
+		// 添加报损记录
+		if err := tx.Create(&data).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("报损失败")
+	}
 	return nil
 }

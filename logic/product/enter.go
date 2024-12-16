@@ -1,6 +1,7 @@
 package product
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
@@ -47,7 +48,8 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 			}
 
 			// 产品入库
-			v.Status = types.ProductStatusNormal
+			v.Status = enums.ProductStatusNormal
+			v.Type = enums.ProductTypeFinished
 			v.ProductEnterId = enter.Id
 			if err := tx.Create(&v).Error; err != nil {
 				continue

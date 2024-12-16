@@ -31,3 +31,33 @@ func (con ProductController) Damage(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 产品调拨
+func (con ProductController) Allocate(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateReq
+
+		logic = product.ProductLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+	// 校验参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	if err := logic.Allocate(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

@@ -5,23 +5,25 @@ import (
 	"fmt"
 	"jdy/types"
 	"reflect"
-	"strings"
+	"strconv"
 )
 
-// ModelToWhere 将模型根据 tags 转换为查询参数
-func ModelToWhere[M any](model M, values map[string]any) map[string]types.WhereForm {
+// 将结构体根据 tags 转换为查询参数
+func StructToWhere[S any](s S) map[string]types.WhereForm {
 	params := make(map[string]types.WhereForm)
-	t := reflect.TypeOf(model)
+	t := reflect.TypeOf(s)
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		json := field.Tag.Get("json")
-		where := field.Tag.Get("where")
-		if where == "" {
-			continue
+		class := field.Type
+		tag := field.Tag
+
+		var json string
+		if tag.Get("json") != "" {
+			json = tag.Get("json")
 		}
 
-		whereForm, err := parseTag(where, values)
+		whereForm, err := parseTag(class, tag)
 		if err != nil {
 			fmt.Printf("Error parsing tag for field %s: %v\n", json, err)
 			continue
@@ -32,46 +34,46 @@ func ModelToWhere[M any](model M, values map[string]any) map[string]types.WhereF
 	return params
 }
 
-func parseTag(where string, values map[string]any) (types.WhereForm, error) {
+func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error) {
 	var whereForm types.WhereForm
-	parts := strings.Split(where, ";")
-	for _, part := range parts {
-		kv := strings.Split(part, ":")
-		var (
-			key   string
-			value string
-		)
 
-		switch len(kv) {
-		case 1:
-			key = kv[0]
-			value = ""
-		case 2:
-			key = kv[0]
-			value = kv[1]
-		default:
-			return whereForm, errors.New("invalid tag format")
+	if tga.Get("json") != "" {
+		whereForm.Name = tga.Get("json")
+	}
+	if tga.Get("label") != "" {
+		whereForm.Label = tga.Get("label")
+	}
+	if tga.Get("sort") != "" {
+		v, err := strconv.ParseInt(tga.Get("sort"), 10, 64)
+		if err != nil {
+			return whereForm, err
 		}
-
-		switch key {
-		case "label":
-			whereForm.Label = value
-		case "type":
-			whereForm.Type = value
-		case "required":
-			whereForm.Required = value == "true" || value == ""
-		case "preset":
-			if strings.HasPrefix(value, "{{.") && strings.HasSuffix(value, "}}") {
-				variableName := strings.TrimPrefix(strings.TrimSuffix(value, "}}"), "{{.")
-				if val, ok := values[variableName]; ok {
-					whereForm.Preset = val
-				} else {
-					return whereForm, errors.New("variable not found in provided values for preset")
-				}
-			} else {
-				whereForm.Preset = value
+		whereForm.Sort = int(v)
+	}
+	if tga.Get("type") != "" {
+		whereForm.Type = tga.Get("type")
+	}
+	if tga.Get("input") != "" {
+		whereForm.Input = tga.Get("input")
+	}
+	if tga.Get("required") != "" {
+		whereForm.Required = tga.Get("required") == "true" || tga.Get("required") == ""
+	}
+	if tga.Get("show") != "" {
+		whereForm.Show = tga.Get("show") == "true" || tga.Get("show") == ""
+	}
+	if tga.Get("preset") != "" {
+		switch tga.Get("preset") {
+		case "typeMap":
+			enum, ok := reflect.New(class).Interface().(types.Enums)
+			if !ok {
+				return whereForm, errors.New("class does not implement types.WhereValidate")
 			}
+			whereForm.Preset = enum.ToMap()
+		default:
+			return whereForm, errors.New("invalid preset value")
 		}
 	}
+
 	return whereForm, nil
 }

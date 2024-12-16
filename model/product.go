@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"jdy/enums"
 	"jdy/types"
 
 	"gorm.io/gorm"
@@ -25,30 +26,34 @@ type Product struct {
 	WeightOther float64                 `json:"weight_other" gorm:"type:decimal(10,2);comment:杂料重;"`       // 杂料重
 	NumGem      int                     `json:"num_gem" gorm:"type:tinyint(2);comment:主石数;"`               // 主石数
 	NumOther    int                     `json:"num_other" gorm:"type:tinyint(2);comment:杂料数;"`             // 杂料数
-	ColorMetal  types.ProductColor      `json:"color_metal" gorm:"type:tinyint(2);comment:金颜色;"`           // 金颜色
-	ColorGem    types.ProductColor      `json:"color_gem" gorm:"type:tinyint(2);comment:主石色;"`             // 主石色
-	Clarity     types.ProductClarity    `json:"clarity" gorm:"type:tinyint(2);comment:主石净度;"`              // 净度
-	RetailType  types.ProductRetailType `json:"retail_type" gorm:"type:tinyint(2);not NULL;comment:零售方式;"` // 零售方式
-	Class       types.ProductClass      `json:"class" gorm:"type:tinyint(2);not NULL;comment:大类;"`         // 大类
-	Supplier    types.ProductSupplier   `json:"supplier" gorm:"type:tinyint(2);not NULL;comment:供应商;"`     // 供应商
-	Material    types.ProductMaterial   `json:"material" gorm:"type:tinyint(2);not NULL;comment:材质;"`      // 材质
-	Quality     types.ProductQuality    `json:"quality" gorm:"type:tinyint(2);not NULL;comment:成色;"`       // 成色
-	Gem         types.ProductGem        `json:"gem" gorm:"type:tinyint(2);not NULL;comment:宝石;"`           // 宝石
-	Category    types.ProductCategory   `json:"category" gorm:"type:tinyint(2);not NULL;comment:品类;"`      // 品类
-	Brand       types.ProductBrand      `json:"brand" gorm:"type:tinyint(2);comment:品牌;"`                  // 品牌
-	Craft       types.ProductCraft      `json:"craft" gorm:"type:tinyint(2);comment:工艺;"`                  // 工艺
+	ColorMetal  enums.ProductColor      `json:"color_metal" gorm:"type:tinyint(2);comment:金颜色;"`           // 金颜色
+	ColorGem    enums.ProductColor      `json:"color_gem" gorm:"type:tinyint(2);comment:主石色;"`             // 主石色
+	Clarity     enums.ProductClarity    `json:"clarity" gorm:"type:tinyint(2);comment:主石净度;"`              // 净度
+	RetailType  enums.ProductRetailType `json:"retail_type" gorm:"type:tinyint(2);not NULL;comment:零售方式;"` // 零售方式
+	Class       enums.ProductClass      `json:"class" gorm:"type:tinyint(2);not NULL;comment:大类;"`         // 大类
+	Supplier    enums.ProductSupplier   `json:"supplier" gorm:"type:tinyint(2);not NULL;comment:供应商;"`     // 供应商
+	Material    enums.ProductMaterial   `json:"material" gorm:"type:tinyint(2);not NULL;comment:材质;"`      // 材质
+	Quality     enums.ProductQuality    `json:"quality" gorm:"type:tinyint(2);not NULL;comment:成色;"`       // 成色
+	Gem         enums.ProductGem        `json:"gem" gorm:"type:tinyint(2);not NULL;comment:宝石;"`           // 宝石
+	Category    enums.ProductCategory   `json:"category" gorm:"type:tinyint(2);not NULL;comment:品类;"`      // 品类
+	Brand       enums.ProductBrand      `json:"brand" gorm:"type:tinyint(2);comment:品牌;"`                  // 品牌
+	Craft       enums.ProductCraft      `json:"craft" gorm:"type:tinyint(2);comment:工艺;"`                  // 工艺
 	Style       string                  `json:"style" gorm:"type:varchar(255);comment:款式;"`                // 款式
 	Size        string                  `json:"size" gorm:"type:varchar(255);comment:手寸;"`                 // 手寸
 
 	IsSpecialOffer bool                `json:"is_special_offer" gorm:"comment:是否特价;"`                    // 是否特价
 	Remark         string              `json:"remark" gorm:"type:text;comment:备注;"`                      // 备注
 	Certificate    []string            `json:"certificate" gorm:"type:text;serializer:json;comment:证书;"` // 证书
-	Status         types.ProductStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"`                // 状态
+	Status         enums.ProductStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"`                // 状态
+	Type           enums.ProductType   `json:"type" gorm:"type:tinyint(2);comment:类型;"`                  // 类型
 
 	ProductEnterId string        `json:"product_enter_id" gorm:"type:varchar(255);not NULL;comment:产品入库单ID;"`         // 产品入库单ID
 	ProductEnter   *ProductEnter `json:"product_enter" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品入库单;"` // 产品入库单
 
 	ProductDamages []ProductDamage `json:"product_damage" gorm:"foreignKey:ProductId;references:Id;comment:报损记录;"` // 报损记录
+
+	StoreId string `json:"store_id" gorm:"type:varchar(255);comment:店铺ID;"`           // 店铺ID
+	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:店铺;"` // 店铺
 }
 
 func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
@@ -136,6 +141,9 @@ func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
 	}
+	if query.Type != 0 {
+		db = db.Where("type = ?", query.Type)
+	}
 	if query.ProductEnterId != "" {
 		db = db.Where("product_enter_id = ?", query.ProductEnterId)
 	}
@@ -166,6 +174,22 @@ type ProductDamage struct {
 
 	Reason string `json:"reason" gorm:"type:text;not NULL;comment:原因;"`     // 原因
 	IP     string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"` // IP
+}
+
+type ProductAllocate struct {
+	SoftDelete
+
+	Method  enums.ProductAllocateMethod `json:"method" gorm:"type:tinyint(2);not NULL;comment:调拨方式;"`   // 调拨方式
+	StoreId string                      `json:"store_id" gorm:"type:tinyint(2);not NULL;comment:调拨门店;"` // 调拨门
+	Type    enums.ProductType           `json:"type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`     // 仓库类型
+	Reason  enums.ProductAllocateReason `json:"reason" gorm:"type:tinyint(2);not NULL;comment:调拨原因;"`   // 调拨原因
+	Remark  string                      `json:"remark" gorm:"type:text;not NULL;comment:备注;"`           // 备注
+
+	Products []Product `json:"product" gorm:"many2many:product_allocate_list;"` // 产品
+
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
+	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
+	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"`                 // IP
 }
 
 func init() {

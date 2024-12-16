@@ -16,22 +16,7 @@ type ProductController struct {
 
 // 产品筛选条件
 func (con ProductController) Where(ctx *gin.Context) {
-	where := utils.ModelToWhere(types.ProductWhere{}, map[string]any{
-		"ColorMetal":     types.ProductColorMap,          // 金颜色
-		"ColorGem":       types.ProductColorMap,          // 主石色
-		"Clarity":        types.ProductClarityMap,        // 净度
-		"RetailType":     types.ProductRetailTypeMap,     // 零售方式
-		"Class":          types.ProductClassMap,          // 大类
-		"Supplier":       types.ProductSupplierMap,       // 供应商
-		"Material":       types.ProductMaterialMap,       // 材质
-		"Quality":        types.ProductQualityMap,        // 成色
-		"Gem":            types.ProductGemMap,            // 宝石
-		"Category":       types.ProductCategoryMap,       // 品类
-		"Brand":          types.ProductBrandMap,          // 品牌
-		"Craft":          types.ProductCraftMap,          // 工艺
-		"IsSpecialOffer": map[int]string{1: "是", 0: "否"}, // 是否特价
-		"Status":         types.ProductStatusMap,         // 状态
-	})
+	where := utils.StructToWhere(types.ProductWhere{})
 
 	con.Success(ctx, "ok", where)
 }
@@ -47,6 +32,7 @@ func (con ProductController) List(ctx *gin.Context) {
 		}
 	)
 
+	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return

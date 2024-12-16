@@ -2,5 +2,52 @@
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
         "main.go": "go.mod, go.sum",
+    },
+    "go-struct-tag.customTags": {
+        "label": {
+            "cases": [],
+            "options": [],
+        },
+        "show": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ],
+        },
+        "sort": {
+            "cases": [],
+            "options": [],
+        },
+        "type": {
+            "cases": [],
+            "options": [
+                "number",
+                "float",
+                "string",
+                "select",
+            ],
+        },
+        "input": {
+            "cases": [],
+            "options": [
+                "select",
+                "number",
+                "text",
+            ],
+        },
+        "preset": {
+            "cases": [],
+            "options": [
+                "typeMap",
+            ],
+        },
+        "required": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ],
+        }
     }
 }

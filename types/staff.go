@@ -14,7 +14,7 @@ type StaffReq struct {
 	WxWork  *StaffWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
 }
 
-func (req *StaffReq) ValidateStaffReq() error {
+func (req *StaffReq) Validate() error {
 	validate := validator.New()
 	switch req.Platform {
 	case PlatformTypeAccount:
@@ -74,20 +74,7 @@ type StaffUpdateReq struct {
 	WxWork  *StaffUpdateWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
 }
 
-type StaffUpdateAccountReq struct {
-	Password string `json:"password" ` // 密码
-
-	Nickname string `json:"nickname" binding:"min=2,max=50"` // 姓名
-	Avatar   string `json:"avatar"`                          // 头像
-	Email    string `json:"email" binding:"email"`           // 邮箱
-	Gender   uint   `json:"gender" binding:"oneof=0 1 2"`    // 性别
-}
-
-type StaffUpdateWxWorkReq struct {
-	Code string `json:"code" binding:"required"`
-}
-
-func (req *StaffUpdateReq) ValidateStaffReq() error {
+func (req *StaffUpdateReq) Validate() error {
 	validate := validator.New()
 	switch req.Platform {
 	case PlatformTypeAccount:
@@ -111,4 +98,17 @@ func (req *StaffUpdateReq) ValidateStaffReq() error {
 		return errors.New("invalid Platform value")
 	}
 	return nil
+}
+
+type StaffUpdateAccountReq struct {
+	Password string `json:"password" ` // 密码
+
+	Nickname string `json:"nickname" binding:"min=2,max=50"` // 姓名
+	Avatar   string `json:"avatar"`                          // 头像
+	Email    string `json:"email" binding:"email"`           // 邮箱
+	Gender   uint   `json:"gender" binding:"oneof=0 1 2"`    // 性别
+}
+
+type StaffUpdateWxWorkReq struct {
+	Code string `json:"code" binding:"required"`
 }

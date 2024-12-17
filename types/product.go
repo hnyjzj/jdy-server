@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"jdy/enums"
+	"time"
 )
 
 type ProductEnterReq struct {
@@ -73,7 +74,7 @@ type ProductWhere struct {
 	Style    string                `json:"style" label:"款式" show:"true" sort:"24" type:"string" input:"text"`                       // 款式
 	Size     string                `json:"size" label:"手寸" show:"true" sort:"25" type:"string" input:"text"`                        // 手寸
 
-	IsSpecialOffer bool                `json:"is_special_offer" label:"是否特价" show:"true" sort:"26" type:"bool" input:"select"`        // 是否特价
+	IsSpecialOffer bool                `json:"is_special_offer" label:"是否特价" show:"true" sort:"26" type:"bool" input:"switch"`        // 是否特价
 	Remark         string              `json:"remark" label:"备注" show:"true" sort:"27" type:"string" input:"textarea"`                // 备注
 	Certificate    []string            `json:"certificate" label:"证书" show:"true" sort:"28" type:"string[]" input:"textarea"`         // 证书
 	Status         enums.ProductStatus `json:"status" label:"状态" show:"true" sort:"29" type:"number" input:"select" preset:"typeMap"` // 状态
@@ -132,18 +133,41 @@ type ProductDamageReq struct {
 	Reason string `json:"reason" binding:"required"` // 损坏原因
 }
 
-type ProductAllocateReq struct {
+type ProductAllocateCreateReq struct {
 	Method  enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨方式
-	StoreId string                      `json:"store_id" binding:"-"`      // 调拨门店
 	Type    enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
 	Reason  enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
 	Remark  string                      `json:"remark" binding:"-"`        // 备注
+	StoreId string                      `json:"store_id" binding:"-"`      // 调拨门店
 }
 
-func (req *ProductAllocateReq) Validate() error {
+func (req *ProductAllocateCreateReq) Validate() error {
 	if req.Method == enums.ProductAllocateMethodStore && req.StoreId == "" {
 		return errors.New("调拨门店不能为空")
 	}
 
 	return nil
+}
+
+type ProductAllocateWhere struct {
+	Method  enums.ProductAllocateMethod `json:"method" label:"调拨方式" input:"select" type:"number" show:"true" sort:"1" required:"true" preset:"typeMap"` // 调拨方式
+	Type    enums.ProductType           `json:"type" label:"仓库类型" input:"select" type:"number" show:"true" sort:"2" required:"true" preset:"typeMap"`   // 仓库类型
+	Reason  enums.ProductAllocateReason `json:"reason" label:"调拨原因" input:"select" type:"number" show:"true" sort:"3" required:"true" preset:"typeMap"` // 调拨原因
+	StoreId string                      `json:"store_id" label:"调拨门店" input:"search" type:"string" show:"true" sort:"4" required:"true"`                // 调拨门店
+
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"5" required:"false"` // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"6" required:"false"`   // 结束时间
+}
+
+func (req *ProductAllocateWhere) Validate() error {
+	if req.Method == enums.ProductAllocateMethodStore && req.StoreId == "" {
+		return errors.New("调拨门店不能为空")
+	}
+
+	return nil
+}
+
+type ProductAllocateListReq struct {
+	PageReq
+	Where ProductAllocateWhere `json:"where"`
 }

@@ -47,31 +47,3 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 
 	return nil
 }
-
-// 产品调拨
-func (l *ProductLogic) Allocate(req *types.ProductAllocateReq) *errors.Errors {
-	// 开启事务
-	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		data := model.ProductAllocate{
-			Method: req.Method,
-			Type:   req.Type,
-			Reason: req.Reason,
-			Remark: req.Remark,
-
-			OperatorId: l.Staff.Id,
-			IP:         l.Ctx.ClientIP(),
-		}
-		if req.Method == enums.ProductAllocateMethodStore {
-			data.StoreId = req.StoreId
-		}
-		// 添加报损记录
-		if err := tx.Create(&data).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return errors.New("报损失败")
-	}
-	return nil
-}

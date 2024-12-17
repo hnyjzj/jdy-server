@@ -71,7 +71,7 @@ func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error
 			}
 			whereForm.Preset = enum.ToMap()
 		default:
-			return whereForm, errors.New("invalid preset value")
+			whereForm.Preset = tga.Get("preset")
 		}
 	}
 

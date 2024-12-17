@@ -24,6 +24,39 @@ var ProductStatusMap = map[ProductStatus]string{
 	ProductStatusReturn:   "退货",
 }
 
+// 判断状态是否可以转换
+func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
+	transitions := map[ProductStatus][]ProductStatus{
+		ProductStatusNormal: {
+			ProductStatusDamage,
+			ProductStatusAllocate,
+			ProductStatusSold,
+		},
+		ProductStatusDamage: {
+			ProductStatusNormal,
+		},
+		ProductStatusAllocate: {
+			ProductStatusNormal,
+			ProductStatusDamage,
+		},
+		ProductStatusSold: {
+			ProductStatusReturn,
+		},
+		ProductStatusReturn: {
+			ProductStatusNormal,
+			ProductStatusDamage,
+		},
+	}
+	if allowed, ok := transitions[p]; ok {
+		for _, status := range allowed {
+			if status == newStatus {
+				return nil
+			}
+		}
+	}
+	return errors.New("非法的状态转换")
+}
+
 func (p ProductStatus) ToMap() any {
 	return ProductStatusMap
 }

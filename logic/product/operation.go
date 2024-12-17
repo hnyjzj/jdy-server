@@ -21,6 +21,10 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 	if product.Status != enums.ProductStatusNormal {
 		return errors.New("产品不在库存中")
 	}
+	// 判断是否可以报损
+	if err := product.Status.CanTransitionTo(enums.ProductStatusDamage); err != nil {
+		return errors.New("产品状态不允许报损")
+	}
 
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {

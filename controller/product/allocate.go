@@ -1,7 +1,6 @@
 package product
 
 import (
-	"fmt"
 	"jdy/errors"
 	"jdy/logic/product"
 	"jdy/types"
@@ -69,7 +68,6 @@ func (con ProductAllocateController) List(ctx *gin.Context) {
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

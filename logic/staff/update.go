@@ -76,7 +76,6 @@ func (l *StaffUpdateLogic) account() error {
 			Phone:    staff.Phone,
 
 			Nickname: &req.Nickname,
-			Password: &req.Password,
 			Avatar:   &req.Avatar,
 			Email:    &req.Email,
 			Gender:   req.Gender,

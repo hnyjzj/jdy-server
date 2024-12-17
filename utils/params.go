@@ -65,7 +65,7 @@ func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error
 	if tga.Get("preset") != "" {
 		switch tga.Get("preset") {
 		case "typeMap":
-			enum, ok := reflect.New(class).Interface().(types.Enums)
+			enum, ok := reflect.New(class).Interface().(types.EnumMapper)
 			if !ok {
 				return whereForm, errors.New("class does not implement types.WhereValidate")
 			}

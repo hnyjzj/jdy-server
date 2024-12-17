@@ -26,7 +26,7 @@ func CustomValidator() gin.HandlerFunc {
 
 		// 类型映射验证
 		_ = v.RegisterValidation("typeMap", func(fl validator.FieldLevel) bool {
-			if p, ok := fl.Field().Interface().(types.Enums); !ok {
+			if p, ok := fl.Field().Interface().(types.EnumMapper); !ok {
 				return false
 			} else {
 				if err := p.InMap(); err != nil {

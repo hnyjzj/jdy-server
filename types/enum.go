@@ -1,6 +1,6 @@
 package types
 
-type Enums interface {
+type EnumMapper interface {
 	InMap() error
 	ToMap() any
 }

@@ -23,7 +23,7 @@ func (con StaffController) Create(ctx *gin.Context) {
 	}
 
 	// 使用自定义验证器进行验证
-	if err := req.ValidateStaffReq(); err != nil {
+	if err := req.Validate(); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
@@ -56,7 +56,7 @@ func (con StaffController) Update(ctx *gin.Context) {
 	}
 
 	// 使用自定义验证器进行验证
-	if err := req.ValidateStaffReq(); err != nil {
+	if err := req.Validate(); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

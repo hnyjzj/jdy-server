@@ -111,6 +111,16 @@ func (l *AccountCreateLogic) account() error {
 			Email:    req.Email,
 		},
 	}
+
+	// 加密密码
+	if req.Password != "" {
+		password, err := account.HashPassword(&req.Password)
+		if err != nil {
+			return err
+		}
+		account.Password = &password
+	}
+
 	// 创建账号
 	if err := tx.Save(&account).Error; err != nil {
 		tx.Rollback()

@@ -11,6 +11,7 @@ type Store struct {
 	SoftDelete
 
 	ParentId *string `json:"parent_id" gorm:"size:255;comment:父级门店id"`
+	Parent   *Store  `json:"parent" gorm:"foreignKey:ParentId;references:Id;"`
 
 	Name     string `json:"name" gorm:"size:255;comment:名称"`
 	Address  string `json:"address" gorm:"size:500;comment:地址"`
@@ -29,6 +30,9 @@ type Store struct {
 }
 
 func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhereReq) *gorm.DB {
+	if query.Id != nil {
+		db = db.Where("id = ?", query.Id)
+	}
 	if query.ParentId != nil {
 		db = db.Where("parent_id = ?", query.ParentId)
 	}

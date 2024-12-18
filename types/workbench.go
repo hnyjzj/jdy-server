@@ -13,8 +13,8 @@ type WorkbenchListRes struct {
 
 type WorkbenchAddReq struct {
 	Title    string `json:"title" binding:"required"`
-	Icon     string `json:"icon"  binding:"required"`
 	Path     string `json:"path"  binding:"required"`
+	Icon     string `json:"icon"  binding:"-"`
 	ParentId string `json:"parent_id"`
 }
 

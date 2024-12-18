@@ -23,9 +23,10 @@ func Init() {
 	Config = new(Configured)
 	defaults.SetDefaults(Config)
 	// 读取配置文件
+	viper.SetConfigName("env")
+	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./")
 	viper.AddConfigPath("../")
-	viper.SetConfigName("env")
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Printf("没有读取到配置文件，将使用默认值。%v \n", err)
 	}

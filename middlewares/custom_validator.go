@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"jdy/types"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
@@ -9,8 +10,9 @@ import (
 )
 
 // 正则表达式验证器
-func RegexValidator() gin.HandlerFunc {
+func CustomValidator() gin.HandlerFunc {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		// 正则表达式验证
 		_ = v.RegisterValidation("regex", func(fl validator.FieldLevel) bool {
 			// 从传递给验证器的 tag 获取正则表达式。
 			regex := fl.Param()
@@ -21,6 +23,19 @@ func RegexValidator() gin.HandlerFunc {
 
 			return matched
 		})
+
+		// 类型映射验证
+		_ = v.RegisterValidation("typeMap", func(fl validator.FieldLevel) bool {
+			if p, ok := fl.Field().Interface().(types.EnumMapper); !ok {
+				return false
+			} else {
+				if err := p.InMap(); err != nil {
+					return false
+				}
+			}
+			return true
+		})
+
 	}
 	// 返回 Gin 中间件。
 	return func(c *gin.Context) {

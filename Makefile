@@ -4,7 +4,7 @@ GOBUILD = $(GOCMD) build
 GOMOD = $(GOCMD) mod
 GOTEST = $(GOCMD) test
 
-all: serve
+all: install dev
 
 init:
 	$(GOMOD) init $(module)
@@ -12,7 +12,7 @@ init:
 install:
 	$(GOMOD) tidy
 
-serve:
+dev:
 	$(GOCMD) run .
 
 build:
@@ -20,8 +20,13 @@ build:
 	# CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) -o ./build/$(BINARY_NAME).mac -v ./ ;
 	# CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o ./build/$(BINARY_NAME).exe -v ./
 
+build-dev:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o ./build/$(BINARY_NAME).dev -v ./ ;
+	# CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) -o ./build/$(BINARY_NAME).dev.mac -v ./ ;
+	# CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o ./build/$(BINARY_NAME).dev.exe -v ./
+
 clean:
 	$(GOCMD) clean;
 	rm -rf ./build/$(BINARY_NAME)*;
 
-.PHONY: serve build
+.PHONY: all init install dev build build-dev clean

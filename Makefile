@@ -4,7 +4,7 @@ GOBUILD = $(GOCMD) build
 GOMOD = $(GOCMD) mod
 GOTEST = $(GOCMD) test
 
-all: serve
+all: install dev
 
 init:
 	$(GOMOD) init $(module)
@@ -29,4 +29,4 @@ clean:
 	$(GOCMD) clean;
 	rm -rf ./build/$(BINARY_NAME)*;
 
-.PHONY: serve build
+.PHONY: dev build build-dev clean install init

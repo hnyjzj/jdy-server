@@ -29,4 +29,4 @@ clean:
 	$(GOCMD) clean;
 	rm -rf ./build/$(BINARY_NAME)*;
 
-.PHONY: dev build build-dev clean install init
+.PHONY: all init install dev build build-dev clean

@@ -41,3 +41,12 @@ type MemberUpdateReq struct {
 	Id string `json:"id" binding:"required"`
 	MemberCreateReq
 }
+
+type MemberListReq struct {
+	PageReq
+	Where MemberWhere `json:"where" binding:"required"`
+}
+
+type MemberInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}

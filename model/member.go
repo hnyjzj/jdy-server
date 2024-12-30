@@ -2,6 +2,7 @@ package model
 
 import (
 	"jdy/enums"
+	"jdy/types"
 
 	"gorm.io/gorm"
 )
@@ -26,12 +27,59 @@ type Member struct {
 	SourceId string             `json:"source_id" gorm:"column:source_id;size:255;not NULL;comment:来源id;"`          // 来源id
 
 	ConsultantId string `json:"consultant_id" gorm:"column:consultant_id;size:255;not NULL;comment:顾问id;"` // 顾问id
-	Consultant   Staff  `json:"consultant" gorm:"foreignKey:ConsultantId;references:Id;"`                  // 顾问
+	Consultant   Staff  `json:"consultant,omitempty" gorm:"foreignKey:ConsultantId;references:Id;"`        // 顾问
 
 	StoreId string `json:"store_id" gorm:"column:store_id;size:255;not NULL;comment:入会门店id;"` // 入会门店id
-	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;"`                    // 门店
+	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;"`          // 门店
 
 	Status enums.MemberStatus `json:"status" gorm:"column:status;type:tinyint(1);not NULL;default:0;comment:状态;"` // 状态
+}
+
+func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
+	if query.Phone != nil {
+		db = db.Where("phone = ?", *query.Phone)
+	}
+	if query.Name != "" {
+		db = db.Where("name = ?", query.Name)
+	}
+	if query.Gender != 0 {
+		db = db.Where("gender = ?", query.Gender)
+	}
+	if query.Birthday != "" {
+		db = db.Where("birthday = ?", query.Birthday)
+	}
+	if query.Anniversary != "" {
+		db = db.Where("anniversary = ?", query.Anniversary)
+	}
+	if query.Nickname != "" {
+		db = db.Where("nickname = ?", query.Nickname)
+	}
+	if query.Level != 0 {
+		db = db.Where("level = ?", query.Level)
+	}
+	if query.Integral != 0 {
+		db = db.Where("integral = ?", query.Integral)
+	}
+	if query.BuyCount != 0 {
+		db = db.Where("buy_count = ?", query.BuyCount)
+	}
+	if query.EventCount != 0 {
+		db = db.Where("event_count = ?", query.EventCount)
+	}
+	if query.Source != 0 {
+		db = db.Where("source = ?", query.Source)
+	}
+	if query.ConsultantId != "" {
+		db = db.Where("consultant_id = ?", query.ConsultantId)
+	}
+	if query.StoreId != "" {
+		db = db.Where("store_id = ?", query.StoreId)
+	}
+	if query.Status != 0 {
+		db = db.Where("status = ?", query.Status)
+	}
+
+	return db
 }
 
 func (M *Member) IntegralChange(db *gorm.DB, change float64, types enums.MemberIntegralChangeType, remark ...string) error {

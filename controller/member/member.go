@@ -2,6 +2,8 @@ package member
 
 import (
 	"jdy/controller"
+	"jdy/errors"
+	"jdy/logic/member"
 	"jdy/types"
 	"jdy/utils"
 
@@ -21,10 +23,51 @@ func (con MemberController) Where(ctx *gin.Context) {
 
 // 会员列表
 func (con MemberController) List(ctx *gin.Context) {
-	con.Success(ctx, "ok", nil)
+	var (
+		req types.MemberListReq
+
+		logic = member.MemberLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	res, err := logic.List(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
 }
 
 // 会员详情
 func (con MemberController) Info(ctx *gin.Context) {
-	con.Success(ctx, "ok", nil)
+	var (
+		req types.MemberInfoReq
+
+		logic = member.MemberLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	res, err := logic.Info(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
 }

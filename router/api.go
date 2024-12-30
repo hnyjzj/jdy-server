@@ -85,6 +85,7 @@ func Api(g *gin.Engine) {
 				stores.PUT("/update", store.StoreController{}.Update)    // 门店更新
 				stores.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
 				stores.POST("/list", store.StoreController{}.List)       // 门店列表
+				stores.POST("/my", store.StoreController{}.My)           // 门店列表
 				stores.POST("/info", store.StoreController{}.Info)       // 门店详情
 			}
 		}

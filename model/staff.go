@@ -16,6 +16,8 @@ type Staff struct {
 
 	Account  *Account  `json:"account" gorm:"foreignKey:StaffId;references:Id;"`
 	Accounts []Account `json:"accounts" gorm:"foreignKey:StaffId;references:Id;"`
+
+	Stores []Store `json:"stores" gorm:"many2many:stores_staffs;"`
 }
 
 func init() {

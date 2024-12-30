@@ -32,6 +32,10 @@ type StoreListReq struct {
 	Where StoreWhere `json:"where"`
 }
 
+type StoreListMyReq struct {
+	Where StoreWhere `json:"where"`
+}
+
 type StoreWhere struct {
 	ParentId *string `json:"parent_id" label:"父级门店id" show:"true" sort:"1" type:"string" input:"search"`
 	Name     *string `json:"name" label:"门店名称" show:"true" sort:"2" type:"string" input:"text"`

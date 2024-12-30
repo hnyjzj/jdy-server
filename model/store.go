@@ -10,9 +10,6 @@ import (
 type Store struct {
 	SoftDelete
 
-	ParentId *string `json:"parent_id" gorm:"size:255;comment:父级门店id"`
-	Parent   *Store  `json:"parent" gorm:"foreignKey:ParentId;references:Id;"`
-
 	Name     string `json:"name" gorm:"size:255;comment:名称"`
 	Address  string `json:"address" gorm:"size:500;comment:地址"`
 	Contact  string `json:"contact" gorm:"size:255;comment:联系方式"`
@@ -28,9 +25,6 @@ type Store struct {
 }
 
 func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
-	if query.ParentId != nil {
-		db = db.Where("parent_id = ?", query.ParentId)
-	}
 	if query.Name != nil {
 		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", *query.Name))
 	}
@@ -51,33 +45,6 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	}
 
 	return db
-}
-
-// 获取树形结构
-func (Store) GetTree(Pid *string) ([]*Store, error) {
-	var list []*Store
-	db := DB
-	if Pid != nil {
-		db = db.Where(&Store{ParentId: Pid})
-	} else {
-		db = db.Where("parent_id IS NULL")
-	}
-	db = db.Order("sort DESC")
-	if err := db.Find(&list).Error; err != nil {
-		return nil, err
-	}
-	for _, v := range list {
-		children, err := v.GetTree(&v.Id)
-		if err != nil {
-			return nil, err
-		}
-		if len(children) == 0 {
-			continue
-		}
-		v.Children = children
-	}
-
-	return list, nil
 }
 
 func init() {

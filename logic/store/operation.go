@@ -11,8 +11,6 @@ import (
 
 func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 	store := &model.Store{
-		ParentId: req.ParentId,
-
 		Name:     req.Name,
 		Address:  req.Address,
 		Contact:  req.Contact,
@@ -47,8 +45,6 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Model(&store).Updates(model.Store{
-			ParentId: req.ParentId,
-
 			Name:     req.Name,
 			Address:  req.Address,
 			Contact:  req.Contact,

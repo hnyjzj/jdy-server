@@ -42,4 +42,5 @@ type StoreWhere struct {
 	District *string `json:"district" label:"区域" show:"true" sort:"4" type:"string" input:"text"`
 	Address  string  `json:"address" label:"门店地址" show:"true" sort:"5" type:"string" input:"text"`
 	Contact  string  `json:"contact" label:"联系方式" show:"true" sort:"6" type:"string" input:"text"`
+	Logo     string  `json:"logo" label:"门店logo" show:"false" sort:"7" type:"string" input:"upload"`
 }

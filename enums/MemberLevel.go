@@ -8,6 +8,7 @@ type MemberLevel int
 
 const (
 	MemberLevelAll     MemberLevel = iota // 全部
+	MemberLevelNone                       // 无
 	MemberLevelSilver                     // 银卡
 	MemberLevelGold                       // 金卡
 	MemberLevelDiamond                    // 钻石卡
@@ -15,6 +16,7 @@ const (
 
 var MemberLevelMap = map[MemberLevel]string{
 	MemberLevelAll:     "全部",
+	MemberLevelNone:    "无",
 	MemberLevelSilver:  "银卡",
 	MemberLevelGold:    "金卡",
 	MemberLevelDiamond: "钻石卡",

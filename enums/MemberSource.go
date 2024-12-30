@@ -8,13 +8,13 @@ type MemberSource int
 
 const (
 	MemberSourceAll        MemberSource = iota // 全部
-	MemberSourceManual                         // 人工录入
+	MemberSourceStaff                          // 员工录入
 	MemberSourceWechatWork                     // 企业微信
 )
 
 var MemberSourceMap = map[MemberSource]string{
 	MemberSourceAll:        "全部",
-	MemberSourceManual:     "人工录入",
+	MemberSourceStaff:      "员工录入",
 	MemberSourceWechatWork: "企业微信",
 }
 

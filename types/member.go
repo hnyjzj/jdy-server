@@ -2,15 +2,14 @@ package types
 
 import (
 	"jdy/enums"
-	"time"
 )
 
 type MemberWhere struct {
 	Phone       *string      `json:"phone" label:"手机号" show:"true" sort:"1" type:"string" input:"text" required:"true"`
 	Name        string       `json:"name" label:"姓名" show:"true" sort:"2" type:"string" input:"text"`
 	Gender      enums.Gender `json:"gender" label:"性别" show:"true" sort:"3" type:"number" input:"select" preset:"typeMap"`
-	Birthday    time.Time    `json:"birthday" label:"生日" show:"true" sort:"4" type:"date" input:"date"`
-	Anniversary time.Time    `json:"anniversary" label:"纪念日" show:"true" sort:"5" type:"date" input:"date"`
+	Birthday    string       `json:"birthday" label:"生日" show:"true" sort:"4" type:"date" input:"date"`
+	Anniversary string       `json:"anniversary" label:"纪念日" show:"true" sort:"5" type:"date" input:"date"`
 	Nickname    string       `json:"nickname" label:"昵称" show:"true" sort:"6" type:"string" input:"text"`
 
 	Level      enums.MemberLevel `json:"level" label:"等级" show:"true" sort:"8" type:"number" input:"select" preset:"typeMap"`
@@ -23,4 +22,17 @@ type MemberWhere struct {
 	StoreId      string             `json:"store_id" label:"门店" show:"true" sort:"14" type:"string" input:"text"`
 
 	Status enums.MemberStatus `json:"status" label:"状态" show:"true" sort:"15" type:"number" input:"select" preset:"typeMap"`
+}
+
+type MemberCreateReq struct {
+	Phone       *string      `json:"phone" binding:"required"`
+	Name        string       `json:"name" binding:"required"`
+	Gender      enums.Gender `json:"gender" binding:"-"`
+	Birthday    string       `json:"birthday" binding:"-"`
+	Anniversary string       `json:"anniversary" binding:"-"`
+	Nickname    string       `json:"nickname" binding:"-"`
+	IDCard      string       `json:"id_card" binding:"-"`
+
+	ConsultantId string `json:"consultant_id" binding:"-"`
+	StoreId      string `json:"store_id" binding:"-"`
 }

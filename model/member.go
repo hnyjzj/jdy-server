@@ -2,7 +2,6 @@ package model
 
 import (
 	"jdy/enums"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -11,10 +10,10 @@ type Member struct {
 	SoftDelete
 
 	Phone       *string      `json:"phone" gorm:"column:phone;unique;size:255;not NULL;comment:手机号;"` // 手机号
-	Name        string       `json:"name" gorm:"column:name;size:255;comment:姓名;"`                    // 姓名
+	Name        string       `json:"name" gorm:"column:name;size:255;not NULL;comment:姓名;"`           // 姓名
 	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"`         // 性别
-	Birthday    time.Time    `json:"birthday" gorm:"column:birthday;comment:生日;"`                     // 生日
-	Anniversary time.Time    `json:"anniversary" gorm:"column:anniversary;comment:纪念日;"`              // 纪念日
+	Birthday    string       `json:"birthday" gorm:"column:birthday;size:255;comment:生日;"`            // 生日
+	Anniversary string       `json:"anniversary" gorm:"column:anniversary;size:255;comment:纪念日;"`     // 纪念日
 	Nickname    string       `json:"nickname" gorm:"column:nickname;size:255;comment:昵称;"`            // 昵称
 	IDCard      string       `json:"id_card" gorm:"column:id_card;size:255;comment:身份证号;"`            // 身份证号
 
@@ -23,11 +22,14 @@ type Member struct {
 	BuyCount   int               `json:"buy_count" gorm:"column:buy_count;type:int(11);not NULL;default:0;comment:购买次数;"`     // 购买次数
 	EventCount int               `json:"event_count" gorm:"column:event_count;type:int(11);not NULL;default:0;comment:活动次数;"` // 活动次数
 
-	Source       enums.MemberSource `json:"source" gorm:"column:source;type:tinyint(1);not NULL;default:0;comment:来源;"` // 来源
-	ConsultantId string             `json:"consultant_id" gorm:"column:consultant_id;size:255;comment:顾问id;"`           // 顾问id
-	Consultant   Staff              `json:"consultant" gorm:"foreignKey:ConsultantId;references:Id;"`                   // 顾问
-	StoreId      string             `json:"store_id" gorm:"column:store_id;size:255;comment:入会门店id;"`                   // 入会门店id
-	Store        Store              `json:"store" gorm:"foreignKey:StoreId;references:Id;"`                             // 入会门店
+	Source   enums.MemberSource `json:"source" gorm:"column:source;type:tinyint(1);not NULL;default:0;comment:来源;"` // 来源
+	SourceId string             `json:"source_id" gorm:"column:source_id;size:255;not NULL;comment:来源id;"`          // 来源id
+
+	ConsultantId string `json:"consultant_id" gorm:"column:consultant_id;size:255;not NULL;comment:顾问id;"` // 顾问id
+	Consultant   Staff  `json:"consultant" gorm:"foreignKey:ConsultantId;references:Id;"`                  // 顾问
+
+	StoreId string `json:"store_id" gorm:"column:store_id;size:255;not NULL;comment:入会门店id;"` // 入会门店id
+	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;"`                    // 门店
 
 	Status enums.MemberStatus `json:"status" gorm:"column:status;type:tinyint(1);not NULL;default:0;comment:状态;"` // 状态
 }

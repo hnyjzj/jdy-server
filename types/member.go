@@ -25,9 +25,9 @@ type MemberWhere struct {
 }
 
 type MemberCreateReq struct {
-	Phone       *string      `json:"phone" binding:"required"`
+	Phone       *string      `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"`
 	Name        string       `json:"name" binding:"required"`
-	Gender      enums.Gender `json:"gender" binding:"-"`
+	Gender      enums.Gender `json:"gender" binding:"oneof=0 1 2"`
 	Birthday    string       `json:"birthday" binding:"-"`
 	Anniversary string       `json:"anniversary" binding:"-"`
 	Nickname    string       `json:"nickname" binding:"-"`
@@ -35,4 +35,9 @@ type MemberCreateReq struct {
 
 	ConsultantId string `json:"consultant_id" binding:"-"`
 	StoreId      string `json:"store_id" binding:"-"`
+}
+
+type MemberUpdateReq struct {
+	Id string `json:"id" binding:"required"`
+	MemberCreateReq
 }

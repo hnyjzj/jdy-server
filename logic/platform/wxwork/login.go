@@ -2,11 +2,11 @@ package wxwork
 
 import (
 	"jdy/config"
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -140,10 +140,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 	}
 
 	// 获取性别
-	gender, err := strconv.Atoi(detail.Gender)
-	if err != nil {
-		gender = 0
-	}
+	var gender enums.Gender
 
 	l.UserInfo = &model.Account{
 		Platform: types.PlatformTypeWxWork,
@@ -153,7 +150,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 		Nickname: &userinfo.Name,
 		Avatar:   &detail.Avatar,
 		Email:    &detail.Email,
-		Gender:   uint(gender),
+		Gender:   gender.Convert(detail.Gender),
 	}
 
 	return nil

@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"jdy/logic/platform/wxwork"
 	"jdy/model"
 	"jdy/types"
 
@@ -11,10 +10,6 @@ import (
 )
 
 func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
-	var (
-		wxwork = wxwork.WxWorkLogic{}
-	)
-
 	store := &model.Store{
 		ParentId: req.ParentId,
 
@@ -29,26 +24,12 @@ func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		// 创建企业微信部门
-		if req.SyncWxwork {
-			id, err := wxwork.StoreCreate(ctx, req)
-			if err != nil {
-				return errors.New("同步企业微信失败: " + err.Error())
-			}
-			store.WxworkId = id
-		}
-
 		if err := tx.Create(store).Error; err != nil {
 			return err
 		}
 
 		return nil
 	}); err != nil {
-		if req.SyncWxwork && store.WxworkId != 0 {
-			if err := wxwork.StoreDelete(ctx, store.WxworkId); err != nil {
-				return errors.New("同步企业微信失败: " + err.Error())
-			}
-		}
 		return err
 	}
 
@@ -56,9 +37,6 @@ func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 }
 
 func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
-	var (
-		wxwork = wxwork.WxWorkLogic{}
-	)
 
 	// 查询门店信息
 	var store model.Store
@@ -67,12 +45,6 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		// 更新企业微信部门
-		if store.WxworkId != 0 {
-			if err := wxwork.StoreUpdate(ctx, store.WxworkId, req); err != nil {
-				return errors.New("同步企业微信失败: " + err.Error())
-			}
-		}
 
 		if err := tx.Model(&store).Updates(model.Store{
 			ParentId: req.ParentId,
@@ -91,11 +63,6 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 
 		return nil
 	}); err != nil {
-		if store.WxworkId != 0 {
-			if err := wxwork.StoreDelete(ctx, store.WxworkId); err != nil {
-				return errors.New("同步企业微信失败: " + err.Error())
-			}
-		}
 		return err
 	}
 
@@ -104,10 +71,6 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 
 // 删除门店
 func (l *StoreLogic) Delete(ctx *gin.Context, req *types.StoreDeleteReq) error {
-	var (
-		wxwork = wxwork.WxWorkLogic{}
-	)
-
 	// 查询门店信息
 	store := &model.Store{}
 	if err := model.DB.First(store, req.Id).Error; err != nil {
@@ -115,13 +78,6 @@ func (l *StoreLogic) Delete(ctx *gin.Context, req *types.StoreDeleteReq) error {
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		// 删除企业微信部门
-		if req.SyncWxwork && store.WxworkId != 0 {
-			if err := wxwork.StoreDelete(ctx, store.WxworkId); err != nil {
-				return errors.New("同步企业微信失败: " + err.Error())
-			}
-		}
-
 		if err := tx.Delete(store).Error; err != nil {
 			return err
 		}

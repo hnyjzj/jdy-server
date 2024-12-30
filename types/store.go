@@ -11,9 +11,6 @@ type StoreCreateReq struct {
 	Address  string `json:"address" binding:"required"`  // 门店地址
 	Contact  string `json:"contact" binding:"required"`  // 联系方式
 	Logo     string `json:"logo"`                        // 门店logo
-
-	SyncWxwork bool `json:"sync_wxwork"` // 是否同步到企业微信
-	WxworkId   int  `json:"wxwork_id"`
 }
 
 type StoreUpdateReq struct {
@@ -24,8 +21,6 @@ type StoreUpdateReq struct {
 
 type StoreDeleteReq struct {
 	Id string `json:"id" binding:"required"`
-
-	SyncWxwork bool `json:"sync_wxwork"` // 是否同步到企业微信
 }
 
 type StoreInfoReq struct {
@@ -34,18 +29,15 @@ type StoreInfoReq struct {
 
 type StoreListReq struct {
 	PageReq
-	Where StoreWhereReq `json:"where"`
+	Where StoreWhere `json:"where"`
 }
 
-type StoreWhereReq struct {
-	Id       *string `json:"id"`
-	Name     *string `json:"name"`     // 门店名称
-	Province *string `json:"province"` // 省份
-	City     *string `json:"city"`     // 城市
-	District *string `json:"district"` // 区域
-	Address  string  `json:"address"`  // 门店地址
-	Contact  string  `json:"contact"`  // 联系方式
-
-	WxworkId int     `json:"wxwork_id"`
-	ParentId *string `json:"parent_id"` // 父级门店id
+type StoreWhere struct {
+	ParentId *string `json:"parent_id" label:"父级门店id" show:"true" sort:"1" type:"string" input:"search"`
+	Name     *string `json:"name" label:"门店名称" show:"true" sort:"2" type:"string" input:"text"`
+	Province *string `json:"province" label:"省份" show:"true" sort:"3" type:"string" input:"text"`
+	City     *string `json:"city" label:"城市" show:"true" sort:"4" type:"string" input:"text"`
+	District *string `json:"district" label:"区域" show:"true" sort:"5" type:"string" input:"text"`
+	Address  string  `json:"address" label:"门店地址" show:"true" sort:"6" type:"string" input:"text"`
+	Contact  string  `json:"contact" label:"联系方式" show:"true" sort:"7" type:"string" input:"text"`
 }

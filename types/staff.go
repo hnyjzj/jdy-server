@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"jdy/enums"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -42,9 +43,8 @@ func (req *StaffReq) Validate() error {
 
 // 员工账号请求
 type StaffAccountReq struct {
-	Username string `json:"username" binding:"required,min=2,max=50,regex=^[a-zA-Z0-9_]+$"` // 用户名
-	Phone    string `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"`        // 手机号
-	Password string `json:"password" binding:"required"`                                    // 密码
+	Phone    string `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"` // 手机号
+	Password string `json:"password" binding:"required"`                             // 密码
 
 	Nickname string `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
 	Avatar   string `json:"avatar"`                                                            // 头像
@@ -60,10 +60,10 @@ type StaffWxWorkReq struct {
 type StaffRes struct {
 	Phone string `json:"phone"`
 
-	Nickname string `json:"nickname"`
-	Avatar   string `json:"avatar"`
-	Email    string `json:"email"`
-	Gender   uint   `json:"gender"`
+	Nickname string       `json:"nickname"`
+	Avatar   string       `json:"avatar"`
+	Email    string       `json:"email"`
+	Gender   enums.Gender `json:"gender"`
 }
 
 // 更新请求
@@ -103,10 +103,10 @@ func (req *StaffUpdateReq) Validate() error {
 type StaffUpdateAccountReq struct {
 	Password string `json:"password" ` // 密码
 
-	Nickname string `json:"nickname" binding:"min=2,max=50"` // 姓名
-	Avatar   string `json:"avatar"`                          // 头像
-	Email    string `json:"email" binding:"email"`           // 邮箱
-	Gender   uint   `json:"gender" binding:"oneof=0 1 2"`    // 性别
+	Nickname string       `json:"nickname" binding:"min=2,max=50"` // 姓名
+	Avatar   string       `json:"avatar"`                          // 头像
+	Email    string       `json:"email" binding:"email"`           // 邮箱
+	Gender   enums.Gender `json:"gender" binding:"oneof=0 1 2"`    // 性别
 }
 
 type StaffUpdateWxWorkReq struct {

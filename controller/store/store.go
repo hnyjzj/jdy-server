@@ -5,12 +5,20 @@ import (
 	"jdy/errors"
 	"jdy/logic/store"
 	"jdy/types"
+	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type StoreController struct {
 	controller.BaseController
+}
+
+// 门店筛选条件
+func (con StoreController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.StoreWhere{})
+
+	con.Success(ctx, "ok", where)
 }
 
 // 门店列表

@@ -77,6 +77,7 @@ func Api(g *gin.Engine) {
 		// 门店
 		stores := r.Group("/store")
 		{
+			stores.GET("/where", store.StoreController{}.Where) // 门店筛选
 			stores.Use(middlewares.JWTMiddleware())
 			{
 				stores.POST("/create", store.StoreController{}.Create)   // 创建门店

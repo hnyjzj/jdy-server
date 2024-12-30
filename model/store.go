@@ -22,17 +22,12 @@ type Store struct {
 	City     string `json:"city" gorm:"size:255;comment:城市"`
 	District string `json:"district" gorm:"size:255;comment:区域"`
 
-	WxworkId int `json:"wxwork_id" gorm:"size:10;comment:企业微信id"`
-
 	Children []*Store `json:"children,omitempty" gorm:"-"`
 
 	Staffs []Staff `json:"staffs" gorm:"many2many:stores_staffs;"`
 }
 
-func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhereReq) *gorm.DB {
-	if query.Id != nil {
-		db = db.Where("id = ?", query.Id)
-	}
+func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	if query.ParentId != nil {
 		db = db.Where("parent_id = ?", query.ParentId)
 	}
@@ -53,9 +48,6 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhereReq) *gorm.DB {
 	}
 	if query.District != nil {
 		db = db.Where("district LIKE ?", fmt.Sprintf("%%%s%%", *query.District))
-	}
-	if query.WxworkId != 0 {
-		db = db.Where("wxwork_id = ?", query.WxworkId)
 	}
 
 	return db

@@ -3,11 +3,11 @@ package staff
 import (
 	"fmt"
 	"jdy/config"
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic/platform/wxwork"
 	"jdy/model"
 	"jdy/types"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -97,7 +97,6 @@ func (l *AccountCreateLogic) account() error {
 		Platform: types.PlatformTypeAccount,
 
 		Phone:    &req.Phone,
-		Username: &req.Username,
 		Password: &req.Password,
 
 		Nickname: &req.Nickname,
@@ -130,7 +129,6 @@ func (l *AccountCreateLogic) account() error {
 	go func() {
 		wxwork.SendRegisterMessage(ctx, &wxwork.RegisterMessageContent{
 			Nickname: req.Nickname,
-			Username: req.Username,
 			Phone:    req.Phone,
 			Password: req.Password,
 		})
@@ -183,11 +181,8 @@ func (l *AccountCreateLogic) wxwork() error {
 			Email:    &user.Email,
 		}
 
-		gender, err := strconv.Atoi(user.Gender)
-		if err != nil {
-			gender = 0
-		}
-		acc.Gender = uint(gender)
+		var gender enums.Gender
+		acc.Gender = gender.Convert(user.Gender)
 
 		if err := tx.Save(acc).Error; err != nil {
 			tx.Rollback()

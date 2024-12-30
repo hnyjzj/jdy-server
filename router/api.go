@@ -3,6 +3,7 @@ package router
 import (
 	"jdy/controller/auth"
 	"jdy/controller/common"
+	"jdy/controller/member"
 	"jdy/controller/platform"
 	"jdy/controller/product"
 	"jdy/controller/staff"
@@ -107,6 +108,19 @@ func Api(g *gin.Engine) {
 					allocate.GET("/where", product.ProductAllocateController{}.Where)    // 调拨单筛选
 					allocate.POST("/list", product.ProductAllocateController{}.List)     // 调拨单列表
 				}
+			}
+		}
+
+		// 会员
+		members := r.Group("/member")
+		{
+			members.GET("/where", member.MemberController{}.Where) // 产品筛选
+			members.Use(middlewares.JWTMiddleware())
+			{
+				members.POST("/create", member.MemberController{}.Create) // 创建会员
+				members.POST("/list", member.MemberController{}.List)     // 会员列表
+				members.POST("/info", member.MemberController{}.Info)     // 会员详情
+				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"jdy/model"
 	"jdy/types"
+	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -44,16 +45,12 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Model(&store).Updates(model.Store{
-			Name:     req.Name,
-			Address:  req.Address,
-			Contact:  req.Contact,
-			Logo:     req.Logo,
-			Sort:     req.Sort,
-			Province: req.Province,
-			City:     req.City,
-			District: req.District,
-		}).Error; err != nil {
+		data, err := utils.StructToStruct[model.Store](req)
+		if err != nil {
+			return errors.New("验证信息失败")
+		}
+
+		if err := tx.Model(&store).Where("id = ?", req.Id).Updates(data).Error; err != nil {
 			return errors.New("更新失败")
 		}
 

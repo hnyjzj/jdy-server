@@ -34,14 +34,14 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	if query.Contact != "" {
 		db = db.Where("contact LIKE ?", fmt.Sprintf("%%%s%%", query.Contact))
 	}
-	if query.Province != nil {
-		db = db.Where("province LIKE ?", fmt.Sprintf("%%%s%%", *query.Province))
+	if query.Region.Province != nil {
+		db = db.Where("province LIKE ?", fmt.Sprintf("%%%s%%", *query.Region.Province))
 	}
-	if query.City != nil {
-		db = db.Where("city LIKE ?", fmt.Sprintf("%%%s%%", *query.City))
+	if query.Region.City != nil {
+		db = db.Where("city LIKE ?", fmt.Sprintf("%%%s%%", *query.Region.City))
 	}
-	if query.District != nil {
-		db = db.Where("district LIKE ?", fmt.Sprintf("%%%s%%", *query.District))
+	if query.Region.District != nil {
+		db = db.Where("district LIKE ?", fmt.Sprintf("%%%s%%", *query.Region.District))
 	}
 
 	return db

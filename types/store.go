@@ -36,11 +36,15 @@ type StoreListMyReq struct {
 }
 
 type StoreWhere struct {
-	Name     *string `json:"name" label:"门店名称" show:"true" sort:"1" type:"string" input:"text"`
-	Province *string `json:"province" label:"省份" show:"true" sort:"2" type:"string" input:"text"`
-	City     *string `json:"city" label:"城市" show:"true" sort:"3" type:"string" input:"text"`
-	District *string `json:"district" label:"区域" show:"true" sort:"4" type:"string" input:"text"`
-	Address  string  `json:"address" label:"门店地址" show:"true" sort:"5" type:"string" input:"text"`
-	Contact  string  `json:"contact" label:"联系方式" show:"true" sort:"6" type:"string" input:"text"`
-	Logo     string  `json:"logo" label:"门店logo" show:"false" sort:"7" type:"string" input:"upload"`
+	Name    *string    `json:"name" label:"门店名称" show:"true" sort:"1" type:"string" input:"text"`
+	Region  RegionInfo `json:"region" label:"区域" show:"true" sort:"2" type:"object" input:"region"`
+	Address string     `json:"address" label:"门店地址" show:"true" sort:"5" type:"string" input:"text"`
+	Contact string     `json:"contact" label:"联系方式" show:"true" sort:"6" type:"string" input:"text"`
+	Logo    string     `json:"logo" label:"门店logo" show:"false" sort:"7" type:"string" input:"upload"`
+}
+
+type RegionInfo struct {
+	Province *string `json:"province"`
+	City     *string `json:"city"`
+	District *string `json:"district"`
 }

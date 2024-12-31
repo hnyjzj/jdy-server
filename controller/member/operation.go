@@ -46,7 +46,6 @@ func (con MemberController) Update(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

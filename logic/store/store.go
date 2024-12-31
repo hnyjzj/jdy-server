@@ -45,7 +45,7 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 	)
 
 	var staff model.Staff
-	if err := model.DB.Debug().Preload("Stores", func(tx *gorm.DB) *gorm.DB {
+	if err := model.DB.Preload("Stores", func(tx *gorm.DB) *gorm.DB {
 		db := store.WhereCondition(tx, &req.Where)
 
 		return db

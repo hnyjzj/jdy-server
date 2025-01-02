@@ -20,7 +20,7 @@ type Account struct {
 	Nickname *string      `json:"nickname" gorm:"size:255;comment:昵称"`
 	Avatar   *string      `json:"avatar" gorm:"size:255;comment:头像"`
 	Email    *string      `json:"email" gorm:"size:255;comment:邮箱"`
-	Gender   enums.Gender `json:"gender" gorm:"size:255;comment:性别"`
+	Gender   enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"` // 性别
 
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"comment:最后登录时间"`
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`

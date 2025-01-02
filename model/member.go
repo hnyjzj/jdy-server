@@ -87,15 +87,17 @@ func (M *Member) IntegralChange(db *gorm.DB, change float64, types enums.MemberI
 		return nil
 	}
 
-	M.Integral += change
-	if err := db.Save(M).Error; err != nil {
+	// 新积分
+	integral := M.Integral + change
+	// 乐观锁更新
+	if err := db.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", M.Id).Update("integral", integral).Error; err != nil {
 		return err
 	}
 
 	log := &MemberIntegralLog{
 		MemberId:   M.Id,
-		Before:     M.Integral - change,
-		After:      M.Integral,
+		Before:     M.Integral,
+		After:      integral,
 		ChangeType: types,
 	}
 	if len(remark) > 0 {

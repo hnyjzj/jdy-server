@@ -115,7 +115,7 @@ func Api(g *gin.Engine) {
 		// 会员
 		members := r.Group("/member")
 		{
-			members.GET("/where", member.MemberController{}.Where) // 产品筛选
+			members.GET("/where", member.MemberController{}.Where) // 会员筛选
 			members.Use(middlewares.JWTMiddleware())
 			{
 				members.POST("/create", member.MemberController{}.Create) // 创建会员

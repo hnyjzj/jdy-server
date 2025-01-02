@@ -1,8 +1,7 @@
 package types
 
 type StoreCreateReq struct {
-	ParentId *string `json:"parent_id"`            // 父级门店id
-	Sort     int     `json:"sort" binding:"min=0"` // 排序
+	Sort int `json:"sort" binding:"min=0"` // 排序
 
 	Name     string `json:"name" binding:"required"`     // 门店名称
 	Province string `json:"province" binding:"required"` // 省份
@@ -11,9 +10,6 @@ type StoreCreateReq struct {
 	Address  string `json:"address" binding:"required"`  // 门店地址
 	Contact  string `json:"contact" binding:"required"`  // 联系方式
 	Logo     string `json:"logo"`                        // 门店logo
-
-	SyncWxwork bool `json:"sync_wxwork"` // 是否同步到企业微信
-	WxworkId   int  `json:"wxwork_id"`
 }
 
 type StoreUpdateReq struct {
@@ -24,8 +20,6 @@ type StoreUpdateReq struct {
 
 type StoreDeleteReq struct {
 	Id string `json:"id" binding:"required"`
-
-	SyncWxwork bool `json:"sync_wxwork"` // 是否同步到企业微信
 }
 
 type StoreInfoReq struct {
@@ -34,18 +28,23 @@ type StoreInfoReq struct {
 
 type StoreListReq struct {
 	PageReq
-	Where StoreWhereReq `json:"where"`
+	Where StoreWhere `json:"where"`
 }
 
-type StoreWhereReq struct {
-	Id       *string `json:"id"`
-	Name     *string `json:"name"`     // 门店名称
-	Province *string `json:"province"` // 省份
-	City     *string `json:"city"`     // 城市
-	District *string `json:"district"` // 区域
-	Address  string  `json:"address"`  // 门店地址
-	Contact  string  `json:"contact"`  // 联系方式
+type StoreListMyReq struct {
+	Where StoreWhere `json:"where"`
+}
 
-	WxworkId int     `json:"wxwork_id"`
-	ParentId *string `json:"parent_id"` // 父级门店id
+type StoreWhere struct {
+	Name    *string    `json:"name" label:"门店名称" show:"true" sort:"1" type:"string" input:"text"`
+	Region  RegionInfo `json:"region" label:"区域" show:"true" sort:"2" type:"object" input:"region"`
+	Address string     `json:"address" label:"门店地址" show:"true" sort:"5" type:"string" input:"text"`
+	Contact string     `json:"contact" label:"联系方式" show:"true" sort:"6" type:"string" input:"text"`
+	Logo    string     `json:"logo" label:"门店logo" show:"false" sort:"7" type:"string" input:"upload"`
+}
+
+type RegionInfo struct {
+	Province *string `json:"province"`
+	City     *string `json:"city"`
+	District *string `json:"district"`
 }

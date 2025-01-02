@@ -3,6 +3,7 @@ package router
 import (
 	"jdy/controller/auth"
 	"jdy/controller/common"
+	"jdy/controller/member"
 	"jdy/controller/platform"
 	"jdy/controller/product"
 	"jdy/controller/staff"
@@ -77,12 +78,14 @@ func Api(g *gin.Engine) {
 		// 门店
 		stores := r.Group("/store")
 		{
+			stores.GET("/where", store.StoreController{}.Where) // 门店筛选
 			stores.Use(middlewares.JWTMiddleware())
 			{
 				stores.POST("/create", store.StoreController{}.Create)   // 创建门店
 				stores.PUT("/update", store.StoreController{}.Update)    // 门店更新
 				stores.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
 				stores.POST("/list", store.StoreController{}.List)       // 门店列表
+				stores.POST("/my", store.StoreController{}.My)           // 门店列表
 				stores.POST("/info", store.StoreController{}.Info)       // 门店详情
 			}
 		}
@@ -106,6 +109,19 @@ func Api(g *gin.Engine) {
 					allocate.GET("/where", product.ProductAllocateController{}.Where)    // 调拨单筛选
 					allocate.POST("/list", product.ProductAllocateController{}.List)     // 调拨单列表
 				}
+			}
+		}
+
+		// 会员
+		members := r.Group("/member")
+		{
+			members.GET("/where", member.MemberController{}.Where) // 会员筛选
+			members.Use(middlewares.JWTMiddleware())
+			{
+				members.POST("/create", member.MemberController{}.Create) // 创建会员
+				members.POST("/list", member.MemberController{}.List)     // 会员列表
+				members.POST("/info", member.MemberController{}.Info)     // 会员详情
+				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 			}
 		}
 	}

@@ -80,7 +80,7 @@ type ProductWhere struct {
 	Status         enums.ProductStatus `json:"status" label:"状态" show:"true" sort:"29" type:"number" input:"select" preset:"typeMap"` // 状态
 	Type           enums.ProductType   `json:"type" label:"类型" show:"true" sort:"30" type:"number" input:"select" preset:"typeMap"`   // 类型
 
-	ProductEnterId string `json:"product_enter_id" label:"入库单" show:"true" sort:"31" type:"string" input:"text"` // 产品入库单ID
+	ProductEnterId string `json:"product_enter_id" label:"入库单" show:"true" sort:"31" type:"string" input:"search"` // 产品入库单ID
 }
 
 type ProductListReq struct {

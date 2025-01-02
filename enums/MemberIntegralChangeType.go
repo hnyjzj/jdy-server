@@ -7,13 +7,11 @@ import "errors"
 type MemberIntegralChangeType int
 
 const (
-	MemberIntegralChangeTypeAll            MemberIntegralChangeType = iota // 全部
-	MemberIntegralChangeTypeConsume                                        // 消费
-	MemberIntegralChangeTypeRecharge                                       // 充值
-	MemberIntegralChangeTypeExchange                                       // 兑换
-	MemberIntegralChangeTypeRefund                                         // 退款
-	MemberIntegralChangeTypeCancelExchange                                 // 取消兑换
-	MemberIntegralChangeTypeCancelRefund                                   // 取消退款
+	MemberIntegralChangeTypeAll      MemberIntegralChangeType = iota // 全部
+	MemberIntegralChangeTypeConsume                                  // 消费
+	MemberIntegralChangeTypeRecharge                                 // 充值
+	MemberIntegralChangeTypeExchange                                 // 兑换
+	MemberIntegralChangeTypeRefund                                   // 退款
 )
 
 var MemberIntegralChangeTypeMap = map[MemberIntegralChangeType]string{

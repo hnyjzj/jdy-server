@@ -2,17 +2,17 @@ module jdy
 
 go 1.23
 
-toolchain go1.23.3
+toolchain go1.23.4
 
 require (
-	github.com/ArtisanCloud/PowerWeChat/v3 v3.2.55
+	github.com/ArtisanCloud/PowerWeChat/v3 v3.3.2
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/spf13/viper v1.19.0
 )
 
 require (
-	github.com/ArtisanCloud/PowerLibs/v3 v3.2.6 // indirect
+	github.com/ArtisanCloud/PowerLibs/v3 v3.3.1 // indirect
 	github.com/ArtisanCloud/PowerSocialite/v3 v3.0.7 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
@@ -67,11 +67,11 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.10.0 // indirect
-	golang.org/x/crypto v0.29.0
+	golang.org/x/crypto v0.31.0
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	golang.org/x/net v0.29.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

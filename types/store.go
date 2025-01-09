@@ -48,3 +48,7 @@ type RegionInfo struct {
 	City     *string `json:"city"`
 	District *string `json:"district"`
 }
+
+type StoreStaffListReq struct {
+	StoreId string `json:"id" binding:"required"` // 门店id
+}

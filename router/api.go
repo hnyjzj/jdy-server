@@ -127,6 +127,8 @@ func Api(g *gin.Engine) {
 				members.POST("/list", member.MemberController{}.List)     // 会员列表
 				members.POST("/info", member.MemberController{}.Info)     // 会员详情
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
+
+				members.POST("/integral", member.MemberController{}.Integral) // 会员积分
 			}
 		}
 	}

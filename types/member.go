@@ -50,3 +50,8 @@ type MemberListReq struct {
 type MemberInfoReq struct {
 	Id string `json:"id" binding:"required"`
 }
+
+type MemberIntegralListReq struct {
+	PageReq
+	MemberId string `json:"id" binding:"required"`
+}

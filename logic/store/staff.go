@@ -35,3 +35,25 @@ func (l *StoreStaffLogic) List(req *types.StoreStaffListReq) (*[]model.Staff, er
 
 	return &store.Staffs, nil
 }
+
+// 添加门店员工
+func (l *StoreStaffLogic) Add(req *types.StoreStaffAddReq) error {
+	// 查询门店
+	var store model.Store
+	if err := model.DB.First(&store, req.StoreId).Error; err != nil {
+		return errors.New("门店不存在")
+	}
+
+	// 查询员工
+	var staff []model.Staff
+	if err := model.DB.Find(&staff, req.StaffId).Error; err != nil {
+		return errors.New("员工不存在")
+	}
+
+	// 添加门店员工
+	if err := model.DB.Model(&store).Association("Staffs").Append(&staff); err != nil {
+		return err
+	}
+
+	return nil
+}

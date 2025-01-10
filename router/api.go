@@ -57,6 +57,8 @@ func Api(g *gin.Engine) {
 		{
 			staffs.Use(middlewares.JWTMiddleware())
 			{
+				staffs.GET("/where", staff.StaffController{}.Where)    // 员工筛选
+				staffs.POST("/list", staff.StaffController{}.List)     // 员工列表
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
 				staffs.GET("/info", staff.StaffController{}.Info)      // 获取员工信息
 				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
@@ -91,6 +93,7 @@ func Api(g *gin.Engine) {
 				staffs := stores.Group("/staff")
 				{
 					staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
+					staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
 				}
 			}
 		}

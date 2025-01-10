@@ -37,3 +37,28 @@ func (con StoreStaffController) List(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", list)
 }
+
+func (con StoreStaffController) Add(ctx *gin.Context) {
+	var (
+		req   types.StoreStaffAddReq
+		logic = store.StoreStaffLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 添加门店
+	err := logic.Add(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

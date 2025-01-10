@@ -52,3 +52,8 @@ type RegionInfo struct {
 type StoreStaffListReq struct {
 	StoreId string `json:"id" binding:"required"` // 门店id
 }
+
+type StoreStaffAddReq struct {
+	StoreId string   `json:"id" binding:"required"`       // 门店id
+	StaffId []string `json:"staff_id" binding:"required"` // 用户id
+}

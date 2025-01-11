@@ -96,13 +96,24 @@ func Api(g *gin.Engine) {
 			products.GET("/where", product.ProductController{}.Where) // 产品筛选
 			products.Use(middlewares.JWTMiddleware())
 			{
-				products.POST("/enter", product.ProductController{}.Enter)  // 产品入库
-				products.POST("/list", product.ProductController{}.List)    // 产品列表
-				products.POST("/info", product.ProductController{}.Info)    // 产品详情
-				products.PUT("/update", product.ProductController{}.Update) // 产品更新
+				// 产品管理
+				products = products.Group("/")
+				{
+					products.POST("/list", product.ProductController{}.List)    // 产品列表
+					products.POST("/info", product.ProductController{}.Info)    // 产品详情
+					products.PUT("/update", product.ProductController{}.Update) // 产品更新
+					products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
+				}
 
-				products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
+				// 产品入库
+				enters := products.Group("/enter")
+				{
+					enters.GET("/where", product.ProductEnterController{}.Where)    // 入库单筛选
+					enters.POST("/create", product.ProductEnterController{}.Create) // 创建入库单
+					enters.POST("/list", product.ProductEnterController{}.List)     // 入库单列表
+				}
 
+				// 产品调拨
 				allocate := products.Group("/allocate")
 				{
 					allocate.POST("/create", product.ProductAllocateController{}.Create) // 创建调拨单

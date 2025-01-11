@@ -163,6 +163,16 @@ type ProductEnter struct {
 	IP string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"` // IP
 }
 
+func (ProductEnter) WhereCondition(db *gorm.DB, query *types.ProductEnterWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
+	if query.StartTime != nil && query.EndTime != nil {
+		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
+	}
+	return db
+}
+
 type ProductDamage struct {
 	SoftDelete
 

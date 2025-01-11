@@ -1,6 +1,7 @@
 package product
 
 import (
+	"jdy/controller"
 	"jdy/errors"
 	"jdy/logic/product"
 	"jdy/types"
@@ -10,7 +11,7 @@ import (
 )
 
 type ProductAllocateController struct {
-	ProductController
+	controller.BaseController
 }
 
 // 创建产品调拨单

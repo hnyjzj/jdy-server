@@ -10,3 +10,8 @@ type WhereForm struct {
 	Show     bool   `json:"show"`     // 是否显示
 	Preset   any    `json:"preset"`   // 预设：[value1, value2]|{value1: label1, value2: label2}|{value1: {label1: label2}}
 }
+
+type WhereListReq[T any] struct {
+	PageReq
+	Where any `json:"where"`
+}

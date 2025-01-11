@@ -70,3 +70,29 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 
 	return &products, nil
 }
+
+// 产品入库单列表
+func (l *ProductLogic) EnterList(req *types.ProductEnterListReq) (*types.PageRes[model.ProductEnter], error) {
+	var (
+		enter model.ProductEnter
+
+		res types.PageRes[model.ProductEnter]
+	)
+
+	db := model.DB.Model(&enter)
+	db = enter.WhereCondition(db, &req.Where)
+
+	// 获取总数
+	if err := db.Count(&res.Total).Error; err != nil {
+		return nil, errors.New("获取产品列表失败: " + err.Error())
+	}
+
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = model.PageCondition(db, req.Page, req.Limit)
+	if err := db.Find(&res.List).Error; err != nil {
+		return nil, errors.New("获取产品列表失败: " + err.Error())
+	}
+
+	return &res, nil
+}

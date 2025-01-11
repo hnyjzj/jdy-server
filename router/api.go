@@ -93,12 +93,12 @@ func Api(g *gin.Engine) {
 		// 产品
 		products := r.Group("/product")
 		{
-			products.GET("/where", product.ProductController{}.Where) // 产品筛选
 			products.Use(middlewares.JWTMiddleware())
 			{
 				// 产品管理
 				products = products.Group("/")
 				{
+					products.GET("/where", product.ProductController{}.Where)   // 产品筛选
 					products.POST("/list", product.ProductController{}.List)    // 产品列表
 					products.POST("/info", product.ProductController{}.Info)    // 产品详情
 					products.PUT("/update", product.ProductController{}.Update) // 产品更新

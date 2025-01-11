@@ -60,7 +60,8 @@ func Api(g *gin.Engine) {
 				staffs.GET("/where", staff.StaffController{}.Where)    // 员工筛选
 				staffs.POST("/list", staff.StaffController{}.List)     // 员工列表
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
-				staffs.GET("/info", staff.StaffController{}.Info)      // 获取员工信息
+				staffs.POST("/info", staff.StaffController{}.Info)     // 员工详情
+				staffs.GET("/my", staff.StaffController{}.My)          // 获取我的信息
 				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
 			}
 		}

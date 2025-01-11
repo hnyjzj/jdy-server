@@ -5,14 +5,14 @@ import (
 	"jdy/logic"
 	"jdy/model"
 	"jdy/types"
-
-	"github.com/gin-gonic/gin"
 )
 
 type StaffLogic struct {
 	logic.Base
+	Staff *types.Staff
 }
 
+// 员工列表
 func (l *StaffLogic) List(req *types.StaffListReq) (*types.PageRes[model.Staff], error) {
 	var (
 		staff model.Staff
@@ -37,10 +37,20 @@ func (l *StaffLogic) List(req *types.StaffListReq) (*types.PageRes[model.Staff],
 	return &res, nil
 }
 
+// 员工详情
+func (l *StaffLogic) Info(req *types.StaffInfoReq) (*model.Staff, error) {
+	var staff model.Staff
+	if err := model.DB.Preload("Stores").First(&staff, req.Id).Error; err != nil {
+		return nil, errors.ErrStaffNotFound
+	}
+
+	return &staff, nil
+}
+
 // 获取员工信息
-func (l *StaffLogic) Info(ctx *gin.Context, user *string) (*types.StaffRes, error) {
+func (l *StaffLogic) My() (*types.StaffRes, error) {
 	var saffRes types.StaffRes
-	if err := model.DB.Model(&model.Staff{}).First(&saffRes, user).Error; err != nil {
+	if err := model.DB.Model(&model.Staff{}).First(&saffRes, l.Staff.Id).Error; err != nil {
 		return nil, errors.ErrStaffNotFound
 	}
 

@@ -3,6 +3,7 @@ package staff
 import (
 	"jdy/controller"
 	"jdy/errors"
+	"jdy/logic"
 	"jdy/logic/staff"
 	"jdy/types"
 	"jdy/utils"
@@ -46,20 +47,50 @@ func (con StaffController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", list)
 }
 
-// 获取员工信息
+// 员工详情
 func (con StaffController) Info(ctx *gin.Context) {
 	var (
-		logic = staff.StaffLogic{}
+		req   types.StaffInfoReq
+		logic = staff.StaffLogic{
+			Base: logic.Base{
+				Ctx: ctx,
+			},
+			Staff: con.GetStaff(ctx),
+		}
 	)
 
-	staff := con.GetStaff(ctx)
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
 
-	staffinfo, err := logic.Info(ctx, &staff.Id)
+	staffinfo, err := logic.Info(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", staffinfo)
+
+}
+
+// 获取我的员工信息
+func (con StaffController) My(ctx *gin.Context) {
+	var (
+		logic = staff.StaffLogic{
+			Base: logic.Base{
+				Ctx: ctx,
+			},
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	staffinfo, err := logic.My()
 	if err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	// 获取员工信息
 	con.Success(ctx, "ok", staffinfo)
 }

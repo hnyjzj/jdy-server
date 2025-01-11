@@ -125,3 +125,7 @@ type StaffListReq struct {
 	PageReq
 	Where StaffWhere `json:"where"`
 }
+
+type StaffInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}

@@ -151,6 +151,10 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		return errors.New("调拨单不存在")
 	}
 
+	if allocate.Status != enums.ProductAllocateStatusAllocate {
+		return errors.New("调拨单状态异常")
+	}
+
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 锁定产品
 		for _, product := range allocate.Products {

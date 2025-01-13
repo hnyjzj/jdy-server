@@ -74,3 +74,30 @@ func (con ProductEnterController) List(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+// 入库单详情
+func (con ProductEnterController) Info(ctx *gin.Context) {
+	var (
+		req types.ProductEnterInfoReq
+
+		logic = product.ProductLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	res, err := logic.EnterInfo(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}

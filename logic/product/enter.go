@@ -96,3 +96,16 @@ func (l *ProductLogic) EnterList(req *types.ProductEnterListReq) (*types.PageRes
 
 	return &res, nil
 }
+
+// 产品入库单详情
+func (l *ProductLogic) EnterInfo(req *types.ProductEnterInfoReq) (*model.ProductEnter, error) {
+	var (
+		enter model.ProductEnter
+	)
+
+	if err := model.DB.Preload("Products").Preload("Operator").First(&enter, req.Id).Error; err != nil {
+		return nil, errors.New("获取产品入库单详情失败")
+	}
+
+	return &enter, nil
+}

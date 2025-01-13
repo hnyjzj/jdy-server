@@ -111,6 +111,7 @@ func Api(g *gin.Engine) {
 					enters.GET("/where", product.ProductEnterController{}.Where)    // 入库单筛选
 					enters.POST("/create", product.ProductEnterController{}.Create) // 创建入库单
 					enters.POST("/list", product.ProductEnterController{}.List)     // 入库单列表
+					enters.POST("/info", product.ProductEnterController{}.Info)     // 入库单详情
 				}
 
 				// 产品调拨

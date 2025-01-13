@@ -182,3 +182,7 @@ type ProductEnterListReq struct {
 	PageReq
 	Where ProductEnterWhere `json:"where"`
 }
+
+type ProductEnterInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}

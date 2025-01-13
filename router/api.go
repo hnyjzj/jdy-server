@@ -122,11 +122,11 @@ func Api(g *gin.Engine) {
 					allocate.POST("/list", product.ProductAllocateController{}.List)     // 调拨单列表
 					allocate.POST("/info", product.ProductAllocateController{}.Info)     // 调拨单详情
 
-					allocate.PUT("/add", product.ProductAllocateController{}.Add)         // 添加产品
-					allocate.PUT("/remove", product.ProductAllocateController{}.Remove)   // 移除产品
-					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm) // 确认调拨
-					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)   // 取消调拨
-					allocate.PUT("/finish", product.ProductAllocateController{}.Complete) // 完成调拨
+					allocate.PUT("/add", product.ProductAllocateController{}.Add)           // 添加产品
+					allocate.PUT("/remove", product.ProductAllocateController{}.Remove)     // 移除产品
+					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)   // 确认调拨
+					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)     // 取消调拨
+					allocate.PUT("/complete", product.ProductAllocateController{}.Complete) // 完成调拨
 				}
 			}
 		}

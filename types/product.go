@@ -154,8 +154,9 @@ type ProductAllocateWhere struct {
 	Type    enums.ProductType           `json:"type" label:"仓库类型" input:"select" type:"number" show:"true" sort:"2" required:"true" preset:"typeMap"`   // 仓库类型
 	Reason  enums.ProductAllocateReason `json:"reason" label:"调拨原因" input:"select" type:"number" show:"true" sort:"3" required:"true" preset:"typeMap"` // 调拨原因
 	StoreId string                      `json:"store_id" label:"调拨门店" input:"search" type:"string" show:"true" sort:"4" required:"true"`                // 调拨门店
+	Status  enums.ProductAllocateStatus `json:"status" label:"调拨状态" input:"select" type:"number" show:"true" sort:"5" required:"true" preset:"typeMap"` // 调拨状态
 
-	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"5" required:"false"` // 开始时间
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"6" required:"false"` // 开始时间
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"6" required:"false"`   // 结束时间
 }
 

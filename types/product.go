@@ -181,6 +181,11 @@ type ProductAllocateAddReq struct {
 	Code string `json:"code" binding:"required"` // 产品条码
 }
 
+type ProductAllocateRemoveReq struct {
+	Id   string `json:"id" binding:"required"`   // 调拨单ID
+	Code string `json:"code" binding:"required"` // 产品条码
+}
+
 type ProductAllocateConfirmReq struct {
 	Id string `json:"id" binding:"required"` // 调拨单ID
 }

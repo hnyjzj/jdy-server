@@ -115,6 +115,31 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 	return nil
 }
 
+// 移除产品调拨单产品
+func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *errors.Errors {
+	var (
+		allocate model.ProductAllocate
+		product  model.Product
+	)
+
+	// 获取调拨单
+	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
+		return errors.New("调拨单不存在")
+	}
+
+	// 获取产品
+	if err := model.DB.Where(&model.Product{Code: req.Code}).First(&product).Error; err != nil {
+		return errors.New("产品不存在")
+	}
+
+	// 移除产品
+	if err := model.DB.Model(&allocate).Association("Products").Delete(&product); err != nil {
+		return errors.New("移除产品失败")
+	}
+
+	return nil
+}
+
 // 确认调拨
 func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *errors.Errors {
 	var (

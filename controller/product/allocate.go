@@ -145,6 +145,33 @@ func (con ProductAllocateController) Add(ctx *gin.Context) {
 	con.Success(ctx, "ok", nil)
 }
 
+// 移除调拨单产品
+func (con ProductAllocateController) Remove(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateRemoveReq
+
+		logic = product.ProductAllocateLogic{
+			ProductLogic: product.ProductLogic{
+				Ctx:   ctx,
+				Staff: con.GetStaff(ctx),
+			},
+		}
+	)
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Remove(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
 // 确认调拨
 func (con ProductAllocateController) Confirm(ctx *gin.Context) {
 	var (

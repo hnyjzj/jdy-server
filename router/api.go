@@ -123,6 +123,7 @@ func Api(g *gin.Engine) {
 					allocate.POST("/info", product.ProductAllocateController{}.Info)     // 调拨单详情
 
 					allocate.POST("/add", product.ProductAllocateController{}.Add)         // 添加产品
+					allocate.POST("/remove", product.ProductAllocateController{}.Remove)   // 移除产品
 					allocate.POST("/confirm", product.ProductAllocateController{}.Confirm) // 确认调拨
 					allocate.POST("/cancel", product.ProductAllocateController{}.Cancel)   // 取消调拨
 					allocate.POST("/finish", product.ProductAllocateController{}.Complete) // 完成调拨

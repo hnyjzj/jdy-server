@@ -184,3 +184,49 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 	}
 	return nil
 }
+
+// 完成调拨
+func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *errors.Errors {
+	var (
+		allocate model.ProductAllocate
+	)
+
+	// 获取调拨单
+	if err := model.DB.Preload("Products").First(&allocate, req.Id).Error; err != nil {
+		return errors.New("调拨单不存在")
+	}
+
+	if allocate.Status != enums.ProductAllocateStatusAllocate {
+		return errors.New("调拨单状态异常")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 确认调拨
+		allocate.Status = enums.ProductAllocateStatusInventory
+		if err := model.DB.Save(&allocate).Error; err != nil {
+			return errors.New("更新调拨单失败")
+		}
+
+		// 解锁产品
+		for _, product := range allocate.Products {
+			// 判断产品状态是否为锁定状态
+			if product.Status != enums.ProductStatusAllocate {
+				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
+			}
+			// 解锁产品
+			if err := model.DB.Model(&product).Updates(&model.Product{
+				Status:  enums.ProductStatusNormal,
+				StoreId: allocate.StoreId,
+				Type:    allocate.Type,
+			}).Error; err != nil {
+				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("调拨失败: " + err.Error())
+	}
+
+	return nil
+}

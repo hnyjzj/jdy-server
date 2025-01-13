@@ -198,3 +198,30 @@ func (con ProductAllocateController) Cancel(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 完成调拨
+func (con ProductAllocateController) Complete(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateCompleteReq
+
+		logic = product.ProductAllocateLogic{
+			ProductLogic: product.ProductLogic{
+				Ctx:   ctx,
+				Staff: con.GetStaff(ctx),
+			},
+		}
+	)
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Complete(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

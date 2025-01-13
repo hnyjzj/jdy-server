@@ -107,6 +107,10 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		return errors.New("产品不存在")
 	}
 
+	if product.Status != enums.ProductStatusNormal {
+		return errors.New("产品状态不正确")
+	}
+
 	// 添加产品
 	if err := model.DB.Model(&allocate).Association("Products").Append(&product); err != nil {
 		return errors.New("添加产品失败")

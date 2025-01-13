@@ -117,3 +117,30 @@ func (con ProductAllocateController) Info(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+// 添加调拨单产品
+func (con ProductAllocateController) Add(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateAddReq
+
+		logic = product.ProductAllocateLogic{
+			ProductLogic: product.ProductLogic{
+				Ctx:   ctx,
+				Staff: con.GetStaff(ctx),
+			},
+		}
+	)
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Add(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

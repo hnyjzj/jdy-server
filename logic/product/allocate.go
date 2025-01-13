@@ -85,3 +85,28 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 
 	return &allocate, nil
 }
+
+// 添加产品调拨单产品
+func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Errors {
+	var (
+		allocate model.ProductAllocate
+		product  model.Product
+	)
+
+	// 获取调拨单
+	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
+		return errors.New("调拨单不存在")
+	}
+
+	// 获取产品
+	if err := model.DB.Where(&model.Product{Code: req.Code}).First(&product).Error; err != nil {
+		return errors.New("产品不存在")
+	}
+
+	// 添加产品
+	if err := model.DB.Model(&allocate).Association("Products").Append(&product); err != nil {
+		return errors.New("添加产品失败")
+	}
+
+	return nil
+}

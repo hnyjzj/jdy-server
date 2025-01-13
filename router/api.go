@@ -124,6 +124,7 @@ func Api(g *gin.Engine) {
 
 					allocate.POST("/add", product.ProductAllocateController{}.Add)         // 添加产品
 					allocate.POST("/confirm", product.ProductAllocateController{}.Confirm) // 确认调拨
+					allocate.POST("/cancel", product.ProductAllocateController{}.Cancel)   // 取消调拨
 				}
 			}
 		}

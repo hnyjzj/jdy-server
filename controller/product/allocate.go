@@ -171,3 +171,30 @@ func (con ProductAllocateController) Confirm(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 取消调拨
+func (con ProductAllocateController) Cancel(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateCancelReq
+
+		logic = product.ProductAllocateLogic{
+			ProductLogic: product.ProductLogic{
+				Ctx:   ctx,
+				Staff: con.GetStaff(ctx),
+			},
+		}
+	)
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Cancel(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

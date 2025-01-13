@@ -122,7 +122,8 @@ func Api(g *gin.Engine) {
 					allocate.POST("/list", product.ProductAllocateController{}.List)     // 调拨单列表
 					allocate.POST("/info", product.ProductAllocateController{}.Info)     // 调拨单详情
 
-					allocate.POST("/add", product.ProductAllocateController{}.Add) // 添加产品
+					allocate.POST("/add", product.ProductAllocateController{}.Add)         // 添加产品
+					allocate.POST("/confirm", product.ProductAllocateController{}.Confirm) // 确认调拨
 				}
 			}
 		}

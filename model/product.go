@@ -194,6 +194,8 @@ type ProductAllocate struct {
 	Reason enums.ProductAllocateReason `json:"reason" gorm:"type:tinyint(2);not NULL;comment:调拨原因;"` // 调拨原因
 	Remark string                      `json:"remark" gorm:"type:text;comment:备注;"`                  // 备注
 
+	Status enums.ProductAllocateStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"` // 状态
+
 	StoreId string `json:"store_id" gorm:"type:tinyint(2);comment:调拨门店;"` // 调拨门店
 	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:调拨门店;"`
 

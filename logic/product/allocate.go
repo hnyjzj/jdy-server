@@ -1,6 +1,7 @@
 package product
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/errors"
 	"jdy/model"
@@ -17,26 +18,29 @@ type ProductAllocateLogic struct {
 func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *errors.Errors {
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 创建调拨单
 		data := model.ProductAllocate{
 			Method: req.Method,
 			Type:   req.Type,
 			Reason: req.Reason,
 			Remark: req.Remark,
+			Status: enums.ProductAllocateStatusAllocate,
 
 			OperatorId: l.Staff.Id,
 			IP:         l.Ctx.ClientIP(),
 		}
+		// 如果是调拨到门店，则添加门店ID
 		if req.Method == enums.ProductAllocateMethodStore {
 			data.StoreId = req.StoreId
 		}
-		// 添加报损记录
+		// 创建调拨单
 		if err := tx.Create(&data).Error; err != nil {
 			return err
 		}
 
 		return nil
 	}); err != nil {
-		return errors.New("创建产品调拨单失败")
+		return errors.New("创建调拨单失败")
 	}
 	return nil
 }
@@ -54,14 +58,14 @@ func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.P
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取产品调拨列表失败: " + err.Error())
+		return nil, errors.New("获取调拨单数量失败")
 	}
 
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 	if err := db.Find(&res.List).Error; err != nil {
-		return nil, errors.New("获取产品调拨列表失败: " + err.Error())
+		return nil, errors.New("获取调拨单列表失败")
 	}
 
 	return &res, nil
@@ -80,7 +84,7 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 	db = db.Preload("Store")
 
 	if err := db.First(&allocate, req.Id).Error; err != nil {
-		return nil, errors.New("获取产品调拨单详情失败")
+		return nil, errors.New("获取调拨单详情失败")
 	}
 
 	return &allocate, nil
@@ -106,6 +110,41 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 	// 添加产品
 	if err := model.DB.Model(&allocate).Association("Products").Append(&product); err != nil {
 		return errors.New("添加产品失败")
+	}
+
+	return nil
+}
+
+// 确认调拨
+func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *errors.Errors {
+	var (
+		allocate model.ProductAllocate
+	)
+
+	// 获取调拨单
+	if err := model.DB.Preload("Products").First(&allocate, req.Id).Error; err != nil {
+		return errors.New("调拨单不存在")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 锁定产品
+		for _, product := range allocate.Products {
+			if product.Status != enums.ProductStatusNormal {
+				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
+			}
+			if err := tx.Model(&product).Update("status", enums.ProductStatusAllocate).Error; err != nil {
+				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
+			}
+		}
+		// 确认调拨
+		allocate.Status = enums.ProductAllocateStatusAllocate
+		if err := model.DB.Save(&allocate).Error; err != nil {
+			return errors.New("更新调拨单失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("调拨失败: " + err.Error())
 	}
 
 	return nil

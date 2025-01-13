@@ -172,6 +172,10 @@ type ProductAllocateListReq struct {
 	Where ProductAllocateWhere `json:"where"`
 }
 
+type ProductAllocateInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}
+
 type ProductEnterWhere struct {
 	Id        string     `json:"id" label:"ID" input:"text" type:"string" show:"true" sort:"1" required:"false"`         // ID
 	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"2" required:"false"` // 开始时间

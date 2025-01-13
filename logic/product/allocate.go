@@ -66,3 +66,22 @@ func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.P
 
 	return &res, nil
 }
+
+// 获取产品调拨单详情
+func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.ProductAllocate, error) {
+	var (
+		allocate model.ProductAllocate
+	)
+
+	db := model.DB.Model(&allocate)
+
+	db = db.Preload("Products")
+	db = db.Preload("Operator")
+	db = db.Preload("Store")
+
+	if err := db.First(&allocate, req.Id).Error; err != nil {
+		return nil, errors.New("获取产品调拨单详情失败")
+	}
+
+	return &allocate, nil
+}

@@ -120,6 +120,7 @@ func Api(g *gin.Engine) {
 					allocate.POST("/create", product.ProductAllocateController{}.Create) // 创建调拨单
 					allocate.GET("/where", product.ProductAllocateController{}.Where)    // 调拨单筛选
 					allocate.POST("/list", product.ProductAllocateController{}.List)     // 调拨单列表
+					allocate.POST("/info", product.ProductAllocateController{}.Info)     // 调拨单详情
 				}
 			}
 		}

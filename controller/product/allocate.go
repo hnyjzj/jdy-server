@@ -87,5 +87,33 @@ func (con ProductAllocateController) List(ctx *gin.Context) {
 	}
 
 	con.Success(ctx, "ok", res)
+}
 
+// 获取产品调拨单详情
+func (con ProductAllocateController) Info(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateInfoReq
+
+		logic = product.ProductAllocateLogic{
+			ProductLogic: product.ProductLogic{
+				Ctx:   ctx,
+				Staff: con.GetStaff(ctx),
+			},
+		}
+	)
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取产品调拨单详情
+	res, err := logic.Info(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
 }

@@ -189,11 +189,13 @@ type ProductDamage struct {
 type ProductAllocate struct {
 	SoftDelete
 
-	Method  enums.ProductAllocateMethod `json:"method" gorm:"type:tinyint(2);not NULL;comment:调拨方式;"` // 调拨方式
-	Type    enums.ProductType           `json:"type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`   // 仓库类型
-	Reason  enums.ProductAllocateReason `json:"reason" gorm:"type:tinyint(2);not NULL;comment:调拨原因;"` // 调拨原因
-	StoreId string                      `json:"store_id" gorm:"type:tinyint(2);comment:调拨门店;"`        // 调拨门
-	Remark  string                      `json:"remark" gorm:"type:text;comment:备注;"`                  // 备注
+	Method enums.ProductAllocateMethod `json:"method" gorm:"type:tinyint(2);not NULL;comment:调拨方式;"` // 调拨方式
+	Type   enums.ProductType           `json:"type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`   // 仓库类型
+	Reason enums.ProductAllocateReason `json:"reason" gorm:"type:tinyint(2);not NULL;comment:调拨原因;"` // 调拨原因
+	Remark string                      `json:"remark" gorm:"type:text;comment:备注;"`                  // 备注
+
+	StoreId string `json:"store_id" gorm:"type:tinyint(2);comment:调拨门店;"` // 调拨门店
+	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:调拨门店;"`
 
 	Products []Product `json:"product" gorm:"many2many:product_allocate_list;"` // 产品
 

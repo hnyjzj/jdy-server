@@ -83,7 +83,8 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 
 	db = db.Preload("Products")
 	db = db.Preload("Operator")
-	db = db.Preload("Store")
+	db = db.Preload("FromStore")
+	db = db.Preload("ToStore")
 
 	if err := db.First(&allocate, req.Id).Error; err != nil {
 		return nil, errors.New("获取调拨单详情失败")
@@ -210,11 +211,10 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 		// 解锁产品
 		for _, product := range allocate.Products {
 			if product.Status != enums.ProductStatusAllocate {
-				fmt.Printf("调拨单产品状态异常：【%s】%s\n", product.Code, product.Name)
-				break
+				return fmt.Errorf("【%s】%s 状态异常", product.Code, product.Name)
 			}
 			if err := model.DB.Model(&product).Update("status", enums.ProductStatusNormal).Error; err != nil {
-				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
+				return fmt.Errorf("【%s】%s 解锁失败", product.Code, product.Name)
 			}
 		}
 		return nil

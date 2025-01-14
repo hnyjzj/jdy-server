@@ -24,7 +24,7 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			Type:   req.Type,
 			Reason: req.Reason,
 			Remark: req.Remark,
-			Status: enums.ProductAllocateStatusAllocate,
+			Status: enums.ProductAllocateStatusInventory,
 
 			FromStoreId: req.FromStoreId,
 
@@ -157,7 +157,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		return errors.New("调拨单不存在")
 	}
 
-	if allocate.Status != enums.ProductAllocateStatusAllocate {
+	if allocate.Status != enums.ProductAllocateStatusInventory {
 		return errors.New("调拨单状态异常")
 	}
 
@@ -209,6 +209,10 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 
 		// 解锁产品
 		for _, product := range allocate.Products {
+			if product.Status != enums.ProductStatusAllocate {
+				fmt.Printf("调拨单产品状态异常：【%s】%s\n", product.Code, product.Name)
+				break
+			}
 			if err := model.DB.Model(&product).Update("status", enums.ProductStatusNormal).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
@@ -236,12 +240,6 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		// 确认调拨
-		allocate.Status = enums.ProductAllocateStatusInventory
-		if err := model.DB.Save(&allocate).Error; err != nil {
-			return errors.New("更新调拨单失败")
-		}
-
 		// 解锁产品
 		for _, product := range allocate.Products {
 			// 判断产品状态是否为锁定状态
@@ -259,6 +257,12 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 			if err := model.DB.Model(&product).Updates(data).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
+		}
+
+		// 确认调拨
+		allocate.Status = enums.ProductAllocateStatusCompleted
+		if err := model.DB.Save(&allocate).Error; err != nil {
+			return errors.New("更新调拨单失败")
 		}
 
 		return nil

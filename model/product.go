@@ -192,9 +192,8 @@ type ProductAllocate struct {
 	Method enums.ProductAllocateMethod `json:"method" gorm:"type:tinyint(2);not NULL;comment:调拨方式;"` // 调拨方式
 	Type   enums.ProductType           `json:"type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`   // 仓库类型
 	Reason enums.ProductAllocateReason `json:"reason" gorm:"type:tinyint(2);not NULL;comment:调拨原因;"` // 调拨原因
+	Status enums.ProductAllocateStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"`            // 状态
 	Remark string                      `json:"remark" gorm:"type:text;comment:备注;"`                  // 备注
-
-	Status enums.ProductAllocateStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"` // 状态
 
 	FromStoreId string `json:"from_store_id" gorm:"type:tinyint(2);comment:调出门店;"` // 调出门店
 	FromStore   *Store `json:"from_store" gorm:"foreignKey:FromStoreId;references:Id;comment:调出门店;"`

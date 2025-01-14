@@ -49,10 +49,10 @@ func (l *StaffLogic) Info(req *types.StaffInfoReq) (*model.Staff, error) {
 
 // 获取员工信息
 func (l *StaffLogic) My() (*types.StaffRes, error) {
-	var saffRes types.StaffRes
-	if err := model.DB.Model(&model.Staff{}).First(&saffRes, l.Staff.Id).Error; err != nil {
+	var staffRes types.StaffRes
+	if err := model.DB.Model(&model.Staff{}).First(&staffRes, l.Staff.Id).Error; err != nil {
 		return nil, errors.ErrStaffNotFound
 	}
 
-	return &saffRes, nil
+	return &staffRes, nil
 }

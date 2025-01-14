@@ -3,7 +3,7 @@ package enums
 import "errors"
 
 /* 调拨状态 */
-// 全部、盘点中、调拨中、待接收、已完成、已取消、已驳回
+// 全部、盘点中、调拨中、待接收、已完成、已取消
 type ProductAllocateStatus int
 
 const (

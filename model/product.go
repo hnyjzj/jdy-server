@@ -163,6 +163,16 @@ type ProductEnter struct {
 	IP string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"` // IP
 }
 
+func (ProductEnter) WhereCondition(db *gorm.DB, query *types.ProductEnterWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
+	if query.StartTime != nil && query.EndTime != nil {
+		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
+	}
+	return db
+}
+
 type ProductDamage struct {
 	SoftDelete
 
@@ -179,17 +189,22 @@ type ProductDamage struct {
 type ProductAllocate struct {
 	SoftDelete
 
-	Method  enums.ProductAllocateMethod `json:"method" gorm:"type:tinyint(2);not NULL;comment:调拨方式;"` // 调拨方式
-	Type    enums.ProductType           `json:"type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`   // 仓库类型
-	Reason  enums.ProductAllocateReason `json:"reason" gorm:"type:tinyint(2);not NULL;comment:调拨原因;"` // 调拨原因
-	StoreId string                      `json:"store_id" gorm:"type:tinyint(2);comment:调拨门店;"`        // 调拨门
-	Remark  string                      `json:"remark" gorm:"type:text;comment:备注;"`                  // 备注
+	Method enums.ProductAllocateMethod `json:"method" gorm:"type:tinyint(2);not NULL;comment:调拨方式;"` // 调拨方式
+	Type   enums.ProductType           `json:"type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`   // 仓库类型
+	Reason enums.ProductAllocateReason `json:"reason" gorm:"type:tinyint(2);not NULL;comment:调拨原因;"` // 调拨原因
+	Status enums.ProductAllocateStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"`            // 状态
+	Remark string                      `json:"remark" gorm:"type:text;comment:备注;"`                  // 备注
+
+	FromStoreId string `json:"from_store_id" gorm:"type:varchar(255);comment:调出门店;"` // 调出门店
+	FromStore   *Store `json:"from_store" gorm:"foreignKey:FromStoreId;references:Id;comment:调出门店;"`
+	ToStoreId   string `json:"to_store_id" gorm:"type:varchar(255);comment:调入门店;"` // 调入门店
+	ToStore     *Store `json:"to_store" gorm:"foreignKey:ToStoreId;references:Id;comment:调入门店;"`
 
 	Products []Product `json:"product" gorm:"many2many:product_allocate_list;"` // 产品
 
-	OperatorId string `json:"-" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`        // 操作人ID
-	Operator   *Staff `json:"-" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
-	IP         string `json:"-" gorm:"type:varchar(255);not NULL;comment:IP;"`           // IP
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
+	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
+	IP         string `json:"-" gorm:"type:varchar(255);not NULL;comment:IP;"`                  // IP
 }
 
 func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateWhere) *gorm.DB {

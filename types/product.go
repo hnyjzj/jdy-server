@@ -80,7 +80,7 @@ type ProductWhere struct {
 	Status         enums.ProductStatus `json:"status" label:"状态" show:"true" sort:"29" type:"number" input:"select" preset:"typeMap"` // 状态
 	Type           enums.ProductType   `json:"type" label:"类型" show:"true" sort:"30" type:"number" input:"select" preset:"typeMap"`   // 类型
 
-	ProductEnterId string `json:"product_enter_id" label:"入库单" show:"true" sort:"31" type:"string" input:"search"` // 产品入库单ID
+	ProductEnterId string `json:"product_enter_id" label:"入库单" show:"true" sort:"2" type:"string" input:"text"` // 产品入库单ID
 }
 
 type ProductListReq struct {
@@ -134,15 +134,16 @@ type ProductDamageReq struct {
 }
 
 type ProductAllocateCreateReq struct {
-	Method  enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨方式
-	Type    enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
-	Reason  enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
-	Remark  string                      `json:"remark" binding:"-"`        // 备注
-	StoreId string                      `json:"store_id" binding:"-"`      // 调拨门店
+	Method      enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨方式
+	Type        enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
+	Reason      enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
+	Remark      string                      `json:"remark" binding:"-"`        // 备注
+	FromStoreId string                      `json:"from_store_id" binding:"-"` // 调出门店
+	ToStoreId   string                      `json:"to_store_id" binding:"-"`   // 调入门店
 }
 
 func (req *ProductAllocateCreateReq) Validate() error {
-	if req.Method == enums.ProductAllocateMethodStore && req.StoreId == "" {
+	if req.Method == enums.ProductAllocateMethodStore && req.ToStoreId == "" {
 		return errors.New("调拨门店不能为空")
 	}
 
@@ -154,8 +155,9 @@ type ProductAllocateWhere struct {
 	Type    enums.ProductType           `json:"type" label:"仓库类型" input:"select" type:"number" show:"true" sort:"2" required:"true" preset:"typeMap"`   // 仓库类型
 	Reason  enums.ProductAllocateReason `json:"reason" label:"调拨原因" input:"select" type:"number" show:"true" sort:"3" required:"true" preset:"typeMap"` // 调拨原因
 	StoreId string                      `json:"store_id" label:"调拨门店" input:"search" type:"string" show:"true" sort:"4" required:"true"`                // 调拨门店
+	Status  enums.ProductAllocateStatus `json:"status" label:"调拨状态" input:"select" type:"number" show:"true" sort:"5" required:"true" preset:"typeMap"` // 调拨状态
 
-	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"5" required:"false"` // 开始时间
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"6" required:"false"` // 开始时间
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"6" required:"false"`   // 结束时间
 }
 
@@ -170,4 +172,45 @@ func (req *ProductAllocateWhere) Validate() error {
 type ProductAllocateListReq struct {
 	PageReq
 	Where ProductAllocateWhere `json:"where"`
+}
+
+type ProductAllocateInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}
+
+type ProductAllocateAddReq struct {
+	Id   string `json:"id" binding:"required"`   // 调拨单ID
+	Code string `json:"code" binding:"required"` // 产品条码
+}
+
+type ProductAllocateRemoveReq struct {
+	Id   string `json:"id" binding:"required"`   // 调拨单ID
+	Code string `json:"code" binding:"required"` // 产品条码
+}
+
+type ProductAllocateConfirmReq struct {
+	Id string `json:"id" binding:"required"` // 调拨单ID
+}
+
+type ProductAllocateCancelReq struct {
+	Id string `json:"id" binding:"required"` // 调拨单ID
+}
+
+type ProductAllocateCompleteReq struct {
+	Id string `json:"id" binding:"required"` // 调拨单ID
+}
+
+type ProductEnterWhere struct {
+	Id        string     `json:"id" label:"ID" input:"text" type:"string" show:"true" sort:"1" required:"false"`         // ID
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"2" required:"false"` // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"3" required:"false"`   // 结束时间
+}
+
+type ProductEnterListReq struct {
+	PageReq
+	Where ProductEnterWhere `json:"where"`
+}
+
+type ProductEnterInfoReq struct {
+	Id string `json:"id" binding:"required"`
 }

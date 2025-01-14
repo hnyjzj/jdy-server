@@ -102,21 +102,40 @@ func Api(g *gin.Engine) {
 		// 产品
 		products := r.Group("/product")
 		{
-			products.GET("/where", product.ProductController{}.Where) // 产品筛选
 			products.Use(middlewares.JWTMiddleware())
 			{
-				products.POST("/enter", product.ProductController{}.Enter)  // 产品入库
-				products.POST("/list", product.ProductController{}.List)    // 产品列表
-				products.POST("/info", product.ProductController{}.Info)    // 产品详情
-				products.PUT("/update", product.ProductController{}.Update) // 产品更新
+				// 产品管理
+				products = products.Group("/")
+				{
+					products.GET("/where", product.ProductController{}.Where)   // 产品筛选
+					products.POST("/list", product.ProductController{}.List)    // 产品列表
+					products.POST("/info", product.ProductController{}.Info)    // 产品详情
+					products.PUT("/update", product.ProductController{}.Update) // 产品更新
+					products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
+				}
 
-				products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
+				// 产品入库
+				enters := products.Group("/enter")
+				{
+					enters.GET("/where", product.ProductEnterController{}.Where)    // 入库单筛选
+					enters.POST("/create", product.ProductEnterController{}.Create) // 创建入库单
+					enters.POST("/list", product.ProductEnterController{}.List)     // 入库单列表
+					enters.POST("/info", product.ProductEnterController{}.Info)     // 入库单详情
+				}
 
+				// 产品调拨
 				allocate := products.Group("/allocate")
 				{
 					allocate.POST("/create", product.ProductAllocateController{}.Create) // 创建调拨单
 					allocate.GET("/where", product.ProductAllocateController{}.Where)    // 调拨单筛选
 					allocate.POST("/list", product.ProductAllocateController{}.List)     // 调拨单列表
+					allocate.POST("/info", product.ProductAllocateController{}.Info)     // 调拨单详情
+
+					allocate.PUT("/add", product.ProductAllocateController{}.Add)           // 添加产品
+					allocate.PUT("/remove", product.ProductAllocateController{}.Remove)     // 移除产品
+					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)   // 确认调拨
+					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)     // 取消调拨
+					allocate.PUT("/complete", product.ProductAllocateController{}.Complete) // 完成调拨
 				}
 			}
 		}

@@ -26,12 +26,14 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			Remark: req.Remark,
 			Status: enums.ProductAllocateStatusAllocate,
 
+			FromStoreId: req.FromStoreId,
+
 			OperatorId: l.Staff.Id,
 			IP:         l.Ctx.ClientIP(),
 		}
 		// 如果是调拨到门店，则添加门店ID
 		if req.Method == enums.ProductAllocateMethodStore {
-			data.StoreId = req.StoreId
+			data.ToStoreId = req.ToStoreId
 		}
 		// 创建调拨单
 		if err := tx.Create(&data).Error; err != nil {
@@ -246,12 +248,15 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 			if product.Status != enums.ProductStatusAllocate {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
-			// 解锁产品
-			if err := model.DB.Model(&product).Updates(&model.Product{
+
+			data := &model.Product{
 				Status:  enums.ProductStatusNormal,
-				StoreId: allocate.StoreId,
+				StoreId: allocate.ToStoreId,
 				Type:    allocate.Type,
-			}).Error; err != nil {
+			}
+
+			// 解锁产品
+			if err := model.DB.Model(&product).Updates(data).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
 		}

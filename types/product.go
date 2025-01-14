@@ -134,15 +134,16 @@ type ProductDamageReq struct {
 }
 
 type ProductAllocateCreateReq struct {
-	Method  enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨方式
-	Type    enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
-	Reason  enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
-	Remark  string                      `json:"remark" binding:"-"`        // 备注
-	StoreId string                      `json:"store_id" binding:"-"`      // 调拨门店
+	Method      enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨方式
+	Type        enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
+	Reason      enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
+	Remark      string                      `json:"remark" binding:"-"`        // 备注
+	FromStoreId string                      `json:"from_store_id" binding:"-"` // 调出门店
+	ToStoreId   string                      `json:"to_store_id" binding:"-"`   // 调入门店
 }
 
 func (req *ProductAllocateCreateReq) Validate() error {
-	if req.Method == enums.ProductAllocateMethodStore && req.StoreId == "" {
+	if req.Method == enums.ProductAllocateMethodStore && req.ToStoreId == "" {
 		return errors.New("调拨门店不能为空")
 	}
 

@@ -12,7 +12,6 @@ const (
 	ProductAllocateStatusAllocate                               // 调拨中 (确认调拨)
 	ProductAllocateStatusCompleted                              // 已完成 (已接收)
 	ProductAllocateStatusCanceled                               // 已取消 (取消调拨)
-	ProductAllocateStatusRejected                               // 已驳回 (驳回调拨)
 )
 
 var ProductAllocateStatusMap = map[ProductAllocateStatus]string{
@@ -21,7 +20,6 @@ var ProductAllocateStatusMap = map[ProductAllocateStatus]string{
 	ProductAllocateStatusAllocate:  "调拨中",
 	ProductAllocateStatusCompleted: "已完成",
 	ProductAllocateStatusCanceled:  "已取消",
-	ProductAllocateStatusRejected:  "已驳回",
 }
 
 func (p ProductAllocateStatus) ToMap() any {

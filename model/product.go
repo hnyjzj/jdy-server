@@ -196,8 +196,10 @@ type ProductAllocate struct {
 
 	Status enums.ProductAllocateStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"` // 状态
 
-	StoreId string `json:"store_id" gorm:"type:tinyint(2);comment:调拨门店;"` // 调拨门店
-	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:调拨门店;"`
+	FromStoreId string `json:"from_store_id" gorm:"type:tinyint(2);comment:调出门店;"` // 调出门店
+	FromStore   *Store `json:"from_store" gorm:"foreignKey:FromStoreId;references:Id;comment:调出门店;"`
+	ToStoreId   string `json:"to_store_id" gorm:"type:tinyint(2);comment:调入门店;"` // 调入门店
+	ToStore     *Store `json:"to_store" gorm:"foreignKey:ToStoreId;references:Id;comment:调入门店;"`
 
 	Products []Product `json:"product" gorm:"many2many:product_allocate_list;"` // 产品
 

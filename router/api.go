@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// - Member management
 func Api(g *gin.Engine) {
 	// 跨域
 	g.Use(middlewares.Cors())

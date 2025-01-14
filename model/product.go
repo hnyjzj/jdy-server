@@ -202,9 +202,9 @@ type ProductAllocate struct {
 
 	Products []Product `json:"product" gorm:"many2many:product_allocate_list;"` // 产品
 
-	OperatorId string `json:"-" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`        // 操作人ID
-	Operator   *Staff `json:"-" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
-	IP         string `json:"-" gorm:"type:varchar(255);not NULL;comment:IP;"`           // IP
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
+	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
+	IP         string `json:"-" gorm:"type:varchar(255);not NULL;comment:IP;"`                  // IP
 }
 
 func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateWhere) *gorm.DB {

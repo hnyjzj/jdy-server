@@ -96,9 +96,10 @@ func (M *Member) IntegralChange(db *gorm.DB, change float64, types enums.MemberI
 
 	log := &MemberIntegralLog{
 		MemberId:   M.Id,
+		Change:     change,
+		ChangeType: types,
 		Before:     M.Integral,
 		After:      integral,
-		ChangeType: types,
 	}
 	if len(remark) > 0 {
 		log.Remark = remark[0]
@@ -115,11 +116,12 @@ type MemberIntegralLog struct {
 	SoftDelete
 
 	MemberId string `json:"memberId" gorm:"column:member_id;size:255;not NULL;comment:会员id;"` // 会员id
-	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;"`                 // 会员
+	Member   Member `json:"-" gorm:"foreignKey:MemberId;references:Id;"`                      // 会员
 
+	Change     float64                        `json:"change" gorm:"column:change;type:decimal(10,2);not NULL;default:0;comment:变动积分;"`        // 变动积分
+	ChangeType enums.MemberIntegralChangeType `json:"change_type" gorm:"column:change_type;type:tinyint(1);not NULL;default:0;comment:变动类型;"` // 变动类型
 	Before     float64                        `json:"before" gorm:"column:before;type:decimal(10,2);not NULL;default:0;comment:变动前积分;"`       // 变动前积分
 	After      float64                        `json:"after" gorm:"column:after;type:decimal(10,2);not NULL;default:0;comment:变动后积分;"`         // 变动后积分
-	ChangeType enums.MemberIntegralChangeType `json:"change_type" gorm:"column:change_type;type:tinyint(1);not NULL;default:0;comment:变动类型;"` // 变动类型
 	Remark     string                         `json:"remark" gorm:"column:remark;size:255;comment:备注;"`                                       // 备注
 }
 

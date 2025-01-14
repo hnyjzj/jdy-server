@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"jdy/enums"
 	"jdy/types"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -31,7 +32,7 @@ func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
 		db = db.Where("phone = ?", query.Phone)
 	}
 	if query.Nickname != "" {
-		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", query.Nickname))
+		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", strings.Replace(query.Nickname, "%", "\\%", -1)))
 	}
 	if query.Gender != 0 {
 		db = db.Where("gender = ?", query.Gender)

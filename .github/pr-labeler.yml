@@ -22,7 +22,7 @@ label-mapping:
     # 文档
     documentation: [docs]
     # 依赖/构建
-    configuration: [config, deps, build, ci]
+    configuration: [config, build, ci]
     # 测试
     test: [test]
     # 其他

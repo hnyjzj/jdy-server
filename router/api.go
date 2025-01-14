@@ -57,8 +57,11 @@ func Api(g *gin.Engine) {
 		{
 			staffs.Use(middlewares.JWTMiddleware())
 			{
+				staffs.GET("/where", staff.StaffController{}.Where)    // 员工筛选
+				staffs.POST("/list", staff.StaffController{}.List)     // 员工列表
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
-				staffs.GET("/info", staff.StaffController{}.Info)      // 获取员工信息
+				staffs.POST("/info", staff.StaffController{}.Info)     // 员工详情
+				staffs.GET("/my", staff.StaffController{}.My)          // 获取我的信息
 				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
 			}
 		}
@@ -85,8 +88,14 @@ func Api(g *gin.Engine) {
 				stores.PUT("/update", store.StoreController{}.Update)    // 门店更新
 				stores.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
 				stores.POST("/list", store.StoreController{}.List)       // 门店列表
-				stores.POST("/my", store.StoreController{}.My)           // 门店列表
+				stores.POST("/my", store.StoreController{}.My)           // 我的门店
 				stores.POST("/info", store.StoreController{}.Info)       // 门店详情
+
+				staffs := stores.Group("/staff")
+				{
+					staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
+					staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
+				}
 			}
 		}
 
@@ -122,6 +131,8 @@ func Api(g *gin.Engine) {
 				members.POST("/list", member.MemberController{}.List)     // 会员列表
 				members.POST("/info", member.MemberController{}.Info)     // 会员详情
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
+
+				members.POST("/integral", member.MemberController{}.Integral) // 会员积分
 			}
 		}
 	}

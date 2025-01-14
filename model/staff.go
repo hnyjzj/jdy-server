@@ -1,6 +1,13 @@
 package model
 
-import "jdy/enums"
+import (
+	"fmt"
+	"jdy/enums"
+	"jdy/types"
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 type Staff struct {
 	SoftDelete
@@ -18,6 +25,23 @@ type Staff struct {
 	Accounts []Account `json:"accounts" gorm:"foreignKey:StaffId;references:Id;"`
 
 	Stores []Store `json:"stores" gorm:"many2many:stores_staffs;"`
+}
+
+func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
+	if query.Phone != "" {
+		db = db.Where("phone = ?", query.Phone)
+	}
+	if query.Nickname != "" {
+		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", strings.Replace(query.Nickname, "%", "\\%", -1)))
+	}
+	if query.Gender != 0 {
+		db = db.Where("gender = ?", query.Gender)
+	}
+	if query.IsDisabled {
+		db = db.Where("is_disabled = ?", query.IsDisabled)
+	}
+
+	return db
 }
 
 func init() {

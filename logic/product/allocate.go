@@ -168,7 +168,8 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 			if product.Status != enums.ProductStatusNormal {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
-			if err := tx.Model(&product).Update("status", enums.ProductStatusAllocate).Error; err != nil {
+			product.Status = enums.ProductStatusAllocate
+			if err := model.DB.Save(&product).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}
 		}

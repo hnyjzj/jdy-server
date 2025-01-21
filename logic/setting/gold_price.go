@@ -39,6 +39,7 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 		}
 		m := message.NewMessage(l.Ctx)
 		m.SendGoldPriceApprovalMessage(&message.GoldPriceApprovalMessage{
+			Id:        data.Id,
 			Price:     req.Price,
 			Initiator: initiator.Nickname,
 		})

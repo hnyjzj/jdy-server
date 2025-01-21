@@ -2,6 +2,7 @@ package message
 
 import (
 	"fmt"
+	"jdy/enums"
 	"log"
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/message/request"
@@ -24,14 +25,10 @@ func (M *BaseMessage) SendGoldPriceApprovalMessage(req *GoldPriceApprovalMessage
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "button_interaction",
 			MainTitle: &request.TemplateCardMainTitle{
-				Title: "黄金价格变更通知",
-				Desc:  "黄金价格已变更，请及时查收",
+				Title: "黄金价格变更申请",
+				Desc:  "黄金价格有修改申请，请及时审批",
 			},
-			EmphasisContent: &request.TemplateCardEmphasisContent{
-				Title: fmt.Sprintf("%.2f", req.Price),
-				Desc:  "元/克",
-			},
-			SubTitleText: "请尽快审批~",
+			SubTitleText: fmt.Sprintf("%.2f 元/克", req.Price),
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
 				{
 					Type:    0,
@@ -40,11 +37,16 @@ func (M *BaseMessage) SendGoldPriceApprovalMessage(req *GoldPriceApprovalMessage
 				},
 			},
 			TaskID: req.Id,
-			JumpList: []*request.TemplateCardJumpListItem{
+			ButtonList: []*request.TemplateCardButtonListItem{
 				{
-					Type:  1,
-					Title: "查看详情",
-					Url:   M.App.Home,
+					Text:  "驳回",
+					Key:   string(enums.GoldPriceReviewRejected),
+					Style: 3,
+				},
+				{
+					Text:  "审批",
+					Key:   string(enums.GoldPriceReviewApproved),
+					Style: 1,
 				},
 			},
 		},
@@ -73,8 +75,8 @@ func (M *BaseMessage) SendGoldPriceMessage(req *GoldPriceMessage) {
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",
 			MainTitle: &request.TemplateCardMainTitle{
-				Title: "黄金价格变更申请",
-				Desc:  "黄金价格有修改申请，请及时审批",
+				Title: "黄金价格变更通知",
+				Desc:  "黄金价格已变更，请及时查收",
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
 				Title: fmt.Sprintf("%.2f", req.Price),

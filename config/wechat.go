@@ -47,9 +47,9 @@ func NewWechatService() *WechatService {
 func newJdyWork() *work.Work {
 	app := Config.Wechat.Work
 	WeComApp, err := work.NewWork(&work.UserConfig{
-		CorpID:      app.CorpID,     // 企业微信的app id，所有企业微信共用一个。
-		AgentID:     app.Jdy.Id,     // 内部应用的app id
-		Secret:      app.Jdy.Secret, // 内部应用的app secret
+		CorpID:      app.CorpID,
+		AgentID:     app.Jdy.Id,
+		Secret:      app.Jdy.Secret,
 		Token:       app.Jdy.Token,
 		AESKey:      app.Jdy.AESKey,
 		CallbackURL: app.Jdy.CallbackURL,
@@ -61,7 +61,7 @@ func newJdyWork() *work.Work {
 			Level:  "debug",
 			File:   "./logs/wechat/wxwork_info_jdy.log",
 			Error:  "./logs/wechat/wxwork_error_jdy.log",
-			Stdout: false, //  是否打印在终端
+			Stdout: false,
 		},
 		Cache: kernel.NewRedisClient(&kernel.UniversalOptions{
 			Addrs:    []string{fmt.Sprintf("%s:%d", Config.Redis.Host, Config.Redis.Port)},
@@ -80,8 +80,8 @@ func newJdyWork() *work.Work {
 func newContactsWork() *work.Work {
 	app := Config.Wechat.Work
 	WeComApp, err := work.NewWork(&work.UserConfig{
-		CorpID: app.CorpID,          // 企业微信的app id，所有企业微信共用一个。
-		Secret: app.Contacts.Secret, // 通讯录的secret
+		CorpID: app.CorpID,
+		Secret: app.Contacts.Secret,
 		OAuth: work.OAuth{
 			Callback: app.Contacts.CallbackOAuth,
 			Scopes:   []string{"snsapi_privateinfo"},

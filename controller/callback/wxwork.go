@@ -22,12 +22,10 @@ func (con WxWorkCongtroller) JdyVerify(c *gin.Context) {
 		Jwt = config.NewWechatService().JdyWork
 	)
 
-	rs, err := Jwt.Server.Serve(c.Request)
-	fmt.Printf("err.Error(): %v\n", err.Error())
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
-
+	rs, err := Jwt.Server.VerifyURL(c.Request)
+	if err != nil {
+		panic(err)
+	}
 	text, _ := io.ReadAll(rs.Body)
 	c.String(http.StatusOK, string(text))
 }
@@ -48,6 +46,7 @@ func (con WxWorkCongtroller) JdyNotify(c *gin.Context) {
 				println(err.Error())
 				return "error"
 			}
+			fmt.Printf("msg: %v\n", msg)
 		}
 
 		// 假设员工给应用发送消息，这里可以直接回复消息文本，

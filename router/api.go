@@ -4,6 +4,7 @@ import (
 	"jdy/controller/auth"
 	"jdy/controller/common"
 	"jdy/controller/member"
+	"jdy/controller/order"
 	"jdy/controller/platform"
 	"jdy/controller/product"
 	"jdy/controller/setting"
@@ -153,6 +154,16 @@ func Api(g *gin.Engine) {
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 
 				members.POST("/integral", member.MemberController{}.Integral) // 会员积分
+			}
+		}
+
+		// 订单
+		orders := r.Group("/order")
+		{
+			orders.Use(middlewares.JWTMiddleware())
+			{
+				orders.GET("/where", order.OrderController{}.Where)    // 订单筛选
+				orders.POST("/create", order.OrderController{}.Create) // 创建订单
 			}
 		}
 

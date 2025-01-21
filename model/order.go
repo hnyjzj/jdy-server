@@ -11,16 +11,16 @@ type Order struct {
 	Source enums.OrderSource `json:"source" gorm:"type:tinyint(2);not NULL;comment:订单来源;"`   // 订单来源
 	Remark string            `json:"remark" gorm:"type:varchar(255);not NULL;comment:订单备注;"` // 订单备注
 
-	Amount     float64 `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:订单金额;"`      // 订单金额
-	AmountPaid float64 `json:"amount_paid" gorm:"type:decimal(10,2);not NULL;comment:实付金额;"` // 实付金额
+	Amount         float64 `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`        // 应付金额
+	AmountOriginal float64 `json:"amount_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"` // 原价
+	AmountPay      float64 `json:"amount_pay" gorm:"type:decimal(10,2);not NULL;comment:实付金额;"`    // 实付金额
 
-	DiscountRate   float64 `json:"discount_rate" gorm:"type:decimal(5,2);not NULL;comment:折扣率;"`     // 折扣率
-	DiscountAmount float64 `json:"discount_amount" gorm:"type:decimal(10,2);not NULL;comment:折扣金额;"` // 折扣金额
+	DiscountRate   float64 `json:"discount_rate" gorm:"type:decimal(5,2);not NULL;comment:整单折扣;"`      // 整单折扣
+	DiscountAmount float64 `json:"discount_amount" gorm:"type:decimal(10,2);not NULL;comment:整单折扣金额;"` // 整单折扣金额
+	AmountReduce   float64 `json:"amount_reduce" gorm:"type:decimal(10,2);not NULL;comment:抹零金额;"`     // 抹零金额
 
-	AmountReduce float64 `json:"amount_reduce" gorm:"type:decimal(10,2);not NULL;comment:抹零金额;"` // 抹零金额
-
-	IntegralPresent int64 `json:"integral_present" gorm:"type:int(11);not NULL;comment:赠送积分;"` // 赠送积分
-	IntegralUse     int64 `json:"integral_use" gorm:"type:int(11);not NULL;comment:使用积分;"`     // 使用积分
+	IntegralPresent float64 `json:"integral_present" gorm:"type:int(11);not NULL;comment:赠送积分;"` // 赠送积分
+	IntegralUse     float64 `json:"integral_use" gorm:"type:int(11);not NULL;comment:使用积分;"`     // 使用积分
 
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
 	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
@@ -40,6 +40,8 @@ type Order struct {
 
 // 订单导购员
 type OrderSalesman struct {
+	Model
+
 	OrderId string `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`  // 订单ID
 	Order   Order  `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
 
@@ -54,18 +56,22 @@ type OrderSalesman struct {
 
 // 订单商品
 type OrderProduct struct {
+	Model
+
 	OrderId string `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`  // 订单ID
 	Order   Order  `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
 
 	ProductId string  `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`    // 产品ID
 	Product   Product `json:"product" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
-	Quantity float64 `json:"quantity" gorm:"type:decimal(10,2);not NULL;comment:数量;"` // 数量
-	Price    float64 `json:"price" gorm:"type:decimal(10,2);not NULL;comment:单价;"`    // 单价
-	Total    float64 `json:"total" gorm:"type:decimal(10,2);not NULL;comment:总价;"`    // 总价
-	Amount   float64 `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"` // 应付金额
+	Quantity       int     `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`              // 数量
+	Price          float64 `json:"price" gorm:"type:decimal(10,2);not NULL;comment:单价;"`           // 单价
+	Amount         float64 `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`        // 应付金额
+	AmountOriginal float64 `json:"amount_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"` // 原价
 
-	Discount float64 `json:"discount" gorm:"type:decimal(10,2);not NULL;comment:折扣;"`   // 折扣
+	Discount       float64 `json:"discount" gorm:"type:decimal(10,2);not NULL;comment:折扣;"`          // 折扣
+	DiscountAmount float64 `json:"discount_amount" gorm:"type:decimal(10,2);not NULL;comment:折扣金额;"` // 折扣金额
+
 	Integral float64 `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:增加积分;"` // 增加积分
 }
 

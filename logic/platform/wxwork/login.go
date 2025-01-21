@@ -4,6 +4,7 @@ import (
 	"jdy/config"
 	"jdy/enums"
 	"jdy/errors"
+	"jdy/message"
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
@@ -269,7 +270,8 @@ func (l *wxworkLoginLogic) register() error {
 				}
 
 				go func(UserInfo *model.Account) {
-					SendRegisterMessage(l.Ctx, &RegisterMessageContent{
+					m := message.NewMessage(l.Ctx)
+					m.SendRegisterMessage(&message.RegisterMessageContent{
 						Nickname: *UserInfo.Nickname,
 						Username: *UserInfo.Username,
 						Phone:    *UserInfo.Phone,

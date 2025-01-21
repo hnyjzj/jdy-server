@@ -8,7 +8,7 @@ import (
 )
 
 type WorkbenchLogic struct {
-	logic.Base
+	logic.BaseLogic
 }
 
 // 获取路由列表

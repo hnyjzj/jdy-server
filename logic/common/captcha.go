@@ -11,7 +11,7 @@ import (
 )
 
 type CaptchaLogic struct {
-	logic.Base
+	logic.BaseLogic
 }
 
 type CaptchaRes struct {

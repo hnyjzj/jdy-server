@@ -8,7 +8,7 @@ import (
 )
 
 type StaffLogic struct {
-	logic.Base
+	logic.BaseLogic
 	Staff *types.Staff
 }
 

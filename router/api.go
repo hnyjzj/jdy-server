@@ -6,6 +6,7 @@ import (
 	"jdy/controller/member"
 	"jdy/controller/platform"
 	"jdy/controller/product"
+	"jdy/controller/setting"
 	"jdy/controller/staff"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
@@ -152,6 +153,19 @@ func Api(g *gin.Engine) {
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 
 				members.POST("/integral", member.MemberController{}.Integral) // 会员积分
+			}
+		}
+
+		// 设置
+		settings := r.Group("/setting")
+		{
+			settings.Use(middlewares.JWTMiddleware())
+			{
+				gold_price := settings.Group("/gold_price")
+				{
+					gold_price.POST("/create", setting.GoldPriceController{}.Create) // 创建金价
+					gold_price.POST("/update", setting.GoldPriceController{}.Update) // 更新金价
+				}
 			}
 		}
 	}

@@ -5,7 +5,7 @@ import (
 	"jdy/config"
 	"jdy/enums"
 	"jdy/errors"
-	"jdy/logic/platform/wxwork"
+	"jdy/message"
 	"jdy/model"
 	"jdy/types"
 
@@ -127,7 +127,8 @@ func (l *AccountCreateLogic) account() error {
 	}
 
 	go func() {
-		wxwork.SendRegisterMessage(ctx, &wxwork.RegisterMessageContent{
+		m := message.NewMessage(ctx)
+		m.SendRegisterMessage(&message.RegisterMessageContent{
 			Nickname: req.Nickname,
 			Phone:    req.Phone,
 			Password: req.Password,
@@ -190,7 +191,8 @@ func (l *AccountCreateLogic) wxwork() error {
 		}
 
 		go func() {
-			wxwork.SendRegisterMessage(ctx, &wxwork.RegisterMessageContent{
+			m := message.NewMessage(ctx)
+			m.SendRegisterMessage(&message.RegisterMessageContent{
 				Nickname: user.Name,
 				Username: user.UserID,
 				Phone:    "暂未授权",

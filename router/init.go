@@ -12,4 +12,5 @@ func Init(r *gin.Engine) {
 
 	Base(r)
 	Api(r)
+	CallBack(r)
 }

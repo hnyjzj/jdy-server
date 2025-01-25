@@ -15,18 +15,20 @@ type WechatWork struct {
 	CorpID string `mapstructure:"corp_id"` // 企业ID
 	Secret string `mapstructure:"secret"`  // 通讯录秘钥
 
-	Jdy      agent `mapstructure:"jdy"`      // 应用
-	Contacts agent `mapstructure:"contacts"` // 通讯录
+	Jdy      Agent `mapstructure:"jdy"`      // 应用
+	Contacts Agent `mapstructure:"contacts"` // 通讯录
 }
 
-type agent struct {
+type Agent struct {
 	Id     int    `mapstructure:"id"`     // 应用ID
 	Secret string `mapstructure:"secret"` // 应用秘钥
+	Home   string `mapstructure:"home"`   // 应用首页
 
-	Token  string `mapstructure:"Token"`  // 应用Token
-	AesKey string `mapstructure:"AesKey"` // 应用AesKey
+	Token  string `mapstructure:"token"`  // 应用Token
+	AESKey string `mapstructure:"aeskey"` // 应用AesKey
 
-	Callback string `mapstructure:"callback" default:"https://example.cn/wxwork/callback"` // 回调地址
+	CallbackURL   string `mapstructure:"callback_url" default:"https://example.cn/callback/wxwork"`         // 回调地址
+	CallbackOAuth string `mapstructure:"callback_oauth" default:"https://example.cn/callback/wxwork/oauth"` // 回调地址
 }
 
 type WechatService struct {
@@ -43,19 +45,23 @@ func NewWechatService() *WechatService {
 
 // @see https://powerwechat.artisan-cloud.com/zh/wecom/
 func newJdyWork() *work.Work {
+	app := Config.Wechat.Work
 	WeComApp, err := work.NewWork(&work.UserConfig{
-		CorpID:  Config.Wechat.Work.CorpID,     // 企业微信的app id，所有企业微信共用一个。
-		AgentID: Config.Wechat.Work.Jdy.Id,     // 内部应用的app id
-		Secret:  Config.Wechat.Work.Jdy.Secret, // 内部应用的app secret
+		CorpID:      app.CorpID,
+		AgentID:     app.Jdy.Id,
+		Secret:      app.Jdy.Secret,
+		Token:       app.Jdy.Token,
+		AESKey:      app.Jdy.AESKey,
+		CallbackURL: app.Jdy.CallbackURL,
 		OAuth: work.OAuth{
-			Callback: Config.Wechat.Work.Jdy.Callback,
+			Callback: app.Jdy.CallbackOAuth,
 			Scopes:   []string{"snsapi_privateinfo"},
 		},
 		Log: work.Log{
 			Level:  "debug",
 			File:   "./logs/wechat/wxwork_info_jdy.log",
 			Error:  "./logs/wechat/wxwork_error_jdy.log",
-			Stdout: false, //  是否打印在终端
+			Stdout: false,
 		},
 		Cache: kernel.NewRedisClient(&kernel.UniversalOptions{
 			Addrs:    []string{fmt.Sprintf("%s:%d", Config.Redis.Host, Config.Redis.Port)},
@@ -72,11 +78,12 @@ func newJdyWork() *work.Work {
 	return WeComApp
 }
 func newContactsWork() *work.Work {
+	app := Config.Wechat.Work
 	WeComApp, err := work.NewWork(&work.UserConfig{
-		CorpID: Config.Wechat.Work.CorpID,          // 企业微信的app id，所有企业微信共用一个。
-		Secret: Config.Wechat.Work.Contacts.Secret, // 通讯录的secret
+		CorpID: app.CorpID,
+		Secret: app.Contacts.Secret,
 		OAuth: work.OAuth{
-			Callback: Config.Wechat.Work.Contacts.Callback,
+			Callback: app.Contacts.CallbackOAuth,
 			Scopes:   []string{"snsapi_privateinfo"},
 		},
 		Log: work.Log{

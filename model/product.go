@@ -17,7 +17,7 @@ type Product struct {
 	Images []string `json:"images" gorm:"type:text;serializer:json;comment:图片;"`                      // 图片
 
 	AccessFee float64 `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"` // 入网费
-	Price     float64 `json:"price" gorm:"type:decimal(10,2);not NULL;comment:价格;"`       // 价格
+	Price     float64 `json:"price" gorm:"type:decimal(10,2);not NULL;comment:一口价;"`      // 一口价
 	LaborFee  float64 `json:"labor_fee" gorm:"type:decimal(10,2);not NULL;comment:工费;"`   // 工费
 
 	Weight      float64                 `json:"weight" gorm:"type:decimal(10,2);comment:总重量;"`             // 总重量

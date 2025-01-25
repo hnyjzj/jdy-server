@@ -4,8 +4,10 @@ import (
 	"jdy/controller/auth"
 	"jdy/controller/common"
 	"jdy/controller/member"
+	"jdy/controller/order"
 	"jdy/controller/platform"
 	"jdy/controller/product"
+	"jdy/controller/setting"
 	"jdy/controller/staff"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
@@ -151,7 +153,34 @@ func Api(g *gin.Engine) {
 				members.POST("/info", member.MemberController{}.Info)     // 会员详情
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 
-				members.POST("/integral", member.MemberController{}.Integral) // 会员积分
+				integrals := members.Group("/integral")
+				{
+					integrals.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
+					integrals.POST("/change", member.MemberIntegralController{}.Change) // 积分变动
+				}
+			}
+		}
+
+		// 订单
+		orders := r.Group("/order")
+		{
+			orders.Use(middlewares.JWTMiddleware())
+			{
+				orders.GET("/where", order.OrderController{}.Where)    // 订单筛选
+				orders.POST("/create", order.OrderController{}.Create) // 创建订单
+			}
+		}
+
+		// 设置
+		settings := r.Group("/setting")
+		{
+			settings.Use(middlewares.JWTMiddleware())
+			{
+				gold_price := settings.Group("/gold_price")
+				{
+					gold_price.POST("/create", setting.GoldPriceController{}.Create) // 创建金价
+					gold_price.POST("/update", setting.GoldPriceController{}.Update) // 更新金价
+				}
 			}
 		}
 	}

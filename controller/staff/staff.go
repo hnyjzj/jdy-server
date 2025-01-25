@@ -52,7 +52,7 @@ func (con StaffController) Info(ctx *gin.Context) {
 	var (
 		req   types.StaffInfoReq
 		logic = staff.StaffLogic{
-			Base: logic.Base{
+			BaseLogic: logic.BaseLogic{
 				Ctx: ctx,
 			},
 			Staff: con.GetStaff(ctx),
@@ -79,7 +79,7 @@ func (con StaffController) Info(ctx *gin.Context) {
 func (con StaffController) My(ctx *gin.Context) {
 	var (
 		logic = staff.StaffLogic{
-			Base: logic.Base{
+			BaseLogic: logic.BaseLogic{
 				Ctx: ctx,
 			},
 			Staff: con.GetStaff(ctx),

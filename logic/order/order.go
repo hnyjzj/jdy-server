@@ -1,4 +1,4 @@
-package logic
+package order
 
 import (
 	"jdy/types"
@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type BaseLogic struct {
+type OrderLogic struct {
 	Ctx   *gin.Context
 	Staff *types.Staff
 }

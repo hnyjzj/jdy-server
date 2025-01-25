@@ -88,6 +88,7 @@ func (l *ProductLogic) EnterList(req *types.ProductEnterListReq) (*types.PageRes
 	}
 
 	// 获取列表
+	db = db.Preload("Products")
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 	if err := db.Find(&res.List).Error; err != nil {
@@ -103,7 +104,13 @@ func (l *ProductLogic) EnterInfo(req *types.ProductEnterInfoReq) (*model.Product
 		enter model.ProductEnter
 	)
 
-	if err := model.DB.Preload("Products").Preload("Operator").First(&enter, req.Id).Error; err != nil {
+	db := model.DB.Model(&enter)
+
+	// 获取产品入库单详情
+	db = db.Preload("Products")
+	db = db.Preload("Operator")
+
+	if err := db.First(&enter, req.Id).Error; err != nil {
 		return nil, errors.New("获取产品入库单详情失败")
 	}
 

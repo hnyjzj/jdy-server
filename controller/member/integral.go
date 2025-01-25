@@ -8,11 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (con MemberController) Integral(ctx *gin.Context) {
+type MemberIntegralController struct {
+	MemberController
+}
+
+func (con MemberIntegralController) List(ctx *gin.Context) {
 	var (
 		req types.MemberIntegralListReq
 
-		logic = member.MemberLogic{
+		logic = member.MemberIntegralLogic{
 			Ctx:   ctx,
 			Staff: con.GetStaff(ctx),
 		}
@@ -24,11 +28,35 @@ func (con MemberController) Integral(ctx *gin.Context) {
 		return
 	}
 
-	res, err := logic.Integral(&req)
+	res, err := logic.List(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
 	con.Success(ctx, "ok", res)
+}
+
+func (con MemberIntegralController) Change(ctx *gin.Context) {
+	var (
+		req types.MemberIntegralChangeReq
+
+		logic = member.MemberIntegralLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Change(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
 }

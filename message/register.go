@@ -1,4 +1,4 @@
-package wxwork
+package message
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/message/request"
-	"github.com/gin-gonic/gin"
 )
 
 // 消息内容
@@ -18,11 +17,8 @@ type RegisterMessageContent struct {
 	Password string `json:"password"`
 }
 
-func SendRegisterMessage(ctx *gin.Context, message *RegisterMessageContent) {
-	var (
-		wxwork = config.NewWechatService().JdyWork
-	)
-
+// 发送注册消息
+func (M *BaseMessage) SendRegisterMessage(message *RegisterMessageContent) {
 	var configTemplate string = strings.Join([]string{
 		"欢迎加入金斗云 ！",
 		">昵  称：%v",
@@ -51,7 +47,7 @@ func SendRegisterMessage(ctx *gin.Context, message *RegisterMessageContent) {
 			Content: content,
 		},
 	}
-	_, err := wxwork.Message.SendMarkdown(ctx, messages)
+	_, err := M.WXWork.Message.SendMarkdown(M.Ctx, messages)
 	if err != nil {
 		log.Println("发送消息失败:", err)
 	}

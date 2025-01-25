@@ -55,3 +55,9 @@ type MemberIntegralListReq struct {
 	PageReq
 	MemberId string `json:"id" binding:"required"`
 }
+
+type MemberIntegralChangeReq struct {
+	MemberId string  `json:"id" binding:"required"`
+	Change   float64 `json:"change" binding:"required"`
+	Reason   string  `json:"reason" binding:"required"`
+}

@@ -153,7 +153,11 @@ func Api(g *gin.Engine) {
 				members.POST("/info", member.MemberController{}.Info)     // 会员详情
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 
-				members.POST("/integral", member.MemberController{}.Integral) // 会员积分
+				integrals := members.Group("/integral")
+				{
+					integrals.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
+					integrals.POST("/change", member.MemberIntegralController{}.Change) // 积分变动
+				}
 			}
 		}
 

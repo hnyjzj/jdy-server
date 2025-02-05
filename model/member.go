@@ -90,7 +90,7 @@ func (M *Member) IntegralChange(db *gorm.DB, change float64, types enums.MemberI
 	// 新积分
 	integral := M.Integral + change
 	// 乐观锁更新
-	if err := db.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", M.Id).Update("integral", integral).Error; err != nil {
+	if err := db.Model(&Member{}).Set("gorm:query_option", "FOR UPDATE").Where("id = ?", M.Id).Update("integral", integral).Error; err != nil {
 		return err
 	}
 

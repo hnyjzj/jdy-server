@@ -46,9 +46,10 @@ type StaffAccountReq struct {
 	Phone    string `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"` // 手机号
 	Password string `json:"password" binding:"required"`                             // 密码
 
-	Nickname string `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
-	Avatar   string `json:"avatar"`                                                            // 头像
-	Email    string `json:"email"`                                                             // 邮箱
+	Nickname string       `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
+	Avatar   string       `json:"avatar"`                                                            // 头像
+	Email    string       `json:"email"`                                                             // 邮箱
+	Gender   enums.Gender `json:"gender"`                                                            // 性别
 }
 
 // 企业微信信息

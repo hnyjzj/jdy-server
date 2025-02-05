@@ -102,12 +102,14 @@ func (l *AccountCreateLogic) account() error {
 		Nickname: &req.Nickname,
 		Avatar:   &req.Avatar,
 		Email:    &req.Email,
+		Gender:   req.Gender,
 
 		Staff: &model.Staff{
 			Phone:    &req.Phone,
 			Nickname: req.Nickname,
 			Avatar:   req.Avatar,
 			Email:    req.Email,
+			Gender:   req.Gender,
 		},
 	}
 

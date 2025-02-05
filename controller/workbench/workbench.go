@@ -28,6 +28,29 @@ func (con WorkbenchController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", workbenchs)
 }
 
+// 搜索入口
+func (con WorkbenchController) Search(ctx *gin.Context) {
+	var (
+		req types.WorkbenchSearchReq
+
+		logic = workbench.WorkbenchLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	workbenchs, err := logic.Search(&req)
+	if err != nil {
+		con.ErrorLogic(ctx, err)
+		return
+	}
+
+	con.Success(ctx, "ok", workbenchs)
+}
+
 // 添加入口
 func (con WorkbenchController) Add(ctx *gin.Context) {
 	var (

@@ -25,7 +25,7 @@ func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
 // 搜索路由
 func (l WorkbenchLogic) Search(req *types.WorkbenchSearchReq) ([]*model.Router, *errors.Errors) {
 	var list []*model.Router
-	if err := model.DB.Debug().Where("title like ?", fmt.Sprintf("%%%s%%", req.Keyword)).Where("path <> ''").Find(&list).Error; err != nil {
+	if err := model.DB.Where("title like ?", fmt.Sprintf("%%%s%%", req.Keyword)).Where("path <> ''").Find(&list).Error; err != nil {
 		return nil, errors.New("搜索失败")
 	}
 

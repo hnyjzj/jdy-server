@@ -77,7 +77,8 @@ func Api(g *gin.Engine) {
 				workbenchs.PUT("/update", workbench.WorkbenchController{}.Update) // 工作台更新
 				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del)    // 工作台删除
 			}
-			workbenchs.GET("/list", workbench.WorkbenchController{}.List) // 工作台列表
+			workbenchs.GET("/list", workbench.WorkbenchController{}.List)      // 工作台列表
+			workbenchs.POST("/search", workbench.WorkbenchController{}.Search) // 工作台搜索
 		}
 
 		// 门店

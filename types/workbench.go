@@ -11,11 +11,15 @@ type WorkbenchListRes struct {
 	Children []WorkbenchListRes `json:"children" `
 }
 
+type WorkbenchSearchReq struct {
+	Keyword string `json:"keyword" binding:"required"`
+}
+
 type WorkbenchAddReq struct {
 	Title    string `json:"title" binding:"required"`
-	Path     string `json:"path"  binding:"required"`
+	Path     string `json:"path"  binding:"-"`
 	Icon     string `json:"icon"  binding:"-"`
-	ParentId string `json:"parent_id"`
+	ParentId string `json:"parent_id" binding:"-"`
 }
 
 type WorkbenchDelReq struct {

@@ -1,6 +1,7 @@
 package workbench
 
 import (
+	"fmt"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/model"
@@ -16,6 +17,16 @@ func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
 	list, err := model.Router{}.GetTree(nil)
 	if err != nil {
 		return nil, errors.New("获取工作台列表失败: " + err.Error())
+	}
+
+	return list, nil
+}
+
+// 搜索路由
+func (l WorkbenchLogic) Search(req *types.WorkbenchSearchReq) ([]*model.Router, *errors.Errors) {
+	var list []*model.Router
+	if err := model.DB.Where("title like ?", fmt.Sprintf("%%%s%%", req.Keyword)).Where("path <> ''").Find(&list).Error; err != nil {
+		return nil, errors.New("搜索失败")
 	}
 
 	return list, nil

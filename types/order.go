@@ -10,9 +10,9 @@ type OrderWhere struct {
 	StoreId  string `json:"store_id" label:"门店ID" show:"true" sort:"2" type:"string" input:"text"`  // 门店ID
 	MemberId string `json:"member_id" label:"会员ID" show:"true" sort:"3" type:"string" input:"text"` // 会员ID
 
-	Status enums.OrderStatus `json:"order_status" label:"订单状态" show:"true" sort:"4" type:"string" input:"select" preset:"typeMap"` // 订单状态
-	Type   enums.OrderType   `json:"order_type" label:"订单类型" show:"true" sort:"5" type:"string" input:"select" preset:"typeMap"`   // 订单类型
-	Source enums.OrderSource `json:"order_source" label:"订单来源" show:"true" sort:"6" type:"string" input:"select" preset:"typeMap"` // 订单来源
+	Status enums.OrderStatus `json:"status" label:"订单状态" show:"true" sort:"4" type:"string" input:"select" preset:"typeMap"` // 订单状态
+	Type   enums.OrderType   `json:"type" label:"订单类型" show:"true" sort:"5" type:"string" input:"select" preset:"typeMap"`   // 订单类型
+	Source enums.OrderSource `json:"source" label:"订单来源" show:"true" sort:"6" type:"string" input:"select" preset:"typeMap"` // 订单来源
 
 	CashierId   string `json:"cashier_id" label:"收银员ID" show:"true" sort:"7" type:"string" input:"search"`  // 收银员ID
 	SalesmensId string `json:"salesmen_id" label:"业务员ID" show:"true" sort:"8" type:"string" input:"search"` // 业务员ID

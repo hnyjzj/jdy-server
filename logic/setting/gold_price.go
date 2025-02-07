@@ -16,6 +16,46 @@ type GoldPriceLogic struct {
 	IP string
 }
 
+func (l *GoldPriceLogic) Get() (*types.GoldPriceGetRes, error) {
+	var res types.GoldPriceGetRes
+
+	price, err := model.GetGoldPrice()
+	if err != nil {
+		return &res, err
+	}
+
+	res.Price = price
+
+	return &res, nil
+}
+
+func (l *GoldPriceLogic) List(req *types.GoldPriceListReq) (*types.PageRes[model.GoldPrice], error) {
+	var (
+		data []model.GoldPrice
+
+		res types.PageRes[model.GoldPrice]
+	)
+
+	db := model.DB.Model(&data)
+	db = db.Where(&model.GoldPrice{Status: enums.GoldPriceStatusApproved})
+
+	// 获取总数
+	if err := db.Count(&res.Total).Error; err != nil {
+		return nil, errors.New("获取金价历史总数失败")
+	}
+
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = db.Preload("Initiator")
+	db = db.Preload("Approver")
+	db = model.PageCondition(db, req.Page, req.Limit)
+	if err := db.Find(&res.List).Error; err != nil {
+		return nil, errors.New("获取金价历史列表失败")
+	}
+
+	return &res, nil
+}
+
 // 创建金价审批
 func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 	data := &model.GoldPrice{
@@ -75,19 +115,34 @@ func (l *GoldPriceLogic) Update(req *types.GoldPriceUpdateReq) error {
 	if err := model.DB.Model(&price).Updates(model.GoldPrice{
 		ApproverId: l.Staff.Id,
 		ApprovedAt: &now,
-		Status:     enums.GoldPriceStatusApproved,
+		Status:     req.Status,
 	}).Error; err != nil {
+		return err
+	}
+
+	if err := db.First(&price).Error; err != nil {
 		return err
 	}
 
 	// 发送更新消息
 	go func() {
+		if price.Status == enums.GoldPriceStatusRejected {
+			return
+		}
 		m := message.NewMessage(l.Ctx)
 		m.SendGoldPriceMessage(&message.GoldPriceMessage{
 			Price:     price.Price,
 			Initiator: price.Initiator.Nickname,
 			Approver:  price.Approver.Nickname,
 		})
+	}()
+
+	// 发送更新
+	go func() {
+		if price.Status == enums.GoldPriceStatusRejected {
+			return
+		}
+		SetWorkbenchTemplate(l.Ctx, WorkbenchTemplate{Price: price.Price})
 	}()
 
 	return nil

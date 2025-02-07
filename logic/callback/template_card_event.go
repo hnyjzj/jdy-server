@@ -25,28 +25,36 @@ func (Handle *WxWork) TemplateCardEvent() any {
 
 	// 获取员工信息
 	if err := Handle.GetStaff(); err != nil {
-		log.Printf("gold_price_review_approved.Error(): %v\n", err.Error())
+		log.Printf("TemplateCardEvent.GetStaff.Error(): %v\n", err.Error())
 		return "error"
 	}
 
 	// 解析消息体
 	if err := l.Handle.Event.ReadMessage(&l.Message); err != nil {
-		log.Printf("gold_price_review_approved.Error(): %v\n", err.Error())
+		log.Printf("TemplateCardEvent.ReadMessage.Error(): %v\n", err.Error())
 		return "error"
 	}
 
 	switch Handle.Event.GetEventKey() {
 	case string(enums.GoldPriceReviewApproved):
-		return l.gold_price_review_approved()
+		{
+			if err := l.gold_price_review_approved(); err != nil {
+				return "error"
+			}
+		}
 	case string(enums.GoldPriceReviewRejected):
-		return l.gold_price_review_rejected()
+		{
+			if err := l.gold_price_review_rejected(); err != nil {
+				return "error"
+			}
+		}
 	}
 
 	return nil
 }
 
 // 审批通过
-func (l *TemplateCardEvent) gold_price_review_approved() any {
+func (l *TemplateCardEvent) gold_price_review_approved() error {
 	var (
 		logic = setting.GoldPriceLogic{
 			BaseLogic: logic.BaseLogic{
@@ -61,6 +69,7 @@ func (l *TemplateCardEvent) gold_price_review_approved() any {
 		Status: enums.GoldPriceStatusApproved,
 	}); err != nil {
 		log.Printf("gold_price_review_approved.Error(): %v\n", err.Error())
+		return err
 	}
 
 	go func() {
@@ -75,7 +84,7 @@ func (l *TemplateCardEvent) gold_price_review_approved() any {
 }
 
 // 审批拒绝
-func (l *TemplateCardEvent) gold_price_review_rejected() any {
+func (l *TemplateCardEvent) gold_price_review_rejected() error {
 	var (
 		logic = setting.GoldPriceLogic{
 			BaseLogic: logic.BaseLogic{
@@ -90,6 +99,7 @@ func (l *TemplateCardEvent) gold_price_review_rejected() any {
 		Status: enums.GoldPriceStatusRejected,
 	}); err != nil {
 		log.Printf("gold_price_review_rejected.Error(): %v\n", err.Error())
+		return err
 	}
 
 	go func() {

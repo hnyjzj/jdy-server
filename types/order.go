@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"jdy/enums"
 	"time"
 )
@@ -23,8 +24,8 @@ type OrderWhere struct {
 }
 
 type OrderCreateReq struct {
-	Type   enums.OrderType   `json:"type" required:"true"` // 订单类型
-	Source enums.OrderSource `json:"source"`               // 订单来源
+	Type   enums.OrderType   `json:"type" required:"true"`   // 订单类型
+	Source enums.OrderSource `json:"source" required:"true"` // 订单来源
 
 	DiscountRate *float64 `json:"discount_rate"` // 整单折扣率
 	AmountReduce float64  `json:"amount_reduce"` // 抹零
@@ -38,6 +39,17 @@ type OrderCreateReq struct {
 	Products  []OrderCreateReqProduct   `json:"products" required:"true"`  // 商品
 
 	Remark string `json:"remark"` // 备注
+}
+
+func (req *OrderCreateReq) Validate() error {
+	if len(req.Products) == 0 {
+		return errors.New("商品不能为空")
+	}
+	if len(req.Salesmens) == 0 {
+		return errors.New("业务员不能为空")
+	}
+
+	return nil
 }
 
 type OrderCreateReqSalesmens struct {

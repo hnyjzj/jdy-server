@@ -38,6 +38,12 @@ func (con OrderController) Create(ctx *gin.Context) {
 		return
 	}
 
+	// 校验参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	// 调用逻辑层
 	if err := logic.Create(&req); err != nil {
 		con.Exception(ctx, err.Error())

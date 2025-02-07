@@ -115,19 +115,34 @@ func (l *GoldPriceLogic) Update(req *types.GoldPriceUpdateReq) error {
 	if err := model.DB.Model(&price).Updates(model.GoldPrice{
 		ApproverId: l.Staff.Id,
 		ApprovedAt: &now,
-		Status:     enums.GoldPriceStatusApproved,
+		Status:     req.Status,
 	}).Error; err != nil {
+		return err
+	}
+
+	if err := db.First(&price).Error; err != nil {
 		return err
 	}
 
 	// 发送更新消息
 	go func() {
+		if price.Status == enums.GoldPriceStatusRejected {
+			return
+		}
 		m := message.NewMessage(l.Ctx)
 		m.SendGoldPriceMessage(&message.GoldPriceMessage{
 			Price:     price.Price,
 			Initiator: price.Initiator.Nickname,
 			Approver:  price.Approver.Nickname,
 		})
+	}()
+
+	// 发送更新
+	go func() {
+		if price.Status == enums.GoldPriceStatusRejected {
+			return
+		}
+		SetWorkbenchTemplate(l.Ctx, WorkbenchTemplate{Price: price.Price})
 	}()
 
 	return nil

@@ -169,6 +169,7 @@ func Api(g *gin.Engine) {
 			{
 				orders.GET("/where", order.OrderController{}.Where)    // 订单筛选
 				orders.POST("/create", order.OrderController{}.Create) // 创建订单
+				orders.POST("/list", order.OrderController{}.List)     // 订单列表
 			}
 		}
 

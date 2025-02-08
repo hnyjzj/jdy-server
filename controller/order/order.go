@@ -52,3 +52,30 @@ func (con OrderController) Create(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 订单列表
+func (con OrderController) List(ctx *gin.Context) {
+	var (
+		req types.OrderListReq
+
+		logic = order.OrderLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	data, err := logic.List(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", data)
+}

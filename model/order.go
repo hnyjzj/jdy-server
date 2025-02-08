@@ -1,6 +1,11 @@
 package model
 
-import "jdy/enums"
+import (
+	"jdy/enums"
+	"jdy/types"
+
+	"gorm.io/gorm"
+)
 
 // 订单
 type Order struct {
@@ -38,15 +43,50 @@ type Order struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP地址;"`               // IP地址
 }
 
+func (Order) WhereCondition(db *gorm.DB, req *types.OrderWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id = ?", req.Id)
+	}
+	if req.Type != 0 {
+		db = db.Where("type = ?", req.Type)
+	}
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
+	}
+	if req.Source != 0 {
+		db = db.Where("source = ?", req.Source)
+	}
+	if req.MemberId != "" {
+		db = db.Where("member_id = ?", req.MemberId)
+	}
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
+	}
+	if req.CashierId != "" {
+		db = db.Where("cashier_id = ?", req.CashierId)
+	}
+	if req.StartDate != nil && req.EndDate == nil {
+		db = db.Where("created_at >= ?", req.StartDate)
+	}
+	if req.StartDate == nil && req.EndDate != nil {
+		db = db.Where("created_at <= ?", req.EndDate)
+	}
+	if req.StartDate != nil && req.EndDate != nil {
+		db = db.Where("created_at BETWEEN ? AND ?", req.StartDate, req.EndDate)
+	}
+
+	return db
+}
+
 // 订单导购员
 type OrderSalesman struct {
 	Model
 
-	OrderId string `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`  // 订单ID
-	Order   Order  `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
+	OrderId string `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`            // 订单ID
+	Order   Order  `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
 
-	SalesmanId string `json:"salesman_id" gorm:"type:varchar(255);not NULL;comment:导购员ID;"`     // 导购员ID
-	Salesman   Staff  `json:"salesman" gorm:"foreignKey:SalesmanId;references:Id;comment:导购员;"` // 导购员
+	SalesmanId string `json:"salesman_id" gorm:"type:varchar(255);not NULL;comment:导购员ID;"`               // 导购员ID
+	Salesman   Staff  `json:"salesman,omitempty" gorm:"foreignKey:SalesmanId;references:Id;comment:导购员;"` // 导购员
 
 	PerformanceAmount float64 `json:"performance_amount" gorm:"type:decimal(10,2);not NULL;comment:业绩金额;"` // 业绩金额
 	PerformanceRate   float64 `json:"performance_rate" gorm:"type:decimal(5,2);not NULL;comment:业绩比例;"`    // 业绩比例
@@ -58,11 +98,11 @@ type OrderSalesman struct {
 type OrderProduct struct {
 	Model
 
-	OrderId string `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`  // 订单ID
-	Order   Order  `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
+	OrderId string `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`            // 订单ID
+	Order   Order  `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
 
-	ProductId string  `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`    // 产品ID
-	Product   Product `json:"product" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
+	ProductId string  `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`              // 产品ID
+	Product   Product `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
 	Quantity       int     `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`              // 数量
 	Price          float64 `json:"price" gorm:"type:decimal(10,2);not NULL;comment:单价;"`           // 单价

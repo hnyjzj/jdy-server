@@ -7,9 +7,9 @@ import (
 )
 
 type OrderWhere struct {
-	Id       string `json:"id" label:"订单编号" show:"true" sort:"1" type:"string" input:"text"`        // 订单编号
-	StoreId  string `json:"store_id" label:"门店ID" show:"true" sort:"2" type:"string" input:"text"`  // 门店ID
-	MemberId string `json:"member_id" label:"会员ID" show:"true" sort:"3" type:"string" input:"text"` // 会员ID
+	Id       string `json:"id" label:"订单编号" show:"true" sort:"1" type:"string" input:"text"`                       // 订单编号
+	StoreId  string `json:"store_id" label:"门店ID" show:"true" sort:"2" type:"string" input:"text" required:"true"` // 门店ID
+	MemberId string `json:"member_id" label:"会员ID" show:"true" sort:"3" type:"string" input:"text"`                // 会员ID
 
 	Status enums.OrderStatus `json:"status" label:"订单状态" show:"true" sort:"4" type:"string" input:"select" preset:"typeMap"` // 订单状态
 	Type   enums.OrderType   `json:"type" label:"订单类型" show:"true" sort:"5" type:"string" input:"select" preset:"typeMap"`   // 订单类型
@@ -62,4 +62,9 @@ type OrderCreateReqProduct struct {
 	ProductId string   `json:"product_id" required:"true"` // 商品ID
 	Quantity  int      `json:"quantity" required:"true"`   // 数量
 	Discount  *float64 `json:"discount"`                   // 折扣
+}
+
+type OrderListReq struct {
+	PageReq
+	Where OrderWhere `json:"where"`
 }

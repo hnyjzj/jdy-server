@@ -68,3 +68,7 @@ type OrderListReq struct {
 	PageReq
 	Where OrderWhere `json:"where"`
 }
+
+type OrderInfoReq struct {
+	Id string `json:"id" required:"true"`
+}

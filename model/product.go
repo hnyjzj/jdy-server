@@ -5,6 +5,7 @@ import (
 	"jdy/enums"
 	"jdy/types"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -16,14 +17,14 @@ type Product struct {
 	Name   string   `json:"name" gorm:"type:varchar(255);not NULL;comment:名称;"`                       // 名称
 	Images []string `json:"images" gorm:"type:text;serializer:json;comment:图片;"`                      // 图片
 
-	AccessFee float64 `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"` // 入网费
-	Price     float64 `json:"price" gorm:"type:decimal(10,2);not NULL;comment:一口价;"`      // 一口价
-	LaborFee  float64 `json:"labor_fee" gorm:"type:decimal(10,2);not NULL;comment:工费;"`   // 工费
+	AccessFee decimal.Decimal `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"` // 入网费
+	Price     decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:一口价;"`      // 一口价
+	LaborFee  decimal.Decimal `json:"labor_fee" gorm:"type:decimal(10,2);not NULL;comment:工费;"`   // 工费
 
-	Weight      float64                 `json:"weight" gorm:"type:decimal(10,2);comment:总重量;"`             // 总重量
-	WeightMetal float64                 `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`        // 金重
-	WeightGem   float64                 `json:"weight_gem" gorm:"type:decimal(10,2);comment:主石重;"`         // 主石重
-	WeightOther float64                 `json:"weight_other" gorm:"type:decimal(10,2);comment:杂料重;"`       // 杂料重
+	Weight      decimal.Decimal         `json:"weight" gorm:"type:decimal(10,2);comment:总重量;"`             // 总重量
+	WeightMetal decimal.Decimal         `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`        // 金重
+	WeightGem   decimal.Decimal         `json:"weight_gem" gorm:"type:decimal(10,2);comment:主石重;"`         // 主石重
+	WeightOther decimal.Decimal         `json:"weight_other" gorm:"type:decimal(10,2);comment:杂料重;"`       // 杂料重
 	NumGem      int                     `json:"num_gem" gorm:"type:tinyint(2);comment:主石数;"`               // 主石数
 	NumOther    int                     `json:"num_other" gorm:"type:tinyint(2);comment:杂料数;"`             // 杂料数
 	ColorMetal  enums.ProductColor      `json:"color_metal" gorm:"type:tinyint(2);comment:金颜色;"`           // 金颜色
@@ -63,26 +64,26 @@ func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
 	if query.Name != "" {
 		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
-	if query.AccessFee != 0 {
-		db = db.Where("access_fee = ?", float64(query.AccessFee))
+	if !query.AccessFee.IsZero() {
+		db = db.Where("access_fee = ?", query.AccessFee)
 	}
-	if query.Price != 0 {
-		db = db.Where("price = ?", float64(query.Price))
+	if !query.Price.IsZero() {
+		db = db.Where("price = ?", query.Price)
 	}
-	if query.LaborFee != 0 {
-		db = db.Where("labor_fee = ?", float64(query.LaborFee))
+	if !query.LaborFee.IsZero() {
+		db = db.Where("labor_fee = ?", query.LaborFee)
 	}
-	if query.Weight != 0 {
-		db = db.Where("weight = ?", float64(query.Weight))
+	if !query.Weight.IsZero() {
+		db = db.Where("weight = ?", query.Weight)
 	}
-	if query.WeightMetal != 0 {
-		db = db.Where("weight_metal = ?", float64(query.WeightMetal))
+	if !query.WeightMetal.IsZero() {
+		db = db.Where("weight_metal = ?", query.WeightMetal)
 	}
-	if query.WeightGem != 0 {
-		db = db.Where("weight_gem = ?", float64(query.WeightGem))
+	if !query.WeightGem.IsZero() {
+		db = db.Where("weight_gem = ?", query.WeightGem)
 	}
-	if query.WeightOther != 0 {
-		db = db.Where("weight_other = ?", float64(query.WeightOther))
+	if !query.WeightOther.IsZero() {
+		db = db.Where("weight_other = ?", query.WeightOther)
 	}
 	if query.NumGem != 0 {
 		db = db.Where("num_gem = ?", int(query.NumGem))

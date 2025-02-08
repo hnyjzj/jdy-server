@@ -4,12 +4,14 @@ import (
 	"errors"
 	"jdy/enums"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type GoldPrice struct {
 	SoftDelete
 
-	Price float64 `json:"price" gorm:"type:decimal(10,2);comment:金价;"` // 金价
+	Price decimal.Decimal `json:"price" gorm:"type:decimal(10,2);comment:金价;"` // 金价
 
 	InitiatorId string `json:"initiator_id" gorm:"type:varchar(255);not NULL;comment:发起人ID;"`      // 发起人ID
 	Initiator   *Staff `json:"initiator" gorm:"foreignKey:InitiatorId;references:Id;comment:发起人;"` // 发起人
@@ -22,7 +24,7 @@ type GoldPrice struct {
 	ApprovedAt *time.Time `json:"approved_at" gorm:"type:datetime;default:NULL;comment:审批时间;"`      // 审批时间
 }
 
-func GetGoldPrice() (float64, error) {
+func GetGoldPrice() (decimal.Decimal, error) {
 	var price GoldPrice
 	db := DB.Model(&GoldPrice{})
 	// 排序最新一条
@@ -31,7 +33,7 @@ func GetGoldPrice() (float64, error) {
 	db = db.Where("status = ?", true)
 	// 查询数据
 	if err := db.First(&price).Error; err != nil {
-		return 0, errors.New("获取今日金价失败")
+		return decimal.NewFromFloat(0), errors.New("获取今日金价失败")
 	}
 
 	return price.Price, nil

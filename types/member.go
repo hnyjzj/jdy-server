@@ -2,6 +2,8 @@ package types
 
 import (
 	"jdy/enums"
+
+	"github.com/shopspring/decimal"
 )
 
 type MemberWhere struct {
@@ -13,7 +15,7 @@ type MemberWhere struct {
 	Nickname    string       `json:"nickname" label:"昵称" show:"true" sort:"6" type:"string" input:"text"`
 
 	Level      enums.MemberLevel `json:"level" label:"等级" show:"true" sort:"8" type:"number" input:"select" preset:"typeMap"`
-	Integral   float64           `json:"integral" label:"积分" show:"true" sort:"9" type:"number" input:"text"`
+	Integral   decimal.Decimal   `json:"integral" label:"积分" show:"true" sort:"9" type:"number" input:"text"`
 	BuyCount   int               `json:"buy_count" label:"购买次数" show:"true" sort:"10" type:"number" input:"text"`
 	EventCount int               `json:"event_count" label:"活动次数" show:"true" sort:"11" type:"number" input:"text"`
 
@@ -57,7 +59,7 @@ type MemberIntegralListReq struct {
 }
 
 type MemberIntegralChangeReq struct {
-	MemberId string  `json:"id" binding:"required"`
-	Change   float64 `json:"change" binding:"required"`
-	Reason   string  `json:"reason" binding:"required"`
+	MemberId string          `json:"id" binding:"required"`
+	Change   decimal.Decimal `json:"change" binding:"required"`
+	Reason   string          `json:"reason" binding:"required"`
 }

@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"jdy/controller"
 	"jdy/errors"
 	"jdy/logic/order"
@@ -35,12 +36,14 @@ func (con OrderController) Create(ctx *gin.Context) {
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		fmt.Printf("err.Error(): %v\n", err.Error())
 		return
 	}
 
 	// 校验参数
 	if err := req.Validate(); err != nil {
 		con.Exception(ctx, err.Error())
+		fmt.Printf("err.Error(): %v\n", err.Error())
 		return
 	}
 

@@ -7,6 +7,7 @@ import (
 	"jdy/types"
 	"jdy/utils"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +25,7 @@ func (l *MemberLogic) Create(req *types.MemberCreateReq) error {
 			IDCard:      req.IDCard,
 
 			Level:      enums.MemberLevelNone,
-			Integral:   0,
+			Integral:   decimal.NewFromFloat(0),
 			BuyCount:   0,
 			EventCount: 0,
 

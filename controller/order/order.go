@@ -45,12 +45,13 @@ func (con OrderController) Create(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	if err := logic.Create(&req); err != nil {
+	order, err := logic.Create(&req)
+	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", nil)
+	con.Success(ctx, "ok", order)
 }
 
 // 订单列表

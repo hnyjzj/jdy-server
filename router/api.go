@@ -162,7 +162,12 @@ func Api(g *gin.Engine) {
 				members.POST("/info", member.MemberController{}.Info)     // 会员详情
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 
-				integrals := members.Group("/integral")
+			}
+
+			integrals := members.Group("/integral")
+			{
+				integrals.GET("/where", member.MemberIntegralController{}.Where) // 积分变动筛选
+				integrals.Use(middlewares.JWTMiddleware())
 				{
 					integrals.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
 					integrals.POST("/change", member.MemberIntegralController{}.Change) // 积分变动

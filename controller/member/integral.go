@@ -4,12 +4,19 @@ import (
 	"jdy/errors"
 	"jdy/logic/member"
 	"jdy/types"
+	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type MemberIntegralController struct {
 	MemberController
+}
+
+func (con MemberIntegralController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.MemberIntegralWhere{})
+
+	con.Success(ctx, "ok", where)
 }
 
 func (con MemberIntegralController) List(ctx *gin.Context) {

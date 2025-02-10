@@ -58,6 +58,10 @@ type MemberIntegralListReq struct {
 	MemberId string `json:"id" binding:"required"`
 }
 
+type MemberIntegralWhere struct {
+	ChangeType enums.MemberIntegralChangeType `json:"change_type" label:"变更类型" show:"true" sort:"1" type:"number" input:"select" preset:"typeMap"`
+}
+
 type MemberIntegralChangeReq struct {
 	MemberId string          `json:"id" binding:"required"`
 	Change   decimal.Decimal `json:"change" binding:"required"`

@@ -22,6 +22,7 @@ func (l *MemberIntegralLogic) List(req *types.MemberIntegralListReq) (*types.Pag
 	)
 
 	db := model.DB.Model(&integrals).Where(&model.MemberIntegralLog{MemberId: req.MemberId})
+	db = integrals.WhereCondition(db, &req.Where)
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {

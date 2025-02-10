@@ -55,7 +55,8 @@ type MemberInfoReq struct {
 
 type MemberIntegralListReq struct {
 	PageReq
-	MemberId string `json:"id" binding:"required"`
+	MemberId string              `json:"id" binding:"required"`
+	Where    MemberIntegralWhere `json:"where"`
 }
 
 type MemberIntegralWhere struct {

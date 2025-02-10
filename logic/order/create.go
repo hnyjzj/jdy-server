@@ -205,6 +205,7 @@ func (l *OrderCreateLogic) updateProductStatus(product_id string, status enums.P
 	}).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 

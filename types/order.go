@@ -37,8 +37,8 @@ type OrderCreateReq struct {
 	StoreId   string `json:"store_id" required:"true"`   // 门店ID
 	CashierId string `json:"cashier_id" required:"true"` // 收银员ID
 
-	Salesmens []OrderCreateReqSalesmens `json:"salesmens" required:"true"` // 业务员
-	Products  []OrderCreateReqProduct   `json:"products" required:"true"`  // 商品
+	Salesmens []*OrderCreateReqSalesmens `json:"salesmens" required:"true"` // 业务员
+	Products  []*OrderCreateReqProduct   `json:"products" required:"true"`  // 商品
 
 	Remark string `json:"remark"` // 备注
 }

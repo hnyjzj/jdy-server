@@ -135,6 +135,9 @@ type MemberIntegralLog struct {
 }
 
 func (MemberIntegralLog) WhereCondition(db *gorm.DB, query *types.MemberIntegralWhere) *gorm.DB {
+	if query.MemberId != "" {
+		db = db.Where("member_id = ?", query.MemberId)
+	}
 	if query.ChangeType != 0 {
 		db = db.Where("change_type = ?", query.ChangeType)
 	}

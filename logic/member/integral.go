@@ -21,7 +21,7 @@ func (l *MemberIntegralLogic) List(req *types.MemberIntegralListReq) (*types.Pag
 		res types.PageRes[model.MemberIntegralLog]
 	)
 
-	db := model.DB.Model(&integrals).Where(&model.MemberIntegralLog{MemberId: req.MemberId})
+	db := model.DB.Model(&integrals)
 	db = integrals.WhereCondition(db, &req.Where)
 
 	// 获取总数

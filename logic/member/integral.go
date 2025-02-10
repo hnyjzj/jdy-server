@@ -2,7 +2,6 @@ package member
 
 import (
 	"errors"
-	"fmt"
 	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
@@ -48,9 +47,7 @@ func (l *MemberIntegralLogic) Change(req *types.MemberIntegralChangeReq) error {
 		return errors.New("获取会员失败")
 	}
 
-	reason := fmt.Sprintf("员工【%s】：%s", l.Staff.Phone, req.Reason)
-
-	if err := member.IntegralChange(model.DB, req.Change, enums.MemberIntegralChangeTypeAdjust, reason); err != nil {
+	if err := member.IntegralChange(model.DB, req.Change, enums.MemberIntegralChangeTypeAdjust, req.Remark, l.Staff.Id); err != nil {
 		return errors.New("积分变更失败")
 	}
 

@@ -38,11 +38,14 @@ func Api(g *gin.Engine) {
 			}
 
 			// 上传
-			uploads := root.Group("/upload", middlewares.JWTMiddleware())
+			uploads := root.Group("/upload")
 			{
-				uploads.POST("/avatar", common.UploadController{}.Avatar)       // 上传头像
-				uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
-				uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
+				uploads.Use(middlewares.JWTMiddleware())
+				{
+					uploads.POST("/avatar", common.UploadController{}.Avatar)       // 上传头像
+					uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
+					uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
+				}
 			}
 		}
 
@@ -57,9 +60,9 @@ func Api(g *gin.Engine) {
 		// 员工
 		staffs := r.Group("/staff")
 		{
+			staffs.GET("/where", staff.StaffController{}.Where) // 员工筛选
 			staffs.Use(middlewares.JWTMiddleware())
 			{
-				staffs.GET("/where", staff.StaffController{}.Where)    // 员工筛选
 				staffs.POST("/list", staff.StaffController{}.List)     // 员工列表
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
 				staffs.POST("/info", staff.StaffController{}.Info)     // 员工详情
@@ -71,14 +74,14 @@ func Api(g *gin.Engine) {
 		// 工作台
 		workbenchs := r.Group("/workbench")
 		{
+			workbenchs.GET("/list", workbench.WorkbenchController{}.List)      // 工作台列表
+			workbenchs.POST("/search", workbench.WorkbenchController{}.Search) // 工作台搜索
 			workbenchs.Use(middlewares.JWTMiddleware())
 			{
 				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)      // 工作台添加
 				workbenchs.PUT("/update", workbench.WorkbenchController{}.Update) // 工作台更新
 				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del)    // 工作台删除
 			}
-			workbenchs.GET("/list", workbench.WorkbenchController{}.List)      // 工作台列表
-			workbenchs.POST("/search", workbench.WorkbenchController{}.Search) // 工作台搜索
 		}
 
 		// 门店
@@ -105,35 +108,40 @@ func Api(g *gin.Engine) {
 		// 产品
 		products := r.Group("/product")
 		{
-			products.Use(middlewares.JWTMiddleware())
+			// 产品管理
+			products = products.Group("/")
 			{
-				// 产品管理
-				products = products.Group("/")
+				products.GET("/where", product.ProductController{}.Where) // 产品筛选
+				products.Use(middlewares.JWTMiddleware())
 				{
-					products.GET("/where", product.ProductController{}.Where)   // 产品筛选
 					products.POST("/list", product.ProductController{}.List)    // 产品列表
 					products.POST("/info", product.ProductController{}.Info)    // 产品详情
 					products.PUT("/update", product.ProductController{}.Update) // 产品更新
 					products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
 				}
+			}
 
-				// 产品入库
-				enters := products.Group("/enter")
+			// 产品入库
+			enters := products.Group("/enter")
+			{
+				enters.GET("/where", product.ProductEnterController{}.Where) // 入库单筛选
+				enters.Use(middlewares.JWTMiddleware())
 				{
-					enters.GET("/where", product.ProductEnterController{}.Where)    // 入库单筛选
 					enters.POST("/create", product.ProductEnterController{}.Create) // 创建入库单
 					enters.POST("/list", product.ProductEnterController{}.List)     // 入库单列表
 					enters.POST("/info", product.ProductEnterController{}.Info)     // 入库单详情
 				}
+			}
 
-				// 产品调拨
-				allocate := products.Group("/allocate")
+			// 产品调拨
+			allocate := products.Group("/allocate")
+			{
+				allocate.GET("/where", product.ProductAllocateController{}.Where) // 调拨单筛选
+				allocate.Use(middlewares.JWTMiddleware())
 				{
-					allocate.POST("/create", product.ProductAllocateController{}.Create) // 创建调拨单
-					allocate.GET("/where", product.ProductAllocateController{}.Where)    // 调拨单筛选
-					allocate.POST("/list", product.ProductAllocateController{}.List)     // 调拨单列表
-					allocate.POST("/info", product.ProductAllocateController{}.Info)     // 调拨单详情
-
+					allocate.POST("/create", product.ProductAllocateController{}.Create)    // 创建调拨单
+					allocate.POST("/list", product.ProductAllocateController{}.List)        // 调拨单列表
+					allocate.POST("/info", product.ProductAllocateController{}.Info)        // 调拨单详情
 					allocate.PUT("/add", product.ProductAllocateController{}.Add)           // 添加产品
 					allocate.PUT("/remove", product.ProductAllocateController{}.Remove)     // 移除产品
 					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)   // 确认调拨
@@ -154,7 +162,12 @@ func Api(g *gin.Engine) {
 				members.POST("/info", member.MemberController{}.Info)     // 会员详情
 				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
 
-				integrals := members.Group("/integral")
+			}
+
+			integrals := members.Group("/integral")
+			{
+				integrals.GET("/where", member.MemberIntegralController{}.Where) // 积分变动筛选
+				integrals.Use(middlewares.JWTMiddleware())
 				{
 					integrals.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
 					integrals.POST("/change", member.MemberIntegralController{}.Change) // 积分变动
@@ -165,24 +178,25 @@ func Api(g *gin.Engine) {
 		// 订单
 		orders := r.Group("/order")
 		{
+			orders.GET("/where", order.OrderController{}.Where) // 订单筛选
 			orders.Use(middlewares.JWTMiddleware())
 			{
-				orders.GET("/where", order.OrderController{}.Where)    // 订单筛选
 				orders.POST("/create", order.OrderController{}.Create) // 创建订单
+				orders.POST("/list", order.OrderController{}.List)     // 订单列表
+				orders.POST("/info", order.OrderController{}.Info)     // 订单详情
 			}
 		}
 
 		// 设置
 		settings := r.Group("/setting")
 		{
-			settings.Use(middlewares.JWTMiddleware())
+			gold_price := settings.Group("/gold_price")
 			{
-				gold_price := settings.Group("/gold_price")
+				gold_price.GET("/get", setting.GoldPriceController{}.Get) // 获取金价
+				gold_price.Use(middlewares.JWTMiddleware())
 				{
-					gold_price.GET("/get", setting.GoldPriceController{}.Get)        // 获取金价
 					gold_price.POST("/list", setting.GoldPriceController{}.List)     // 金价历史列表
 					gold_price.POST("/create", setting.GoldPriceController{}.Create) // 创建金价
-					gold_price.POST("/update", setting.GoldPriceController{}.Update) // 更新金价
 				}
 			}
 		}

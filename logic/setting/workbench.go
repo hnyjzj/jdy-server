@@ -1,16 +1,16 @@
 package setting
 
 import (
-	"fmt"
 	"jdy/config"
 	"log"
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/agent/request"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 )
 
 type WorkbenchTemplate struct {
-	Price float64 `json:"price"` // 今日黄金价格
+	Price decimal.Decimal `json:"price"` // 今日黄金价格
 }
 
 // 获取工作台模板
@@ -26,8 +26,8 @@ func SetWorkbenchTemplate(ctx *gin.Context, template WorkbenchTemplate) {
 		ReplaceUserData: true,
 		KeyData: request.WorkBenchKeyData{
 			Items: []request.WorkBenchKeyDataItem{{
-				Key:  "今日金价",
-				Data: fmt.Sprintf("%.2f", template.Price),
+				Key:  "今日金价(元/克)",
+				Data: template.Price.Round(2).String(),
 			}},
 		},
 	}

@@ -7,12 +7,13 @@ import (
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/kernel/power"
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/message/request"
+	"github.com/shopspring/decimal"
 )
 
 type GoldPriceApprovalMessage struct {
-	Id        string  // 任务ID
-	Price     float64 // 价格
-	Initiator string  // 发起人
+	Id        string          // 任务ID
+	Price     decimal.Decimal // 价格
+	Initiator string          // 发起人
 }
 
 // 发送黄金价格审批
@@ -29,7 +30,7 @@ func (M *BaseMessage) SendGoldPriceApprovalMessage(req *GoldPriceApprovalMessage
 				Title: "黄金价格变更申请",
 				Desc:  "黄金价格有修改申请，请及时审批",
 			},
-			SubTitleText: fmt.Sprintf("%.2f 元/克", req.Price),
+			SubTitleText: fmt.Sprintf("%s 元/克", req.Price.Round(2).String()),
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
 				{
 					Type:    0,
@@ -60,9 +61,9 @@ func (M *BaseMessage) SendGoldPriceApprovalMessage(req *GoldPriceApprovalMessage
 }
 
 type GoldPriceMessage struct {
-	Price     float64 // 价格
-	Initiator string  // 发起人
-	Approver  string  // 审批人
+	Price     decimal.Decimal // 价格
+	Initiator string          // 发起人
+	Approver  string          // 审批人
 }
 
 // 发送黄金价格消息
@@ -80,7 +81,7 @@ func (M *BaseMessage) SendGoldPriceMessage(req *GoldPriceMessage) {
 				Desc:  "黄金价格已变更，请及时查收",
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
-				Title: fmt.Sprintf("%.2f", req.Price),
+				Title: req.Price.Round(2).String(),
 				Desc:  "元/克",
 			},
 			CardAction: &request.TemplateCardAction{

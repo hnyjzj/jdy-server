@@ -1,9 +1,13 @@
 package types
 
-import "jdy/enums"
+import (
+	"jdy/enums"
+
+	"github.com/shopspring/decimal"
+)
 
 type GoldPriceGetRes struct {
-	Price float64 `json:"price"` // 金价
+	Price decimal.Decimal `json:"price"` // 金价
 }
 
 type GoldPriceListReq struct {
@@ -11,7 +15,7 @@ type GoldPriceListReq struct {
 }
 
 type GoldPriceCreateReq struct {
-	Price float64 `json:"price" required:"true"` // 金价
+	Price decimal.Decimal `json:"price" required:"true"` // 金价
 }
 
 type GoldPriceUpdateReq struct {

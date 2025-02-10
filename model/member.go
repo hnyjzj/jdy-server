@@ -4,6 +4,7 @@ import (
 	"jdy/enums"
 	"jdy/types"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +20,7 @@ type Member struct {
 	IDCard      string       `json:"id_card" gorm:"column:id_card;size:255;comment:身份证号;"`            // 身份证号
 
 	Level      enums.MemberLevel `json:"level" gorm:"column:level;type:tinyint(1);not NULL;default:0;comment:会员等级;"`          // 会员等级
-	Integral   float64           `json:"integral" gorm:"column:integral;type:decimal(10,2);not NULL;default:0;comment:积分;"`   // 积分
+	Integral   decimal.Decimal   `json:"integral" gorm:"column:integral;type:decimal(10,2);not NULL;default:0;comment:积分;"`   // 积分
 	BuyCount   int               `json:"buy_count" gorm:"column:buy_count;type:int(11);not NULL;default:0;comment:购买次数;"`     // 购买次数
 	EventCount int               `json:"event_count" gorm:"column:event_count;type:int(11);not NULL;default:0;comment:活动次数;"` // 活动次数
 
@@ -57,7 +58,7 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	if query.Level != 0 {
 		db = db.Where("level = ?", query.Level)
 	}
-	if query.Integral != 0 {
+	if !query.Integral.IsZero() {
 		db = db.Where("integral = ?", query.Integral)
 	}
 	if query.BuyCount != 0 {
@@ -82,13 +83,13 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	return db
 }
 
-func (M *Member) IntegralChange(db *gorm.DB, change float64, types enums.MemberIntegralChangeType, remark ...string) error {
-	if change == 0 {
+func (M *Member) IntegralChange(db *gorm.DB, change decimal.Decimal, types enums.MemberIntegralChangeType, more ...string) error {
+	if change.IsZero() {
 		return nil
 	}
 
 	// 新积分
-	integral := M.Integral + change
+	integral := M.Integral.Add(change)
 	// 乐观锁更新
 	if err := db.Model(&Member{}).Set("gorm:query_option", "FOR UPDATE").Where("id = ?", M.Id).Update("integral", integral).Error; err != nil {
 		return err
@@ -101,9 +102,14 @@ func (M *Member) IntegralChange(db *gorm.DB, change float64, types enums.MemberI
 		Before:     M.Integral,
 		After:      integral,
 	}
-	if len(remark) > 0 {
-		log.Remark = remark[0]
+
+	if len(more) > 0 && more[0] != "" {
+		log.Remark = more[0]
 	}
+	if len(more) > 1 && more[1] != "" {
+		log.OperatorId = more[1]
+	}
+
 	if err := db.Create(log).Error; err != nil {
 		return err
 	}
@@ -118,11 +124,14 @@ type MemberIntegralLog struct {
 	MemberId string `json:"memberId" gorm:"column:member_id;size:255;not NULL;comment:会员id;"` // 会员id
 	Member   Member `json:"-" gorm:"foreignKey:MemberId;references:Id;"`                      // 会员
 
-	Change     float64                        `json:"change" gorm:"column:change;type:decimal(10,2);not NULL;default:0;comment:变动积分;"`        // 变动积分
+	Change     decimal.Decimal                `json:"change" gorm:"column:change;type:decimal(10,2);not NULL;default:0;comment:变动积分;"`        // 变动积分
 	ChangeType enums.MemberIntegralChangeType `json:"change_type" gorm:"column:change_type;type:tinyint(1);not NULL;default:0;comment:变动类型;"` // 变动类型
-	Before     float64                        `json:"before" gorm:"column:before;type:decimal(10,2);not NULL;default:0;comment:变动前积分;"`       // 变动前积分
-	After      float64                        `json:"after" gorm:"column:after;type:decimal(10,2);not NULL;default:0;comment:变动后积分;"`         // 变动后积分
+	Before     decimal.Decimal                `json:"before" gorm:"column:before;type:decimal(10,2);not NULL;default:0;comment:变动前积分;"`       // 变动前积分
+	After      decimal.Decimal                `json:"after" gorm:"column:after;type:decimal(10,2);not NULL;default:0;comment:变动后积分;"`         // 变动后积分
 	Remark     string                         `json:"remark" gorm:"column:remark;size:255;comment:备注;"`                                       // 备注
+
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
+	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
 }
 
 func init() {

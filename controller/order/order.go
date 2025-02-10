@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"jdy/controller"
 	"jdy/errors"
 	"jdy/logic/order"
@@ -35,14 +36,77 @@ func (con OrderController) Create(ctx *gin.Context) {
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		fmt.Printf("err.Error(): %v\n", err.Error())
+		return
+	}
+
+	// 校验参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		fmt.Printf("err.Error(): %v\n", err.Error())
 		return
 	}
 
 	// 调用逻辑层
-	if err := logic.Create(&req); err != nil {
+	order, err := logic.Create(&req)
+	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", nil)
+	con.Success(ctx, "ok", order)
+}
+
+// 订单列表
+func (con OrderController) List(ctx *gin.Context) {
+	var (
+		req types.OrderListReq
+
+		logic = order.OrderLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	data, err := logic.List(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", data)
+}
+
+// 订单详情
+func (con OrderController) Info(ctx *gin.Context) {
+	var (
+		req types.OrderInfoReq
+
+		logic = order.OrderLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	data, err := logic.Info(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", data)
 }

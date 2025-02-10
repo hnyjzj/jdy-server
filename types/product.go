@@ -4,6 +4,8 @@ import (
 	"errors"
 	"jdy/enums"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type ProductEnterReq struct {
@@ -14,14 +16,14 @@ type ProductEnterReqProduct struct {
 	Code string `json:"code" binding:"required"` // 条码
 	Name string `json:"name" binding:"required"` // 名称
 
-	AccessFee float64 `json:"access_fee" binding:"required"` // 入网费
-	Price     float64 `json:"price" binding:"required"`      // 标签价
-	LaborFee  float64 `json:"labor_fee" binding:"required"`  // 工费
+	AccessFee decimal.Decimal `json:"access_fee" binding:"required"` // 入网费
+	Price     decimal.Decimal `json:"price" binding:"required"`      // 标签价
+	LaborFee  decimal.Decimal `json:"labor_fee" binding:"required"`  // 工费
 
-	Weight      float64                 `json:"weight" binding:"-"`             // 总重量
-	WeightMetal float64                 `json:"weight_metal" binding:"-"`       // 金重
-	WeightGem   float64                 `json:"weight_gem" binding:"-"`         // 主石重
-	WeightOther float64                 `json:"weight_other" binding:"-"`       // 杂料重
+	Weight      decimal.Decimal         `json:"weight" binding:"-"`             // 总重量
+	WeightMetal decimal.Decimal         `json:"weight_metal" binding:"-"`       // 金重
+	WeightGem   decimal.Decimal         `json:"weight_gem" binding:"-"`         // 主石重
+	WeightOther decimal.Decimal         `json:"weight_other" binding:"-"`       // 杂料重
 	NumGem      int                     `json:"num_gem" binding:"-"`            // 主石数
 	NumOther    int                     `json:"num_other" binding:"-"`          // 杂料数
 	ColorMetal  enums.ProductColor      `json:"color_metal" binding:"-"`        // 金颜色
@@ -48,14 +50,14 @@ type ProductWhere struct {
 	Code string `json:"code" label:"条码" show:"true" sort:"1" type:"string" input:"text" required:"true"` // 条码
 	Name string `json:"name" label:"名称" show:"true" sort:"2" type:"string" input:"text" required:"true"` // 名称
 
-	AccessFee float64 `json:"access_fee" label:"入网费" show:"true" sort:"3" type:"float" input:"text" required:"true"` // 入网费
-	Price     float64 `json:"price" label:"价格" show:"true" sort:"4" type:"float" input:"text" required:"true"`       // 价格
-	LaborFee  float64 `json:"labor_fee" label:"工费" show:"true" sort:"5" type:"float" input:"text" required:"true"`   // 工费
+	AccessFee decimal.Decimal `json:"access_fee" label:"入网费" show:"true" sort:"3" type:"float" input:"text" required:"true"` // 入网费
+	Price     decimal.Decimal `json:"price" label:"价格" show:"true" sort:"4" type:"float" input:"text" required:"true"`       // 价格
+	LaborFee  decimal.Decimal `json:"labor_fee" label:"工费" show:"true" sort:"5" type:"float" input:"text" required:"true"`   // 工费
 
-	Weight      float64                 `json:"weight" label:"总重量" show:"true" sort:"6" type:"float" input:"number"`                          // 总重量
-	WeightMetal float64                 `json:"weight_metal" label:"金重" show:"true" sort:"7" type:"float" input:"number"`                     // 金重
-	WeightGem   float64                 `json:"weight_gem" label:"主石重" show:"true" sort:"8" type:"float" input:"number"`                      // 主石重
-	WeightOther float64                 `json:"weight_other" label:"杂料重" show:"true" sort:"9" type:"float" input:"number"`                    // 杂料重
+	Weight      decimal.Decimal         `json:"weight" label:"总重量" show:"true" sort:"6" type:"float" input:"number"`                          // 总重量
+	WeightMetal decimal.Decimal         `json:"weight_metal" label:"金重" show:"true" sort:"7" type:"float" input:"number"`                     // 金重
+	WeightGem   decimal.Decimal         `json:"weight_gem" label:"主石重" show:"true" sort:"8" type:"float" input:"number"`                      // 主石重
+	WeightOther decimal.Decimal         `json:"weight_other" label:"杂料重" show:"true" sort:"9" type:"float" input:"number"`                    // 杂料重
 	NumGem      int                     `json:"num_gem" label:"主石数" show:"true" sort:"10" type:"number" input:"number"`                       // 主石数
 	NumOther    int                     `json:"num_other" label:"杂料数" show:"true" sort:"11" type:"number" input:"number"`                     // 杂料数
 	ColorMetal  enums.ProductColor      `json:"color_metal" label:"金颜色" show:"true" sort:"12" type:"number" input:"select" preset:"typeMap"`  // 金颜色
@@ -98,14 +100,14 @@ type ProductUpdateReq struct {
 	Name   string   `json:"name"`   // 名称
 	Images []string `json:"images"` // 图片
 
-	AccessFee float64 `json:"access_fee"` // 入网费
-	Price     float64 `json:"price"`      // 标签价
-	LaborFee  float64 `json:"labor_fee"`  // 工费
+	AccessFee decimal.Decimal `json:"access_fee"` // 入网费
+	Price     decimal.Decimal `json:"price"`      // 标签价
+	LaborFee  decimal.Decimal `json:"labor_fee"`  // 工费
 
-	Weight      float64                 `json:"weight"`       // 总重量
-	WeightMetal float64                 `json:"weight_metal"` // 金重
-	WeightGem   float64                 `json:"weight_gem"`   // 主石重
-	WeightOther float64                 `json:"weight_other"` // 杂料重
+	Weight      decimal.Decimal         `json:"weight"`       // 总重量
+	WeightMetal decimal.Decimal         `json:"weight_metal"` // 金重
+	WeightGem   decimal.Decimal         `json:"weight_gem"`   // 主石重
+	WeightOther decimal.Decimal         `json:"weight_other"` // 杂料重
 	NumGem      int                     `json:"num_gem"`      // 主石数
 	NumOther    int                     `json:"num_other"`    // 杂料数
 	ColorMetal  enums.ProductColor      `json:"color_metal"`  // 金颜色

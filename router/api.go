@@ -177,11 +177,11 @@ func Api(g *gin.Engine) {
 		// 设置
 		settings := r.Group("/setting")
 		{
-			settings.Use(middlewares.JWTMiddleware())
+			gold_price := settings.Group("/gold_price")
 			{
-				gold_price := settings.Group("/gold_price")
+				gold_price.GET("/get", setting.GoldPriceController{}.Get) // 获取金价
+				gold_price.Use(middlewares.JWTMiddleware())
 				{
-					gold_price.GET("/get", setting.GoldPriceController{}.Get)        // 获取金价
 					gold_price.POST("/list", setting.GoldPriceController{}.List)     // 金价历史列表
 					gold_price.POST("/create", setting.GoldPriceController{}.Create) // 创建金价
 					gold_price.POST("/update", setting.GoldPriceController{}.Update) // 更新金价

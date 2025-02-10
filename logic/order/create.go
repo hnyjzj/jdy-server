@@ -139,7 +139,6 @@ func (l *OrderCreateLogic) loopSales() error {
 				// 单价
 				price = l.GoldPrice
 				// 原价 = 金价×克重+工费×数量
-				// amount = (l.GoldPrice*product.WeightMetal + product.LaborFee) * float64(p.Quantity)
 				amount = l.GoldPrice.Mul(product.WeightMetal).Add(product.LaborFee).Mul(decimal.NewFromInt(p.Quantity))
 			}
 		default:

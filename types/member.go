@@ -61,5 +61,5 @@ type MemberIntegralListReq struct {
 type MemberIntegralChangeReq struct {
 	MemberId string          `json:"id" binding:"required"`
 	Change   decimal.Decimal `json:"change" binding:"required"`
-	Reason   string          `json:"reason" binding:"required"`
+	Remark   string          `json:"remark" binding:"required"`
 }

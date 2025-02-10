@@ -83,7 +83,7 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	return db
 }
 
-func (M *Member) IntegralChange(db *gorm.DB, change decimal.Decimal, types enums.MemberIntegralChangeType, remark ...string) error {
+func (M *Member) IntegralChange(db *gorm.DB, change decimal.Decimal, types enums.MemberIntegralChangeType, more ...string) error {
 	if change.IsZero() {
 		return nil
 	}
@@ -102,9 +102,14 @@ func (M *Member) IntegralChange(db *gorm.DB, change decimal.Decimal, types enums
 		Before:     M.Integral,
 		After:      integral,
 	}
-	if len(remark) > 0 {
-		log.Remark = remark[0]
+
+	if more[0] != "" {
+		log.Remark = more[0]
 	}
+	if more[1] != "" {
+		log.OperatorId = more[1]
+	}
+
 	if err := db.Create(log).Error; err != nil {
 		return err
 	}
@@ -124,6 +129,9 @@ type MemberIntegralLog struct {
 	Before     decimal.Decimal                `json:"before" gorm:"column:before;type:decimal(10,2);not NULL;default:0;comment:变动前积分;"`       // 变动前积分
 	After      decimal.Decimal                `json:"after" gorm:"column:after;type:decimal(10,2);not NULL;default:0;comment:变动后积分;"`         // 变动后积分
 	Remark     string                         `json:"remark" gorm:"column:remark;size:255;comment:备注;"`                                       // 备注
+
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
+	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
 }
 
 func init() {

@@ -103,10 +103,10 @@ func (M *Member) IntegralChange(db *gorm.DB, change decimal.Decimal, types enums
 		After:      integral,
 	}
 
-	if more[0] != "" {
+	if len(more) > 0 && more[0] != "" {
 		log.Remark = more[0]
 	}
-	if more[1] != "" {
+	if len(more) > 1 && more[1] != "" {
 		log.OperatorId = more[1]
 	}
 

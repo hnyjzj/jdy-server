@@ -38,11 +38,11 @@ func Api(g *gin.Engine) {
 			}
 
 			// 上传
-			uploads := root.Group("/upload", middlewares.JWTMiddleware())
+			uploads := root.Group("/upload")
 			{
-				uploads.POST("/avatar", common.UploadController{}.Avatar)       // 上传头像
-				uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
-				uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
+				uploads.POST("/avatar", middlewares.JWTMiddleware(), common.UploadController{}.Avatar) // 上传头像
+				uploads.POST("/workbench", common.UploadController{}.Workbench)                        // 上传工作台图片
+				uploads.POST("/store", common.UploadController{}.Store)                                // 上传门店图片
 			}
 		}
 

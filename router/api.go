@@ -114,10 +114,11 @@ func Api(g *gin.Engine) {
 				products.GET("/where", product.ProductController{}.Where) // 产品筛选
 				products.Use(middlewares.JWTMiddleware())
 				{
-					products.POST("/list", product.ProductController{}.List)    // 产品列表
-					products.POST("/info", product.ProductController{}.Info)    // 产品详情
-					products.PUT("/update", product.ProductController{}.Update) // 产品更新
-					products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
+					products.POST("/list", product.ProductController{}.List)            // 产品列表
+					products.POST("/info", product.ProductController{}.Info)            // 产品详情
+					products.PUT("/update", product.ProductController{}.Update)         // 产品更新
+					products.PUT("/damage", product.ProductController{}.Damage)         // 产品报损
+					products.PUT("/conversion", product.ProductController{}.Conversion) // 产品转换
 				}
 			}
 

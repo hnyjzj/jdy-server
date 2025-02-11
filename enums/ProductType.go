@@ -1,6 +1,8 @@
 package enums
 
-import "errors"
+import (
+	"errors"
+)
 
 /* 类型 */
 // 全部、成品、旧料
@@ -27,4 +29,22 @@ func (p ProductType) InMap() error {
 		return errors.New("not in enum")
 	}
 	return nil
+}
+
+// 判断状态是否可以转换
+func (p ProductType) CanTransitionTo(n ProductType) error {
+	transitions := map[ProductType][]ProductType{
+		ProductTypeFinished: {ProductTypeOld},
+		ProductTypeOld:      {ProductTypeFinished},
+	}
+
+	if allowed, ok := transitions[p]; ok {
+		for _, o := range allowed {
+			if o == n {
+				return nil
+			}
+		}
+	}
+
+	return errors.New("非法的状态转换")
 }

@@ -135,6 +135,11 @@ type ProductDamageReq struct {
 	Reason string `json:"reason" binding:"required"` // 损坏原因
 }
 
+type ProductConversionReq struct {
+	Code string            `json:"code" binding:"required"` // 条码
+	Type enums.ProductType `json:"type" binding:"required"` // 仓库类型
+}
+
 type ProductAllocateCreateReq struct {
 	Method      enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨方式
 	Type        enums.ProductType           `json:"type" binding:"required"`   // 仓库类型

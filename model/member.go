@@ -134,6 +134,17 @@ type MemberIntegralLog struct {
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
 }
 
+func (MemberIntegralLog) WhereCondition(db *gorm.DB, query *types.MemberIntegralWhere) *gorm.DB {
+	if query.MemberId != "" {
+		db = db.Where("member_id = ?", query.MemberId)
+	}
+	if query.ChangeType != 0 {
+		db = db.Where("change_type = ?", query.ChangeType)
+	}
+
+	return db
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

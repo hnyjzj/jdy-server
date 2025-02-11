@@ -55,11 +55,12 @@ type MemberInfoReq struct {
 
 type MemberIntegralListReq struct {
 	PageReq
-	MemberId string `json:"id" binding:"required"`
+	Where MemberIntegralWhere `json:"where" binding:"required"`
 }
 
 type MemberIntegralWhere struct {
-	ChangeType enums.MemberIntegralChangeType `json:"change_type" label:"变更类型" show:"true" sort:"1" type:"number" input:"select" preset:"typeMap"`
+	MemberId   string                         `json:"member_id" label:"会员id" show:"true" sort:"1" type:"string" input:"text" binding:"required" `
+	ChangeType enums.MemberIntegralChangeType `json:"change_type" label:"变更类型" show:"true" sort:"2" type:"number" input:"select" preset:"typeMap"`
 }
 
 type MemberIntegralChangeReq struct {

@@ -37,7 +37,7 @@ func (l *GoldPriceLogic) List(req *types.GoldPriceListReq) (*types.PageRes[model
 	)
 
 	db := model.DB.Model(&data)
-	db = db.Where(&model.GoldPrice{Status: enums.GoldPriceStatusApproved})
+	// db = db.Where(&model.GoldPrice{Status: enums.GoldPriceStatusApproved})
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {

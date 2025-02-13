@@ -38,10 +38,10 @@ type Member struct {
 
 func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	if query.Phone != nil {
-		db = db.Where("phone = ?", *query.Phone)
+		db = db.Where("phone like ?", "%"+*query.Phone+"%")
 	}
 	if query.Name != "" {
-		db = db.Where("name = ?", query.Name)
+		db = db.Where("name like ?", "%"+query.Name+"%")
 	}
 	if query.Gender != 0 {
 		db = db.Where("gender = ?", query.Gender)
@@ -53,7 +53,7 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 		db = db.Where("anniversary = ?", query.Anniversary)
 	}
 	if query.Nickname != "" {
-		db = db.Where("nickname = ?", query.Nickname)
+		db = db.Where("nickname like ?", "%"+query.Nickname+"%")
 	}
 	if query.Level != 0 {
 		db = db.Where("level = ?", query.Level)

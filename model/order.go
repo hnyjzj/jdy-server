@@ -36,7 +36,7 @@ type Order struct {
 	CashierId string `json:"cashier_id" gorm:"type:varchar(255);not NULL;comment:收银员ID;"`    // 收银员ID
 	Cashier   Staff  `json:"cashier" gorm:"foreignKey:CashierId;references:Id;comment:收银员;"` // 收银员
 
-	Salesmens []OrderSalesman `json:"salesmens" gorm:"foreignKey:OrderId;references:Id;comment:订单导购员;"` // 订单导购员
+	Salesmans []OrderSalesman `json:"salesmans" gorm:"foreignKey:OrderId;references:Id;comment:订单导购员;"` // 订单导购员
 	Products  []OrderProduct  `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:订单商品;"`   // 订单商品
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
@@ -66,6 +66,12 @@ func (Order) WhereCondition(db *gorm.DB, req *types.OrderWhere) *gorm.DB {
 	if req.CashierId != "" {
 		db = db.Where("cashier_id = ?", req.CashierId)
 	}
+	if req.SalesmanId != "" {
+		db = db.Where("id IN (SELECT order_id FROM order_salesmans WHERE salesman_id = ?)", req.SalesmanId)
+	}
+	if req.ProductId != "" {
+		db = db.Where("id IN (SELECT order_id FROM order_products WHERE product_id = ?)", req.ProductId)
+	}
 	if req.StartDate != nil && req.EndDate == nil {
 		db = db.Where("created_at >= ?", req.StartDate)
 	}
@@ -93,6 +99,10 @@ type OrderSalesman struct {
 	PerformanceRate   decimal.Decimal `json:"performance_rate" gorm:"type:decimal(5,2);not NULL;comment:业绩比例;"`    // 业绩比例
 
 	IsMain bool `json:"is_main" gorm:"type:tinyint(1);not NULL;comment:是否主导购员;"` // 是否主导购员
+}
+
+func (OrderSalesman) TableName() string {
+	return "order_salesmans"
 }
 
 // 订单商品

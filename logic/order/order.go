@@ -32,7 +32,7 @@ func (l *OrderLogic) List(req *types.OrderListReq) (*types.PageRes[model.Order],
 	db = db.Preload("Member")
 	db = db.Preload("Store")
 	db = db.Preload("Cashier")
-	db = db.Preload("Salesmens").Preload("Salesmens.Salesman")
+	db = db.Preload("Salesmans").Preload("Salesmans.Salesman")
 	db = db.Preload("Products").Preload("Products.Product")
 
 	db = db.Order("created_at desc")
@@ -53,7 +53,7 @@ func (l *OrderLogic) Info(req *types.OrderInfoReq) (*model.Order, error) {
 	db = db.Preload("Member")
 	db = db.Preload("Store")
 	db = db.Preload("Cashier")
-	db = db.Preload("Salesmens").Preload("Salesmens.Salesman")
+	db = db.Preload("Salesmans").Preload("Salesmans.Salesman")
 	db = db.Preload("Products").Preload("Products.Product")
 
 	db = db.Where("id = ?", req.Id)

@@ -150,6 +150,12 @@ func Api(g *gin.Engine) {
 					allocate.PUT("/complete", product.ProductAllocateController{}.Complete) // 完成调拨
 				}
 			}
+
+			// 产品盘点
+			inventory := products.Group("/inventory")
+			{
+				inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
+			}
 		}
 
 		// 会员

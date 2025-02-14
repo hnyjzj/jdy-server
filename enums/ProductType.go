@@ -5,19 +5,21 @@ import (
 )
 
 /* 类型 */
-// 全部、成品、旧料
+// 全部、成品、旧料、配件
 type ProductType int
 
 const (
-	ProductTypeAll      ProductType = iota // 全部
-	ProductTypeFinished                    // 成品
-	ProductTypeOld                         // 旧料
+	ProductTypeAll         ProductType = iota // 全部
+	ProductTypeFinished                       // 成品
+	ProductTypeOld                            // 旧料
+	ProductTypeAccessories                    // 配件
 )
 
 var ProductTypeMap = map[ProductType]string{
-	ProductTypeAll:      "全部",
-	ProductTypeFinished: "成品",
-	ProductTypeOld:      "旧料",
+	ProductTypeAll:         "全部",
+	ProductTypeFinished:    "成品",
+	ProductTypeOld:         "旧料",
+	ProductTypeAccessories: "配件",
 }
 
 func (p ProductType) ToMap() any {

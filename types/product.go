@@ -270,3 +270,7 @@ type ProductInventoryListReq struct {
 	PageReq
 	Where ProductInventoryWhere `json:"where"`
 }
+
+type ProductInventoryInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}

@@ -225,14 +225,28 @@ type ProductEnterInfoReq struct {
 }
 
 type ProductInventoryWhere struct {
-	Id                string                       `json:"id" label:"ID" input:"text" type:"string" show:"true" sort:"1" required:"false"`                        // ID
-	Type              enums.ProductType            `json:"type" label:"仓库类型" input:"select" type:"number" show:"true" sort:"2" required:"false" preset:"typeMap"` // 仓库类型
-	Status            enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" show:"true" sort:"3" required:"false" preset:"typeMap"` // 状态
-	InventoryPersonId string                       `json:"inventory_person_id" label:"盘点人" input:"search" type:"string" show:"true" sort:"4" required:"false"`    // 盘点人
-	InspectorId       string                       `json:"inspector_id" label:"审核人" input:"search" type:"string" show:"true" sort:"5" required:"false"`           // 监盘人
-	StartTime         *time.Time                   `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"6" required:"false"`                // 开始时间
-	EndTime           *time.Time                   `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"7" required:"false"`                  // 结束时间
-	StoreId           string                       `json:"store_id" label:"门店" input:"search" type:"string" show:"false" sort:"8" required:"false"`               // 门店
+	Id      string `json:"id" label:"单号" input:"text" type:"string" show:"true" sort:"1" required:"false"`          // ID
+	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" show:"false" sort:"2" required:"false"` // 门店
+
+	InventoryPersonId string `json:"inventory_person_id" label:"盘点人" input:"search" type:"string" show:"true" sort:"3" required:"false"` // 盘点人
+	InspectorId       string `json:"inspector_id" label:"审核人" input:"search" type:"string" show:"true" sort:"4" required:"false"`        // 监盘人
+
+	Type   enums.ProductType            `json:"type" label:"仓库类型" input:"select" type:"number" show:"true" sort:"5" required:"false" preset:"typeMap"` // 仓库类型
+	Range  enums.ProductInventoryRange  `json:"range" label:"范围" input:"select" type:"number" show:"true" sort:"6" required:"false" preset:"typeMap"`  // 范围
+	Status enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" show:"true" sort:"7" required:"false" preset:"typeMap"` // 状态
+
+	Brand    enums.ProductBrand    `json:"brand" label:"品牌" input:"select" type:"number" show:"false" sort:"8" required:"false" preset:"typeMap"`     // 品牌
+	Class    enums.ProductClass    `json:"class" label:"系列" input:"select" type:"number" show:"false" sort:"9" required:"false" preset:"typeMap"`     // 系列
+	Category enums.ProductCategory `json:"category" label:"类别" input:"select" type:"number" show:"false" sort:"10" required:"false" preset:"typeMap"` // 类别
+	Craft    enums.ProductCraft    `json:"craft" label:"工艺" input:"select" type:"number" show:"false" sort:"11" required:"false" preset:"typeMap"`    // 工艺
+	Material enums.ProductMaterial `json:"material" label:"材质" input:"select" type:"number" show:"false" sort:"12" required:"false" preset:"typeMap"` // 材质
+	Quality  enums.ProductQuality  `json:"quality" label:"质地" input:"select" type:"number" show:"false" sort:"13" required:"false" preset:"typeMap"`  // 质地
+	Gem      enums.ProductGem      `json:"gem" label:"宝石" input:"select" type:"number" show:"false" sort:"14" required:"false" preset:"typeMap"`      // 宝石
+
+	Remark string `json:"remark" label:"备注" input:"textarea" type:"string" show:"false" sort:"15" required:"false"` // 备注
+
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"16" required:"false"` // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"17" required:"false"`   // 结束时间
 }
 
 type ProductInventoryCreateReq struct {

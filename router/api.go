@@ -158,6 +158,7 @@ func Api(g *gin.Engine) {
 				inventory.Use(middlewares.JWTMiddleware())
 				{
 					inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
+					inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
 				}
 			}
 		}

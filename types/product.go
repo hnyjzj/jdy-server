@@ -230,8 +230,9 @@ type ProductInventoryWhere struct {
 	Status            enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" show:"true" sort:"3" required:"false" preset:"typeMap"` // 状态
 	InventoryPersonId string                       `json:"inventory_person_id" label:"盘点人" input:"search" type:"string" show:"true" sort:"4" required:"false"`    // 盘点人
 	InspectorId       string                       `json:"inspector_id" label:"审核人" input:"search" type:"string" show:"true" sort:"5" required:"false"`           // 监盘人
-	StartTime         *time.Time                   `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"3" required:"false"`                // 开始时间
-	EndTime           *time.Time                   `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"4" required:"false"`                  // 结束时间
+	StartTime         *time.Time                   `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"6" required:"false"`                // 开始时间
+	EndTime           *time.Time                   `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"7" required:"false"`                  // 结束时间
+	StoreId           string                       `json:"store_id" label:"门店" input:"search" type:"string" show:"false" sort:"8" required:"false"`               // 门店
 }
 
 type ProductInventoryCreateReq struct {
@@ -263,4 +264,9 @@ func (req *ProductInventoryCreateReq) Validate() error {
 	}
 
 	return nil
+}
+
+type ProductInventoryListReq struct {
+	PageReq
+	Where ProductInventoryWhere `json:"where"`
 }

@@ -3,7 +3,7 @@ package enums
 import "errors"
 
 /* 状态 */
-// 全部、正常、已报损、已调拨、已出售、已定出
+// 全部、正常、已报损、已调拨、已出售、已定出、盘点中
 type ProductStatus int
 
 const (
@@ -13,6 +13,7 @@ const (
 	ProductStatusAllocate                      // 已调拨
 	ProductStatusSold                          // 已出售
 	ProductStatusReturn                        // 已定出
+	ProductStatusCheck                         // 盘点中
 )
 
 var ProductStatusMap = map[ProductStatus]string{
@@ -22,6 +23,7 @@ var ProductStatusMap = map[ProductStatus]string{
 	ProductStatusAllocate: "已调拨",
 	ProductStatusSold:     "已出售",
 	ProductStatusReturn:   "已定出",
+	ProductStatusCheck:    "盘点中",
 }
 
 // 判断状态是否可以转换
@@ -32,6 +34,7 @@ func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
 			ProductStatusAllocate,
 			ProductStatusSold,
 			ProductStatusReturn,
+			ProductStatusCheck,
 		},
 		ProductStatusDamage: {
 			ProductStatusNormal,
@@ -48,6 +51,9 @@ func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
 		ProductStatusReturn: {
 			ProductStatusNormal,
 			ProductStatusDamage,
+		},
+		ProductStatusCheck: {
+			ProductStatusNormal,
 		},
 	}
 	if allowed, ok := transitions[p]; ok {

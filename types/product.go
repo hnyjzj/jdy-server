@@ -20,6 +20,8 @@ type ProductEnterReqProduct struct {
 	Price     decimal.Decimal `json:"price" binding:"required"`      // 标签价
 	LaborFee  decimal.Decimal `json:"labor_fee" binding:"required"`  // 工费
 
+	Stock int64 `json:"stock" binding:"required"` // 库存
+
 	Weight      decimal.Decimal         `json:"weight" binding:"-"`             // 总重量
 	WeightMetal decimal.Decimal         `json:"weight_metal" binding:"-"`       // 金重
 	WeightGem   decimal.Decimal         `json:"weight_gem" binding:"-"`         // 主石重
@@ -223,8 +225,42 @@ type ProductEnterInfoReq struct {
 }
 
 type ProductInventoryWhere struct {
-	Id        string                       `json:"id" label:"ID" input:"text" type:"string" show:"true" sort:"1" required:"false"`         // ID
-	Status    enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"enum" show:"true" sort:"2" required:"false"`     // 状态
-	StartTime *time.Time                   `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"3" required:"false"` // 开始时间
-	EndTime   *time.Time                   `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"4" required:"false"`   // 结束时间
+	Id                string                       `json:"id" label:"ID" input:"text" type:"string" show:"true" sort:"1" required:"false"`                        // ID
+	Type              enums.ProductType            `json:"type" label:"仓库类型" input:"select" type:"number" show:"true" sort:"2" required:"false" preset:"typeMap"` // 仓库类型
+	Status            enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" show:"true" sort:"3" required:"false" preset:"typeMap"` // 状态
+	InventoryPersonId string                       `json:"inventory_person_id" label:"盘点人" input:"search" type:"string" show:"true" sort:"4" required:"false"`    // 盘点人
+	InspectorId       string                       `json:"inspector_id" label:"审核人" input:"search" type:"string" show:"true" sort:"5" required:"false"`           // 监盘人
+	StartTime         *time.Time                   `json:"start_time" label:"开始时间" input:"date" type:"date" show:"true" sort:"3" required:"false"`                // 开始时间
+	EndTime           *time.Time                   `json:"end_time" label:"结束时间" input:"date" type:"date" show:"true" sort:"4" required:"false"`                  // 结束时间
+}
+
+type ProductInventoryCreateReq struct {
+	StoreId string `json:"store_id" binding:"required"` // 门店ID
+
+	InventoryPersonId string `json:"inventory_person_id" binding:"required"` // 盘点人
+	InspectorId       string `json:"inspector_id" binding:"required"`        // 监盘人
+
+	Type  enums.ProductType           `json:"type" binding:"required"`  // 仓库类型
+	Range enums.ProductInventoryRange `json:"range" binding:"required"` // 盘点范围
+
+	Brand    []enums.ProductBrand    `json:"brand"`    // 品牌
+	Class    []enums.ProductClass    `json:"class"`    // 系列
+	Category []enums.ProductCategory `json:"category"` // 类别
+	Craft    []enums.ProductCraft    `json:"craft"`    // 工艺
+	Material []enums.ProductMaterial `json:"material"` // 材质
+	Quality  []enums.ProductQuality  `json:"quality"`  // 质地
+	Gem      []enums.ProductGem      `json:"gem"`      // 宝石
+
+	Remark string `json:"remark"`
+}
+
+func (req *ProductInventoryCreateReq) Validate() error {
+	if err := req.Type.InMap(); err != nil {
+		return err
+	}
+	if err := req.Range.InMap(); err != nil {
+		return err
+	}
+
+	return nil
 }

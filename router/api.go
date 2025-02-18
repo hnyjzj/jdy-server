@@ -155,6 +155,10 @@ func Api(g *gin.Engine) {
 			inventory := products.Group("/inventory")
 			{
 				inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
+				inventory.Use(middlewares.JWTMiddleware())
+				{
+					inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
+				}
 			}
 		}
 

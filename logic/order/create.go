@@ -59,6 +59,11 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 			return err
 		}
 
+		// 计算业绩
+		if err := l.getPerformance(); err != nil {
+			return err
+		}
+
 		// 创建订单
 		if err := tx.Create(&l.Order).Error; err != nil {
 			return err
@@ -150,7 +155,7 @@ func (l *OrderCreateLogic) loopSales() error {
 		// 折扣价
 		amount_discount = amount.Mul(discount)
 
-		// 添加记录
+		// 添加订单商品
 		order_product := model.OrderProduct{
 			ProductId: product.Id,
 
@@ -222,6 +227,33 @@ func (l *OrderCreateLogic) getDiscount() error {
 	// 抹零
 	l.Order.AmountReduce = l.Req.AmountReduce
 	l.Order.Amount = l.Order.Amount.Sub(l.Req.AmountReduce)
+
+	return nil
+}
+
+// 计算业绩
+func (l *OrderCreateLogic) getPerformance() error {
+	// 添加导购员业绩
+	for _, s := range l.Req.Salesmans {
+		var salesman model.Staff
+		db := l.Tx.Model(&model.Staff{})
+		db = db.Where("id = ?", s.SalesmanId)
+		db = db.Where(&model.Staff{IsDisabled: false})
+		if err := db.First(&salesman).Error; err != nil {
+			return err
+		}
+
+		// 计算业绩 佣金 = 佣金率/100 * 订单金额
+		performance := l.Order.Amount.Mul(s.PerformanceRate).Div(decimal.NewFromFloat(100))
+
+		// 添加导购员业绩
+		l.Order.Salesmans = append(l.Order.Salesmans, model.OrderSalesman{
+			SalesmanId:        salesman.Id,
+			PerformanceRate:   s.PerformanceRate,
+			PerformanceAmount: performance,
+			IsMain:            s.IsMain,
+		})
+	}
 
 	return nil
 }

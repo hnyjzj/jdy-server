@@ -109,15 +109,16 @@ func Api(g *gin.Engine) {
 		products := r.Group("/product")
 		{
 			// 产品管理
-			products = products.Group("/")
+			p := products.Group("/")
 			{
-				products.GET("/where", product.ProductController{}.Where) // 产品筛选
-				products.Use(middlewares.JWTMiddleware())
+				p.GET("/where", product.ProductController{}.Where) // 产品筛选
+				p.Use(middlewares.JWTMiddleware())
 				{
-					products.POST("/list", product.ProductController{}.List)    // 产品列表
-					products.POST("/info", product.ProductController{}.Info)    // 产品详情
-					products.PUT("/update", product.ProductController{}.Update) // 产品更新
-					products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
+					p.POST("/list", product.ProductController{}.List)            // 产品列表
+					p.POST("/info", product.ProductController{}.Info)            // 产品详情
+					p.PUT("/update", product.ProductController{}.Update)         // 产品更新
+					p.PUT("/damage", product.ProductController{}.Damage)         // 产品报损
+					p.PUT("/conversion", product.ProductController{}.Conversion) // 产品转换
 				}
 			}
 
@@ -147,6 +148,18 @@ func Api(g *gin.Engine) {
 					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)   // 确认调拨
 					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)     // 取消调拨
 					allocate.PUT("/complete", product.ProductAllocateController{}.Complete) // 完成调拨
+				}
+			}
+
+			// 产品盘点
+			inventory := products.Group("/inventory")
+			{
+				inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
+				inventory.Use(middlewares.JWTMiddleware())
+				{
+					inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
+					inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
+					inventory.POST("/info", product.ProductInventoryController{}.Info)     // 盘点单详情
 				}
 			}
 		}

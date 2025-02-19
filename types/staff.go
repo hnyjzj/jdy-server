@@ -115,11 +115,11 @@ type StaffUpdateWxWorkReq struct {
 }
 
 type StaffWhere struct {
-	Phone      string       `json:"phone" label:"手机号" show:"true" sort:"1" type:"string" input:"text"`
-	StoreId    string       `json:"store_id" label:"所属门店" show:"true" sort:"2" type:"string" input:"search"`
-	Nickname   string       `json:"nickname" label:"姓名" show:"true" sort:"3" type:"string" input:"text"`
-	Gender     enums.Gender `json:"gender" label:"性别" show:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`
-	IsDisabled bool         `json:"is_disabled" label:"是否禁用" show:"true" sort:"5" type:"boolean" input:"switch"`
+	Phone      string       `json:"phone" label:"手机号" find:"true" sort:"1" type:"string" input:"text"`
+	StoreId    string       `json:"store_id" label:"所属门店" find:"true" sort:"2" type:"string" input:"search"`
+	Nickname   string       `json:"nickname" label:"姓名" find:"true" sort:"3" type:"string" input:"text"`
+	Gender     enums.Gender `json:"gender" label:"性别" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`
+	IsDisabled bool         `json:"is_disabled" label:"是否禁用" find:"true" sort:"5" type:"boolean" input:"switch"`
 }
 
 type StaffListReq struct {

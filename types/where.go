@@ -7,6 +7,7 @@ type WhereForm struct {
 	Type     string `json:"type"`     // 值类型： string, number, boolean, object, string[], number[], boolean[]
 	Input    string `json:"input"`    // 输入框类型：text, number, password, textarea, email, url, tel, search, range, color, date, datetime, time, week, month, quarter, year, file, image, video, audio, editor
 	Required bool   `json:"required"` // 是否必填
-	Show     bool   `json:"show"`     // 是否显示
+	Find     bool   `json:"find"`     // 查询是否显示
+	Create   bool   `json:"create"`   // 创建是否显示
 	Preset   any    `json:"preset"`   // 预设：[value1, value2]|{value1: label1, value2: label2}|{value1: {label1: label2}}
 }

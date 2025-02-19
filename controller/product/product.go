@@ -121,3 +121,27 @@ func (con ProductController) Damage(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 产品转换
+func (con ProductController) Conversion(ctx *gin.Context) {
+	var (
+		req types.ProductConversionReq
+
+		logic = product.ProductLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Conversion(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

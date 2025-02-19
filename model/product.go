@@ -244,13 +244,13 @@ type ProductInventory struct {
 	Type  enums.ProductType           `json:"type" gorm:"type:tinyint(2);comment:产品类型;"`  // 仓库类型
 	Range enums.ProductInventoryRange `json:"range" gorm:"type:tinyint(2);comment:盘点范围;"` // 盘点范围
 
-	Brand    []enums.ProductBrand    `json:"brand" gorm:"type:text;comment:产品品牌;"`    // 产品品牌
-	Class    []enums.ProductClass    `json:"class" gorm:"type:text;comment:产品大类;"`    // 产品大类
-	Category []enums.ProductCategory `json:"category" gorm:"type:text;comment:产品品类;"` // 产品品类
-	Craft    []enums.ProductCraft    `json:"craft" gorm:"type:text;comment:产品工艺;"`    // 产品工艺
-	Material []enums.ProductMaterial `json:"material" gorm:"type:text;comment:产品材质;"` // 产品材质
-	Quality  []enums.ProductQuality  `json:"quality" gorm:"type:text;comment:产品成色;"`  // 产品成色
-	Gem      []enums.ProductGem      `json:"gem" gorm:"type:text;comment:宝石种类;"`      // 宝石种类
+	Brand    []enums.ProductBrand    `json:"brand" gorm:"type:text;serializer:json;comment:产品品牌;"`    // 产品品牌
+	Class    []enums.ProductClass    `json:"class" gorm:"type:text;serializer:json;comment:产品大类;"`    // 产品大类
+	Category []enums.ProductCategory `json:"category" gorm:"type:text;serializer:json;comment:产品品类;"` // 产品品类
+	Craft    []enums.ProductCraft    `json:"craft" gorm:"type:text;serializer:json;comment:产品工艺;"`    // 产品工艺
+	Material []enums.ProductMaterial `json:"material" gorm:"type:text;serializer:json;comment:产品材质;"` // 产品材质
+	Quality  []enums.ProductQuality  `json:"quality" gorm:"type:text;serializer:json;comment:产品成色;"`  // 产品成色
+	Gem      []enums.ProductGem      `json:"gem" gorm:"type:text;serializer:json;comment:宝石种类;"`      // 宝石种类
 
 	Remark string                       `json:"remark" gorm:"type:text;comment:备注;"`         // 备注
 	Status enums.ProductInventoryStatus `json:"status" gorm:"type:tinyint(2);comment:盘点状态;"` // 盘点状态
@@ -307,7 +307,7 @@ func (ProductInventory) Preloads(db *gorm.DB) *gorm.DB {
 type ProductInventoryProduct struct {
 	Model
 
-	ProductInventoryId string           `json:"inventory_id" gorm:"type:varchar(255);not NULL;comment:盘点ID;"` // 盘点ID
+	ProductInventoryId string           `json:"product_inventory_id" gorm:"type:varchar(255);not NULL;comment:盘点ID;"` // 盘点ID
 	ProductInventory   ProductInventory `json:"-" gorm:"foreignKey:ProductInventoryId;references:Id;comment:盘点;"`
 
 	ProductId string  `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`    // 产品ID

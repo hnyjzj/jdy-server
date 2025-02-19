@@ -9,20 +9,20 @@ import (
 )
 
 type OrderWhere struct {
-	Id       string `json:"id" label:"订单编号" show:"true" sort:"1" type:"string" input:"text"`                       // 订单编号
-	StoreId  string `json:"store_id" label:"门店ID" show:"true" sort:"2" type:"string" input:"text" required:"true"` // 门店ID
-	MemberId string `json:"member_id" label:"会员ID" show:"true" sort:"3" type:"string" input:"text"`                // 会员ID
+	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                       // 订单编号
+	StoreId  string `json:"store_id" label:"门店ID" find:"true" sort:"2" type:"string" input:"text" required:"true"` // 门店ID
+	MemberId string `json:"member_id" label:"会员ID" find:"true" sort:"3" type:"string" input:"text"`                // 会员ID
 
-	Status enums.OrderStatus `json:"status" label:"订单状态" show:"true" sort:"4" type:"string" input:"select" preset:"typeMap"` // 订单状态
-	Type   enums.OrderType   `json:"type" label:"订单类型" show:"true" sort:"5" type:"string" input:"select" preset:"typeMap"`   // 订单类型
-	Source enums.OrderSource `json:"source" label:"订单来源" show:"true" sort:"6" type:"string" input:"select" preset:"typeMap"` // 订单来源
+	Status enums.OrderStatus `json:"status" label:"订单状态" find:"true" sort:"4" type:"string" input:"select" preset:"typeMap"` // 订单状态
+	Type   enums.OrderType   `json:"type" label:"订单类型" find:"true" sort:"5" type:"string" input:"select" preset:"typeMap"`   // 订单类型
+	Source enums.OrderSource `json:"source" label:"订单来源" find:"true" sort:"6" type:"string" input:"select" preset:"typeMap"` // 订单来源
 
-	CashierId  string `json:"cashier_id" label:"收银员" show:"true" sort:"7" type:"string" input:"search"`  // 收银员
-	SalesmanId string `json:"salesman_id" label:"导购员" show:"true" sort:"8" type:"string" input:"search"` // 导购员
-	ProductId  string `json:"product_id" label:"商品" show:"true" sort:"9" type:"string" input:"search"`   // 商品
+	CashierId  string `json:"cashier_id" label:"收银员" find:"true" sort:"7" type:"string" input:"search"`  // 收银员
+	SalesmanId string `json:"salesman_id" label:"导购员" find:"true" sort:"8" type:"string" input:"search"` // 导购员
+	ProductId  string `json:"product_id" label:"商品" find:"true" sort:"9" type:"string" input:"search"`   // 商品
 
-	StartDate *time.Time `json:"start_date" label:"开始日期" show:"true" sort:"10" type:"string" input:"date"` // 开始日期
-	EndDate   *time.Time `json:"end_date" label:"结束日期" show:"true" sort:"11" type:"string" input:"date"`   // 结束日期
+	StartDate *time.Time `json:"start_date" label:"开始日期" find:"true" sort:"10" type:"string" input:"date"` // 开始日期
+	EndDate   *time.Time `json:"end_date" label:"结束日期" find:"true" sort:"11" type:"string" input:"date"`   // 结束日期
 }
 
 type OrderCreateReq struct {

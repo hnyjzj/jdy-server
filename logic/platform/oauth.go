@@ -3,6 +3,7 @@ package platform
 import (
 	"errors"
 	"fmt"
+	"jdy/enums"
 	"jdy/logic/platform/wxwork"
 	"jdy/types"
 )
@@ -12,7 +13,7 @@ func (l *PlatformLogic) OauthUri(req *types.PlatformOAuthReq) (*types.PlatformOA
 	platformType := fmt.Sprint(req.Platform)
 
 	switch req.Platform {
-	case types.PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 
 		var (
 			wxwork wxwork.WxWorkLogic

@@ -2,6 +2,7 @@ package callback
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
@@ -29,7 +30,7 @@ func (w *WxWork) GetStaff() error {
 	var account model.Account
 	if err := model.DB.Where(&model.Account{
 		Username: &username,
-		Platform: types.PlatformTypeWxWork,
+		Platform: enums.PlatformTypeWxWork,
 	}).First(&account).Error; err != nil {
 		return errors.New("用户不存在")
 	}

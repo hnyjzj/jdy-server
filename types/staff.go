@@ -9,7 +9,7 @@ import (
 
 // 员工请求
 type StaffReq struct {
-	Platform PlatformType `json:"platform" binding:"required"` // 平台
+	Platform enums.PlatformType `json:"platform" binding:"required"` // 平台
 
 	Account *StaffAccountReq `json:"account,omitempty"` // 账号信息
 	WxWork  *StaffWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
@@ -18,7 +18,7 @@ type StaffReq struct {
 func (req *StaffReq) Validate() error {
 	validate := validator.New()
 	switch req.Platform {
-	case PlatformTypeAccount:
+	case enums.PlatformTypeAccount:
 		if req.Account == nil {
 			return errors.New("账号信息是必填项")
 		}
@@ -26,7 +26,7 @@ func (req *StaffReq) Validate() error {
 		if err := validate.Struct(req.Account); err != nil {
 			return err
 		}
-	case PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 		if req.WxWork == nil {
 			return errors.New("企业微信信息是必填项")
 		}
@@ -69,7 +69,7 @@ type StaffRes struct {
 
 // 更新请求
 type StaffUpdateReq struct {
-	Platform PlatformType `json:"platform" binding:"required"` // 平台
+	Platform enums.PlatformType `json:"platform" binding:"required"` // 平台
 
 	Account *StaffUpdateAccountReq `json:"account,omitempty"` // 账号信息
 	WxWork  *StaffUpdateWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
@@ -78,7 +78,7 @@ type StaffUpdateReq struct {
 func (req *StaffUpdateReq) Validate() error {
 	validate := validator.New()
 	switch req.Platform {
-	case PlatformTypeAccount:
+	case enums.PlatformTypeAccount:
 		if req.Account == nil {
 			return errors.New("账号信息是必填项")
 		}
@@ -86,7 +86,7 @@ func (req *StaffUpdateReq) Validate() error {
 		if err := validate.Struct(req.Account); err != nil {
 			return err
 		}
-	case PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 		if req.WxWork == nil {
 			return errors.New("企业微信信息是必填项")
 		}

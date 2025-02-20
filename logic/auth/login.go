@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/logic/common"
@@ -28,7 +29,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	// 查询用户
 	var account model.Account
 	if err := model.DB.
-		Where(&model.Account{Phone: &req.Phone, Platform: types.PlatformTypeAccount}).
+		Where(&model.Account{Phone: &req.Phone, Platform: enums.PlatformTypeAccount}).
 		Preload("Staff").
 		First(&account).
 		Error; err != nil {
@@ -50,7 +51,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 		Id:         account.Staff.Id,
 		Phone:      account.Staff.Phone,
 		IsDisabled: account.Staff.IsDisabled,
-		Platform:   types.PlatformTypeAccount,
+		Platform:   enums.PlatformTypeAccount,
 	})
 	if err != nil {
 		return nil, err
@@ -97,7 +98,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 		Id:         staff.Id,
 		Phone:      staff.Phone,
 		IsDisabled: staff.IsDisabled,
-		Platform:   types.PlatformTypeWxWork,
+		Platform:   enums.PlatformTypeWxWork,
 	})
 }
 

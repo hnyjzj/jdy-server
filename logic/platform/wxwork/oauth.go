@@ -3,13 +3,13 @@ package wxwork
 import (
 	"fmt"
 	"jdy/config"
-	"jdy/types"
+	"jdy/enums"
 	"jdy/utils"
 )
 
 const (
-	WxWorkOauth types.PlatformType = "wxwork_oauth"
-	WxWorkCode  types.PlatformType = "wxwork_code"
+	WxWorkOauth enums.PlatformType = "wxwork_oauth"
+	WxWorkCode  enums.PlatformType = "wxwork_code"
 )
 
 // 获取授权链接

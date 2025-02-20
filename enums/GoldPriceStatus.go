@@ -3,16 +3,18 @@ package enums
 import "errors"
 
 /* 黄金价格状态 */
-// 待审批、已审批、已驳回
+// 全部、待审批、已审批、已驳回
 type GoldPriceStatus int
 
 const (
-	GoldPriceStatusPending  GoldPriceStatus = iota // 待审批
+	GoldPriceStatusAll      GoldPriceStatus = iota // 全部
+	GoldPriceStatusPending                         // 待审批
 	GoldPriceStatusApproved                        // 已审批
 	GoldPriceStatusRejected                        // 已驳回
 )
 
 var GoldPriceStatusMap = map[GoldPriceStatus]string{
+	GoldPriceStatusAll:      "全部",
 	GoldPriceStatusPending:  "待审批",
 	GoldPriceStatusApproved: "已审批",
 	GoldPriceStatusRejected: "已驳回",

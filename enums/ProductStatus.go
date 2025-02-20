@@ -2,7 +2,7 @@ package enums
 
 import "errors"
 
-/* 状态 */
+/* 产品状态 */
 // 全部、正常、已报损、已调拨、已出售、已定出、盘点中
 type ProductStatus int
 

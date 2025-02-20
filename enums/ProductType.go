@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-/* 类型 */
+/* 产品类型 */
 // 全部、成品、旧料、配件
 type ProductType int
 

@@ -288,3 +288,9 @@ type ProductInventoryListReq struct {
 type ProductInventoryInfoReq struct {
 	Id string `json:"id" binding:"required"`
 }
+
+type ProductInventoryChangeReq struct {
+	Id string `json:"id" binding:"required"`
+
+	Status enums.ProductInventoryStatus `json:"status" binding:"required"`
+}

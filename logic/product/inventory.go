@@ -146,3 +146,24 @@ func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model
 
 	return &res, nil
 }
+
+func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) error {
+	var (
+		inventory model.ProductInventory
+	)
+	db := model.DB.Where("id = ?", req.Id)
+
+	if err := db.First(&inventory).Error; err != nil {
+		return errors.New("获取失败")
+	}
+
+	if err := inventory.Status.CanTransitionTo(req.Status); err != nil {
+		return errors.New("当前状态不允许这样操作")
+	}
+
+	if err := db.Model(&inventory).Updates(model.ProductInventory{Status: req.Status}).Error; err != nil {
+		return errors.New("更新失败")
+	}
+
+	return nil
+}

@@ -107,3 +107,30 @@ func (con ProductInventoryController) Info(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+func (con ProductInventoryController) Change(ctx *gin.Context) {
+	var (
+		req types.ProductInventoryChangeReq
+
+		logic = product.ProductInventoryLogic{
+			ProductLogic: product.ProductLogic{
+				Ctx:   ctx,
+				Staff: con.GetStaff(ctx),
+			},
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	if err := logic.Change(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

@@ -247,6 +247,8 @@ type ProductInventoryWhere struct {
 
 	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"16" required:"false"` // 开始时间
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"17" required:"false"`   // 结束时间
+
+	ProductStatus enums.ProductInventoryProductStatus `json:"product_status" label:"状态" input:"select" type:"number" find:"false" create:"false" sort:"18" required:"false" preset:"typeMap"` // 产品状态
 }
 
 type ProductInventoryCreateReq struct {
@@ -286,7 +288,8 @@ type ProductInventoryListReq struct {
 }
 
 type ProductInventoryInfoReq struct {
-	Id string `json:"id" binding:"required"`
+	Id            string                              `json:"id" binding:"required"`
+	ProductStatus enums.ProductInventoryProductStatus `json:"product_status"` // 产品状态
 }
 
 type ProductInventoryChangeReq struct {

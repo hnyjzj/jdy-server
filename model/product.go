@@ -295,11 +295,17 @@ func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryW
 	return db
 }
 
-func (ProductInventory) Preloads(db *gorm.DB) *gorm.DB {
+func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere) *gorm.DB {
 	db = db.Preload("Store")
 	db = db.Preload("InventoryPerson")
 	db = db.Preload("Inspector")
-	db = db.Preload("Products").Preload("Products.Product")
+	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+		pdb := tx.Preload("Product")
+		if req.ProductStatus != 0 {
+			pdb = pdb.Where(&ProductInventoryProduct{Status: req.ProductStatus})
+		}
+		return pdb
+	})
 
 	return db
 }

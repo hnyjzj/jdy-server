@@ -119,7 +119,7 @@ func (l *ProductInventoryLogic) List(req *types.ProductInventoryListReq) (*types
 	}
 
 	// 获取列表
-	db = inventory.Preloads(db)
+	db = inventory.Preloads(db, &req.Where)
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 	if err := db.Find(&res.List).Error; err != nil {
@@ -138,7 +138,12 @@ func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model
 	db := model.DB.Model(&inventory)
 
 	db = db.Where("id = ?", req.Id)
-	db = inventory.Preloads(db)
+
+	where := types.ProductInventoryWhere{
+		ProductStatus: req.ProductStatus,
+	}
+
+	db = inventory.Preloads(db, &where)
 
 	if err := db.First(&res).Error; err != nil {
 		return nil, errors.New("获取失败")

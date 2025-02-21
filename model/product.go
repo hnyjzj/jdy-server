@@ -301,9 +301,23 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere) 
 	db = db.Preload("Inspector")
 	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
 		pdb := tx.Preload("Product")
-		if req.ProductStatus != 0 {
+		if req != nil && req.ProductStatus != enums.ProductInventoryProductStatusShould {
 			pdb = pdb.Where(&ProductInventoryProduct{Status: req.ProductStatus})
 		}
+		return pdb
+	})
+	db = db.Preload("InventoryPerson", func(tx *gorm.DB) *gorm.DB {
+		pdb := tx.Preload("Account", func(tx *gorm.DB) *gorm.DB {
+			pdb := tx.Where(&Account{Platform: enums.PlatformTypeWxWork})
+			return pdb
+		})
+		return pdb
+	})
+	db = db.Preload("Inspector", func(tx *gorm.DB) *gorm.DB {
+		pdb := tx.Preload("Account", func(tx *gorm.DB) *gorm.DB {
+			pdb := tx.Where(&Account{Platform: enums.PlatformTypeWxWork})
+			return pdb
+		})
 		return pdb
 	})
 

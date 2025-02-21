@@ -3,6 +3,7 @@ package product
 import (
 	"errors"
 	"jdy/enums"
+	"jdy/message"
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
@@ -98,6 +99,22 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 	}); err != nil {
 		return nil, err
 	}
+
+	go func() {
+		var (
+			product_inventory model.ProductInventory
+			pdb               = model.DB.Model(&product_inventory)
+		)
+		pdb = product_inventory.Preloads(pdb, nil)
+		// 查询记录
+		if err := pdb.First(&product_inventory, "id = ?", data.Id).Error; err != nil {
+			return
+		}
+		msg := message.NewMessage(l.Ctx)
+		msg.SendProductInventoryCreateMessage(&message.ProductInventoryCreate{
+			ProductInventory: &product_inventory,
+		})
+	}()
 
 	return &data, nil
 }

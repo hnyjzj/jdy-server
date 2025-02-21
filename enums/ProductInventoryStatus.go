@@ -39,6 +39,10 @@ func (p ProductInventoryStatus) InMap() error {
 	return nil
 }
 
+func (p ProductInventoryStatus) String() string {
+	return ProductInventoryStatusMap[p]
+}
+
 // 判断状态是否可以转换
 func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error {
 	transitions := map[ProductInventoryStatus][]ProductInventoryStatus{

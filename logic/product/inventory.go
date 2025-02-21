@@ -174,6 +174,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 		inventory model.ProductInventory
 	)
 	db := model.DB.Where("id = ?", req.Id)
+	db = inventory.Preloads(db, nil)
 
 	if err := db.First(&inventory).Error; err != nil {
 		return errors.New("获取失败")
@@ -186,6 +187,13 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 	if err := db.Model(&inventory).Updates(model.ProductInventory{Status: req.Status}).Error; err != nil {
 		return errors.New("更新失败")
 	}
+
+	go func() {
+		msg := message.NewMessage(l.Ctx)
+		msg.SendProductInventoryUpdateMessage(&message.ProductInventoryUpdate{
+			ProductInventory: &inventory,
+		})
+	}()
 
 	return nil
 }

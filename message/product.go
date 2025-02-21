@@ -31,25 +31,13 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 			CardType: "text_notice",
 			MainTitle: &request.TemplateCardMainTitle{
 				Title: "盘点单创建通知",
-				Desc:  "有新的盘点单，请及时处理",
+				Desc:  fmt.Sprintf("新盘点单【%s】，请及时处理", req.ProductInventory.Id),
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
 				Title: fmt.Sprintf("%d", req.ProductInventory.CountShould),
 				Desc:  "应盘数量",
 			},
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
-				{
-					Type:    3,
-					Keyname: "盘点人",
-					Value:   *req.ProductInventory.InventoryPerson.Account.Nickname,
-					UserID:  *req.ProductInventory.InventoryPerson.Account.Username,
-				},
-				{
-					Type:    3,
-					Keyname: "监盘人",
-					Value:   *req.ProductInventory.Inspector.Account.Nickname,
-					UserID:  *req.ProductInventory.Inspector.Account.Username,
-				},
 				{
 					Type:    0,
 					Keyname: "总重量",
@@ -64,6 +52,98 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 					Type:    0,
 					Keyname: "总件数",
 					Value:   fmt.Sprintf("%d", req.ProductInventory.ContQuantity),
+				},
+				{
+					Type:    3,
+					Keyname: "盘点人",
+					Value:   *req.ProductInventory.InventoryPerson.Account.Nickname,
+					UserID:  *req.ProductInventory.InventoryPerson.Account.Username,
+				},
+				{
+					Type:    3,
+					Keyname: "监盘人",
+					Value:   *req.ProductInventory.Inspector.Account.Nickname,
+					UserID:  *req.ProductInventory.Inspector.Account.Username,
+				},
+			},
+			CardAction: &request.TemplateCardAction{
+				Type: 1,
+				Url:  url,
+			},
+			JumpList: []*request.TemplateCardJumpListItem{
+				{
+					Type:  1,
+					Title: "查看详情",
+					Url:   url,
+				},
+			},
+		},
+	}
+
+	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
+		log.Println("发送消息失败:", err)
+		fmt.Printf("a: %+v\n", a)
+	}
+}
+
+type ProductInventoryUpdate struct {
+	ProductInventory *model.ProductInventory `json:"product_inventory"`
+}
+
+func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpdate) {
+	url := fmt.Sprintf("%s/product/goods/check/info?id=%s", M.App.Home, req.ProductInventory.Id)
+	ToUser := strings.Join([]string{
+		*req.ProductInventory.InventoryPerson.Account.Username,
+		*req.ProductInventory.Inspector.Account.Username,
+	}, "|")
+	messages := &request.RequestMessageSendTemplateCard{
+		RequestMessageSend: request.RequestMessageSend{
+			ToUser:  ToUser,
+			MsgType: "template_card",
+			AgentID: M.App.Id,
+		},
+		TemplateCard: &request.RequestTemplateCard{
+			CardType: "text_notice",
+			MainTitle: &request.TemplateCardMainTitle{
+				Title: "盘点单更新通知",
+				Desc:  fmt.Sprintf("盘点单【%s】状态更新，请及时处理", req.ProductInventory.Id),
+			},
+			EmphasisContent: &request.TemplateCardEmphasisContent{
+				Title: req.ProductInventory.Status.String(),
+				Desc:  "当前状态",
+			},
+			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
+				{
+					Type:    0,
+					Keyname: "应盘数量",
+					Value:   fmt.Sprintf("%d", req.ProductInventory.CountShould),
+				},
+				{
+					Type:    0,
+					Keyname: "实盘数量",
+					Value:   fmt.Sprintf("%d", req.ProductInventory.CountActual),
+				},
+				{
+					Type:    0,
+					Keyname: "盘盈数量",
+					Value:   fmt.Sprintf("%d", req.ProductInventory.CountExtra),
+				},
+				{
+					Type:    0,
+					Keyname: "盘亏数量",
+					Value:   fmt.Sprintf("%d", req.ProductInventory.CountLoss),
+				},
+				{
+					Type:    3,
+					Keyname: "盘点人",
+					Value:   *req.ProductInventory.InventoryPerson.Account.Nickname,
+					UserID:  *req.ProductInventory.InventoryPerson.Account.Username,
+				},
+				{
+					Type:    3,
+					Keyname: "监盘人",
+					Value:   *req.ProductInventory.Inspector.Account.Nickname,
+					UserID:  *req.ProductInventory.Inspector.Account.Username,
 				},
 			},
 			CardAction: &request.TemplateCardAction{

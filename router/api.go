@@ -9,6 +9,7 @@ import (
 	"jdy/controller/product"
 	"jdy/controller/setting"
 	"jdy/controller/staff"
+	"jdy/controller/statistic"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
@@ -69,6 +70,12 @@ func Api(g *gin.Engine) {
 				staffs.GET("/my", staff.StaffController{}.My)          // 获取我的信息
 				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
 			}
+		}
+
+		// 统计
+		statistics := r.Group("/statistic")
+		{
+			statistics.GET("/total", statistic.StatisticController{}.Total) // 统计总览
 		}
 
 		// 工作台

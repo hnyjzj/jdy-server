@@ -65,6 +65,9 @@ func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error
 	if tga.Get("create") != "" {
 		whereForm.Create = tga.Get("create") == "true" || tga.Get("create") == ""
 	}
+	if tga.Get("update") != "" {
+		whereForm.Update = tga.Get("update") == "true" || tga.Get("update") == ""
+	}
 	if tga.Get("preset") != "" {
 		switch tga.Get("preset") {
 		case "typeMap":

@@ -63,6 +63,10 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 			return errors.New("产品录入失败")
 		}
 
+		if success != len(data) {
+			return errors.New("部分产品录入失败")
+		}
+
 		return nil
 	}); err != nil {
 		return nil, errors.New("产品录入失败")

@@ -12,6 +12,19 @@ type ProductEnterReq struct {
 	Products []ProductEnterReqProduct `json:"products" binding:"required"`
 }
 
+func (p *ProductEnterReq) Validate() error {
+	if len(p.Products) == 0 {
+		return errors.New("products is required")
+	}
+	for _, product := range p.Products {
+		if product.Code == "" {
+			return errors.New("code is required")
+		}
+	}
+
+	return nil
+}
+
 type ProductEnterReqProduct struct {
 	Code string `json:"code" binding:"required"` // 条码
 	Name string `json:"name" binding:"required"` // 名称

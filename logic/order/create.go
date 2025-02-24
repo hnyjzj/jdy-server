@@ -158,6 +158,7 @@ func (l *OrderCreateLogic) loopSales() error {
 		// 添加订单商品
 		order_product := model.OrderProduct{
 			ProductId: product.Id,
+			Status:    enums.OrderStatusWaitPay,
 
 			Quantity:       p.Quantity,
 			Price:          price,

@@ -13,7 +13,7 @@ import (
 type TotalRes struct {
 	Store model.Store `json:"-"` // 店铺
 
-	Name                string          `json:"name"`
+	Name                string          `json:"name"`                  // 店铺名称
 	Total               decimal.Decimal `json:"total"`                 // 总业绩
 	Silver              decimal.Decimal `json:"silver"`                // 银饰
 	Gold                decimal.Decimal `json:"gold"`                  // 足金（件）

@@ -46,11 +46,27 @@ func (p ProductInventoryStatus) String() string {
 // 判断状态是否可以转换
 func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error {
 	transitions := map[ProductInventoryStatus][]ProductInventoryStatus{
-		ProductInventoryStatusDraft:        {ProductInventoryStatusInventorying, ProductInventoryStatusCancelled},
-		ProductInventoryStatusInventorying: {ProductInventoryStatusToBeVerified, ProductInventoryStatusAbnormal, ProductInventoryStatusCancelled},
-		ProductInventoryStatusToBeVerified: {ProductInventoryStatusCompleted, ProductInventoryStatusAbnormal, ProductInventoryStatusCancelled},
-		ProductInventoryStatusAbnormal:     {ProductInventoryStatusInventorying, ProductInventoryStatusCancelled},
-		ProductInventoryStatusCancelled:    {ProductInventoryStatusInventorying},
+		ProductInventoryStatusDraft: { // 草稿->
+			ProductInventoryStatusInventorying, // 盘点中
+			ProductInventoryStatusCancelled,    // 盘点取消
+		},
+		ProductInventoryStatusInventorying: { // 盘点中->
+			ProductInventoryStatusToBeVerified, // 待验证
+			ProductInventoryStatusAbnormal,     // 盘点异常
+			ProductInventoryStatusCancelled,    // 盘点取消
+		},
+		ProductInventoryStatusToBeVerified: { // 待验证->
+			ProductInventoryStatusCompleted, // 盘点完成
+			ProductInventoryStatusAbnormal,  // 盘点异常
+			ProductInventoryStatusCancelled, // 盘点取消
+		},
+		ProductInventoryStatusAbnormal: { // 盘点异常->
+			ProductInventoryStatusInventorying, // 盘点中
+			ProductInventoryStatusCancelled,    // 盘点取消
+		},
+		ProductInventoryStatusCancelled: { // 盘点取消->
+			ProductInventoryStatusInventorying, // 盘点中
+		},
 	}
 
 	if allowed, ok := transitions[p]; ok {

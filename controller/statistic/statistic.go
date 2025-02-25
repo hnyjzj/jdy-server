@@ -55,3 +55,25 @@ func (con StatisticController) TodaySales(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+// 今日货品
+func (con StatisticController) TodayProduct(ctx *gin.Context) {
+	var (
+		req   types.StatisticTodayProductReq
+		logic = statistic.StatisticLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, "参数错误")
+		return
+	}
+
+	res, err := logic.TodayProduct(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}

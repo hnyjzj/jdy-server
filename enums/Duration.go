@@ -5,7 +5,7 @@ import (
 )
 
 /* 时间区间 */
-// 今天、昨天、本周、上周、本月、上月、本季度、上季度、今年、去年
+// 今天、昨天、本周、上周、本月、上月、本季度、上季度、今年、去年、自定义
 type Duration string
 
 const (
@@ -19,6 +19,7 @@ const (
 	DurationLastQuarter Duration = "last_quarter" // 上季度
 	DurationYear        Duration = "year"         // 今年
 	DurationLastYear    Duration = "last_year"    // 去年
+	DurationCustom      Duration = "custom"       // 自定义
 )
 
 var DurationMap = map[Duration]string{
@@ -32,6 +33,7 @@ var DurationMap = map[Duration]string{
 	DurationLastQuarter: "上季度",
 	DurationYear:        "今年",
 	DurationLastYear:    "去年",
+	DurationCustom:      "自定义",
 }
 
 func (p Duration) ToMap() any {

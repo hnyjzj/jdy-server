@@ -15,10 +15,17 @@ type StatisticController struct {
 // 门店销售统计
 func (con StatisticController) StoreSalesTotal(ctx *gin.Context) {
 	var (
+		req   types.StatisticStoreSalesTotalReq
 		logic = statistic.StatisticLogic{}
 	)
 
-	res, err := logic.StoreSalesTotal()
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, "参数错误")
+		return
+	}
+
+	res, err := logic.StoreSalesTotal(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return

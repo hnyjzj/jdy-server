@@ -5,6 +5,7 @@ import (
 	"errors"
 	"jdy/enums"
 	"jdy/model"
+	"jdy/types"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -24,14 +25,16 @@ type StoreSalesTotalRes struct {
 }
 
 type StoreSalesTotalLogic struct {
-	Db *gorm.DB
+	Db  *gorm.DB
+	Req *types.StatisticStoreSalesTotalReq
 }
 
-func (*StatisticLogic) StoreSalesTotal() (*[]StoreSalesTotalRes, error) {
+func (*StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq) (*[]StoreSalesTotalRes, error) {
 	var (
 		stores []model.Store
 		logic  = &StoreSalesTotalLogic{
-			Db: model.DB,
+			Db:  model.DB,
+			Req: req,
 		}
 		res []StoreSalesTotalRes
 	)
@@ -81,10 +84,12 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 		total sql.NullFloat64
 	)
 
-	if err := db.Model(&model.Order{}).Where(&model.Order{
-		StoreId: res.Store.Id,
-		Status:  enums.OrderStatusComplete,
-	}).Select("sum(amount_pay) as total").Scan(&total).Error; err != nil {
+	if err := db.Model(&model.Order{}).
+		Scopes(model.DurationCondition(l.Req.Duration)).
+		Where(&model.Order{
+			StoreId: res.Store.Id,
+			Status:  enums.OrderStatusComplete,
+		}).Select("sum(amount_pay) as total").Scan(&total).Error; err != nil {
 		return errors.New("获取总业绩失败")
 	}
 
@@ -99,7 +104,10 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 
 func (l *StoreSalesTotalLogic) getWhereDb() *gorm.DB {
 	db := model.DB.Model(&model.OrderProduct{})
-	db = db.Joins("JOIN products ON order_products.product_id = products.id")
+	db = db.
+		Joins("JOIN products ON order_products.product_id = products.id").
+		Where("order_products.status = ?", enums.OrderStatusComplete).
+		Scopes(model.DurationCondition(l.Req.Duration, "order_products.created_at"))
 
 	return db
 }

@@ -12,12 +12,13 @@ type StatisticController struct {
 	controller.BaseController
 }
 
-func (con StatisticController) Total(ctx *gin.Context) {
+// 门店销售统计
+func (con StatisticController) StoreSalesTotal(ctx *gin.Context) {
 	var (
 		logic = statistic.StatisticLogic{}
 	)
 
-	res, err := logic.Total()
+	res, err := logic.StoreSalesTotal()
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
@@ -26,6 +27,7 @@ func (con StatisticController) Total(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 今日销售统计
 func (con StatisticController) TodaySales(ctx *gin.Context) {
 	var (
 		req   types.StatisticTodaySalesReq

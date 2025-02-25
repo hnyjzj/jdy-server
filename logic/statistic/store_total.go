@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type TotalRes struct {
+type StoreSalesTotalRes struct {
 	Store model.Store `json:"-"` // 店铺
 
 	Name                string          `json:"name"`                  // 店铺名称
@@ -23,12 +23,12 @@ type TotalRes struct {
 	PieceAccessories    decimal.Decimal `json:"piece_accessories"`     // 计件配件
 }
 
-func (l *StatisticLogic) Total() (*[]TotalRes, error) {
+func (l *StatisticLogic) StoreSalesTotal() (*[]StoreSalesTotalRes, error) {
 	var (
 		stores []model.Store
 		db     = model.DB
 
-		res []TotalRes
+		res []StoreSalesTotalRes
 	)
 
 	sdb := db.Model(&model.Store{})
@@ -37,40 +37,40 @@ func (l *StatisticLogic) Total() (*[]TotalRes, error) {
 	}
 
 	for _, store := range stores {
-		TotalRes := TotalRes{
+		StoreSalesTotalRes := StoreSalesTotalRes{
 			Store: store,
 			Name:  store.Name,
 		}
 
-		if err := l.getTotal(&TotalRes); err != nil {
+		if err := l.getTotal(&StoreSalesTotalRes); err != nil {
 			return nil, err
 		}
-		if err := l.getSilver(&TotalRes); err != nil {
+		if err := l.getSilver(&StoreSalesTotalRes); err != nil {
 			return nil, err
 		}
-		if err := l.getGold(&TotalRes); err != nil {
+		if err := l.getGold(&StoreSalesTotalRes); err != nil {
 			return nil, err
 		}
-		// if err := l.getGoldDeduction(&TotalRes); err != nil {
+		// if err := l.getGoldDeduction(&StoreSalesTotalRes); err != nil {
 		// 	return nil, err
 		// }
-		if err := l.getGoldWeight(&TotalRes); err != nil {
+		if err := l.getGoldWeight(&StoreSalesTotalRes); err != nil {
 			return nil, err
 		}
-		// if err := l.getGoldWeightDeduction(&TotalRes); err != nil {
+		// if err := l.getGoldWeightDeduction(&StoreSalesTotalRes); err != nil {
 		// 	return nil, err
 		// }
-		if err := l.getPieceAccessories(&TotalRes); err != nil {
+		if err := l.getPieceAccessories(&StoreSalesTotalRes); err != nil {
 			return nil, err
 		}
 
-		res = append(res, TotalRes)
+		res = append(res, StoreSalesTotalRes)
 	}
 
 	return &res, nil
 }
 
-func (l *StatisticLogic) getTotal(res *TotalRes) error {
+func (l *StatisticLogic) getTotal(res *StoreSalesTotalRes) error {
 	var (
 		db    = model.DB
 		total sql.NullFloat64
@@ -99,7 +99,7 @@ func (l *StatisticLogic) getWhereDb() *gorm.DB {
 	return db
 }
 
-func (l *StatisticLogic) getSilver(res *TotalRes) error {
+func (l *StatisticLogic) getSilver(res *StoreSalesTotalRes) error {
 	var (
 		silver sql.NullFloat64
 	)
@@ -120,7 +120,7 @@ func (l *StatisticLogic) getSilver(res *TotalRes) error {
 	return nil
 }
 
-func (l *StatisticLogic) getGold(res *TotalRes) error {
+func (l *StatisticLogic) getGold(res *StoreSalesTotalRes) error {
 	var (
 		gold sql.NullFloat64
 	)
@@ -140,7 +140,7 @@ func (l *StatisticLogic) getGold(res *TotalRes) error {
 
 	return nil
 }
-func (l *StatisticLogic) getGoldWeight(res *TotalRes) error {
+func (l *StatisticLogic) getGoldWeight(res *StoreSalesTotalRes) error {
 	var (
 		goldWeight sql.NullFloat64
 	)
@@ -161,7 +161,7 @@ func (l *StatisticLogic) getGoldWeight(res *TotalRes) error {
 	return nil
 }
 
-func (l *StatisticLogic) getPieceAccessories(res *TotalRes) error {
+func (l *StatisticLogic) getPieceAccessories(res *StoreSalesTotalRes) error {
 	var (
 		pieceAccessories sql.NullFloat64
 	)

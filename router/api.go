@@ -77,8 +77,8 @@ func Api(g *gin.Engine) {
 		{
 			statistics.Use(middlewares.JWTMiddleware())
 			{
-				statistics.GET("/total", statistic.StatisticController{}.Total)             // 统计总览
-				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales) // 今日销售
+				statistics.GET("/store_sales_total", statistic.StatisticController{}.StoreSalesTotal) // 门店销售总览
+				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales)           // 今日销售
 			}
 		}
 

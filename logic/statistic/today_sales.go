@@ -6,7 +6,6 @@ import (
 	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
-	"time"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -81,7 +80,6 @@ func (l *TodaySalesLogic) getTodaySales() error {
 			Type:    enums.OrderTypeSales,
 			Status:  enums.OrderStatusComplete,
 		}).
-		Where("created_at >= ?", time.Now().Format("2006-01-02 00:00:00")).
 		Select("sum(amount_pay) as sales_amount").
 		Scan(&sales_amount).Error; err != nil {
 		return errors.New("获取今日销售数据失败")
@@ -105,7 +103,7 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 			Type:    enums.OrderTypeSales,
 			Status:  enums.OrderStatusComplete,
 		}).
-		Where("created_at >= ?", time.Now().Format("2006-01-02 00:00:00")).
+		Scopes(model.DurationCondition(enums.DurationToday)).
 		Preload("Products").
 		Find(&orders).Error; err != nil {
 		return errors.New("获取今日销售件数失败")
@@ -132,7 +130,7 @@ func (l *TodaySalesLogic) getOldGoodsAmount() error {
 			Type:    enums.OrderTypeSales,
 			Status:  enums.OrderStatusComplete,
 		}).
-		Where("created_at >= ?", time.Now().Format("2006-01-02 00:00:00")).
+		Scopes(model.DurationCondition(enums.DurationToday)).
 		Select("sum(amount_old_material) as sales_amount").
 		Scan(&old_goods_amount).Error; err != nil {
 		return errors.New("获取今日销售数据失败")
@@ -156,7 +154,7 @@ func (l *TodaySalesLogic) getReturnAmount() error {
 	// 	}).
 	//     // 查询订单
 	// 	Where("id IN (SELECT id FROM order_products WHERE order_id IN (SELECT id FROM orders WHERE store_id = ? ))", l.Req.StoreId).
-	// 	Where("created_at >= ?", time.Now().Format("2006-01-02 00:00:00")).
+	//  Scopes(model.DurationCondition(enums.DurationToday)).
 	// 	Select("sum(amount) as return_amount").
 	// 	Scan(&return_amount).Error; err != nil {
 	// 	return errors.New("获取退货金额失败")

@@ -33,8 +33,6 @@ type ProductEnterReqProduct struct {
 	Price     decimal.Decimal `json:"price" binding:"required"`      // 标签价
 	LaborFee  decimal.Decimal `json:"labor_fee" binding:"required"`  // 工费
 
-	Stock int64 `json:"stock" binding:"required"` // 库存
-
 	Weight      decimal.Decimal         `json:"weight" binding:"-"`             // 总重量
 	WeightMetal decimal.Decimal         `json:"weight_metal" binding:"-"`       // 金重
 	WeightGem   decimal.Decimal         `json:"weight_gem" binding:"-"`         // 主石重
@@ -55,6 +53,9 @@ type ProductEnterReqProduct struct {
 	Craft       enums.ProductCraft      `json:"craft" binding:"-"`              // 工艺
 	Style       string                  `json:"style" binding:"-"`              // 款式
 	Size        string                  `json:"size" binding:"-"`               // 手寸
+	Type        enums.ProductType       `json:"type" binding:"-"`               // 类型
+
+	Stock int64 `json:"stock" binding:"required"` // 库存
 
 	IsSpecialOffer bool     `json:"is_special_offer" binding:"-"` // 是否特价
 	Remark         string   `json:"remark" binding:"-"`           // 备注
@@ -96,6 +97,8 @@ type ProductWhere struct {
 	Certificate    []string            `json:"certificate" label:"证书" find:"true" create:"true" update:"true" sort:"28" type:"string[]" input:"textarea"`           // 证书
 	Status         enums.ProductStatus `json:"status" label:"状态" find:"true" create:"false" update:"false" sort:"29" type:"number" input:"select" preset:"typeMap"` // 状态
 	Type           enums.ProductType   `json:"type" label:"类型" find:"true" create:"true" update:"false" sort:"30" type:"number" input:"select" preset:"typeMap"`    // 类型
+
+	Stock int64 `json:"stock" label:"库存" find:"false" create:"true" update:"false" sort:"31" type:"number" input:"number"` // 库存
 
 	ProductEnterId string `json:"product_enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"` // 产品入库单ID
 }

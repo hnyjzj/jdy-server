@@ -49,6 +49,8 @@ type Product struct {
 	Status         enums.ProductStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"`                // 状态
 	Type           enums.ProductType   `json:"type" gorm:"type:tinyint(2);comment:类型;"`                  // 类型
 
+	Stock int64 `json:"stock" gorm:"comment:库存;"` // 库存
+
 	ProductEnterId string        `json:"product_enter_id" gorm:"type:varchar(255);not NULL;comment:产品入库单ID;"`         // 产品入库单ID
 	ProductEnter   *ProductEnter `json:"product_enter" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品入库单;"` // 产品入库单
 

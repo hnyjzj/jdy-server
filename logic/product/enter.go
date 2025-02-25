@@ -22,6 +22,7 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 		if err != nil {
 			return nil
 		}
+
 		if len(data) == 0 {
 			return errors.New("产品录入失败")
 		}
@@ -49,8 +50,11 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 
 			// 产品入库
 			v.Status = enums.ProductStatusNormal
-			v.Type = enums.ProductTypeFinished
 			v.ProductEnterId = enter.Id
+			if v.Stock == 0 {
+				v.Stock = 1
+			}
+
 			if err := tx.Create(&v).Error; err != nil {
 				continue
 			}

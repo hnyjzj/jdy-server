@@ -75,7 +75,7 @@ func Api(g *gin.Engine) {
 		// 统计
 		statistics := r.Group("/statistic")
 		{
-			staffs.Use(middlewares.JWTMiddleware())
+			statistics.Use(middlewares.JWTMiddleware())
 			{
 				statistics.GET("/total", statistic.StatisticController{}.Total)             // 统计总览
 				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales) // 今日销售

@@ -54,8 +54,9 @@ func (l *TodayProductLogic) getProductStockCount() error {
 
 	if err := l.Db.Model(&model.Product{}).
 		Where(&model.Product{
-			Status: enums.ProductStatusNormal,
-			Type:   enums.ProductTypeFinished,
+			Status:  enums.ProductStatusNormal,
+			Type:    enums.ProductTypeFinished,
+			StoreId: l.Req.StoreId,
 		}).Select("sum(stock) as count").Scan(&count).Error; err != nil {
 
 		return errors.New("获取成品库存件数失败")
@@ -83,8 +84,9 @@ func (l *TodayProductLogic) getOldStock() error {
 
 	if err := l.Db.Model(&model.Product{}).
 		Where(&model.Product{
-			Status: enums.ProductStatusNormal,
-			Type:   enums.ProductTypeOld,
+			Status:  enums.ProductStatusNormal,
+			StoreId: l.Req.StoreId,
+			Type:    enums.ProductTypeOld,
 		}).Select("sum(stock) as count, sum(weight_metal) as weight").Scan(&res).Error; err != nil {
 
 		return errors.New("获取旧料库存件数失败")
@@ -113,7 +115,8 @@ func (l *TodayProductLogic) getUnsalableCount() error {
 
 	if err := l.Db.Model(&model.Product{}).
 		Where(&model.Product{
-			Status: enums.ProductStatusNormal,
+			Status:  enums.ProductStatusNormal,
+			StoreId: l.Req.StoreId,
 		}).
 		Where("type in (?)", []enums.ProductType{enums.ProductTypeFinished, enums.ProductTypeOld}). // 成品、旧料
 		// 创建时间大于 6 个月，即为滞销货品

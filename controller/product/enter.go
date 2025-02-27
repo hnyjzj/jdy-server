@@ -38,6 +38,11 @@ func (con ProductEnterController) Create(ctx *gin.Context) {
 		return
 	}
 
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	// 调用逻辑层
 	res, err := logic.Enter(&req)
 	if err != nil {

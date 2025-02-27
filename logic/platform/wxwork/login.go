@@ -6,7 +6,6 @@ import (
 	"jdy/errors"
 	"jdy/message"
 	"jdy/model"
-	"jdy/types"
 	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
@@ -112,7 +111,7 @@ func (l *wxworkLoginLogic) getCodeUserInfo(code string) error {
 	}
 
 	l.UserInfo = &model.Account{
-		Platform: types.PlatformTypeWxWork,
+		Platform: enums.PlatformTypeWxWork,
 		Username: &user.UserID,
 	}
 
@@ -144,7 +143,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 	var gender enums.Gender
 
 	l.UserInfo = &model.Account{
-		Platform: types.PlatformTypeWxWork,
+		Platform: enums.PlatformTypeWxWork,
 
 		Phone:    &detail.Mobile,
 		Username: &user.UserID,
@@ -161,7 +160,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 func (l *wxworkLoginLogic) getAccount(isRegister bool) error {
 	// 查询账号
 	if err := l.Db.Where(&model.Account{
-		Platform: types.PlatformTypeWxWork,
+		Platform: enums.PlatformTypeWxWork,
 		Username: l.UserInfo.Username,
 	}).First(&l.Account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -175,7 +174,7 @@ func (l *wxworkLoginLogic) getAccount(isRegister bool) error {
 			return errors.New("账号不存在")
 		}
 		l.Account = &model.Account{
-			Platform: types.PlatformTypeWxWork,
+			Platform: enums.PlatformTypeWxWork,
 			Username: l.UserInfo.Username,
 		}
 
@@ -243,7 +242,7 @@ func (l *wxworkLoginLogic) register() error {
 			// 查询账号
 			var account *model.Account
 			err := l.Db.Where(&model.Account{
-				Platform: types.PlatformTypeAccount,
+				Platform: enums.PlatformTypeAccount,
 				Phone:    l.UserInfo.Phone,
 			}).First(&account).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -254,7 +253,7 @@ func (l *wxworkLoginLogic) register() error {
 			if account.Id == "" {
 				password := utils.RandomAlphanumeric(8)
 				account = &model.Account{
-					Platform: types.PlatformTypeAccount,
+					Platform: enums.PlatformTypeAccount,
 					Phone:    l.UserInfo.Phone,
 					Password: &password,
 					Username: l.UserInfo.Username,
@@ -291,7 +290,7 @@ func (l *wxworkLoginLogic) getStaff() error {
 	// 查询账号
 	if err := l.Db.
 		Preload("Account", func(db *gorm.DB) *gorm.DB {
-			return db.Where(&model.Account{Platform: types.PlatformTypeWxWork})
+			return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 		}).First(&l.Staff, l.Account.StaffId).Error; err != nil {
 		return errors.ErrStaffNotFound
 	}

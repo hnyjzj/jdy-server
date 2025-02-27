@@ -28,12 +28,12 @@ func (StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffReq) *errors.Err
 
 	// 创建账号
 	switch l.Req.Platform {
-	case types.PlatformTypeAccount:
+	case enums.PlatformTypeAccount:
 		if err := l.account(); err != nil {
 			l.Db.Rollback()
 			return errors.New(err.Error())
 		}
-	case types.PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 
 		if err := l.wxwork(); err != nil {
 			l.Db.Rollback()
@@ -64,7 +64,7 @@ func (l *AccountCreateLogic) account() error {
 	var account model.Account
 	if err := tx.Unscoped().
 		Where(&model.Account{
-			Platform: types.PlatformTypeAccount,
+			Platform: enums.PlatformTypeAccount,
 			Phone:    &req.Phone,
 		}).
 		First(&account).Error; err != nil {
@@ -94,7 +94,7 @@ func (l *AccountCreateLogic) account() error {
 
 	// 创建账号
 	account = model.Account{
-		Platform: types.PlatformTypeAccount,
+		Platform: enums.PlatformTypeAccount,
 
 		Phone:    &req.Phone,
 		Password: &req.Password,
@@ -162,7 +162,7 @@ func (l *AccountCreateLogic) wxwork() error {
 		if err := tx.
 			Unscoped().
 			Where(&model.Account{
-				Platform: types.PlatformTypeWxWork,
+				Platform: enums.PlatformTypeWxWork,
 				Username: &user.UserID,
 			}).
 			First(&account).
@@ -176,7 +176,7 @@ func (l *AccountCreateLogic) wxwork() error {
 
 		// 创建账号
 		acc := &model.Account{
-			Platform: types.PlatformTypeWxWork,
+			Platform: enums.PlatformTypeWxWork,
 			Username: &user.UserID,
 
 			Nickname: &user.Name,

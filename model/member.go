@@ -38,10 +38,10 @@ type Member struct {
 
 func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	if query.Phone != nil {
-		db = db.Where("phone = ?", *query.Phone)
+		db = db.Where("phone like ?", "%"+*query.Phone+"%")
 	}
 	if query.Name != "" {
-		db = db.Where("name = ?", query.Name)
+		db = db.Where("name like ?", "%"+query.Name+"%")
 	}
 	if query.Gender != 0 {
 		db = db.Where("gender = ?", query.Gender)
@@ -53,7 +53,7 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 		db = db.Where("anniversary = ?", query.Anniversary)
 	}
 	if query.Nickname != "" {
-		db = db.Where("nickname = ?", query.Nickname)
+		db = db.Where("nickname like ?", "%"+query.Nickname+"%")
 	}
 	if query.Level != 0 {
 		db = db.Where("level = ?", query.Level)
@@ -121,8 +121,8 @@ func (M *Member) IntegralChange(db *gorm.DB, change decimal.Decimal, types enums
 type MemberIntegralLog struct {
 	SoftDelete
 
-	MemberId string `json:"memberId" gorm:"column:member_id;size:255;not NULL;comment:会员id;"` // 会员id
-	Member   Member `json:"-" gorm:"foreignKey:MemberId;references:Id;"`                      // 会员
+	MemberId string `json:"member_id" gorm:"column:member_id;size:255;not NULL;comment:会员id;"` // 会员id
+	Member   Member `json:"member,omitempty" gorm:"foreignKey:MemberId;references:Id;"`        // 会员
 
 	Change     decimal.Decimal                `json:"change" gorm:"column:change;type:decimal(10,2);not NULL;default:0;comment:变动积分;"`        // 变动积分
 	ChangeType enums.MemberIntegralChangeType `json:"change_type" gorm:"column:change_type;type:tinyint(1);not NULL;default:0;comment:变动类型;"` // 变动类型

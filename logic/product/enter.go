@@ -22,11 +22,13 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 		if err != nil {
 			return nil
 		}
+
 		if len(data) == 0 {
 			return errors.New("产品录入失败")
 		}
 
 		enter := model.ProductEnter{
+			StoreId:    req.StoreId,
 			OperatorId: l.Staff.Id,
 			IP:         l.Ctx.ClientIP(),
 		}
@@ -48,10 +50,18 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 			}
 
 			// 产品入库
-			v.Status = enums.ProductStatusNormal
-			v.Type = enums.ProductTypeFinished
 			v.ProductEnterId = enter.Id
+			v.StoreId = req.StoreId
+			if v.Stock == 0 {
+				v.Stock = 1
+			}
+
 			if err := tx.Create(&v).Error; err != nil {
+				continue
+			}
+
+			// 更新产品状态
+			if err := v.UpdateStatus(tx, enums.ProductStatusNormal, enums.ProductStatusActionEntry, enter.Id, l.Staff); err != nil {
 				continue
 			}
 
@@ -61,6 +71,10 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 
 		if success == 0 {
 			return errors.New("产品录入失败")
+		}
+
+		if success != len(data) {
+			return errors.New("部分产品录入失败")
 		}
 
 		return nil

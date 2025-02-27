@@ -12,8 +12,9 @@ import (
 )
 
 type OrderCreateLogic struct {
-	Ctx *gin.Context
-	Tx  *gorm.DB
+	Ctx   *gin.Context
+	Tx    *gorm.DB
+	Staff *types.Staff
 
 	Req *types.OrderCreateReq
 
@@ -25,8 +26,9 @@ type OrderCreateLogic struct {
 // 创建订单
 func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 	l := OrderCreateLogic{
-		Ctx: c.Ctx,
-		Req: req,
+		Ctx:   c.Ctx,
+		Req:   req,
+		Staff: c.Staff,
 		Order: &model.Order{
 			Type:      req.Type,
 			Status:    enums.OrderStatusWaitPay,
@@ -49,6 +51,11 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 			return err
 		}
 
+		// 创建订单
+		if err := tx.Create(&l.Order).Error; err != nil {
+			return err
+		}
+
 		// 计算金额
 		if err := l.getAmount(); err != nil {
 			return err
@@ -64,8 +71,8 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 			return err
 		}
 
-		// 创建订单
-		if err := tx.Create(&l.Order).Error; err != nil {
+		// 更新订单
+		if err := tx.Save(&l.Order).Error; err != nil {
 			return err
 		}
 
@@ -171,7 +178,7 @@ func (l *OrderCreateLogic) loopSales() error {
 		l.Order.Products = append(l.Order.Products, order_product)
 
 		// 更新商品状态
-		if err := l.updateProductStatus(product.Id, enums.ProductStatusSold); err != nil {
+		if err := product.UpdateStatus(l.Tx, enums.ProductStatusSold, enums.ProductStatusActionOrder, l.Order.Id, l.Staff); err != nil {
 			return err
 		}
 
@@ -199,20 +206,6 @@ func (l *OrderCreateLogic) getProduct(product_id string) (*model.Product, error)
 	}
 
 	return &product, nil
-}
-
-// 更新商品状态
-func (l *OrderCreateLogic) updateProductStatus(product_id string, status enums.ProductStatus) error {
-	db := l.Tx.Model(&model.Product{})
-	db = db.Where("id = ?", product_id)
-
-	if err := db.Updates(model.Product{
-		Status: status,
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // 计算整单优惠

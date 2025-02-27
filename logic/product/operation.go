@@ -28,19 +28,19 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		// 更新产品状态
-		product.Status = enums.ProductStatusDamage
-		if err := tx.Save(&product).Error; err != nil {
-			return err
-		}
 
-		// 添加报损记录
-		if err := tx.Create(&model.ProductDamage{
+		log := &model.ProductDamage{
 			ProductId:  product.Id,
 			OperatorId: l.Staff.Id,
 			Reason:     req.Reason,
 			IP:         l.Ctx.ClientIP(),
-		}).Error; err != nil {
+		}
+		// 添加报损记录
+		if err := tx.Create(&log).Error; err != nil {
+			return err
+		}
+		// 更新产品状态
+		if err := product.UpdateStatus(tx, enums.ProductStatusDamage, enums.ProductStatusActionDamage, log.Id, l.Staff); err != nil {
 			return err
 		}
 

@@ -29,6 +29,9 @@ var ProductStatusMap = map[ProductStatus]string{
 // 判断状态是否可以转换
 func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
 	transitions := map[ProductStatus][]ProductStatus{
+		ProductStatusAll: {
+			ProductStatusNormal,
+		},
 		ProductStatusNormal: {
 			ProductStatusDamage,
 			ProductStatusAllocate,

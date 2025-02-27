@@ -9,6 +9,7 @@ import (
 )
 
 type ProductEnterReq struct {
+	StoreId  string                   `json:"store_id" binding:"required"` // 门店ID
 	Products []ProductEnterReqProduct `json:"products" binding:"required"`
 }
 

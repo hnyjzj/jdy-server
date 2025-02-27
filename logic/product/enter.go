@@ -28,6 +28,7 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 		}
 
 		enter := model.ProductEnter{
+			StoreId:    req.StoreId,
 			OperatorId: l.Staff.Id,
 			IP:         l.Ctx.ClientIP(),
 		}
@@ -49,13 +50,18 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 			}
 
 			// 产品入库
-			v.Status = enums.ProductStatusNormal
 			v.ProductEnterId = enter.Id
+			v.StoreId = req.StoreId
 			if v.Stock == 0 {
 				v.Stock = 1
 			}
 
 			if err := tx.Create(&v).Error; err != nil {
+				continue
+			}
+
+			// 更新产品状态
+			if err := v.UpdateStatus(tx, enums.ProductStatusNormal, enums.ProductStatusActionEntry, enter.Id, l.Staff); err != nil {
 				continue
 			}
 

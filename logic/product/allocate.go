@@ -249,15 +249,26 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 			}
 
 			data := &model.Product{
-				Status:  enums.ProductStatusNormal,
 				StoreId: allocate.ToStoreId,
 				Type:    allocate.Type,
 			}
 
 			// 解锁产品
-			if err := model.DB.Model(&product).Updates(data).Error; err != nil {
+			if err := model.DB.Model(&model.Product{}).Where("id = ?", product.Id).Updates(data).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
+
+			// 更新产品状态
+			if err := product.UpdateStatus(
+				tx,
+				enums.ProductStatusNormal,
+				enums.ProductStatusActionTransfer,
+				allocate.Id,
+				p.Staff,
+			); err != nil {
+				return errors.New(fmt.Sprintf("【%s】%s 更新状态失败", product.Code, product.Name))
+			}
+
 		}
 
 		// 确认调拨

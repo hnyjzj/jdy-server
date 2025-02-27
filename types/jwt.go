@@ -20,4 +20,5 @@ type Staff struct {
 	IsDisabled bool `json:"is_disabled"`
 
 	Platform enums.PlatformType `json:"platform"`
+	IP       string             `json:"ip"`
 }

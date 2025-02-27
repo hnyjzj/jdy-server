@@ -80,9 +80,8 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 		},
 	}
 
-	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
-		log.Println("发送消息失败:", err)
-		fmt.Printf("a: %+v\n", a)
+	if response, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
+		log.Printf("发送消息失败: err=%v, response=%+v\n", err, response)
 	}
 }
 
@@ -160,8 +159,7 @@ func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpd
 		},
 	}
 
-	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
-		log.Println("发送消息失败:", err)
-		fmt.Printf("a: %+v\n", a)
+	if response, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
+		log.Printf("发送消息失败: err=%v, response=%+v\n", err, response)
 	}
 }

@@ -12,8 +12,9 @@ import (
 )
 
 type OrderCreateLogic struct {
-	Ctx *gin.Context
-	Tx  *gorm.DB
+	Ctx   *gin.Context
+	Tx    *gorm.DB
+	Staff *types.Staff
 
 	Req *types.OrderCreateReq
 
@@ -25,8 +26,9 @@ type OrderCreateLogic struct {
 // 创建订单
 func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 	l := OrderCreateLogic{
-		Ctx: c.Ctx,
-		Req: req,
+		Ctx:   c.Ctx,
+		Req:   req,
+		Staff: c.Staff,
 		Order: &model.Order{
 			Type:      req.Type,
 			Status:    enums.OrderStatusWaitPay,
@@ -49,6 +51,11 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 			return err
 		}
 
+		// 创建订单
+		if err := tx.Create(&l.Order).Error; err != nil {
+			return err
+		}
+
 		// 计算金额
 		if err := l.getAmount(); err != nil {
 			return err
@@ -59,8 +66,13 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 			return err
 		}
 
-		// 创建订单
-		if err := tx.Create(&l.Order).Error; err != nil {
+		// 计算业绩
+		if err := l.getPerformance(); err != nil {
+			return err
+		}
+
+		// 更新订单
+		if err := tx.Save(&l.Order).Error; err != nil {
 			return err
 		}
 
@@ -150,9 +162,10 @@ func (l *OrderCreateLogic) loopSales() error {
 		// 折扣价
 		amount_discount = amount.Mul(discount)
 
-		// 添加记录
+		// 添加订单商品
 		order_product := model.OrderProduct{
 			ProductId: product.Id,
+			Status:    enums.OrderStatusWaitPay,
 
 			Quantity:       p.Quantity,
 			Price:          price,
@@ -164,8 +177,23 @@ func (l *OrderCreateLogic) loopSales() error {
 		}
 		l.Order.Products = append(l.Order.Products, order_product)
 
+		// 添加记录
+		if err := l.Tx.Create(&model.ProductHistory{
+			Action:     enums.ProductActionOrder,
+			Key:        "status",
+			Value:      enums.ProductStatusSold,
+			OldValue:   product.Status,
+			ProductId:  product.Id,
+			StoreId:    product.StoreId,
+			SourceId:   l.Order.Id,
+			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
+		}).Error; err != nil {
+			return err
+		}
 		// 更新商品状态
-		if err := l.updateProductStatus(product.Id, enums.ProductStatusSold); err != nil {
+		product.Status = enums.ProductStatusSold
+		if err := l.Tx.Save(&product).Error; err != nil {
 			return err
 		}
 
@@ -195,20 +223,6 @@ func (l *OrderCreateLogic) getProduct(product_id string) (*model.Product, error)
 	return &product, nil
 }
 
-// 更新商品状态
-func (l *OrderCreateLogic) updateProductStatus(product_id string, status enums.ProductStatus) error {
-	db := l.Tx.Model(&model.Product{})
-	db = db.Where("id = ?", product_id)
-
-	if err := db.Updates(model.Product{
-		Status: status,
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // 计算整单优惠
 func (l *OrderCreateLogic) getDiscount() error {
 	// 判断整单折扣
@@ -222,6 +236,33 @@ func (l *OrderCreateLogic) getDiscount() error {
 	// 抹零
 	l.Order.AmountReduce = l.Req.AmountReduce
 	l.Order.Amount = l.Order.Amount.Sub(l.Req.AmountReduce)
+
+	return nil
+}
+
+// 计算业绩
+func (l *OrderCreateLogic) getPerformance() error {
+	// 添加导购员业绩
+	for _, s := range l.Req.Salesmans {
+		var salesman model.Staff
+		db := l.Tx.Model(&model.Staff{})
+		db = db.Where("id = ?", s.SalesmanId)
+		db = db.Where(&model.Staff{IsDisabled: false})
+		if err := db.First(&salesman).Error; err != nil {
+			return err
+		}
+
+		// 计算业绩 佣金 = 佣金率/100 * 订单金额
+		performance := l.Order.Amount.Mul(s.PerformanceRate).Div(decimal.NewFromFloat(100))
+
+		// 添加导购员业绩
+		l.Order.Salesmans = append(l.Order.Salesmans, model.OrderSalesman{
+			SalesmanId:        salesman.Id,
+			PerformanceRate:   s.PerformanceRate,
+			PerformanceAmount: performance,
+			IsMain:            s.IsMain,
+		})
+	}
 
 	return nil
 }

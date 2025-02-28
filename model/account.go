@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 	"jdy/enums"
-	"jdy/types"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -11,7 +10,7 @@ import (
 
 type Account struct {
 	SoftDelete
-	Platform types.PlatformType `json:"platform" gorm:"index;comment:平台"`
+	Platform enums.PlatformType `json:"platform" gorm:"index;comment:平台"`
 
 	Phone    *string `json:"phone" gorm:"index;size:11;comment:手机号"`
 	Username *string `json:"username" gorm:"index;comment:用户名"`

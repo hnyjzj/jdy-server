@@ -78,7 +78,7 @@ func JWTMiddleware() gin.HandlerFunc {
 		// 如果 token 验证通过，则将用户信息注入到 context 中，并继续处理请求
 		if ok && token.Valid {
 			// 获取缓存中的 token
-			res, err := redis.Client.Get(c, types.GetTokenName(claims.Staff.Phone)).Result()
+			res, err := redis.Client.Get(c, types.GetTokenName(*claims.Staff.Phone)).Result()
 			// 如果缓存中没有 token 或者 token 不一致，则返回 401
 			if err == redisv9.Nil || res != tokenString {
 				c.JSON(http.StatusUnauthorized, gin.H{

@@ -1,14 +1,9 @@
 package types
 
-type PlatformType string
-
-const (
-	PlatformTypeAccount PlatformType = "account"
-	PlatformTypeWxWork  PlatformType = "wxwork"
-)
+import "jdy/enums"
 
 type PlatformReq struct {
-	Platform PlatformType `json:"platform" binding:"required"` // 平台类型，可选值：wxwork
+	Platform enums.PlatformType `json:"platform" binding:"required"` // 平台类型，可选值：wxwork
 }
 
 type PlatformOAuthReq struct {

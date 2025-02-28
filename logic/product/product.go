@@ -28,14 +28,14 @@ func (p *ProductLogic) List(req *types.ProductListReq) (*types.PageRes[model.Pro
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取产品列表失败: " + err.Error())
+		return nil, errors.New("获取产品列表失败")
 	}
 
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 	if err := db.Find(&res.List).Error; err != nil {
-		return nil, errors.New("获取产品列表失败: " + err.Error())
+		return nil, errors.New("获取产品列表失败")
 	}
 
 	return &res, nil
@@ -47,9 +47,12 @@ func (p *ProductLogic) Info(req *types.ProductInfoReq) (*model.Product, error) {
 		product model.Product
 	)
 
-	if err := model.DB.Where(model.Product{
-		Code: req.Code,
-	}).First(&product).Error; err != nil {
+	if err := model.DB.
+		Where(model.Product{
+			Code: req.Code,
+		}).
+		Preload("Store").
+		First(&product).Error; err != nil {
 		return nil, errors.New("获取产品信息失败")
 	}
 
@@ -75,4 +78,32 @@ func (p *ProductLogic) Update(req *types.ProductUpdateReq) error {
 	}
 
 	return nil
+}
+
+// 产品操作记录列表
+func (l *ProductLogic) History(req *types.ProductHistoryReq) (*types.PageRes[model.ProductHistory], error) {
+	var (
+		logs model.ProductHistory
+
+		res types.PageRes[model.ProductHistory]
+	)
+
+	db := model.DB.Model(&logs)
+	db = logs.WhereCondition(db, &req.Where)
+
+	// 获取总数
+	if err := db.Count(&res.Total).Error; err != nil {
+		return nil, errors.New("获取总数失败")
+	}
+
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = model.PageCondition(db, req.Page, req.Limit)
+	db = db.Preload("Operator")
+	db = db.Preload("Product")
+	if err := db.Find(&res.List).Error; err != nil {
+		return nil, errors.New("获取列表失败")
+	}
+
+	return &res, nil
 }

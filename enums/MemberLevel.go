@@ -1,6 +1,8 @@
 package enums
 
-import "errors"
+import (
+	"errors"
+)
 
 /* 会员等级 */
 // 全部、银卡、金卡、钻石卡
@@ -32,3 +34,13 @@ func (p MemberLevel) InMap() error {
 	}
 	return nil
 }
+
+// func (s MemberLevel) MarshalJSON() ([]byte, error) {
+// 	return json.Marshal(struct {
+// 		Value int    `json:"value"`
+// 		Desc  string `json:"desc"`
+// 	}{
+// 		Value: int(s),
+// 		Desc:  MemberLevelMap[s],
+// 	})
+// }

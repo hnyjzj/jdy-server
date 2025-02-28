@@ -21,8 +21,8 @@ type Staff struct {
 
 	IsDisabled bool `json:"is_disabled" gorm:"comment:是否禁用"`
 
-	Account  *Account  `json:"account" gorm:"foreignKey:StaffId;references:Id;"`
-	Accounts []Account `json:"accounts" gorm:"foreignKey:StaffId;references:Id;"`
+	Account  *Account  `json:"account,omitempty" gorm:"foreignKey:StaffId;references:Id;"`
+	Accounts []Account `json:"accounts,omitempty" gorm:"foreignKey:StaffId;references:Id;"`
 
 	Stores []Store `json:"stores" gorm:"many2many:stores_staffs;"`
 }

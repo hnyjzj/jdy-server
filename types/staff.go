@@ -9,7 +9,7 @@ import (
 
 // 员工请求
 type StaffReq struct {
-	Platform PlatformType `json:"platform" binding:"required"` // 平台
+	Platform enums.PlatformType `json:"platform" binding:"required"` // 平台
 
 	Account *StaffAccountReq `json:"account,omitempty"` // 账号信息
 	WxWork  *StaffWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
@@ -18,7 +18,7 @@ type StaffReq struct {
 func (req *StaffReq) Validate() error {
 	validate := validator.New()
 	switch req.Platform {
-	case PlatformTypeAccount:
+	case enums.PlatformTypeAccount:
 		if req.Account == nil {
 			return errors.New("账号信息是必填项")
 		}
@@ -26,7 +26,7 @@ func (req *StaffReq) Validate() error {
 		if err := validate.Struct(req.Account); err != nil {
 			return err
 		}
-	case PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 		if req.WxWork == nil {
 			return errors.New("企业微信信息是必填项")
 		}
@@ -59,6 +59,7 @@ type StaffWxWorkReq struct {
 
 // 员工响应
 type StaffRes struct {
+	Id    int64  `json:"id"`
 	Phone string `json:"phone"`
 
 	Nickname string       `json:"nickname"`
@@ -69,7 +70,7 @@ type StaffRes struct {
 
 // 更新请求
 type StaffUpdateReq struct {
-	Platform PlatformType `json:"platform" binding:"required"` // 平台
+	Platform enums.PlatformType `json:"platform" binding:"required"` // 平台
 
 	Account *StaffUpdateAccountReq `json:"account,omitempty"` // 账号信息
 	WxWork  *StaffUpdateWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
@@ -78,7 +79,7 @@ type StaffUpdateReq struct {
 func (req *StaffUpdateReq) Validate() error {
 	validate := validator.New()
 	switch req.Platform {
-	case PlatformTypeAccount:
+	case enums.PlatformTypeAccount:
 		if req.Account == nil {
 			return errors.New("账号信息是必填项")
 		}
@@ -86,7 +87,7 @@ func (req *StaffUpdateReq) Validate() error {
 		if err := validate.Struct(req.Account); err != nil {
 			return err
 		}
-	case PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 		if req.WxWork == nil {
 			return errors.New("企业微信信息是必填项")
 		}
@@ -115,11 +116,11 @@ type StaffUpdateWxWorkReq struct {
 }
 
 type StaffWhere struct {
-	Phone      string       `json:"phone" label:"手机号" show:"true" sort:"1" type:"string" input:"text"`
-	StoreId    string       `json:"store_id" label:"所属门店" show:"true" sort:"2" type:"string" input:"search"`
-	Nickname   string       `json:"nickname" label:"姓名" show:"true" sort:"3" type:"string" input:"text"`
-	Gender     enums.Gender `json:"gender" label:"性别" show:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`
-	IsDisabled bool         `json:"is_disabled" label:"是否禁用" show:"true" sort:"5" type:"boolean" input:"switch"`
+	Phone      string       `json:"phone" label:"手机号" find:"true" sort:"1" type:"string" input:"text"`
+	StoreId    string       `json:"store_id" label:"所属门店" find:"true" sort:"2" type:"string" input:"search"`
+	Nickname   string       `json:"nickname" label:"姓名" find:"true" sort:"3" type:"string" input:"text"`
+	Gender     enums.Gender `json:"gender" label:"性别" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`
+	IsDisabled bool         `json:"is_disabled" label:"是否禁用" find:"true" sort:"5" type:"boolean" input:"switch"`
 }
 
 type StaffListReq struct {

@@ -258,17 +258,25 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
 
-			// 更新产品状态
-			if err := product.UpdateStatus(
-				tx,
-				enums.ProductStatusNormal,
-				enums.ProductStatusActionTransfer,
-				allocate.Id,
-				p.Staff,
-			); err != nil {
-				return errors.New(fmt.Sprintf("【%s】%s 更新状态失败", product.Code, product.Name))
+			// 添加记录
+			if err := tx.Create(&model.ProductHistory{
+				Action:     enums.ProductActionTransfer,
+				Key:        "status",
+				Value:      enums.ProductStatusNormal,
+				OldValue:   product.Status,
+				ProductId:  product.Id,
+				StoreId:    product.StoreId,
+				SourceId:   allocate.Id,
+				OperatorId: p.Staff.Id,
+				IP:         p.Ctx.ClientIP(),
+			}).Error; err != nil {
+				return err
 			}
-
+			// 更新商品状态
+			product.Status = enums.ProductStatusNormal
+			if err := tx.Save(&product).Error; err != nil {
+				return err
+			}
 		}
 
 		// 确认调拨

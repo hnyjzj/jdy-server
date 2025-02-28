@@ -177,6 +177,16 @@ func Api(g *gin.Engine) {
 					inventory.PUT("/change", product.ProductInventoryController{}.Change)  // 盘点单变化
 				}
 			}
+
+			// 产品盘点
+			history := products.Group("/history")
+			{
+				history.GET("/where", product.ProductController{}.HistoryWhere) // 产品操作记录筛选
+				history.Use(middlewares.JWTMiddleware())
+				{
+					history.POST("/", product.ProductController{}.History) // 产品操作记录列表
+				}
+			}
 		}
 
 		// 会员

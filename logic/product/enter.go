@@ -60,9 +60,24 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 				continue
 			}
 
-			// 更新产品状态
-			if err := v.UpdateStatus(tx, enums.ProductStatusNormal, enums.ProductStatusActionEntry, enter.Id, l.Staff); err != nil {
-				continue
+			// 添加记录
+			if err := tx.Create(&model.ProductHistory{
+				Action:     enums.ProductActionEntry,
+				Key:        "status",
+				Value:      enums.ProductStatusNormal,
+				OldValue:   v.Status,
+				ProductId:  v.Id,
+				StoreId:    v.StoreId,
+				SourceId:   enter.Id,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}).Error; err != nil {
+				return err
+			}
+			// 更新商品状态
+			v.Status = enums.ProductStatusNormal
+			if err := tx.Save(&v).Error; err != nil {
+				return err
 			}
 
 			products[v.Code] = true

@@ -39,8 +39,24 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 		if err := tx.Create(&log).Error; err != nil {
 			return err
 		}
-		// 更新产品状态
-		if err := product.UpdateStatus(tx, enums.ProductStatusDamage, enums.ProductStatusActionDamage, log.Id, l.Staff); err != nil {
+
+		// 添加记录
+		if err := tx.Create(&model.ProductHistory{
+			Action:     enums.ProductActionDamage,
+			Key:        "status",
+			Value:      enums.ProductStatusNormal,
+			OldValue:   product.Status,
+			ProductId:  product.Id,
+			StoreId:    product.StoreId,
+			SourceId:   log.Id,
+			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
+		}).Error; err != nil {
+			return err
+		}
+		// 更新商品状态
+		product.Status = enums.ProductStatusNormal
+		if err := tx.Save(&product).Error; err != nil {
 			return err
 		}
 

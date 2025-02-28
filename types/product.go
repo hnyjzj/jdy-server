@@ -101,6 +101,8 @@ type ProductWhere struct {
 
 	Stock int64 `json:"stock" label:"库存" find:"false" create:"true" update:"false" sort:"31" type:"number" input:"number"` // 库存
 
+	StoreId string `json:"store_id" label:"门店" find:"true" create:"true" update:"false" sort:"32" type:"string" input:"text"` // 门店
+
 	ProductEnterId string `json:"product_enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"` // 产品入库单ID
 }
 
@@ -157,6 +159,17 @@ type ProductDamageReq struct {
 type ProductConversionReq struct {
 	Code string            `json:"code" binding:"required"` // 条码
 	Type enums.ProductType `json:"type" binding:"required"` // 仓库类型
+}
+
+type ProductHistoryWhere struct {
+	ProductId string              `json:"product_id" label:"产品" input:"text" type:"string" find:"true" sort:"1" required:"true"`                // 产品
+	StoreId   string              `json:"store_id" label:"门店" input:"text" type:"string" find:"true" sort:"2" required:"true"`                  // 门店
+	Action    enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"3" required:"true" preset:"typeMap"` // 操作
+}
+
+type ProductHistoryReq struct {
+	PageReq
+	Where ProductHistoryWhere `json:"where" binding:"required"`
 }
 
 type ProductAllocateCreateReq struct {

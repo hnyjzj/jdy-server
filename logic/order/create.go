@@ -177,8 +177,23 @@ func (l *OrderCreateLogic) loopSales() error {
 		}
 		l.Order.Products = append(l.Order.Products, order_product)
 
+		// 添加记录
+		if err := l.Tx.Create(&model.ProductHistory{
+			Action:     enums.ProductActionOrder,
+			Key:        "status",
+			Value:      enums.ProductStatusSold,
+			OldValue:   product.Status,
+			ProductId:  product.Id,
+			StoreId:    product.StoreId,
+			SourceId:   l.Order.Id,
+			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
+		}).Error; err != nil {
+			return err
+		}
 		// 更新商品状态
-		if err := product.UpdateStatus(l.Tx, enums.ProductStatusSold, enums.ProductStatusActionOrder, l.Order.Id, l.Staff); err != nil {
+		product.Status = enums.ProductStatusSold
+		if err := l.Tx.Save(&product).Error; err != nil {
 			return err
 		}
 

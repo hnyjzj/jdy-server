@@ -9,13 +9,13 @@ import (
 )
 
 type OrderWhere struct {
-	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                       // 订单编号
-	StoreId  string `json:"store_id" label:"门店ID" find:"true" sort:"2" type:"string" input:"text" required:"true"` // 门店ID
-	MemberId string `json:"member_id" label:"会员ID" find:"true" sort:"3" type:"string" input:"text"`                // 会员ID
+	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                        // 订单编号
+	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
+	MemberId string `json:"member_id" label:"会员" find:"true" sort:"3" type:"string" input:"search"`                 // 会员
 
-	Status enums.OrderStatus `json:"status" label:"订单状态" find:"true" sort:"4" type:"string" input:"select" preset:"typeMap"` // 订单状态
-	Type   enums.OrderType   `json:"type" label:"订单类型" find:"true" sort:"5" type:"string" input:"select" preset:"typeMap"`   // 订单类型
-	Source enums.OrderSource `json:"source" label:"订单来源" find:"true" sort:"6" type:"string" input:"select" preset:"typeMap"` // 订单来源
+	Status enums.OrderStatus `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"` // 订单状态
+	Type   enums.OrderType   `json:"type" label:"订单类型" find:"false" sort:"5" type:"number" input:"select" preset:"typeMap"`  // 订单类型
+	Source enums.OrderSource `json:"source" label:"订单来源" find:"true" sort:"6" type:"number" input:"select" preset:"typeMap"` // 订单来源
 
 	CashierId  string `json:"cashier_id" label:"收银员" find:"true" sort:"7" type:"string" input:"search"`  // 收银员
 	SalesmanId string `json:"salesman_id" label:"导购员" find:"true" sort:"8" type:"string" input:"search"` // 导购员

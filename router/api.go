@@ -184,7 +184,7 @@ func Api(g *gin.Engine) {
 				history.GET("/where", product.ProductController{}.HistoryWhere) // 产品操作记录筛选
 				history.Use(middlewares.JWTMiddleware())
 				{
-					history.POST("/", product.ProductController{}.History) // 产品操作记录列表
+					history.POST("/list", product.ProductController{}.History) // 产品操作记录列表
 				}
 			}
 		}

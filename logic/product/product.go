@@ -99,6 +99,8 @@ func (l *ProductLogic) History(req *types.ProductHistoryReq) (*types.PageRes[mod
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
+	db = db.Preload("Operator")
+	db = db.Preload("Product")
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取列表失败")
 	}

@@ -139,9 +139,6 @@ func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
 	if query.IsSpecialOffer {
 		db = db.Where("is_special_offer = ?", query.IsSpecialOffer)
 	}
-	if query.Certificate != nil {
-		db = db.Where("certificate IN ?", query.Certificate)
-	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
 	}

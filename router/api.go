@@ -46,6 +46,7 @@ func Api(g *gin.Engine) {
 					uploads.POST("/avatar", common.UploadController{}.Avatar)       // 上传头像
 					uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
 					uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
+					uploads.POST("/product", common.UploadController{}.Product)     // 上传商品图片
 				}
 			}
 		}

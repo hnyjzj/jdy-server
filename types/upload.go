@@ -8,12 +8,10 @@ func (s UploadModel) String() string {
 }
 
 const (
-	// 头像
-	UploadModelAvatar UploadModel = "avatar"
-	// 工作台
-	UploadModelWorkbench UploadModel = "workbench"
-	// 门店
-	UploadModelStore UploadModel = "store"
+	UploadModelAvatar    UploadModel = "avatar"    // 头像
+	UploadModelWorkbench UploadModel = "workbench" // 工作台
+	UploadModelStore     UploadModel = "store"     // 门店
+	UploadModelProduct   UploadModel = "product"   // 商品
 )
 
 // 类型

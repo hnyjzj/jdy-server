@@ -264,7 +264,7 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 		db = db.Where("reason = ?", query.Reason)
 	}
 	if query.FromStoreId != "" {
-		db = db.Where("from_store_id = ?", query.ToStoreId)
+		db = db.Where("from_store_id = ?", query.FromStoreId)
 	}
 	if query.ToStoreId != "" {
 		db = db.Where("to_store_id = ?", query.ToStoreId)

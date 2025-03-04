@@ -1,7 +1,6 @@
 package member
 
 import (
-	"fmt"
 	"jdy/errors"
 	"jdy/logic/member"
 	"jdy/types"
@@ -20,7 +19,6 @@ func (con MemberController) Create(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

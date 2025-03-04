@@ -59,8 +59,14 @@ func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error
 	if tga.Get("required") != "" {
 		whereForm.Required = tga.Get("required") == "true" || tga.Get("required") == ""
 	}
-	if tga.Get("show") != "" {
-		whereForm.Show = tga.Get("show") == "true" || tga.Get("show") == ""
+	if tga.Get("find") != "" {
+		whereForm.Find = tga.Get("find") == "true" || tga.Get("find") == ""
+	}
+	if tga.Get("create") != "" {
+		whereForm.Create = tga.Get("create") == "true" || tga.Get("create") == ""
+	}
+	if tga.Get("update") != "" {
+		whereForm.Update = tga.Get("update") == "true" || tga.Get("update") == ""
 	}
 	if tga.Get("preset") != "" {
 		switch tga.Get("preset") {

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/logic/common"
@@ -28,7 +29,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	// 查询用户
 	var account model.Account
 	if err := model.DB.
-		Where(&model.Account{Phone: &req.Phone, Platform: types.PlatformTypeAccount}).
+		Where(&model.Account{Phone: &req.Phone, Platform: enums.PlatformTypeAccount}).
 		Preload("Staff").
 		First(&account).
 		Error; err != nil {
@@ -46,7 +47,12 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	}
 
 	// 生成token
-	res, err := l.token.GenerateToken(ctx, account.Staff, types.PlatformTypeAccount)
+	res, err := l.token.GenerateToken(ctx, &types.Staff{
+		Id:         account.Staff.Id,
+		Phone:      account.Staff.Phone,
+		IsDisabled: account.Staff.IsDisabled,
+		Platform:   enums.PlatformTypeAccount,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +94,12 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 		return nil, errors.New("错误的授权方式")
 	}
 
-	return l.token.GenerateToken(ctx, staff, types.PlatformTypeWxWork)
+	return l.token.GenerateToken(ctx, &types.Staff{
+		Id:         staff.Id,
+		Phone:      staff.Phone,
+		IsDisabled: staff.IsDisabled,
+		Platform:   enums.PlatformTypeWxWork,
+	})
 }
 
 // 登出

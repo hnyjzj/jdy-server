@@ -53,6 +53,21 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		return nil, errors.New("获取门店列表失败")
 	}
 
+	// 如果是管理员
+	// if staff.IsAdmin {
+	// admin := model.Store{
+	// 	SoftDelete: model.SoftDelete{
+	// 		Model: model.Model{
+	// 			BaseModel: model.BaseModel{
+	// 				Id: "",
+	// 			},
+	// 		},
+	// 	},
+	// 	Name: "总部",
+	// }
+	// staff.Stores = append([]model.Store{admin}, staff.Stores...)
+	// }
+
 	return &staff.Stores, nil
 }
 

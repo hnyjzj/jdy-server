@@ -1,6 +1,7 @@
 package staff
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic/auth"
 	"jdy/logic/platform/wxwork"
@@ -27,11 +28,11 @@ func (StaffLogic) StaffUpdate(ctx *gin.Context, uid string, req *types.StaffUpda
 	}
 	// 判断平台
 	switch req.Platform {
-	case types.PlatformTypeAccount:
+	case enums.PlatformTypeAccount:
 		if err := l.account(); err != nil {
 			return errors.New(err.Error())
 		}
-	case types.PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 
 		if err := l.wxwork(); err != nil {
 			return errors.New(err.Error())
@@ -52,7 +53,7 @@ func (l *StaffUpdateLogic) account() error {
 	var staff model.Staff
 	if err := model.DB.
 		Preload("Account", func(db *gorm.DB) *gorm.DB {
-			return db.Where(&model.Account{Platform: types.PlatformTypeAccount})
+			return db.Where(&model.Account{Platform: enums.PlatformTypeAccount})
 		}).
 		Preload("Accounts").
 		First(&staff, l.uid).Error; err != nil {
@@ -72,7 +73,7 @@ func (l *StaffUpdateLogic) account() error {
 
 		// 更新账号信息
 		account := model.Account{
-			Platform: types.PlatformTypeAccount,
+			Platform: enums.PlatformTypeAccount,
 			Phone:    staff.Phone,
 
 			Nickname: &req.Nickname,
@@ -132,7 +133,7 @@ func (l *StaffUpdateLogic) wxwork() error {
 
 	if err := model.DB.Model(&model.Staff{}).
 		Preload("Account", func(db *gorm.DB) *gorm.DB {
-			return db.Where(&model.Account{Platform: types.PlatformTypeWxWork})
+			return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 		}).
 		First(&staff, l.uid).Error; err != nil {
 		return err

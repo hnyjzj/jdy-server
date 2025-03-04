@@ -2,6 +2,7 @@ package platform
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/logic/platform/wxwork"
 	"jdy/types"
 
@@ -11,7 +12,7 @@ import (
 // 获取授权链接
 func (l *PlatformLogic) GetJSSDK(ctx *gin.Context, req *types.PlatformJSSdkReq) (*types.PlatformJSSdkRes, error) {
 	switch req.Platform {
-	case types.PlatformTypeWxWork:
+	case enums.PlatformTypeWxWork:
 		var (
 			wxwork wxwork.WxWorkLogic
 		)

@@ -9,6 +9,7 @@ import (
 	"jdy/controller/product"
 	"jdy/controller/setting"
 	"jdy/controller/staff"
+	"jdy/controller/statistic"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
@@ -45,6 +46,7 @@ func Api(g *gin.Engine) {
 					uploads.POST("/avatar", common.UploadController{}.Avatar)       // 上传头像
 					uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
 					uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
+					uploads.POST("/product", common.UploadController{}.Product)     // 上传商品图片
 				}
 			}
 		}
@@ -68,6 +70,18 @@ func Api(g *gin.Engine) {
 				staffs.POST("/info", staff.StaffController{}.Info)     // 员工详情
 				staffs.GET("/my", staff.StaffController{}.My)          // 获取我的信息
 				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
+			}
+		}
+
+		// 统计
+		statistics := r.Group("/statistic")
+		{
+			statistics.Use(middlewares.JWTMiddleware())
+			{
+				statistics.POST("/store_sales_total", statistic.StatisticController{}.StoreSalesTotal) // 门店销售总览
+
+				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales)     // 今日销售
+				statistics.POST("/today_product", statistic.StatisticController{}.TodayProduct) // 今日货品
 			}
 		}
 
@@ -101,6 +115,7 @@ func Api(g *gin.Engine) {
 				{
 					staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
 					staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
+					staffs.DELETE("/del", store.StoreStaffController{}.Del) // 删除门店员工
 				}
 			}
 		}
@@ -109,15 +124,16 @@ func Api(g *gin.Engine) {
 		products := r.Group("/product")
 		{
 			// 产品管理
-			products = products.Group("/")
+			p := products.Group("/")
 			{
-				products.GET("/where", product.ProductController{}.Where) // 产品筛选
-				products.Use(middlewares.JWTMiddleware())
+				p.GET("/where", product.ProductController{}.Where) // 产品筛选
+				p.Use(middlewares.JWTMiddleware())
 				{
-					products.POST("/list", product.ProductController{}.List)    // 产品列表
-					products.POST("/info", product.ProductController{}.Info)    // 产品详情
-					products.PUT("/update", product.ProductController{}.Update) // 产品更新
-					products.PUT("/damage", product.ProductController{}.Damage) // 产品报损
+					p.POST("/list", product.ProductController{}.List)            // 产品列表
+					p.POST("/info", product.ProductController{}.Info)            // 产品详情
+					p.PUT("/update", product.ProductController{}.Update)         // 产品更新
+					p.PUT("/damage", product.ProductController{}.Damage)         // 产品报损
+					p.PUT("/conversion", product.ProductController{}.Conversion) // 产品转换
 				}
 			}
 
@@ -147,6 +163,29 @@ func Api(g *gin.Engine) {
 					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)   // 确认调拨
 					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)     // 取消调拨
 					allocate.PUT("/complete", product.ProductAllocateController{}.Complete) // 完成调拨
+				}
+			}
+
+			// 产品盘点
+			inventory := products.Group("/inventory")
+			{
+				inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
+				inventory.Use(middlewares.JWTMiddleware())
+				{
+					inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
+					inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
+					inventory.POST("/info", product.ProductInventoryController{}.Info)     // 盘点单详情
+					inventory.PUT("/change", product.ProductInventoryController{}.Change)  // 盘点单变化
+				}
+			}
+
+			// 产品盘点
+			history := products.Group("/history")
+			{
+				history.GET("/where", product.ProductController{}.HistoryWhere) // 产品操作记录筛选
+				history.Use(middlewares.JWTMiddleware())
+				{
+					history.POST("/list", product.ProductController{}.History) // 产品操作记录列表
 				}
 			}
 		}

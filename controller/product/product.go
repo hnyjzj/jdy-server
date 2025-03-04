@@ -121,3 +121,59 @@ func (con ProductController) Damage(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 产品转换
+func (con ProductController) Conversion(ctx *gin.Context) {
+	var (
+		req types.ProductConversionReq
+
+		logic = product.ProductLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Conversion(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+// 产品操作记录条件
+func (con ProductController) HistoryWhere(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductHistoryWhere{})
+
+	con.Success(ctx, "ok", where)
+}
+
+// 产品操作记录列表
+func (con ProductController) History(ctx *gin.Context) {
+	var (
+		req types.ProductHistoryReq
+
+		logic = product.ProductLogic{
+			Ctx:   ctx,
+			Staff: con.GetStaff(ctx),
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	res, err := logic.History(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}

@@ -3,7 +3,6 @@ package auth
 import (
 	"jdy/config"
 	"jdy/errors"
-	"jdy/model"
 	"jdy/service/redis"
 	"jdy/types"
 	"time"
@@ -14,7 +13,7 @@ import (
 
 type TokenLogic struct{}
 
-func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff, platform types.PlatformType) (*types.TokenRes, error) {
+func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types.TokenRes, error) {
 	var (
 		conf = config.Config.JWT
 	)
@@ -23,7 +22,11 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff, platfor
 		return nil, errors.ErrStaffNotFound
 	}
 
+	// 保存 ip
+	staff.IP = ctx.ClientIP()
+
 	expires := time.Now().Add(time.Second * time.Duration(conf.Expire))
+	countdown_timer := time.Until(expires)
 
 	claims := &types.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -31,12 +34,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff, platfor
 			ExpiresAt: jwt.NewNumericDate(expires),
 			Issuer:    "jdy",
 		},
-		Staff: &types.Staff{
-			Id:         staff.Id,
-			Phone:      *staff.Phone,
-			IsDisabled: staff.IsDisabled,
-			Platform:   platform,
-		},
+		Staff: staff,
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(conf.Secret))
@@ -45,7 +43,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *model.Staff, platfor
 	}
 
 	// 存入redis
-	if err := redis.Client.Set(ctx, types.GetTokenName(*staff.Phone), token, time.Duration(conf.Expire)*time.Second).Err(); err != nil {
+	if err := redis.Client.Set(ctx, types.GetTokenName(*staff.Phone), token, countdown_timer).Err(); err != nil {
 		return nil, err
 	}
 

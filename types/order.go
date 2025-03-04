@@ -9,20 +9,20 @@ import (
 )
 
 type OrderWhere struct {
-	Id       string `json:"id" label:"订单编号" show:"true" sort:"1" type:"string" input:"text"`                       // 订单编号
-	StoreId  string `json:"store_id" label:"门店ID" show:"true" sort:"2" type:"string" input:"text" required:"true"` // 门店ID
-	MemberId string `json:"member_id" label:"会员ID" show:"true" sort:"3" type:"string" input:"text"`                // 会员ID
+	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                        // 订单编号
+	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
+	MemberId string `json:"member_id" label:"会员" find:"true" sort:"3" type:"string" input:"search"`                 // 会员
 
-	Status enums.OrderStatus `json:"status" label:"订单状态" show:"true" sort:"4" type:"string" input:"select" preset:"typeMap"` // 订单状态
-	Type   enums.OrderType   `json:"type" label:"订单类型" show:"true" sort:"5" type:"string" input:"select" preset:"typeMap"`   // 订单类型
-	Source enums.OrderSource `json:"source" label:"订单来源" show:"true" sort:"6" type:"string" input:"select" preset:"typeMap"` // 订单来源
+	Status enums.OrderStatus `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"` // 订单状态
+	Type   enums.OrderType   `json:"type" label:"订单类型" find:"false" sort:"5" type:"number" input:"select" preset:"typeMap"`  // 订单类型
+	Source enums.OrderSource `json:"source" label:"订单来源" find:"true" sort:"6" type:"number" input:"select" preset:"typeMap"` // 订单来源
 
-	CashierId   string `json:"cashier_id" label:"收银员ID" show:"true" sort:"7" type:"string" input:"search"`  // 收银员ID
-	SalesmensId string `json:"salesmen_id" label:"业务员ID" show:"true" sort:"8" type:"string" input:"search"` // 业务员ID
+	CashierId  string `json:"cashier_id" label:"收银员" find:"true" sort:"7" type:"string" input:"search"`  // 收银员
+	SalesmanId string `json:"salesman_id" label:"导购员" find:"true" sort:"8" type:"string" input:"search"` // 导购员
+	ProductId  string `json:"product_id" label:"商品" find:"true" sort:"9" type:"string" input:"search"`   // 商品
 
-	StartDate *time.Time `json:"start_date" label:"开始日期" show:"true" sort:"9" type:"string" input:"date"` // 开始日期
-	EndDate   *time.Time `json:"end_date" label:"结束日期" show:"true" sort:"10" type:"string" input:"date"`  // 结束日期
-
+	StartDate *time.Time `json:"start_date" label:"开始日期" find:"true" sort:"10" type:"string" input:"date"` // 开始日期
+	EndDate   *time.Time `json:"end_date" label:"结束日期" find:"true" sort:"11" type:"string" input:"date"`   // 结束日期
 }
 
 type OrderCreateReq struct {
@@ -37,21 +37,13 @@ type OrderCreateReq struct {
 	StoreId   string `json:"store_id" required:"true"`   // 门店ID
 	CashierId string `json:"cashier_id" required:"true"` // 收银员ID
 
-	Salesmens []*OrderCreateReqSalesmens `json:"salesmens" required:"true"` // 业务员
+	Salesmans []*OrderCreateReqSalesmans `json:"salesmans" required:"true"` // 导购员
 	Products  []*OrderCreateReqProduct   `json:"products" required:"true"`  // 商品
 
 	Remark string `json:"remark"` // 备注
 }
 
 func (req *OrderCreateReq) Validate() error {
-	if len(req.Products) == 0 {
-		return errors.New("商品不能为空")
-	}
-
-	if len(req.Salesmens) == 0 {
-		return errors.New("业务员不能为空")
-	}
-
 	if !req.DiscountRate.IsZero() {
 		if req.DiscountRate.LessThan(decimal.NewFromFloat(0)) || req.DiscountRate.GreaterThan(decimal.NewFromFloat(10)) {
 			return errors.New("整单折扣错误")
@@ -60,16 +52,43 @@ func (req *OrderCreateReq) Validate() error {
 		req.DiscountRate = decimal.NewFromFloat(10)
 	}
 
-	for _, salesmen := range req.Salesmens {
-		if !salesmen.CommissionRate.IsZero() {
-			if salesmen.CommissionRate.LessThan(decimal.NewFromFloat(0)) || salesmen.CommissionRate.GreaterThan(decimal.NewFromFloat(10)) {
+	// 检查导购员数量
+	if len(req.Salesmans) == 0 {
+		return errors.New("导购员不能为空")
+	}
+	// 总佣金比例
+	var totalPerformanceRate decimal.Decimal
+	// 主导购数量
+	var mainSalesmanCount int
+	// 检查导购员
+	for _, salesman := range req.Salesmans {
+		totalPerformanceRate = totalPerformanceRate.Add(salesman.PerformanceRate)
+		if salesman.IsMain {
+			mainSalesmanCount++
+		}
+
+		if !salesman.PerformanceRate.IsZero() {
+			if salesman.PerformanceRate.LessThan(decimal.NewFromFloat(0)) || salesman.PerformanceRate.GreaterThan(decimal.NewFromFloat(100)) {
 				return errors.New("佣金比例错误")
 			}
 		} else {
-			salesmen.CommissionRate = decimal.NewFromFloat(10)
+			salesman.PerformanceRate = decimal.NewFromFloat(10)
 		}
 	}
+	// 总佣金比例必须等于100
+	if totalPerformanceRate.Cmp(decimal.NewFromFloat(100)) != 0 {
+		return errors.New("总佣金比例必须等于100%")
+	}
+	// 主导购数量必须等于1
+	if mainSalesmanCount != 1 {
+		return errors.New("必须有且仅有一个主导购员")
+	}
 
+	// 检查商品数量
+	if len(req.Products) == 0 {
+		return errors.New("商品不能为空")
+	}
+	// 检查商品
 	for _, product := range req.Products {
 		if product.Quantity <= 0 {
 			return errors.New("商品数量错误")
@@ -87,10 +106,10 @@ func (req *OrderCreateReq) Validate() error {
 	return nil
 }
 
-type OrderCreateReqSalesmens struct {
-	SalesmenId     string          `json:"salesmen_id" required:"true"`     // 业务员ID
-	CommissionRate decimal.Decimal `json:"commission_rate" required:"true"` // 佣金比例
-	IsMain         bool            `json:"is_main" required:"true"`         // 是否主业务员
+type OrderCreateReqSalesmans struct {
+	SalesmanId      string          `json:"salesman_id" required:"true"`      // 导购员ID
+	PerformanceRate decimal.Decimal `json:"performance_rate" required:"true"` // 绩效比例
+	IsMain          bool            `json:"is_main" required:"true"`          // 是否主导购员
 }
 
 type OrderCreateReqProduct struct {

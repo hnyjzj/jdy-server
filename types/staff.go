@@ -117,7 +117,7 @@ type StaffUpdateWxWorkReq struct {
 
 type StaffWhere struct {
 	Phone      string       `json:"phone" label:"手机号" find:"true" sort:"1" type:"string" input:"text"`
-	StoreId    string       `json:"store_id" label:"所属门店" find:"true" sort:"2" type:"string" input:"search"`
+	StoreId    string       `json:"store_id" label:"所属门店" find:"true" sort:"2" type:"string" input:"search" binding:"required"`
 	Nickname   string       `json:"nickname" label:"姓名" find:"true" sort:"3" type:"string" input:"text"`
 	Gender     enums.Gender `json:"gender" label:"性别" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`
 	IsDisabled bool         `json:"is_disabled" label:"是否禁用" find:"true" sort:"5" type:"boolean" input:"switch"`

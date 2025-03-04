@@ -9,9 +9,9 @@ import (
 )
 
 type OrderWhere struct {
-	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                        // 订单编号
-	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
-	MemberId string `json:"member_id" label:"会员" find:"true" sort:"3" type:"string" input:"search"`                 // 会员
+	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                                           // 订单编号
+	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true" binding:"required"` // 门店
+	MemberId string `json:"member_id" label:"会员" find:"true" sort:"3" type:"string" input:"search"`                                    // 会员
 
 	Status enums.OrderStatus `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"` // 订单状态
 	Type   enums.OrderType   `json:"type" label:"订单类型" find:"false" sort:"5" type:"number" input:"select" preset:"typeMap"`  // 订单类型
@@ -33,9 +33,9 @@ type OrderCreateReq struct {
 	AmountReduce decimal.Decimal `json:"amount_reduce"` // 抹零
 	IntegralUse  decimal.Decimal `json:"integral_use"`  // 使用积分
 
-	MemberId  string `json:"member_id" required:"true"`  // 会员ID
-	StoreId   string `json:"store_id" required:"true"`   // 门店ID
-	CashierId string `json:"cashier_id" required:"true"` // 收银员ID
+	MemberId  string `json:"member_id" required:"true"`                   // 会员ID
+	StoreId   string `json:"store_id" required:"true" binding:"required"` // 门店ID
+	CashierId string `json:"cashier_id" required:"true"`                  // 收银员ID
 
 	Salesmans []*OrderCreateReqSalesmans `json:"salesmans" required:"true"` // 导购员
 	Products  []*OrderCreateReqProduct   `json:"products" required:"true"`  // 商品

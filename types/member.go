@@ -21,7 +21,7 @@ type MemberWhere struct {
 
 	Source       enums.MemberSource `json:"source" label:"来源" find:"true" sort:"12" type:"number" input:"select" preset:"typeMap"`
 	ConsultantId string             `json:"consultant_id" label:"顾问" find:"true" sort:"13" type:"string" input:"text"`
-	StoreId      string             `json:"store_id" label:"门店" find:"true" sort:"14" type:"string" input:"text"`
+	StoreId      string             `json:"store_id" label:"门店" find:"true" sort:"14" type:"string" input:"text" binding:"required"`
 
 	Status enums.MemberStatus `json:"status" label:"状态" find:"true" sort:"15" type:"number" input:"select" preset:"typeMap"`
 }
@@ -36,7 +36,7 @@ type MemberCreateReq struct {
 	IDCard      string       `json:"id_card" binding:"-"`
 
 	ConsultantId string `json:"consultant_id" binding:"-"`
-	StoreId      string `json:"store_id" binding:"-"`
+	StoreId      string `json:"store_id" binding:"required"`
 }
 
 type MemberUpdateReq struct {

@@ -13,20 +13,6 @@ type GoldPriceController struct {
 	controller.BaseController
 }
 
-func (con GoldPriceController) Get(ctx *gin.Context) {
-	var (
-		logic = &setting.GoldPriceLogic{}
-	)
-
-	data, err := logic.Get()
-	if err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
-	con.Success(ctx, "ok", data)
-}
-
 func (con GoldPriceController) List(ctx *gin.Context) {
 	var (
 		req   types.GoldPriceListReq
@@ -62,6 +48,11 @@ func (con GoldPriceController) Create(ctx *gin.Context) {
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+	// 验证参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
 		return
 	}
 

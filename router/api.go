@@ -231,7 +231,6 @@ func Api(g *gin.Engine) {
 		{
 			gold_price := settings.Group("/gold_price")
 			{
-				gold_price.GET("/get", setting.GoldPriceController{}.Get) // 获取金价
 				gold_price.Use(middlewares.JWTMiddleware())
 				{
 					gold_price.POST("/list", setting.GoldPriceController{}.List)     // 金价历史列表

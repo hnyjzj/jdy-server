@@ -20,7 +20,7 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 		// 转换数据结构
 		data, err := utils.StructToStruct[[]model.Product](req.Products)
 		if err != nil {
-			return nil
+			return errors.New("产品录入失败: 参数错误")
 		}
 
 		if len(data) == 0 {

@@ -12,10 +12,10 @@ import (
 func main() {
 	// 初始化gin
 	g := gin.Init()
-	// 启动服务
-	service.Start()
 	// 路由初始化
 	router.Init(g)
+	// 启动服务
+	go service.Start()
 	// 启动 gin http 服务
 	gin.Run(g)
 }

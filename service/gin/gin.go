@@ -39,5 +39,5 @@ func Run(g *gin.Engine) {
 		config = config.Config
 	)
 	// 启动gin
-	g.Run(fmt.Sprintf(":%d", config.Server.Port))
+	_ = g.Run(fmt.Sprintf(":%d", config.Server.Port))
 }

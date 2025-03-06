@@ -1,10 +1,8 @@
 package service
 
-import (
-	"jdy/scripts"
-)
+import "jdy/service/crons"
 
 func Start() {
 	// 启动定时任务
-	scripts.Cron()
+	crons.Cron()
 }

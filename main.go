@@ -7,9 +7,12 @@ import (
 	"jdy/service"
 	"jdy/service/gin"
 	"jdy/service/redis"
+	"log"
 )
 
 func main() {
+	// 设置日志格式
+	log.SetFlags(log.LstdFlags | log.Llongfile)
 	// 初始化gin
 	g := gin.Init()
 	// 路由初始化

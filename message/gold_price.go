@@ -81,7 +81,7 @@ func (M *BaseMessage) SendGoldPriceUpdateMessage(req *GoldPriceMessage) {
 					Value:   req.StoreName,
 				},
 				{
-					Type:    0,
+					Type:    3,
 					Keyname: "操作人",
 					Value:   req.Operator,
 				},

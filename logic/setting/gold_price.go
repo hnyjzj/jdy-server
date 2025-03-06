@@ -26,13 +26,19 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 		}
 		// 添加/更新金价列表
 		for _, v := range req.Options {
+			var ProductBrand []enums.ProductBrand
+			if len(v.ProductBrand) == 0 {
+				ProductBrand = enums.ProductBrandAll.All(false)
+			} else {
+				ProductBrand = v.ProductBrand
+			}
 			// 转换数据结构
 			data := model.GoldPrice{
 				StoreId:         v.StoreId,
 				Price:           v.Price,
 				ProductMaterial: v.ProductMaterial,
 				ProductType:     v.ProductType,
-				ProductBrand:    v.ProductBrand,
+				ProductBrand:    ProductBrand,
 				ProductQuality:  v.ProductQuality,
 			}
 

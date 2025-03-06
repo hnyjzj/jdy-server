@@ -40,3 +40,15 @@ func (p ProductBrand) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductBrand) All(hasZero bool) []ProductBrand {
+	var all []ProductBrand
+	for k := range ProductBrandMap {
+		if k == 0 && !hasZero {
+			continue
+		}
+		all = append(all, k)
+	}
+
+	return all
+}

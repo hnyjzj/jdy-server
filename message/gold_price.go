@@ -12,6 +12,7 @@ import (
 type GoldPriceMessage struct {
 	ToUser    []string `json:"to_user"`    // 接收消息的用户ID列表，列表不可为空，最多支持100个用户
 	StoreName string   `json:"store_name"` // 门店名称
+	Operator  string   `json:"operator"`   // 操作人
 }
 
 // 发送黄金价格设置提醒
@@ -78,6 +79,11 @@ func (M *BaseMessage) SendGoldPriceUpdateMessage(req *GoldPriceMessage) {
 					Type:    0,
 					Keyname: "门店名称",
 					Value:   req.StoreName,
+				},
+				{
+					Type:    0,
+					Keyname: "操作人",
+					Value:   req.Operator,
 				},
 				{
 					Type:    0,

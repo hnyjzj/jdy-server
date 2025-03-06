@@ -50,6 +50,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	res, err := l.token.GenerateToken(ctx, &types.Staff{
 		Id:         account.Staff.Id,
 		Phone:      account.Staff.Phone,
+		Nickname:   account.Staff.Nickname,
 		IsDisabled: account.Staff.IsDisabled,
 		Platform:   enums.PlatformTypeAccount,
 	})
@@ -97,6 +98,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 	return l.token.GenerateToken(ctx, &types.Staff{
 		Id:         staff.Id,
 		Phone:      staff.Phone,
+		Nickname:   staff.Nickname,
 		IsDisabled: staff.IsDisabled,
 		Platform:   enums.PlatformTypeWxWork,
 	})

@@ -81,10 +81,12 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 
 func (l *GoldPriceLogic) List(req *types.GoldPriceListReq) (*[]model.GoldPrice, error) {
 	var (
-		res []model.GoldPrice
+		gold_price model.GoldPrice
+		res        []model.GoldPrice
 	)
 
-	db := model.DB.Model(&model.GoldPrice{})
+	db := model.DB.Order("updated_at desc")
+	db = gold_price.WhereCondition(db, &types.GoldPriceOptions{StoreId: req.StoreId})
 	// 获取列表
 	db = db.Order("updated_at desc")
 	if err := db.Find(&res).Error; err != nil {

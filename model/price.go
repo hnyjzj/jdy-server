@@ -5,6 +5,7 @@ import (
 	"jdy/types"
 
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type GoldPrice struct {
@@ -18,9 +19,7 @@ type GoldPrice struct {
 	ProductQuality  []enums.ProductQuality `json:"product_quality" gorm:"type:text;serializer:json;comment:产品成色;"` // 产品成色
 }
 
-func GetGoldPrice(req *types.GoldPriceOptions) (decimal.Decimal, error) {
-	var goldPrice GoldPrice
-	db := DB.Order("updated_at desc")
+func (GoldPrice) WhereCondition(db *gorm.DB, req *types.GoldPriceOptions) *gorm.DB {
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
 	}
@@ -37,6 +36,14 @@ func GetGoldPrice(req *types.GoldPriceOptions) (decimal.Decimal, error) {
 		db = db.Where("FIND_IN_SET(?, product_quality)", req.ProductQuality)
 	}
 
+	return db
+}
+
+func GetGoldPrice(req *types.GoldPriceOptions) (decimal.Decimal, error) {
+	var goldPrice GoldPrice
+
+	db := DB.Order("updated_at desc")
+	db = goldPrice.WhereCondition(db, req)
 	if err := db.First(&goldPrice).Error; err != nil {
 		return decimal.Zero, err
 	}

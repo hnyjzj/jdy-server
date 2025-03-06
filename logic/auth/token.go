@@ -13,6 +13,7 @@ import (
 
 type TokenLogic struct{}
 
+// 生成token
 func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types.TokenRes, error) {
 	var (
 		conf = config.Config.JWT
@@ -55,6 +56,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types
 	return &res, nil
 }
 
+// 删除token
 func (t *TokenLogic) RevokeToken(ctx *gin.Context, phone string) error {
 	return redis.Client.Del(ctx, types.GetTokenName(phone)).Err()
 }

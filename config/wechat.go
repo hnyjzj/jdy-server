@@ -80,8 +80,11 @@ func newJdyWork() *work.Work {
 func newContactsWork() *work.Work {
 	app := Config.Wechat.Work
 	WeComApp, err := work.NewWork(&work.UserConfig{
-		CorpID: app.CorpID,
-		Secret: app.Contacts.Secret,
+		CorpID:      app.CorpID,
+		Secret:      app.Contacts.Secret,
+		Token:       app.Contacts.Token,
+		AESKey:      app.Contacts.AESKey,
+		CallbackURL: app.Contacts.CallbackURL,
 		OAuth: work.OAuth{
 			Callback: app.Contacts.CallbackOAuth,
 			Scopes:   []string{"snsapi_privateinfo"},

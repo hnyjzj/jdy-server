@@ -95,7 +95,7 @@ func (con UploadController) Workbench(ctx *gin.Context) {
 	con.Success(ctx, "ok", s)
 }
 
-// 上传工作台图标
+// 上传门店图标
 func (con UploadController) Store(ctx *gin.Context) {
 	// 接收参数
 	type Req struct {

@@ -13,6 +13,9 @@ func CallBack(g *gin.Engine) {
 		{
 			ww.GET("/jdy", callback.WxWorkCongtroller{}.JdyVerify)
 			ww.POST("/jdy", callback.WxWorkCongtroller{}.JdyNotify)
+
+			ww.GET("/contact", callback.WxWorkCongtroller{}.ContactsVerify)
+			ww.POST("/contact", callback.WxWorkCongtroller{}.ContactsNotify)
 		}
 	}
 }

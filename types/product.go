@@ -101,7 +101,7 @@ type ProductWhere struct {
 
 	Stock int64 `json:"stock" label:"库存" find:"false" create:"true" update:"false" sort:"31" type:"number" input:"number"` // 库存
 
-	StoreId string `json:"store_id" label:"门店" find:"true" create:"true" update:"false" sort:"32" type:"string" input:"text"` // 门店
+	StoreId string `json:"store_id" label:"门店" find:"true" create:"true" update:"false" sort:"32" type:"string" input:"text" binding:"required"` // 门店
 
 	ProductEnterId string `json:"product_enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"` // 产品入库单ID
 }
@@ -162,9 +162,9 @@ type ProductConversionReq struct {
 }
 
 type ProductHistoryWhere struct {
-	ProductId string              `json:"product_id" label:"产品" input:"text" type:"string" find:"true" sort:"1" required:"true"`                // 产品
-	StoreId   string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"2" required:"true"`                 // 门店
-	Action    enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"3" required:"true" preset:"typeMap"` // 操作
+	ProductId string              `json:"product_id" label:"产品" input:"text" type:"string" find:"true" sort:"1" required:"true"`                   // 产品
+	StoreId   string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"2" required:"true" binding:"required"` // 门店
+	Action    enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"3" required:"true" preset:"typeMap"`    // 操作
 }
 
 type ProductHistoryReq struct {
@@ -256,8 +256,8 @@ type ProductEnterInfoReq struct {
 }
 
 type ProductInventoryWhere struct {
-	Id      string `json:"id" label:"ID" input:"text" type:"string" find:"true" sort:"1" required:"false"`                        // ID
-	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" create:"false" sort:"2" required:"true"` // 门店
+	Id      string `json:"id" label:"ID" input:"text" type:"string" find:"true" sort:"1" required:"false"`                                           // ID
+	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" create:"false" sort:"2" required:"true" binding:"required"` // 门店
 
 	InventoryPersonId string `json:"inventory_person_id" label:"盘点人" input:"search" type:"string" find:"true" create:"true" sort:"3" required:"true"` // 盘点人
 	InspectorId       string `json:"inspector_id" label:"审核人" input:"search" type:"string" find:"true" create:"true" sort:"4" required:"true"`        // 监盘人

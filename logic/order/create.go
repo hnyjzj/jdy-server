@@ -19,8 +19,6 @@ type OrderCreateLogic struct {
 	Req *types.OrderCreateReq
 
 	Order *model.Order
-
-	GoldPrice decimal.Decimal
 }
 
 // 创建订单
@@ -46,10 +44,6 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		l.Tx = tx
-		// 获取今日金价
-		if err := l.getGoldPrice(); err != nil {
-			return err
-		}
 
 		// 创建订单
 		if err := tx.Create(&l.Order).Error; err != nil {
@@ -84,18 +78,6 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 	return l.Order, nil
 }
 
-// 获取今日金价
-func (l *OrderCreateLogic) getGoldPrice() error {
-	gold_price, err := model.GetGoldPrice()
-	if err != nil {
-		return err
-	}
-
-	l.GoldPrice = gold_price
-
-	return nil
-}
-
 // 计算金额
 func (l *OrderCreateLogic) getAmount() error {
 	switch l.Order.Type {
@@ -121,6 +103,17 @@ func (l *OrderCreateLogic) loopSales() error {
 		if err != nil {
 			return err
 		}
+		// 获取金价
+		gold_price, err := model.GetGoldPrice(&types.GoldPriceOptions{
+			StoreId:         l.Order.StoreId,
+			ProductMaterial: product.Material,
+			ProductType:     product.Type,
+			ProductBrand:    []enums.ProductBrand{product.Brand},
+			ProductQuality:  []enums.ProductQuality{product.Quality},
+		})
+		if err != nil {
+			return err
+		}
 
 		var (
 			price           decimal.Decimal                                                                         // 单价
@@ -141,7 +134,7 @@ func (l *OrderCreateLogic) loopSales() error {
 		case enums.ProductRetailTypeGoldKg: // 计重论克 = (金价+工费)×克重×数量
 			{
 				// 单价 = 今日金价
-				price = l.GoldPrice.Add(product.LaborFee)
+				price = gold_price.Add(product.LaborFee)
 				// 原价 = (金价+工费)×克重×数量
 				amount = product.WeightMetal.Mul(price).Mul(decimal.NewFromInt(p.Quantity))
 			}
@@ -149,9 +142,9 @@ func (l *OrderCreateLogic) loopSales() error {
 		case enums.ProductRetailTypeGoldPiece: // 计重工费论件 = 金价×克重+工费
 			{
 				// 单价
-				price = l.GoldPrice
+				price = gold_price
 				// 原价 = 金价×克重+工费×数量
-				amount = l.GoldPrice.Mul(product.WeightMetal).Add(product.LaborFee).Mul(decimal.NewFromInt(p.Quantity))
+				amount = gold_price.Mul(product.WeightMetal).Add(product.LaborFee).Mul(decimal.NewFromInt(p.Quantity))
 			}
 		default:
 			{

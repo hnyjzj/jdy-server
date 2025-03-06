@@ -62,7 +62,9 @@ func (l *StatisticLogic) TodaySales(req *types.StatisticTodaySalesReq) (*TodaySa
 
 // 获取金价
 func (l *TodaySalesLogic) getGoldPrice() error {
-	price, err := model.GetGoldPrice()
+	price, err := model.GetGoldPrice(&types.GoldPriceOptions{
+		StoreId: l.Req.StoreId,
+	})
 	if err != nil {
 		return errors.New("获取金价失败")
 	}

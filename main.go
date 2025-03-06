@@ -7,15 +7,18 @@ import (
 	"jdy/service"
 	"jdy/service/gin"
 	"jdy/service/redis"
+	"log"
 )
 
 func main() {
+	// 设置日志格式
+	log.SetFlags(log.LstdFlags | log.Llongfile)
 	// 初始化gin
 	g := gin.Init()
-	// 启动服务
-	service.Start()
 	// 路由初始化
 	router.Init(g)
+	// 启动服务
+	go service.Start()
 	// 启动 gin http 服务
 	gin.Run(g)
 }

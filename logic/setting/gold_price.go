@@ -2,12 +2,14 @@ package setting
 
 import (
 	"errors"
+	"fmt"
 	"jdy/enums"
 	"jdy/logic"
 	"jdy/message"
 	"jdy/model"
 	"jdy/types"
-	"time"
+
+	"gorm.io/gorm"
 )
 
 type GoldPriceLogic struct {
@@ -16,134 +18,87 @@ type GoldPriceLogic struct {
 	IP string
 }
 
-func (l *GoldPriceLogic) Get() (*types.GoldPriceGetRes, error) {
-	var res types.GoldPriceGetRes
-
-	price, err := model.GetGoldPrice()
-	if err != nil {
-		return &res, err
-	}
-
-	res.Price = price
-
-	return &res, nil
-}
-
-func (l *GoldPriceLogic) List(req *types.GoldPriceListReq) (*types.PageRes[model.GoldPrice], error) {
-	var (
-		data []model.GoldPrice
-
-		res types.PageRes[model.GoldPrice]
-	)
-
-	db := model.DB.Model(&data)
-	// db = db.Where(&model.GoldPrice{Status: enums.GoldPriceStatusApproved})
-
-	// 获取总数
-	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取金价历史总数失败")
-	}
-
-	// 获取列表
-	db = db.Order("created_at desc")
-	db = db.Preload("Initiator")
-	db = db.Preload("Approver")
-	db = model.PageCondition(db, req.Page, req.Limit)
-	if err := db.Find(&res.List).Error; err != nil {
-		return nil, errors.New("获取金价历史列表失败")
-	}
-
-	return &res, nil
-}
-
-// 创建金价审批
+// 设置金价
 func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
-	data := &model.GoldPrice{
-		Price: req.Price,
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		if len(req.Options) == 0 {
+			return errors.New("请至少设置一条金价")
+		}
+		// 添加/更新金价列表
+		for _, v := range req.Options {
+			var ProductBrand []enums.ProductBrand
+			if len(v.ProductBrand) == 0 {
+				ProductBrand = enums.ProductBrandAll.All(false)
+			} else {
+				ProductBrand = v.ProductBrand
+			}
+			// 转换数据结构
+			data := model.GoldPrice{
+				StoreId:         v.StoreId,
+				Price:           v.Price,
+				ProductMaterial: v.ProductMaterial,
+				ProductType:     v.ProductType,
+				ProductBrand:    ProductBrand,
+				ProductQuality:  v.ProductQuality,
+			}
 
-		InitiatorId: l.Staff.Id,
-		IP:          l.IP,
+			if v.Id == "" {
+				if err := tx.Create(&data).Error; err != nil {
+					return err
+				}
+			} else {
+				if err := tx.Model(&model.GoldPrice{}).Where("id = ?", v.Id).Updates(data).Error; err != nil {
+					return err
+				}
+			}
+		}
 
-		Status: enums.GoldPriceStatusPending,
-	}
-
-	if err := model.DB.Create(data).Error; err != nil {
-		return err
+		return nil
+	}); err != nil {
+		return errors.New("设置金价失败")
 	}
 
 	// 发送审批消息
 	go func() {
-		var initiator model.Staff
-		if err := model.DB.Where("id = ?", data.InitiatorId).First(&initiator).Error; err != nil {
+		var store model.Store
+		if err := model.DB.Where("id = ?", req.Options[0].StoreId).Preload("Staffs", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Account", func(db *gorm.DB) *gorm.DB {
+				return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
+			})
+		}).First(&store).Error; err != nil {
+			fmt.Printf("获取店铺信息失败: %v\n", err)
 			return
 		}
+		var receiver []string
+		for _, v := range store.Staffs {
+			if v.Account != nil && v.Account.Username != nil {
+				receiver = append(receiver, *v.Account.Username)
+			}
+		}
 		m := message.NewMessage(l.Ctx)
-		m.SendGoldPriceApprovalMessage(&message.GoldPriceApprovalMessage{
-			Id:        data.Id,
-			Price:     req.Price,
-			Initiator: initiator.Nickname,
+		m.SendGoldPriceUpdateMessage(&message.GoldPriceMessage{
+			ToUser:    receiver,
+			StoreName: store.Name,
+			Operator:  l.Staff.Nickname,
 		})
 	}()
 
 	return nil
 }
 
-// 更新金价
-func (l *GoldPriceLogic) Update(req *types.GoldPriceUpdateReq) error {
-	// 查询记录
+func (l *GoldPriceLogic) List(req *types.GoldPriceListReq) (*[]model.GoldPrice, error) {
 	var (
-		price model.GoldPrice
-		db    = model.DB.Where("id = ?", req.Id)
+		gold_price model.GoldPrice
+		res        []model.GoldPrice
 	)
 
-	// 查询操作人
-	db = db.Preload("Initiator") // 发起人
-	db = db.Preload("Approver")  // 审批人
-
-	if err := db.First(&price).Error; err != nil {
-		return err
+	db := model.DB.Order("updated_at desc")
+	db = gold_price.WhereCondition(db, &types.GoldPriceOptions{StoreId: req.StoreId})
+	// 获取列表
+	db = db.Order("updated_at desc")
+	if err := db.Find(&res).Error; err != nil {
+		return nil, errors.New("获取金价列表失败")
 	}
 
-	// 判断审批状态
-	if price.Status != enums.GoldPriceStatusPending {
-		return errors.New("请勿重复审批")
-	}
-
-	// 获取当前时间
-	now := time.Now()
-	// 更新审批
-	if err := model.DB.Model(&price).Updates(model.GoldPrice{
-		ApproverId: l.Staff.Id,
-		ApprovedAt: &now,
-		Status:     req.Status,
-	}).Error; err != nil {
-		return err
-	}
-
-	if err := db.First(&price).Error; err != nil {
-		return err
-	}
-
-	// 发送更新消息
-	go func() {
-		if price.Status == enums.GoldPriceStatusRejected {
-			return
-		}
-		m := message.NewMessage(l.Ctx)
-		m.SendGoldPriceMessage(&message.GoldPriceMessage{
-			Price:     price.Price,
-			Initiator: price.Initiator.Nickname,
-			Approver:  price.Approver.Nickname,
-		})
-	}()
-
-	// 发送更新
-	go func() {
-		if price.Status == enums.GoldPriceStatusRejected {
-			return
-		}
-		SetWorkbenchTemplate(l.Ctx, WorkbenchTemplate{Price: price.Price})
-	}()
-
-	return nil
+	return &res, nil
 }

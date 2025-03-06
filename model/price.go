@@ -1,42 +1,54 @@
 package model
 
 import (
-	"errors"
 	"jdy/enums"
-	"time"
+	"jdy/types"
 
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type GoldPrice struct {
 	SoftDelete
 
-	Price decimal.Decimal `json:"price" gorm:"type:decimal(10,2);comment:金价;"` // 金价
-
-	InitiatorId string `json:"initiator_id" gorm:"type:varchar(255);not NULL;comment:发起人ID;"`      // 发起人ID
-	Initiator   *Staff `json:"initiator" gorm:"foreignKey:InitiatorId;references:Id;comment:发起人;"` // 发起人
-	IP          string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP地址;"`                 // IP地址
-
-	Status enums.GoldPriceStatus `json:"status" gorm:"type:tinyint(1);not null;default:0;comment:状态;"` // 状态
-
-	ApproverId string     `json:"approver_id" gorm:"type:varchar(255);not NULL;comment:审批人ID;"`     // 审批人ID
-	Approver   *Staff     `json:"approver" gorm:"foreignKey:ApproverId;references:Id;comment:审批人;"` // 审批人
-	ApprovedAt *time.Time `json:"approved_at" gorm:"type:datetime;default:NULL;comment:审批时间;"`      // 审批时间
+	StoreId         string                 `json:"store_id" gorm:"type:varchar(255);comment:店铺ID;"`                // 店铺ID
+	Price           decimal.Decimal        `json:"price" gorm:"type:decimal(10,2);comment:金价;"`                    // 金价
+	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"type:tinyint(1);comment:产品材质;"`          // 产品材质
+	ProductType     enums.ProductType      `json:"product_type" gorm:"type:tinyint(1);comment:产品类型;"`              // 产品类型
+	ProductBrand    []enums.ProductBrand   `json:"product_brand" gorm:"type:text;serializer:json;comment:产品品牌;"`   // 产品品牌
+	ProductQuality  []enums.ProductQuality `json:"product_quality" gorm:"type:text;serializer:json;comment:产品成色;"` // 产品成色
 }
 
-func GetGoldPrice() (decimal.Decimal, error) {
-	var price GoldPrice
-	db := DB.Model(&GoldPrice{})
-	// 排序最新一条
-	db = db.Order("created_at desc")
-	// 只查询状态为true的数据
-	db = db.Where("status = ?", true)
-	// 查询数据
-	if err := db.First(&price).Error; err != nil {
-		return decimal.NewFromFloat(0), errors.New("获取今日金价失败")
+func (GoldPrice) WhereCondition(db *gorm.DB, req *types.GoldPriceOptions) *gorm.DB {
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
+	}
+	if req.ProductMaterial != 0 {
+		db = db.Where("product_material = ?", req.ProductMaterial)
+	}
+	if req.ProductType != 0 {
+		db = db.Where("product_type = ?", req.ProductType)
+	}
+	if len(req.ProductBrand) > 0 {
+		db = db.Where("product_brand in (?)", req.ProductBrand)
+	}
+	if len(req.ProductQuality) > 0 {
+		db = db.Where("product_quality in (?)", req.ProductQuality)
 	}
 
-	return price.Price, nil
+	return db
+}
+
+func GetGoldPrice(req *types.GoldPriceOptions) (decimal.Decimal, error) {
+	var goldPrice GoldPrice
+
+	db := DB.Order("updated_at desc")
+	db = goldPrice.WhereCondition(db, req)
+	if err := db.First(&goldPrice).Error; err != nil {
+		return decimal.Zero, err
+	}
+
+	return goldPrice.Price, nil
 }
 
 func init() {

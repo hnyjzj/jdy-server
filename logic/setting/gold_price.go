@@ -65,7 +65,7 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 		}
 		var receiver []string
 		for _, v := range store.Staffs {
-			if v.Account.Username != nil {
+			if v.Account != nil && v.Account.Username != nil {
 				receiver = append(receiver, *v.Account.Username)
 			}
 		}

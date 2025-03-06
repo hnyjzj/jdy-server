@@ -30,10 +30,10 @@ func (GoldPrice) WhereCondition(db *gorm.DB, req *types.GoldPriceOptions) *gorm.
 		db = db.Where("product_type = ?", req.ProductType)
 	}
 	if len(req.ProductBrand) > 0 {
-		db = db.Where("FIND_IN_SET(?, product_brand)", req.ProductBrand)
+		db = db.Where("product_brand in (?)", req.ProductBrand)
 	}
 	if len(req.ProductQuality) > 0 {
-		db = db.Where("FIND_IN_SET(?, product_quality)", req.ProductQuality)
+		db = db.Where("product_quality in (?)", req.ProductQuality)
 	}
 
 	return db

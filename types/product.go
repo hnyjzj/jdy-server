@@ -34,15 +34,15 @@ type ProductEnterReqProduct struct {
 	Price     decimal.Decimal `json:"price" binding:"required"`      // 标签价
 	LaborFee  decimal.Decimal `json:"labor_fee" binding:"required"`  // 工费
 
-	Weight      decimal.Decimal         `json:"weight" binding:"-"`             // 总重量
-	WeightMetal decimal.Decimal         `json:"weight_metal" binding:"-"`       // 金重
-	WeightGem   decimal.Decimal         `json:"weight_gem" binding:"-"`         // 主石重
-	WeightOther decimal.Decimal         `json:"weight_other" binding:"-"`       // 杂料重
-	NumGem      int                     `json:"num_gem" binding:"-"`            // 主石数
-	NumOther    int                     `json:"num_other" binding:"-"`          // 杂料数
-	ColorMetal  enums.ProductColor      `json:"color_metal" binding:"-"`        // 金颜色
-	ColorGem    enums.ProductColor      `json:"color_gem" binding:"-"`          // 主石色
-	Clarity     enums.ProductClarity    `json:"clarity" binding:"-"`            // 净度
+	Weight      decimal.Decimal         `json:"weight"`                         // 总重量
+	WeightMetal decimal.Decimal         `json:"weight_metal"`                   // 金重
+	WeightGem   decimal.Decimal         `json:"weight_gem"`                     // 主石重
+	WeightOther decimal.Decimal         `json:"weight_other"`                   // 杂料重
+	NumGem      int                     `json:"num_gem"`                        // 主石数
+	NumOther    int                     `json:"num_other"`                      // 杂料数
+	ColorMetal  enums.ProductColor      `json:"color_metal"`                    // 金颜色
+	ColorGem    enums.ProductColor      `json:"color_gem"`                      // 主石色
+	Clarity     enums.ProductClarity    `json:"clarity"`                        // 净度
 	RetailType  enums.ProductRetailType `json:"retail_type" binding:"required"` // 零售方式
 	Class       enums.ProductClass      `json:"class" binding:"required"`       // 大类
 	Supplier    enums.ProductSupplier   `json:"supplier" binding:"required"`    // 供应商
@@ -50,17 +50,17 @@ type ProductEnterReqProduct struct {
 	Quality     enums.ProductQuality    `json:"quality" binding:"required"`     // 成色
 	Gem         enums.ProductGem        `json:"gem" binding:"required"`         // 宝石
 	Category    enums.ProductCategory   `json:"category" binding:"required"`    // 品类
-	Brand       enums.ProductBrand      `json:"brand" binding:"-"`              // 品牌
-	Craft       enums.ProductCraft      `json:"craft" binding:"-"`              // 工艺
-	Style       string                  `json:"style" binding:"-"`              // 款式
-	Size        string                  `json:"size" binding:"-"`               // 手寸
-	Type        enums.ProductType       `json:"type" binding:"-"`               // 类型
+	Brand       enums.ProductBrand      `json:"brand"`                          // 品牌
+	Craft       enums.ProductCraft      `json:"craft"`                          // 工艺
+	Style       string                  `json:"style"`                          // 款式
+	Size        string                  `json:"size"`                           // 手寸
+	Type        enums.ProductType       `json:"type"`                           // 类型
 
 	Stock int64 `json:"stock" binding:"required"` // 库存
 
-	IsSpecialOffer bool     `json:"is_special_offer" binding:"-"` // 是否特价
-	Remark         string   `json:"remark" binding:"-"`           // 备注
-	Certificate    []string `json:"certificate" binding:"-"`      // 证书
+	IsSpecialOffer bool     `json:"is_special_offer"` // 是否特价
+	Remark         string   `json:"remark"`           // 备注
+	Certificate    []string `json:"certificate"`      // 证书
 }
 
 type ProductWhere struct {
@@ -176,9 +176,9 @@ type ProductAllocateCreateReq struct {
 	Method      enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨方式
 	Type        enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
 	Reason      enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
-	Remark      string                      `json:"remark" binding:"-"`        // 备注
-	FromStoreId string                      `json:"from_store_id" binding:"-"` // 调出门店
-	ToStoreId   string                      `json:"to_store_id" binding:"-"`   // 调入门店
+	Remark      string                      `json:"remark"`                    // 备注
+	FromStoreId string                      `json:"from_store_id"`             // 调出门店
+	ToStoreId   string                      `json:"to_store_id"`               // 调入门店
 }
 
 func (req *ProductAllocateCreateReq) Validate() error {

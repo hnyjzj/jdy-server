@@ -100,7 +100,7 @@ func (con UploadController) Store(ctx *gin.Context) {
 	// 接收参数
 	type Req struct {
 		File    *multipart.FileHeader `form:"image" binding:"required"`
-		StoreId string                `form:"store_id" binding:"-"`
+		StoreId string                `form:"store_id"`
 	}
 	type Res struct {
 		Url string `json:"url"`

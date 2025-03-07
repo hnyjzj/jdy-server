@@ -30,12 +30,12 @@ type MemberCreateReq struct {
 	Phone       *string      `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"`
 	Name        string       `json:"name" binding:"required"`
 	Gender      enums.Gender `json:"gender" binding:"oneof=0 1 2"`
-	Birthday    string       `json:"birthday" binding:"-"`
-	Anniversary string       `json:"anniversary" binding:"-"`
-	Nickname    string       `json:"nickname" binding:"-"`
-	IDCard      string       `json:"id_card" binding:"-"`
+	Birthday    string       `json:"birthday"`
+	Anniversary string       `json:"anniversary"`
+	Nickname    string       `json:"nickname"`
+	IDCard      string       `json:"id_card"`
 
-	ConsultantId string `json:"consultant_id" binding:"-"`
+	ConsultantId string `json:"consultant_id"`
 	StoreId      string `json:"store_id" binding:"required"`
 }
 

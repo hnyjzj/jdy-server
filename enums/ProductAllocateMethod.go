@@ -3,17 +3,15 @@ package enums
 import "errors"
 
 /* 调拨方式 */
-// 全部、门店调拨、调拨出库
+// 门店调拨、调拨出库
 type ProductAllocateMethod int
 
 const (
-	ProductAllocateMethodAll   ProductAllocateMethod = iota // 全部
-	ProductAllocateMethodStore                              // 门店调拨
-	ProductAllocateMethodOut                                // 调拨出库
+	ProductAllocateMethodStore ProductAllocateMethod = iota + 1 // 门店调拨
+	ProductAllocateMethodOut                                    // 调拨出库
 )
 
 var ProductAllocateMethodMap = map[ProductAllocateMethod]string{
-	ProductAllocateMethodAll:   "全部",
 	ProductAllocateMethodStore: "门店调拨",
 	ProductAllocateMethodOut:   "调拨出库",
 }

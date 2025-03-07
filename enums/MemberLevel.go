@@ -5,19 +5,17 @@ import (
 )
 
 /* 会员等级 */
-// 全部、银卡、金卡、钻石卡
+// 银卡、金卡、钻石卡
 type MemberLevel int
 
 const (
-	MemberLevelAll     MemberLevel = iota // 全部
-	MemberLevelNone                       // 无
-	MemberLevelSilver                     // 银卡
-	MemberLevelGold                       // 金卡
-	MemberLevelDiamond                    // 钻石卡
+	MemberLevelNone    MemberLevel = iota + 1 // 无
+	MemberLevelSilver                         // 银卡
+	MemberLevelGold                           // 金卡
+	MemberLevelDiamond                        // 钻石卡
 )
 
 var MemberLevelMap = map[MemberLevel]string{
-	MemberLevelAll:     "全部",
 	MemberLevelNone:    "无",
 	MemberLevelSilver:  "银卡",
 	MemberLevelGold:    "金卡",

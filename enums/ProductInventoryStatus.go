@@ -5,21 +5,19 @@ import (
 )
 
 /* 盘点状态 */
-// 全部、草稿、盘点中、待验证、盘点完成、盘点异常、盘点取消
+// 草稿、盘点中、待验证、盘点完成、盘点异常、盘点取消
 type ProductInventoryStatus int
 
 const (
-	ProductInventoryStatusAll          ProductInventoryStatus = iota // 全部
-	ProductInventoryStatusDraft                                      // 草稿
-	ProductInventoryStatusInventorying                               // 盘点中
-	ProductInventoryStatusToBeVerified                               // 待验证
-	ProductInventoryStatusCompleted                                  // 盘点完成
-	ProductInventoryStatusAbnormal                                   // 盘点异常
-	ProductInventoryStatusCancelled                                  // 盘点取消
+	ProductInventoryStatusDraft        ProductInventoryStatus = iota + 1 // 草稿
+	ProductInventoryStatusInventorying                                   // 盘点中
+	ProductInventoryStatusToBeVerified                                   // 待验证
+	ProductInventoryStatusCompleted                                      // 盘点完成
+	ProductInventoryStatusAbnormal                                       // 盘点异常
+	ProductInventoryStatusCancelled                                      // 盘点取消
 )
 
 var ProductInventoryStatusMap = map[ProductInventoryStatus]string{
-	ProductInventoryStatusAll:          "全部",
 	ProductInventoryStatusDraft:        "草稿",
 	ProductInventoryStatusInventorying: "盘点中",
 	ProductInventoryStatusToBeVerified: "待验证",

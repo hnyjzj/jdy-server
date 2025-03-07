@@ -3,21 +3,19 @@ package enums
 import "errors"
 
 /* 产品状态 */
-// 全部、正常、已报损、已调拨、已出售、已定出、盘点中
+// 正常、已报损、已调拨、已出售、已定出、盘点中
 type ProductStatus int
 
 const (
-	ProductStatusAll      ProductStatus = iota // 全部
-	ProductStatusNormal                        // 正常
-	ProductStatusDamage                        // 已报损
-	ProductStatusAllocate                      // 已调拨
-	ProductStatusSold                          // 已出售
-	ProductStatusReturn                        // 已定出
-	ProductStatusCheck                         // 盘点中
+	ProductStatusNormal   ProductStatus = iota + 1 // 正常
+	ProductStatusDamage                            // 已报损
+	ProductStatusAllocate                          // 已调拨
+	ProductStatusSold                              // 已出售
+	ProductStatusReturn                            // 已定出
+	ProductStatusCheck                             // 盘点中
 )
 
 var ProductStatusMap = map[ProductStatus]string{
-	ProductStatusAll:      "全部",
 	ProductStatusNormal:   "正常",
 	ProductStatusDamage:   "已报损",
 	ProductStatusAllocate: "已调拨",
@@ -29,9 +27,6 @@ var ProductStatusMap = map[ProductStatus]string{
 // 判断状态是否可以转换
 func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
 	transitions := map[ProductStatus][]ProductStatus{
-		ProductStatusAll: {
-			ProductStatusNormal,
-		},
 		ProductStatusNormal: {
 			ProductStatusDamage,
 			ProductStatusAllocate,

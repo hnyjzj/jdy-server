@@ -28,7 +28,7 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 		for _, v := range req.Options {
 			var ProductBrand []enums.ProductBrand
 			if len(v.ProductBrand) == 0 {
-				ProductBrand = enums.ProductBrandAll.All(false)
+				ProductBrand = enums.ProductBrandJMF.All()
 			} else {
 				ProductBrand = v.ProductBrand
 			}

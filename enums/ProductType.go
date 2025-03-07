@@ -5,18 +5,16 @@ import (
 )
 
 /* 产品类型 */
-// 全部、成品、旧料、配件
+// 成品、旧料、配件
 type ProductType int
 
 const (
-	ProductTypeAll         ProductType = iota // 全部
-	ProductTypeFinished                       // 成品
-	ProductTypeOld                            // 旧料
-	ProductTypeAccessories                    // 配件
+	ProductTypeFinished    ProductType = iota + 1 // 成品
+	ProductTypeOld                                // 旧料
+	ProductTypeAccessories                        // 配件
 )
 
 var ProductTypeMap = map[ProductType]string{
-	ProductTypeAll:         "全部",
 	ProductTypeFinished:    "成品",
 	ProductTypeOld:         "旧料",
 	ProductTypeAccessories: "配件",

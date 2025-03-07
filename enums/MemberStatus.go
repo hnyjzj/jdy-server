@@ -3,17 +3,15 @@ package enums
 import "errors"
 
 /* 会员状态 */
-// 全部、正常、禁用
+// 正常、禁用
 type MemberStatus int
 
 const (
-	MemberStatusAll     MemberStatus = iota // 全部
-	MemberStatusNormal                      // 正常
-	MemberStatusDisable                     // 禁用
+	MemberStatusNormal  MemberStatus = iota + 1 // 正常
+	MemberStatusDisable                         // 禁用
 )
 
 var MemberStatusMap = map[MemberStatus]string{
-	MemberStatusAll:     "全部",
 	MemberStatusNormal:  "正常",
 	MemberStatusDisable: "禁用",
 }

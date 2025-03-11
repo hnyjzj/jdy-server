@@ -61,7 +61,7 @@ type Product struct {
 	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收价格;"`                      // 回收价格
 	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                 // 回收金价
 	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                // 回收工费
-	RecyclePriceLaborMethon enums.ProductRecycleMethod `json:"recycle_price_labor_methon" gorm:"type:tinyint(2);comment:回收工费方式;"`          // 回收工费方式
+	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method" gorm:"type:tinyint(2);comment:回收工费方式;"`          // 回收工费方式
 	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                      // 实际成色
 	RecycleSource           enums.ProductRecycleSource `json:"recycle_source" gorm:"type:tinyint(2);comment:回收来源;"`                        // 回收来源
 	RecycleStoreId          string                     `json:"recycle_store_id" gorm:"type:varchar(255);comment:回收门店ID;"`                  // 回收门店ID

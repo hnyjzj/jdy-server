@@ -2,6 +2,7 @@ package enums
 
 import (
 	"errors"
+	"slices"
 )
 
 /* 产品类型 */
@@ -39,10 +40,8 @@ func (p ProductType) CanTransitionTo(n ProductType) error {
 	}
 
 	if allowed, ok := transitions[p]; ok {
-		for _, o := range allowed {
-			if o == n {
-				return nil
-			}
+		if slices.Contains(allowed, n) {
+			return nil
 		}
 	}
 

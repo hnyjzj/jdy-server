@@ -2,6 +2,7 @@ package enums
 
 import (
 	"errors"
+	"slices"
 )
 
 /* 盘点状态 */
@@ -68,10 +69,8 @@ func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error 
 	}
 
 	if allowed, ok := transitions[p]; ok {
-		for _, o := range allowed {
-			if o == n {
-				return nil
-			}
+		if slices.Contains(allowed, n) {
+			return nil
 		}
 	}
 

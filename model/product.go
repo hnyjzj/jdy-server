@@ -68,7 +68,7 @@ type Product struct {
 	RecycleStore            Store                      `json:"recycle_store" gorm:"foreignKey:RecycleStoreId;references:Id;comment:回收门店;"` // 回收门店
 
 	TypePart enums.ProductTypePart `json:"type_part" gorm:"type:tinyint(2);comment:配件类型;"` // 配件类型
-
+	Stock    int64                 `json:"stock" gorm:"default:1;comment:库存;"`             // 库存
 }
 
 func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {

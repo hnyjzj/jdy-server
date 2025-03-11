@@ -52,9 +52,6 @@ func (l *ProductLogic) Enter(req *types.ProductEnterReq) (*map[string]bool, *err
 			// 产品入库
 			v.ProductEnterId = enter.Id
 			v.StoreId = req.StoreId
-			if v.Stock == 0 {
-				v.Stock = 1
-			}
 
 			if err := tx.Create(&v).Error; err != nil {
 				continue

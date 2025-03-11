@@ -51,7 +51,7 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 		}
 
 		// 计算金额
-		if err := l.getAmount(); err != nil {
+		if err := l.loopSales(); err != nil {
 			return err
 		}
 
@@ -76,23 +76,6 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 	}
 
 	return l.Order, nil
-}
-
-// 计算金额
-func (l *OrderCreateLogic) getAmount() error {
-	switch l.Order.Type {
-	case enums.OrderTypeSales:
-		{
-			if err := l.loopSales(); err != nil {
-				return err
-			}
-		}
-	default:
-		{
-			return errors.New("订单类型错误")
-		}
-	}
-	return nil
 }
 
 // 销售单金额
@@ -123,10 +106,10 @@ func (l *OrderCreateLogic) loopSales() error {
 		)
 
 		switch product.RetailType {
-		case enums.ProductRetailTypePiece: // 一口价 = 单价x数量
+		case enums.ProductRetailTypePiece: // 一口价 = 标签价×数量
 			{
 				// 单价
-				price = product.Price
+				price = product.LabelPrice
 				// 原价
 				amount = price.Mul(decimal.NewFromInt(p.Quantity))
 			}

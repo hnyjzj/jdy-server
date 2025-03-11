@@ -73,8 +73,8 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			data.CountShould++
 			// 总件数
 			data.ContQuantity++
-			// 总价格
-			data.CountPrice = data.CountPrice.Add(product.Price)
+			// 总标价
+			data.CountPrice = data.CountPrice.Add(product.LabelPrice)
 			// 总重量
 			data.CountWeightMetal = data.CountWeightMetal.Add(product.WeightMetal)
 			// 判断是否可以转态

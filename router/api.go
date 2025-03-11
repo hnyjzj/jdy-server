@@ -146,6 +146,13 @@ func Api(g *gin.Engine) {
 					enters.POST("/create", product.ProductEnterController{}.Create) // 创建入库单
 					enters.POST("/list", product.ProductEnterController{}.List)     // 入库单列表
 					enters.POST("/info", product.ProductEnterController{}.Info)     // 入库单详情
+
+					enters.POST("/add_product", product.ProductEnterController{}.AddProduct)   // 添加产品
+					enters.DELETE("/del_product", product.ProductEnterController{}.DelProduct) // 删除产品
+					enters.PUT("/eidt_product", product.ProductEnterController{}.EditProduct)  // 编辑产品
+
+					enters.PUT("/finish", product.ProductEnterController{}.Finish) // 完成入库
+					enters.PUT("/cancel", product.ProductEnterController{}.Cancel) // 取消入库
 				}
 			}
 

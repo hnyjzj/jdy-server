@@ -48,27 +48,27 @@ type Product struct {
 	Remark         string                  `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注
 	IsSpecialOffer bool                    `json:"is_special_offer" gorm:"comment:是否特价;"`                       // 是否特价
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);comment:门店ID;"`           // 门店ID
-	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+	StoreId string `json:"store_id" gorm:"type:varchar(255);comment:门店ID;"`                     // 门店ID
+	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	ProductEnterId string        `json:"product_enter_id" gorm:"type:varchar(255);not NULL;comment:产品入库单ID;"`         // 产品入库单ID
-	ProductEnter   *ProductEnter `json:"product_enter" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品入库单;"` // 产品入库单
-	EnterTime      time.Time     `json:"enter_time" gorm:"comment:入库时间;"`                                             // 入库时间
+	ProductEnterId string        `json:"product_enter_id" gorm:"type:varchar(255);not NULL;comment:产品入库单ID;"`                   // 产品入库单ID
+	ProductEnter   *ProductEnter `json:"product_enter,omitempty" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品入库单;"` // 产品入库单
+	EnterTime      time.Time     `json:"enter_time" gorm:"comment:入库时间;"`                                                       // 入库时间
 
-	IsOur                   bool                       `json:"is_our" gorm:"comment:是否本司货品;"`                                              // 是否本司货品
-	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method" gorm:"type:tinyint(2);comment:回收方式;"`                        // 回收方式
-	RecycleType             enums.ProductRecycleType   `json:"recycle_type" gorm:"type:tinyint(2);comment:回收类型;"`                          // 回收类型
-	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收价格;"`                      // 回收价格
-	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                 // 回收金价
-	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                // 回收工费
-	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method" gorm:"type:tinyint(2);comment:回收工费方式;"`          // 回收工费方式
-	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                      // 实际成色
-	RecycleSource           enums.ProductRecycleSource `json:"recycle_source" gorm:"type:tinyint(2);comment:回收来源;"`                        // 回收来源
-	RecycleStoreId          string                     `json:"recycle_store_id" gorm:"type:varchar(255);comment:回收门店ID;"`                  // 回收门店ID
-	RecycleStore            Store                      `json:"recycle_store" gorm:"foreignKey:RecycleStoreId;references:Id;comment:回收门店;"` // 回收门店
+	IsOur                   bool                       `json:"is_our" gorm:"comment:是否本司货品;"`                                                        // 是否本司货品
+	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:tinyint(2);comment:回收方式;"`                        // 回收方式
+	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:tinyint(2);comment:回收类型;"`                          // 回收类型
+	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收价格;"`                                // 回收价格
+	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                           // 回收金价
+	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                          // 回收工费
+	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:tinyint(2);comment:回收工费方式;"`          // 回收工费方式
+	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                                // 实际成色
+	RecycleSource           enums.ProductRecycleSource `json:"recycle_source,omitempty" gorm:"type:tinyint(2);comment:回收来源;"`                        // 回收来源
+	RecycleStoreId          string                     `json:"recycle_store_id" gorm:"type:varchar(255);comment:回收门店ID;"`                            // 回收门店ID
+	RecycleStore            Store                      `json:"recycle_store,omitempty" gorm:"foreignKey:RecycleStoreId;references:Id;comment:回收门店;"` // 回收门店
 
-	TypePart enums.ProductTypePart `json:"type_part" gorm:"type:tinyint(2);comment:配件类型;"` // 配件类型
-	Stock    int64                 `json:"stock" gorm:"default:1;comment:库存;"`             // 库存
+	TypePart enums.ProductTypePart `json:"type_part,omitempty" gorm:"type:tinyint(2);comment:配件类型;"` // 配件类型
+	Stock    int64                 `json:"stock" gorm:"default:1;comment:库存;"`                       // 库存
 }
 
 func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
@@ -81,14 +81,14 @@ func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
 	if !query.AccessFee.IsZero() {
 		db = db.Where("access_fee = ?", query.AccessFee)
 	}
-	if !query.Price.IsZero() {
-		db = db.Where("price = ?", query.Price)
+	if !query.LabelPrice.IsZero() {
+		db = db.Where("price = ?", query.LabelPrice)
 	}
 	if !query.LaborFee.IsZero() {
 		db = db.Where("labor_fee = ?", query.LaborFee)
 	}
-	if !query.Weight.IsZero() {
-		db = db.Where("weight = ?", query.Weight)
+	if !query.WeightTotal.IsZero() {
+		db = db.Where("weight = ?", query.WeightTotal)
 	}
 	if !query.WeightMetal.IsZero() {
 		db = db.Where("weight_metal = ?", query.WeightMetal)
@@ -105,7 +105,7 @@ func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
 	if query.NumOther != 0 {
 		db = db.Where("num_other = ?", int(query.NumOther))
 	}
-	if query.ColorMetal != 0 {
+	if query.ColorMetal != "" {
 		db = db.Where("color_metal = ?", query.ColorMetal)
 	}
 	if query.ColorGem != 0 {
@@ -206,23 +206,25 @@ func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhe
 type ProductEnter struct {
 	SoftDelete
 
-	Products []Product `json:"products" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品;"` // 产品
-
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
+	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`                // 备注
+	Status enums.ProductEnterStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:状态;"` // 状态
+
+	Products []Product `json:"products" gorm:"foreignKey:ProductEnterId;references:Id;comment:产品;"` // 产品
+
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
-
-	IP string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"` // IP
+	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"`                 // IP
 }
 
 func (ProductEnter) WhereCondition(db *gorm.DB, query *types.ProductEnterWhere) *gorm.DB {
 	if query.Id != "" {
 		db = db.Where("id = ?", query.Id)
 	}
-	if query.StartTime != nil && query.EndTime != nil {
-		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
+	if query.StartAt != nil && query.EndAt != nil {
+		db = db.Where("created_at BETWEEN ? AND ?", query.StartAt, query.EndAt)
 	}
 	return db
 }

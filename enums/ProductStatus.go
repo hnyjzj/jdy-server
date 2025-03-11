@@ -6,11 +6,12 @@ import (
 )
 
 /* 产品状态 */
-// 正常、已报损、已调拨、已出售、已定出、盘点中、无库存
+// 草稿、正常、已报损、已调拨、已出售、已定出、盘点中、无库存
 type ProductStatus int
 
 const (
-	ProductStatusNormal   ProductStatus = iota + 1 // 正常
+	ProductStatusDraft    ProductStatus = iota + 1 // 草稿
+	ProductStatusNormal                            // 正常
 	ProductStatusDamage                            // 已报损
 	ProductStatusAllocate                          // 已调拨
 	ProductStatusSold                              // 已出售
@@ -20,6 +21,7 @@ const (
 )
 
 var ProductStatusMap = map[ProductStatus]string{
+	ProductStatusDraft:    "草稿",
 	ProductStatusNormal:   "正常",
 	ProductStatusDamage:   "已报损",
 	ProductStatusAllocate: "已调拨",

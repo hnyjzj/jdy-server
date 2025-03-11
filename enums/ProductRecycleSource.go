@@ -9,13 +9,13 @@ import (
 type ProductRecycleSource int
 
 const (
-	ProductRecycleSource_BAOSONGZHENGOLD ProductRecycleSource = iota + 1 // 报损转旧料
-	ProductRecycleSource_HUISHOU                                         // 回收
+	ProductRecycleSourceBaoSongZhenGold ProductRecycleSource = iota + 1 // 报损转旧料
+	ProductRecycleSourceHuiShou                                         // 回收
 )
 
 var ProductRecycleSourceMap = map[ProductRecycleSource]string{
-	ProductRecycleSource_BAOSONGZHENGOLD: "报损转旧料",
-	ProductRecycleSource_HUISHOU:         "回收",
+	ProductRecycleSourceBaoSongZhenGold: "报损转旧料",
+	ProductRecycleSourceHuiShou:         "回收",
 }
 
 func (p ProductRecycleSource) ToMap() any {

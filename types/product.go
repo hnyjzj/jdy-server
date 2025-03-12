@@ -59,14 +59,14 @@ type ProductEnterReqProduct struct {
 	Code string `json:"code" binding:"required"` // 条码
 	Name string `json:"name" binding:"required"` // 名称
 
-	AccessFee  decimal.Decimal `json:"access_fee" binding:"required"`  // 入网费
-	LabelPrice decimal.Decimal `json:"label_price" binding:"required"` // 标签价
-	LaborFee   decimal.Decimal `json:"labor_fee" binding:"required"`   // 工费
+	AccessFee  *decimal.Decimal `json:"access_fee" binding:"required"`  // 入网费
+	LabelPrice *decimal.Decimal `json:"label_price" binding:"required"` // 标签价
+	LaborFee   *decimal.Decimal `json:"labor_fee" binding:"required"`   // 工费
 
-	WeightTotal decimal.Decimal         `json:"weight_total"`                   // 总重量
-	WeightMetal decimal.Decimal         `json:"weight_metal"`                   // 金重
-	WeightGem   decimal.Decimal         `json:"weight_gem"`                     // 主石重
-	WeightOther decimal.Decimal         `json:"weight_other"`                   // 杂料重
+	WeightTotal *decimal.Decimal        `json:"weight_total"`                   // 总重量
+	WeightMetal *decimal.Decimal        `json:"weight_metal"`                   // 金重
+	WeightGem   *decimal.Decimal        `json:"weight_gem"`                     // 主石重
+	WeightOther *decimal.Decimal        `json:"weight_other"`                   // 杂料重
 	NumGem      int                     `json:"num_gem"`                        // 主石数
 	NumOther    int                     `json:"num_other"`                      // 杂料数
 	ColorMetal  string                  `json:"color_metal"`                    // 金颜色
@@ -96,9 +96,9 @@ type ProductWhere struct {
 	Code string `json:"code" label:"条码" find:"true" create:"true" update:"true" sort:"1" type:"string" input:"text" required:"true"` // 条码
 	Name string `json:"name" label:"名称" find:"true" create:"true" update:"true" sort:"2" type:"string" input:"text" required:"true"` // 名称
 
-	AccessFee  decimal.Decimal `json:"access_fee" label:"入网费" find:"true" create:"true" update:"true" sort:"3" type:"float" input:"text" required:"true"`  // 入网费
-	LabelPrice decimal.Decimal `json:"label_price" label:"标签价" find:"true" create:"true" update:"true" sort:"4" type:"float" input:"text" required:"true"` // 标签价
-	LaborFee   decimal.Decimal `json:"labor_fee" label:"工费" find:"true" create:"true" update:"true" sort:"5" type:"float" input:"text" required:"true"`    // 工费
+	AccessFee  decimal.Decimal `json:"access_fee" label:"入网费" find:"true" create:"true" update:"true" sort:"3" type:"float" input:"number" required:"true"`  // 入网费
+	LabelPrice decimal.Decimal `json:"label_price" label:"标签价" find:"true" create:"true" update:"true" sort:"4" type:"float" input:"number" required:"true"` // 标签价
+	LaborFee   decimal.Decimal `json:"labor_fee" label:"工费" find:"true" create:"true" update:"true" sort:"5" type:"float" input:"number" required:"true"`    // 工费
 
 	WeightTotal decimal.Decimal         `json:"weight_total" label:"总重量" find:"true" create:"true" update:"true" sort:"6" type:"float" input:"number"`                    // 总重量
 	WeightMetal decimal.Decimal         `json:"weight_metal" label:"金重" find:"true" create:"true" update:"true" sort:"7" type:"float" input:"number"`                     // 金重
@@ -124,13 +124,13 @@ type ProductWhere struct {
 
 	IsSpecialOffer bool                `json:"is_special_offer" label:"是否特价" find:"true" create:"true" update:"true" sort:"26" type:"bool" input:"switch"`          // 是否特价
 	Remark         string              `json:"remark" label:"备注" find:"true" create:"true" update:"true" sort:"27" type:"string" input:"textarea"`                  // 备注
-	Certificate    []string            `json:"certificate" label:"证书" find:"true" create:"true" update:"true" sort:"28" type:"string[]" input:"textarea"`           // 证书
-	Status         enums.ProductStatus `json:"status" label:"状态" find:"true" create:"false" update:"false" sort:"29" type:"number" input:"select" preset:"typeMap"` // 状态
-	Type           enums.ProductType   `json:"type" label:"类型" find:"true" create:"true" update:"false" sort:"30" type:"number" input:"select" preset:"typeMap"`    // 类型
+	Status         enums.ProductStatus `json:"status" label:"状态" find:"true" create:"false" update:"false" sort:"28" type:"number" input:"select" preset:"typeMap"` // 状态
+	Type           enums.ProductType   `json:"type" label:"类型" find:"true" create:"true" update:"false" sort:"29" type:"number" input:"select" preset:"typeMap"`    // 类型
 
-	Stock int64 `json:"stock" label:"库存" find:"false" create:"true" update:"false" sort:"31" type:"number" input:"number"` // 库存
+	Stock int64 `json:"stock" label:"库存" find:"false" create:"true" update:"false" sort:"30" type:"number" input:"number"` // 库存
 
-	StoreId string `json:"store_id" label:"门店" find:"true" create:"true" update:"false" sort:"32" type:"string" input:"text" binding:"required"` // 门店
+	StoreId     string   `json:"store_id" label:"门店" find:"true" create:"true" update:"false" sort:"31" type:"string" input:"text" binding:"required"` // 门店
+	Certificate []string `json:"certificate" label:"证书" find:"true" create:"true" update:"true" sort:"32" type:"string[]" input:"list"`                // 证书
 
 	ProductEnterId string `json:"product_enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"` // 产品入库单ID
 }

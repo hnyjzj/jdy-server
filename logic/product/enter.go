@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ProductEnterLogic struct {
@@ -244,8 +245,9 @@ func (l *ProductEnterLogic) Finish(req *types.ProductEnterFinishReq) error {
 
 		// 更新产品状态
 		for _, product := range enter.Products {
-			if product.Status != enums.ProductStatusDraft {
-				return errors.New("产品状态不正确")
+			// 加锁
+			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND status = ?", product.Id, enums.ProductStatusDraft).First(&product).Error; err != nil {
+				return errors.New("产品状态不正确或产品不存在")
 			}
 			product.Status = enums.ProductStatusNormal
 			if err := tx.Save(&product).Error; err != nil {

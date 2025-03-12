@@ -171,7 +171,7 @@ func (l *ProductEnterLogic) EditProduct(req *types.ProductEnterEditProductReq) e
 		return errors.New("产品不存在")
 	}
 
-	if product.ProductEnterId != enter.Id && product.StoreId != enter.StoreId && product.Status != enums.ProductStatusDraft {
+	if product.ProductEnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
 		return errors.New("产品不属于该入库单")
 	}
 
@@ -209,7 +209,7 @@ func (l *ProductEnterLogic) DelProduct(req *types.ProductEnterDelProductReq) err
 				return errors.New("产品不存在")
 			}
 
-			if product.ProductEnterId != enter.Id && product.StoreId != enter.StoreId && product.Status != enums.ProductStatusDraft {
+			if product.ProductEnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
 				return errors.New("产品不属于该入库单")
 			}
 

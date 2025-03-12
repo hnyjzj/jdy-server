@@ -130,7 +130,7 @@ func (con ProductEnterController) AddProduct(ctx *gin.Context) {
 	// 调用逻辑层
 	res, err := logic.AddProduct(&req)
 	if err != nil {
-		con.Exception(ctx, err.Error())
+		con.ExceptionWithResult(ctx, err.Error(), res)
 		return
 	}
 

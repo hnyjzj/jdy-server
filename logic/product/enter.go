@@ -84,7 +84,7 @@ func (l *ProductEnterLogic) EnterInfo(req *types.ProductEnterInfoReq) (*model.Pr
 }
 
 // 产品入库单添加产品
-func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*map[string]bool, error) {
+func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*map[string]string, error) {
 	// 查询入库单
 	var enter model.ProductEnter
 	if err := model.DB.Where("id = ?", req.ProductEnterId).First(&enter).Error; err != nil {
@@ -100,7 +100,7 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 	}
 
 	// 添加产品的结果
-	products := map[string]bool{}
+	products := map[string]string{}
 	success := 0
 	// 添加产品入库
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
@@ -108,18 +108,17 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 			// 转换数据结构
 			product, err := utils.StructToStruct[model.Product](p)
 			if err != nil {
-				return errors.New("产品录入失败: 参数错误")
+				return errors.New("参数错误")
 			}
-
-			products[product.Code] = false
 
 			var p model.Product
 			if err := tx.Where("code = ?", product.Code).First(&p).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
-					return err
+					return errors.New("产品不存在")
 				}
 			}
 			if p.Id != "" {
+				products[product.Code] = "条码已存在"
 				continue
 			}
 
@@ -131,15 +130,15 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 			product.Status = enums.ProductStatusDraft
 
 			if err := tx.Create(&product).Error; err != nil {
+				products[product.Code] = "入库失败"
 				continue
 			}
 
-			products[product.Code] = true
 			success++
 		}
 
 		if success == 0 {
-			return errors.New("产品录入失败：无产品录入成功")
+			return errors.New("无产品录入成功")
 		}
 
 		if success != len(req.Products) {
@@ -148,7 +147,7 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 
 		return nil
 	}); err != nil {
-		return nil, errors.New("产品录入失败")
+		return &products, errors.New("产品录入失败: " + err.Error())
 	}
 
 	return &products, nil

@@ -126,7 +126,8 @@ func Api(g *gin.Engine) {
 			// 产品管理
 			p := products.Group("/")
 			{
-				p.GET("/where", product.ProductController{}.Where) // 产品筛选
+				p.GET("/where", product.ProductController{}.Where)                       // 产品筛选
+				p.GET("/where_product_old", product.ProductController{}.WhereProductOld) // 旧料筛选
 				p.Use(middlewares.JWTMiddleware())
 				{
 					p.POST("/list", product.ProductController{}.List)            // 产品列表

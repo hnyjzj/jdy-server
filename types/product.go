@@ -135,6 +135,36 @@ type ProductWhere struct {
 	ProductEnterId string `json:"product_enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"` // 产品入库单ID
 }
 
+type ProductOldWhere struct {
+	IsOur                   bool                       `json:"is_our" label:"是否自有" find:"true" create:"true" update:"false" sort:"1" type:"bool" input:"switch" required:"true"`
+	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method" label:"回收方式" find:"true" create:"true" update:"false" sort:"2" type:"number" input:"select" required:"true" preset:"typeMap"`
+	RecycleType             enums.ProductRecycleType   `json:"recycle_type" label:"回收类型" find:"true" create:"true" update:"false" sort:"3" type:"number" input:"select" preset:"typeMap"`
+	Code                    string                     `json:"code" label:"条码" find:"true" create:"true" update:"false" sort:"4" type:"string" input:"text" required:"false"`
+	Name                    string                     `json:"name" label:"名称" find:"true" create:"true" update:"false" sort:"5" type:"string" input:"text" required:"false"`
+	Material                enums.ProductMaterial      `json:"material" label:"材质" find:"true" create:"true" update:"false" sort:"6" type:"number" input:"select" required:"true" preset:"typeMap"`
+	Quality                 enums.ProductQuality       `json:"quality" label:"成色" find:"true" create:"true" update:"false" sort:"7" type:"number" input:"select" required:"true" preset:"typeMap"`
+	Gem                     enums.ProductGem           `json:"gem" label:"主石" find:"true" create:"true" update:"false" sort:"8" type:"number" input:"select" required:"true" preset:"typeMap"`
+	Category                enums.ProductCategory      `json:"category" label:"品类" find:"true" create:"true" update:"false" sort:"9" type:"number" input:"select" required:"false" preset:"typeMap"`
+	Craft                   enums.ProductCraft         `json:"craft" label:"工艺" find:"true" create:"true" update:"false" sort:"10" type:"number" input:"select" required:"false" preset:"typeMap"`
+	WeightMetal             decimal.Decimal            `json:"weight_metal" label:"金重" find:"true" create:"true" update:"false" sort:"11" type:"number" input:"number" required:"true"`
+	LabelPrice              decimal.Decimal            `json:"label_price" label:"标签价" find:"true" create:"true" update:"false" sort:"12" type:"number" input:"number" required:"false"`
+	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" label:"回收金价" find:"true" create:"true" update:"false" sort:"13" type:"number" input:"number" required:"false"`
+	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method" label:"回收工费方式" find:"true" create:"true" update:"false" sort:"14" type:"number" input:"select" required:"false" preset:"typeMap"`
+	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" label:"回收工费" find:"true" create:"true" update:"false" sort:"15" type:"number" input:"number" required:"false"`
+	Brand                   enums.ProductBrand         `json:"brand" label:"品牌" find:"true" create:"true" update:"false" sort:"16" type:"number" input:"select" required:"false" preset:"typeMap"`
+	WeightGem               decimal.Decimal            `json:"weight_gem" label:"主石重" find:"true" create:"true" update:"false" sort:"17" type:"number" input:"number" required:"false"`
+	ColorGem                enums.ProductColor         `json:"color_gem" label:"主石色" find:"true" create:"true" update:"false" sort:"18" type:"number" input:"select" required:"false" preset:"typeMap"`
+	Clarity                 enums.ProductClarity       `json:"clarity" label:"净度" find:"true" create:"true" update:"false" sort:"19" type:"number" input:"select" required:"false" preset:"typeMap"`
+	Cut                     enums.ProductCut           `json:"cut" label:"切工" find:"true" create:"true" update:"false" sort:"20" type:"number" input:"select" required:"false" preset:"typeMap"`
+	NumGem                  int                        `json:"num_gem" label:"主石数" find:"true" create:"true" update:"false" sort:"21" type:"number" input:"number" required:"false"`
+	WeightOther             decimal.Decimal            `json:"weight_other" label:"副石重" find:"true" create:"true" update:"false" sort:"22" type:"number" input:"number" required:"false"`
+	NumOther                int                        `json:"num_other" label:"副石数" find:"true" create:"true" update:"false" sort:"23" type:"number" input:"number" required:"false"`
+	WeightTotal             decimal.Decimal            `json:"weight_total" label:"总重" find:"true" create:"true" update:"false" sort:"24" type:"number" input:"number" required:"false"`
+	QualityActual           decimal.Decimal            `json:"quality_actual" label:"实际成色" find:"true" create:"true" update:"false" sort:"25" type:"number" input:"number" required:"false"`
+	Remark                  string                     `json:"remark" label:"备注" find:"true" create:"true" update:"false" sort:"26" type:"string" input:"textarea" required:"false"`
+	RecyclePrice            decimal.Decimal            `json:"recycle_price" label:"回收金额" find:"true" create:"true" update:"false" sort:"27" type:"number" input:"number" required:"false"`
+}
+
 type ProductListReq struct {
 	PageReq
 	Where ProductWhere `json:"where" binding:"required"`
@@ -208,6 +238,8 @@ type ProductAllocateCreateReq struct {
 	Remark      string                      `json:"remark"`                    // 备注
 	FromStoreId string                      `json:"from_store_id"`             // 调出门店
 	ToStoreId   string                      `json:"to_store_id"`               // 调入门店
+
+	ProductEnterId string `json:"product_enter_id"` // 入库单号
 }
 
 func (req *ProductAllocateCreateReq) Validate() error {
@@ -219,12 +251,12 @@ func (req *ProductAllocateCreateReq) Validate() error {
 }
 
 type ProductAllocateWhere struct {
-	Method      enums.ProductAllocateMethod `json:"method" label:"调拨方式" input:"select" type:"number" find:"true" sort:"1" required:"true" preset:"typeMap"` // 调拨方式
-	Type        enums.ProductType           `json:"type" label:"仓库类型" input:"select" type:"number" find:"true" sort:"2" required:"true" preset:"typeMap"`   // 仓库类型
-	Reason      enums.ProductAllocateReason `json:"reason" label:"调拨原因" input:"select" type:"number" find:"true" sort:"3" required:"true" preset:"typeMap"` // 调拨原因
-	FromStoreId string                      `json:"from_store_id" label:"调出门店" input:"search" type:"string" find:"true" sort:"4" required:"false"`          // 调出门店
-	ToStoreId   string                      `json:"to_store_id" label:"调入门店" input:"search" type:"string" find:"true" sort:"4" required:"false"`            // 调入门店
-	Status      enums.ProductAllocateStatus `json:"status" label:"调拨状态" input:"select" type:"number" find:"true" sort:"5" required:"true" preset:"typeMap"` // 调拨状态
+	Method      enums.ProductAllocateMethod `json:"method" label:"调拨方式" input:"select" type:"number" find:"true" create:"true" sort:"1" required:"true" preset:"typeMap"` // 调拨方式
+	Type        enums.ProductType           `json:"type" label:"仓库类型" input:"select" type:"number" find:"true" create:"true" sort:"2" required:"true" preset:"typeMap"`   // 仓库类型
+	Reason      enums.ProductAllocateReason `json:"reason" label:"调拨原因" input:"select" type:"number" find:"true" create:"true" sort:"3" required:"true" preset:"typeMap"` // 调拨原因
+	FromStoreId string                      `json:"from_store_id" label:"调出门店" input:"search" type:"string" sort:"4" required:"false"`                                    // 调出门店
+	ToStoreId   string                      `json:"to_store_id" label:"调入门店" input:"search" type:"string" find:"true" create:"true"  sort:"4" required:"false"`           // 调入门店
+	Status      enums.ProductAllocateStatus `json:"status" label:"调拨状态" input:"select" type:"number" find:"true" create:"true" sort:"5" required:"true" preset:"typeMap"` // 调拨状态
 
 	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"6" required:"false"` // 开始时间
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间

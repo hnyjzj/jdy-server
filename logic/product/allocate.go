@@ -35,6 +35,18 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 		if req.Method == enums.ProductAllocateMethodStore {
 			data.ToStoreId = req.ToStoreId
 		}
+
+		// 判断是不是整单调拨
+		if req.ProductEnterId != "" {
+			// 获取产品
+			var enter model.ProductEnter
+			if err := tx.Preload("Products").First(&enter, req.ProductEnterId).Error; err != nil {
+				return errors.New("获取调拨单失败")
+			}
+			// 添加产品
+			data.Products = append(data.Products, enter.Products...)
+		}
+
 		// 创建调拨单
 		if err := tx.Create(&data).Error; err != nil {
 			return err

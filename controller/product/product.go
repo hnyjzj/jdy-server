@@ -21,6 +21,12 @@ func (con ProductController) Where(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
+func (con ProductController) WhereProductOld(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductOldWhere{})
+
+	con.Success(ctx, "ok", where)
+}
+
 // 产品列表
 func (con ProductController) List(ctx *gin.Context) {
 	var (

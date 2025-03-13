@@ -180,11 +180,11 @@ type ProductUpdateReq struct {
 	Name   string   `json:"name"`   // 名称
 	Images []string `json:"images"` // 图片
 
-	AccessFee *decimal.Decimal `json:"access_fee"` // 入网费
-	Price     *decimal.Decimal `json:"price"`      // 标签价
-	LaborFee  *decimal.Decimal `json:"labor_fee"`  // 工费
+	AccessFee  *decimal.Decimal `json:"access_fee"`  // 入网费
+	LabelPrice *decimal.Decimal `json:"label_price"` // 标签价
+	LaborFee   *decimal.Decimal `json:"labor_fee"`   // 工费
 
-	Weight      *decimal.Decimal        `json:"weight"`       // 总重量
+	WeightTotal *decimal.Decimal        `json:"weight_total"` // 总重量
 	WeightMetal *decimal.Decimal        `json:"weight_metal"` // 金重
 	WeightGem   *decimal.Decimal        `json:"weight_gem"`   // 主石重
 	WeightOther *decimal.Decimal        `json:"weight_other"` // 杂料重

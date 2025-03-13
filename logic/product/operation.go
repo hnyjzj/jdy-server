@@ -28,7 +28,7 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-
+		old_product := product
 		log := &model.ProductDamage{
 			ProductId:  product.Id,
 			OperatorId: l.Staff.Id,
@@ -39,24 +39,23 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 		if err := tx.Create(&log).Error; err != nil {
 			return err
 		}
+		// 更新商品状态
+		product.Status = enums.ProductStatusNormal
+		if err := tx.Save(&product).Error; err != nil {
+			return err
+		}
 
 		// 添加记录
 		if err := tx.Create(&model.ProductHistory{
 			Action:     enums.ProductActionDamage,
-			Key:        "status",
-			Value:      enums.ProductStatusNormal,
-			OldValue:   product.Status,
+			OldValue:   old_product,
+			NewValue:   product,
 			ProductId:  product.Id,
 			StoreId:    product.StoreId,
 			SourceId:   log.Id,
 			OperatorId: l.Staff.Id,
 			IP:         l.Ctx.ClientIP(),
 		}).Error; err != nil {
-			return err
-		}
-		// 更新商品状态
-		product.Status = enums.ProductStatusNormal
-		if err := tx.Save(&product).Error; err != nil {
 			return err
 		}
 

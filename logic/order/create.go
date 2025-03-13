@@ -86,6 +86,9 @@ func (l *OrderCreateLogic) loopSales() error {
 		if err != nil {
 			return err
 		}
+
+		old_product := product
+
 		// 获取金价
 		gold_price, err := model.GetGoldPrice(&types.GoldPriceOptions{
 			StoreId:         l.Order.StoreId,
@@ -156,9 +159,8 @@ func (l *OrderCreateLogic) loopSales() error {
 		// 添加记录
 		if err := l.Tx.Create(&model.ProductHistory{
 			Action:     enums.ProductActionOrder,
-			Key:        "status",
-			Value:      enums.ProductStatusSold,
-			OldValue:   product.Status,
+			OldValue:   old_product,
+			NewValue:   product,
 			ProductId:  product.Id,
 			StoreId:    product.StoreId,
 			SourceId:   l.Order.Id,

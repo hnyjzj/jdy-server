@@ -175,7 +175,8 @@ type ProductInfoReq struct {
 }
 
 type ProductUpdateReq struct {
-	Id string `json:"id" binding:"required"` // 产品ID
+	Id      string `json:"id" binding:"required"`       // 产品ID
+	StoreId string `json:"store_id" binding:"required"` // 店铺ID
 
 	Name   string   `json:"name"`   // 名称
 	Images []string `json:"images"` // 图片

@@ -255,6 +255,7 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 解锁产品
 		for _, product := range allocate.Products {
+			old_product := product
 			// 判断产品状态是否为锁定状态
 			if product.Status != enums.ProductStatusAllocate {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
@@ -270,23 +271,23 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
 
+			// 更新商品状态
+			product.Status = enums.ProductStatusNormal
+			if err := tx.Save(&product).Error; err != nil {
+				return err
+			}
+
 			// 添加记录
 			if err := tx.Create(&model.ProductHistory{
 				Action:     enums.ProductActionTransfer,
-				Key:        "status",
-				Value:      enums.ProductStatusNormal,
-				OldValue:   product.Status,
+				OldValue:   old_product,
+				NewValue:   product,
 				ProductId:  product.Id,
 				StoreId:    product.StoreId,
 				SourceId:   allocate.Id,
 				OperatorId: p.Staff.Id,
 				IP:         p.Ctx.ClientIP(),
 			}).Error; err != nil {
-				return err
-			}
-			// 更新商品状态
-			product.Status = enums.ProductStatusNormal
-			if err := tx.Save(&product).Error; err != nil {
 				return err
 			}
 		}

@@ -1,6 +1,7 @@
 package product
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
@@ -68,8 +69,29 @@ func (p *ProductLogic) Update(req *types.ProductUpdateReq) error {
 			return errors.New("验证参数失败")
 		}
 
-		if err := tx.Model(&model.Product{}).Where("id = ?", req.Id).Updates(data).Error; err != nil {
+		var product model.Product
+		if err := tx.Model(&model.Product{}).Where("id = ?", req.Id).First(&product).Error; err != nil {
+			return errors.New("获取产品信息失败")
+		}
+
+		old := product
+
+		if err := tx.Model(&model.Product{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
 			return errors.New("更新产品信息失败")
+		}
+
+		// 添加记录
+		if err := tx.Create(&model.ProductHistory{
+			Action:     enums.ProductActionUpdate,
+			OldValue:   old,
+			NewValue:   data,
+			ProductId:  data.Id,
+			StoreId:    data.StoreId,
+			SourceId:   data.Id,
+			OperatorId: p.Staff.Id,
+			IP:         p.Ctx.ClientIP(),
+		}).Error; err != nil {
+			return err
 		}
 
 		return nil

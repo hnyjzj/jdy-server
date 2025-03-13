@@ -171,9 +171,8 @@ type ProductHistory struct {
 
 	Action enums.ProductAction `json:"action" gorm:"type:tinyint(2);comment:操作;"` // 操作
 
-	Key      string `json:"key" gorm:"type:varchar(255);comment:键;"`                // 键
-	Value    any    `json:"value" gorm:"type:text;serializer:json;comment:值;"`      // 值
-	OldValue any    `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
+	NewValue any `json:"new_value" gorm:"type:text;serializer:json;comment:值;"`  // 值
+	OldValue any `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
 
 	ProductId string   `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`    // 产品ID
 	Product   *Product `json:"product" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品

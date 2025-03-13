@@ -252,6 +252,21 @@ func (l *ProductEnterLogic) Finish(req *types.ProductEnterFinishReq) error {
 			if err := tx.Save(&product).Error; err != nil {
 				return errors.New("产品更新失败")
 			}
+
+			// 添加记录
+			history := model.ProductHistory{
+				OldValue:   nil,
+				NewValue:   product,
+				Action:     enums.ProductActionEntry,
+				ProductId:  product.Id,
+				StoreId:    enter.StoreId,
+				SourceId:   enter.Id,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}
+			if err := tx.Save(&history).Error; err != nil {
+				return errors.New("产品记录添加失败")
+			}
 		}
 
 		// 更新入库单状态

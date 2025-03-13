@@ -101,31 +101,3 @@ func (p *ProductLogic) Update(req *types.ProductUpdateReq) error {
 
 	return nil
 }
-
-// 产品操作记录列表
-func (l *ProductLogic) History(req *types.ProductHistoryReq) (*types.PageRes[model.ProductHistory], error) {
-	var (
-		logs model.ProductHistory
-
-		res types.PageRes[model.ProductHistory]
-	)
-
-	db := model.DB.Model(&logs)
-	db = logs.WhereCondition(db, &req.Where)
-
-	// 获取总数
-	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取总数失败")
-	}
-
-	// 获取列表
-	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
-	db = db.Preload("Operator")
-	db = db.Preload("Product")
-	if err := db.Find(&res.List).Error; err != nil {
-		return nil, errors.New("获取列表失败")
-	}
-
-	return &res, nil
-}

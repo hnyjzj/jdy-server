@@ -227,9 +227,13 @@ type ProductHistoryWhere struct {
 	Action    enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"3" required:"true" preset:"typeMap"`    // 操作
 }
 
-type ProductHistoryReq struct {
+type ProductHistoryListReq struct {
 	PageReq
 	Where ProductHistoryWhere `json:"where" binding:"required"`
+}
+
+type ProductHistoryInfoReq struct {
+	Id string `json:"id" binding:"required"`
 }
 
 type ProductAllocateCreateReq struct {

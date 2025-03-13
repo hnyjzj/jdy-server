@@ -174,8 +174,7 @@ type ProductHistory struct {
 	NewValue any `json:"new_value" gorm:"type:text;serializer:json;comment:值;"`  // 值
 	OldValue any `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
 
-	ProductId string   `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`    // 产品ID
-	Product   *Product `json:"product" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
+	ProductId string `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"` // 产品ID
 
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店

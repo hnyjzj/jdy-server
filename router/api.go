@@ -190,10 +190,11 @@ func Api(g *gin.Engine) {
 			// 产品盘点
 			history := products.Group("/history")
 			{
-				history.GET("/where", product.ProductController{}.HistoryWhere) // 产品操作记录筛选
+				history.GET("/where", product.ProductHistoryController{}.Where) // 产品操作记录筛选
 				history.Use(middlewares.JWTMiddleware())
 				{
-					history.POST("/list", product.ProductController{}.History) // 产品操作记录列表
+					history.POST("/list", product.ProductHistoryController{}.List) // 产品操作记录列表
+					history.POST("/info", product.ProductHistoryController{}.Info) // 产品操作记录详情
 				}
 			}
 		}

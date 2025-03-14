@@ -41,7 +41,7 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			// 获取产品
 			var enter model.ProductEnter
 			if err := tx.Preload("Products").First(&enter, req.ProductEnterId).Error; err != nil {
-				return errors.New("获取调拨单失败")
+				return errors.New("获取入库单失败")
 			}
 			// 添加产品
 			data.Products = append(data.Products, enter.Products...)

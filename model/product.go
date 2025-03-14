@@ -82,13 +82,13 @@ func (Product) WhereCondition(db *gorm.DB, query *types.ProductWhere) *gorm.DB {
 		db = db.Where("access_fee = ?", query.AccessFee)
 	}
 	if !query.LabelPrice.IsZero() {
-		db = db.Where("price = ?", query.LabelPrice)
+		db = db.Where("label_price = ?", query.LabelPrice)
 	}
 	if !query.LaborFee.IsZero() {
 		db = db.Where("labor_fee = ?", query.LaborFee)
 	}
 	if !query.WeightTotal.IsZero() {
-		db = db.Where("weight = ?", query.WeightTotal)
+		db = db.Where("weight_total = ?", query.WeightTotal)
 	}
 	if !query.WeightMetal.IsZero() {
 		db = db.Where("weight_metal = ?", query.WeightMetal)

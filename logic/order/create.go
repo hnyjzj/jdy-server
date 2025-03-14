@@ -87,7 +87,16 @@ func (l *OrderCreateLogic) loopSales() error {
 			return err
 		}
 
-		old_product := product
+		old_product := *product
+		log := model.ProductHistory{
+			Action:     enums.ProductActionOrder,
+			OldValue:   old_product,
+			ProductId:  old_product.Id,
+			StoreId:    old_product.StoreId,
+			SourceId:   l.Order.Id,
+			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
+		}
 
 		// 获取金价
 		gold_price, err := model.GetGoldPrice(&types.GoldPriceOptions{
@@ -156,22 +165,15 @@ func (l *OrderCreateLogic) loopSales() error {
 		}
 		l.Order.Products = append(l.Order.Products, order_product)
 
-		// 添加记录
-		if err := l.Tx.Create(&model.ProductHistory{
-			Action:     enums.ProductActionOrder,
-			OldValue:   old_product,
-			NewValue:   product,
-			ProductId:  product.Id,
-			StoreId:    product.StoreId,
-			SourceId:   l.Order.Id,
-			OperatorId: l.Staff.Id,
-			IP:         l.Ctx.ClientIP(),
-		}).Error; err != nil {
-			return err
-		}
 		// 更新商品状态
 		product.Status = enums.ProductStatusSold
 		if err := l.Tx.Save(&product).Error; err != nil {
+			return err
+		}
+
+		// 添加记录
+		log.NewValue = product
+		if err := l.Tx.Create(&log).Error; err != nil {
 			return err
 		}
 
@@ -189,6 +191,9 @@ func (l *OrderCreateLogic) getProduct(product_id string) (*model.Product, error)
 	var product model.Product
 	db := l.Tx.Model(&model.Product{})
 	db = db.Where("id = ?", product_id)
+	db = db.Preload("Store")
+	db = db.Preload("RecycleStore")
+
 	if err := db.First(&product).Error; err != nil {
 		return nil, errors.New("产品不存在")
 	}

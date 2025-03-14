@@ -244,7 +244,11 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 	)
 
 	// 获取调拨单
-	if err := model.DB.Preload("Products").First(&allocate, req.Id).Error; err != nil {
+	if err := model.DB.Preload("Products", func(db *gorm.DB) *gorm.DB {
+		db = db.Preload("Store")
+		db = db.Preload("RecycleStore")
+		return db
+	}).First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -255,7 +259,16 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 解锁产品
 		for _, product := range allocate.Products {
-			old_product := product
+			log := model.ProductHistory{
+				Action:     enums.ProductActionTransfer,
+				OldValue:   product,
+				ProductId:  product.Id,
+				StoreId:    product.StoreId,
+				SourceId:   allocate.Id,
+				OperatorId: p.Staff.Id,
+				IP:         p.Ctx.ClientIP(),
+			}
+
 			// 判断产品状态是否为锁定状态
 			if product.Status != enums.ProductStatusAllocate {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
@@ -278,16 +291,8 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 			}
 
 			// 添加记录
-			if err := tx.Create(&model.ProductHistory{
-				Action:     enums.ProductActionTransfer,
-				OldValue:   old_product,
-				NewValue:   product,
-				ProductId:  product.Id,
-				StoreId:    product.StoreId,
-				SourceId:   allocate.Id,
-				OperatorId: p.Staff.Id,
-				IP:         p.Ctx.ClientIP(),
-			}).Error; err != nil {
+			log.NewValue = product
+			if err := tx.Create(&log).Error; err != nil {
 				return err
 			}
 		}

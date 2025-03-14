@@ -13,7 +13,10 @@ import (
 func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 	// 查询商品信息
 	var product model.Product
-	if err := model.DB.Where(&model.Product{Code: req.Code}).First(&product).Error; err != nil {
+	if err := model.DB.Where(&model.Product{Code: req.Code}).
+		Preload("Store").
+		Preload("RecycleStore").
+		First(&product).Error; err != nil {
 		return errors.New("商品不存在")
 	}
 
@@ -28,34 +31,37 @@ func (l *ProductLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		old_product := product
 		log := &model.ProductDamage{
 			ProductId:  product.Id,
 			OperatorId: l.Staff.Id,
 			Reason:     req.Reason,
 			IP:         l.Ctx.ClientIP(),
 		}
-		// 添加报损记录
-		if err := tx.Create(&log).Error; err != nil {
-			return err
-		}
-		// 更新商品状态
-		product.Status = enums.ProductStatusNormal
-		if err := tx.Save(&product).Error; err != nil {
-			return err
-		}
 
-		// 添加记录
-		if err := tx.Create(&model.ProductHistory{
+		history := model.ProductHistory{
 			Action:     enums.ProductActionDamage,
-			OldValue:   old_product,
-			NewValue:   product,
+			OldValue:   product,
 			ProductId:  product.Id,
 			StoreId:    product.StoreId,
 			SourceId:   log.Id,
 			OperatorId: l.Staff.Id,
 			IP:         l.Ctx.ClientIP(),
-		}).Error; err != nil {
+		}
+
+		// 添加报损记录
+		if err := tx.Create(&log).Error; err != nil {
+			return err
+		}
+
+		// 更新商品状态
+		product.Status = enums.ProductStatusDamage
+		if err := tx.Save(&product).Error; err != nil {
+			return err
+		}
+
+		// 添加记录
+		history.NewValue = product
+		if err := tx.Create(&history).Error; err != nil {
 			return err
 		}
 

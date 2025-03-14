@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ProductLogic struct {
@@ -70,27 +71,30 @@ func (p *ProductLogic) Update(req *types.ProductUpdateReq) error {
 		}
 
 		var product model.Product
-		if err := tx.Model(&model.Product{}).Where("id = ?", req.Id).First(&product).Error; err != nil {
+		if err := tx.Model(&model.Product{}).
+			Preload("Store").
+			Preload("RecycleStore").
+			Where("id = ?", req.Id).First(&product).Error; err != nil {
 			return errors.New("获取产品信息失败")
 		}
 
-		old := product
+		history := model.ProductHistory{
+			Action:     enums.ProductActionUpdate,
+			OldValue:   product,
+			ProductId:  product.Id,
+			SourceId:   product.Id,
+			StoreId:    product.StoreId,
+			OperatorId: p.Staff.Id,
+			IP:         p.Ctx.ClientIP(),
+		}
 
-		if err := tx.Model(&model.Product{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
+		if err := tx.Model(&product).Clauses(clause.Returning{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
 			return errors.New("更新产品信息失败")
 		}
 
 		// 添加记录
-		if err := tx.Create(&model.ProductHistory{
-			Action:     enums.ProductActionUpdate,
-			OldValue:   old,
-			NewValue:   data,
-			ProductId:  data.Id,
-			StoreId:    data.StoreId,
-			SourceId:   data.Id,
-			OperatorId: p.Staff.Id,
-			IP:         p.Ctx.ClientIP(),
-		}).Error; err != nil {
+		history.NewValue = product
+		if err := tx.Create(&history).Error; err != nil {
 			return err
 		}
 

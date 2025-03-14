@@ -155,34 +155,42 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 
 // 入库单编辑产品
 func (l *ProductEnterLogic) EditProduct(req *types.ProductEnterEditProductReq) error {
-	// 查询入库单
-	var enter model.ProductEnter
-	if err := model.DB.Where("id = ?", req.ProductEnterId).First(&enter).Error; err != nil {
-		return errors.New("入库单不存在")
-	}
 
-	if enter.Status != enums.ProductEnterStatusDraft {
-		return errors.New("入库单已结束")
-	}
+	// 编辑产品逻辑存在潜在并发风险，使用事务包裹并加锁
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询入库单
+		var enter model.ProductEnter
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.ProductEnterId).First(&enter).Error; err != nil {
+			return errors.New("入库单不存在")
+		}
 
-	var product model.Product
-	if err := model.DB.Where("id = ?", req.ProductId).First(&product).Error; err != nil {
-		return errors.New("产品不存在")
-	}
+		if enter.Status != enums.ProductEnterStatusDraft {
+			return errors.New("入库单已结束")
+		}
 
-	if product.ProductEnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
-		return errors.New("产品不属于该入库单")
-	}
+		var product model.Product
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.ProductId).First(&product).Error; err != nil {
+			return errors.New("产品不存在")
+		}
 
-	// 转换数据结构
-	product, err := utils.StructToStruct[model.Product](req.Product)
-	if err != nil {
-		return errors.New("产品录入失败: 参数错误")
-	}
+		if product.ProductEnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
+			return errors.New("产品不属于该入库单")
+		}
 
-	// 更新产品
-	if err := model.DB.Model(model.Product{}).Where("id = ?", req.ProductId).Updates(product).Error; err != nil {
-		return errors.New("产品更新失败")
+		// 转换数据结构
+		product, err := utils.StructToStruct[model.Product](req.Product)
+		if err != nil {
+			return errors.New("产品录入失败: 参数错误")
+		}
+
+		// 更新产品
+		if err := tx.Model(model.Product{}).Where("id = ?", req.ProductId).Updates(product).Error; err != nil {
+			return errors.New("产品更新失败")
+		}
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	return nil

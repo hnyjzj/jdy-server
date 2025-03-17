@@ -56,30 +56,27 @@ func (l *EventChangeExternalContact) Distribute() error {
 
 func (l *EventChangeExternalContact) GetExternalContact() error {
 	// 获取外部联系人信息
-	var msg models.EventExternalUserAdd
-	if err := l.Handle.Event.ReadMessage(&msg); err != nil {
-		return errors.New("解析消息体失败: " + err.Error())
-	}
-
-	// 查找员工
-	var account model.Account
-	if err := model.DB.Where(model.Account{Username: &msg.UserID, Platform: enums.PlatformTypeWxWork}).Preload("Staff").First(&account).Error; err != nil {
-		return errors.New("查询员工失败: " + err.Error())
-	}
-	if account.Id == "" || account.Staff == nil {
-		return errors.New("员工不存在")
-	}
-
-	// 获取外部联系人信息
 	app := config.NewWechatService().JdyWork
-	user, err := app.ExternalContact.Get(l.Handle.Ctx, msg.ExternalUserID, "")
+	user, err := app.ExternalContact.Get(l.Handle.Ctx, l.Message.ExternalUserID, "")
 	if err != nil {
 		return errors.New("获取外部联系人信息失败: " + err.Error())
 	}
 
+	// 查找员工
+	var account model.Account
+	if err := model.DB.Where(model.Account{Username: &l.Message.UserID, Platform: enums.PlatformTypeWxWork}).Preload("Staff").First(&account).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return errors.New("查询会员失败: " + err.Error())
+		}
+	}
+	if account.Staff == nil {
+		account.Staff = &model.Staff{}
+		account.Username = &l.Message.UserID
+	}
+
 	// 查找会员
 	var member model.Member
-	if err := model.DB.Where(model.Member{ExternalUserID: msg.ExternalUserID}).Attrs(model.Member{
+	if err := model.DB.Where(model.Member{ExternalUserID: l.Message.ExternalUserID}).Attrs(model.Member{
 		Name:           user.ExternalContact.Name,
 		Gender:         enums.GenderUnknown.Convert(user.ExternalContact.Gender),
 		Nickname:       user.ExternalContact.Name,
@@ -87,7 +84,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 		SourceId:       account.Staff.Id,
 		ConsultantId:   account.Staff.Id,
 		Status:         enums.MemberStatusPending,
-		ExternalUserID: msg.ExternalUserID,
+		ExternalUserID: l.Message.ExternalUserID,
 	}).FirstOrCreate(&member).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return errors.New("查询会员失败: " + err.Error())
@@ -98,7 +95,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 	m := message.NewMessage(l.Handle.Ctx)
 	m.SendMemberCreateMessage(&message.MemberCreateMessage{
 		ToUser:         *account.Username,
-		ExternalUserID: msg.ExternalUserID,
+		ExternalUserID: l.Message.ExternalUserID,
 		Name:           user.ExternalContact.Name,
 	})
 

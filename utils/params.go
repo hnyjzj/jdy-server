@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"jdy/types"
@@ -79,6 +80,16 @@ func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error
 		default:
 			whereForm.Preset = tga.Get("preset")
 		}
+	}
+	if tga.Get("condition") != "" {
+		// 字符串转json
+		var tempConditions []types.WhereCondition
+		err := json.Unmarshal([]byte(tga.Get("condition")), &tempConditions)
+		if err != nil {
+			fmt.Printf("err.Error(): %v\n", err.Error())
+			return whereForm, err
+		}
+		whereForm.Condition = tempConditions
 	}
 
 	return whereForm, nil

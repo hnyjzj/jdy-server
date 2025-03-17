@@ -15,7 +15,7 @@ type MemberCreateMessage struct {
 
 // 发送黄金价格设置提醒
 func (M *BaseMessage) SendMemberCreateMessage(req *MemberCreateMessage) {
-	url := fmt.Sprintf("%s/system/gold/price", M.App.Home)
+	url := fmt.Sprintf("%s/member/lists/info?external_user_id=%s", M.App.Home, req.ExternalUserID)
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  req.ToUser, // 接收消息的用户ID列表，列表不可为空，最多支持100个用户

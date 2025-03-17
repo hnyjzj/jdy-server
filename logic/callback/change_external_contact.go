@@ -72,7 +72,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 	if err := model.DB.Where(model.Account{Username: &msg.UserID, Platform: enums.PlatformTypeWxWork}).Preload("Staff").First(&account).Error; err != nil {
 		return errors.New("查询员工失败: " + err.Error())
 	}
-	if account.Id != "" || account.Staff == nil {
+	if account.Id == "" || account.Staff == nil {
 		return errors.New("员工不存在")
 	}
 

@@ -34,6 +34,8 @@ type Member struct {
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;"`          // 门店
 
 	Status enums.MemberStatus `json:"status" gorm:"column:status;type:tinyint(1);not NULL;default:0;comment:状态;"` // 状态
+
+	ExternalUserID string `json:"external_user_id" gorm:"column:external_user_id;size:255;not NULL;comment:外部用户id;"` // 外部用户id
 }
 
 func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
@@ -78,6 +80,9 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
+	}
+	if query.ExternalUserId != "" {
+		db = db.Where("external_user_id = ?", query.ExternalUserId)
 	}
 
 	return db

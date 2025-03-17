@@ -11,13 +11,13 @@ import (
 type Member struct {
 	SoftDelete
 
-	Phone       *string      `json:"phone" gorm:"column:phone;unique;size:255;not NULL;comment:手机号;"` // 手机号
-	Name        string       `json:"name" gorm:"column:name;size:255;not NULL;comment:姓名;"`           // 姓名
-	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"`         // 性别
-	Birthday    string       `json:"birthday" gorm:"column:birthday;size:255;comment:生日;"`            // 生日
-	Anniversary string       `json:"anniversary" gorm:"column:anniversary;size:255;comment:纪念日;"`     // 纪念日
-	Nickname    string       `json:"nickname" gorm:"column:nickname;size:255;comment:昵称;"`            // 昵称
-	IDCard      string       `json:"id_card" gorm:"column:id_card;size:255;comment:身份证号;"`            // 身份证号
+	Phone       *string      `json:"phone" gorm:"column:phone;unique;size:255;comment:手机号;"`      // 手机号
+	Name        string       `json:"name" gorm:"column:name;size:255;not NULL;comment:姓名;"`       // 姓名
+	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"`     // 性别
+	Birthday    string       `json:"birthday" gorm:"column:birthday;size:255;comment:生日;"`        // 生日
+	Anniversary string       `json:"anniversary" gorm:"column:anniversary;size:255;comment:纪念日;"` // 纪念日
+	Nickname    string       `json:"nickname" gorm:"column:nickname;size:255;comment:昵称;"`        // 昵称
+	IDCard      string       `json:"id_card" gorm:"column:id_card;size:255;comment:身份证号;"`        // 身份证号
 
 	Level      enums.MemberLevel `json:"level" gorm:"column:level;type:tinyint(1);not NULL;default:0;comment:会员等级;"`          // 会员等级
 	Integral   decimal.Decimal   `json:"integral" gorm:"column:integral;type:decimal(10,2);not NULL;default:0;comment:积分;"`   // 积分

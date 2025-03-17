@@ -1,27 +1,10 @@
 package callback
 
 import (
-	"errors"
 	"log"
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/server/handlers/models"
 )
-
-type TemplateCardEvent struct {
-	Handle  *WxWork                        // 处理器
-	Message *models.EventTemplateCardEvent // 消息体
-}
-
-func (l *TemplateCardEvent) GetEventKey() error {
-	switch l.Handle.Event.GetEventKey() {
-	case "":
-
-	default:
-		return errors.New("TemplateCardEvent.GetEventKey(): event key not found")
-	}
-
-	return nil
-}
 
 func (Handle *WxWork) TemplateCardEvent() any {
 	var (
@@ -43,4 +26,9 @@ func (Handle *WxWork) TemplateCardEvent() any {
 	}
 
 	return nil
+}
+
+type TemplateCardEvent struct {
+	Handle  *WxWork                        // 处理器
+	Message *models.EventTemplateCardEvent // 消息体
 }

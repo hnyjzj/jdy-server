@@ -42,10 +42,6 @@ func (con WxWorkCongtroller) verify(c *gin.Context, App *work.Work) {
 	c.String(http.StatusOK, string(text))
 }
 
-const (
-	TemplateCardEvent = "template_card_event" // 模板卡片事件
-)
-
 func (con WxWorkCongtroller) JdyNotify(c *gin.Context) {
 	var (
 		App = config.NewWechatService().JdyWork
@@ -62,6 +58,11 @@ func (con WxWorkCongtroller) ContactsNotify(c *gin.Context) {
 	con.notify(c, App)
 }
 
+const (
+	EventTemplateCard          = "template_card_event"     // 模板卡片事件
+	EventChangeExternalContact = "change_external_contact" // 客户变更事件
+)
+
 func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
 
 	var (
@@ -74,8 +75,11 @@ func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
 		logic.Event = event
 		var res any
 
-		if event.GetEvent() == TemplateCardEvent {
+		switch event.GetEvent() {
+		case EventTemplateCard:
 			res = logic.TemplateCardEvent()
+		case EventChangeExternalContact:
+			res = logic.ChangeExternalContactEvent()
 		}
 
 		if res == nil {
@@ -84,6 +88,7 @@ func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
 
 		return res
 	})
+
 	if err != nil {
 		panic(err)
 	}

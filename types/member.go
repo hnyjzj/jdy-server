@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"jdy/enums"
 
 	"github.com/shopspring/decimal"
@@ -51,7 +52,16 @@ type MemberListReq struct {
 }
 
 type MemberInfoReq struct {
-	Id string `json:"id" binding:"required"`
+	Id             string `json:"id" binding:"-"`
+	ExternalUserId string `json:"external_user_id" binding:"-"`
+}
+
+func (req *MemberInfoReq) Validate() error {
+	if req.Id == "" && req.ExternalUserId == "" {
+		return errors.New("用户标识不能同时为空")
+	}
+
+	return nil
 }
 
 type MemberIntegralListReq struct {

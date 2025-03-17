@@ -44,7 +44,14 @@ func (l *MemberLogic) Info(req *types.MemberInfoReq) (*model.Member, error) {
 		member model.Member
 	)
 
-	if err := model.DB.Preload("Store").Preload("Consultant").First(&member, req.Id).Error; err != nil {
+	db := model.DB.Model(&member)
+	db = db.Where("id = ?", req.Id)
+	db = db.Or(&model.Member{ExternalUserId: req.ExternalUserId})
+
+	db = db.Preload("Store")
+	db = db.Preload("Consultant")
+
+	if err := db.First(&member).Error; err != nil {
 		return nil, errors.New("获取信息失败")
 	}
 

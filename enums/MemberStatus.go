@@ -3,19 +3,24 @@ package enums
 import "errors"
 
 /* 会员状态 */
-// 全部、正常、禁用
+// 待完善、正常、禁用、员工删除、用户删除
 type MemberStatus int
 
 const (
-	MemberStatusAll     MemberStatus = iota // 全部
-	MemberStatusNormal                      // 正常
-	MemberStatusDisable                     // 禁用
+	MemberStatusPending        MemberStatus = iota + 1 // 待完善
+	MemberStatusNormal                                 // 正常
+	MemberStatusDisable                                // 禁用
+	MemberStatusEmployeeDelete                         // 员工删除
+	MemberStatusUserDelete                             // 用户删除
+
 )
 
 var MemberStatusMap = map[MemberStatus]string{
-	MemberStatusAll:     "全部",
-	MemberStatusNormal:  "正常",
-	MemberStatusDisable: "禁用",
+	MemberStatusPending:        "待完善",
+	MemberStatusNormal:         "正常",
+	MemberStatusDisable:        "禁用",
+	MemberStatusEmployeeDelete: "员工删除",
+	MemberStatusUserDelete:     "用户删除",
 }
 
 func (p MemberStatus) ToMap() any {

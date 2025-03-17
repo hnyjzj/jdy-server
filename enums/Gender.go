@@ -32,7 +32,7 @@ func (p Gender) InMap() error {
 	return nil
 }
 
-func (p Gender) Convert(v any) Gender {
+func (Gender) Convert(v any) Gender {
 	switch fmt.Sprintf("%v", v) {
 	case "男":
 		return GenderMale

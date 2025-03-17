@@ -24,12 +24,6 @@ func (Handle *WxWork) ChangeExternalContactEvent() any {
 		}
 	)
 
-	// 获取员工信息
-	if err := Handle.GetStaff(); err != nil {
-		log.Printf("TemplateCardEvent.GetStaff.Error(): %v\n", err.Error())
-		return "error"
-	}
-
 	// 解析消息体
 	if err := l.Handle.Event.ReadMessage(&l.Message); err != nil {
 		log.Printf("TemplateCardEvent.ReadMessage.Error(): %v\n", err.Error())

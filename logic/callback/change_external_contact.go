@@ -76,7 +76,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 
 	// 查找会员
 	var member model.Member
-	if err := model.DB.Where(model.Member{ExternalUserID: l.Message.ExternalUserID}).Attrs(model.Member{
+	if err := model.DB.Where(model.Member{ExternalUserId: l.Message.ExternalUserID}).Attrs(model.Member{
 		Name:           user.ExternalContact.Name,
 		Gender:         enums.GenderUnknown.Convert(user.ExternalContact.Gender),
 		Nickname:       user.ExternalContact.Name,
@@ -84,7 +84,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 		SourceId:       account.Staff.Id,
 		ConsultantId:   account.Staff.Id,
 		Status:         enums.MemberStatusPending,
-		ExternalUserID: l.Message.ExternalUserID,
+		ExternalUserId: l.Message.ExternalUserID,
 	}).FirstOrCreate(&member).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return errors.New("查询会员失败: " + err.Error())

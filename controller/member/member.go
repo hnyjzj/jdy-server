@@ -63,6 +63,11 @@ func (con MemberController) Info(ctx *gin.Context) {
 		return
 	}
 
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	res, err := logic.Info(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())

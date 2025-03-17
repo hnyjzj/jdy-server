@@ -21,7 +21,7 @@ type MemberWhere struct {
 
 	Source       enums.MemberSource `json:"source" label:"来源" find:"true" sort:"12" type:"number" input:"select" preset:"typeMap"`
 	ConsultantId string             `json:"consultant_id" label:"顾问" find:"true" sort:"13" type:"string" input:"text"`
-	StoreId      string             `json:"store_id" label:"门店" find:"true" sort:"14" type:"string" input:"text" binding:"required"`
+	StoreId      string             `json:"store_id" label:"门店" find:"true" sort:"14" type:"string" input:"text" required:"true" binding:"required"`
 
 	Status         enums.MemberStatus `json:"status" label:"状态" find:"true" sort:"15" type:"number" input:"select" preset:"typeMap"`
 	ExternalUserId string             `json:"external_user_id" label:"外部用户id" find:"true" sort:"16" type:"string" input:"text"`

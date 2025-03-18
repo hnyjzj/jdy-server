@@ -8,43 +8,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (w *WxWorkLogic) Jssdk(ctx *gin.Context, req *types.PlatformJSSdkReq) (*string, error) {
+type PlatformJSSdkRes struct {
+	AgentTicket string `json:"agent_ticket"` // jsapi_ticket
+	JsapiTicket string `json:"jsapi_ticket"` // jsapi_ticket
+	CorpID      string `json:"corp_id"`      // 企业ID
+	AgentID     int    `json:"agent_id"`     // 应用ID
+}
+
+func (w *WxWorkLogic) Jssdk(ctx *gin.Context, req *types.PlatformJSSdkReq) (*PlatformJSSdkRes, error) {
 	var (
 		wxwork = config.NewWechatService().JdyWork
-		client = wxwork.JSSDK.Client
 	)
 
-	wxwork.GetAccessToken()
-	switch req.Type {
-	case "jsapi":
-		client.TicketEndpoint = "/cgi-bin/get_jsapi_ticket"
-		jsapi, err := wxwork.JSSDK.Client.GetTicket(ctx, false, "jsapi")
-		if err != nil {
-			return nil, errors.New("获取 jsapi 失败")
-		}
+	config := wxwork.GetConfig()
 
-		ticket, ok := jsapi.Get("ticket").(string)
-		if !ok {
-			return nil, errors.New("获取 ticket 失败")
-		}
-
-		return &ticket, err
-
-	case "agent":
-		client.TicketEndpoint = "/cgi-bin/ticket/get"
-		agent, err := wxwork.JSSDK.Client.GetTicket(ctx, false, "agent_config")
-		if err != nil {
-			return nil, errors.New("获取 agent 失败")
-		}
-
-		ticket, ok := agent.Get("ticket").(string)
-		if !ok {
-			return nil, errors.New("获取 ticket 失败")
-		}
-
-		return &ticket, err
-
-	default:
-		return nil, errors.New("state error")
+	agent, err := wxwork.JSSDK.GetTicket(ctx)
+	if err != nil {
+		return nil, errors.New("获取 ticket 失败")
 	}
+
+	res := &PlatformJSSdkRes{
+		AgentTicket: agent.Ticket,
+		CorpID:      config.GetString("corp_id", ""),
+		AgentID:     config.GetInt("agent_id", 0),
+	}
+
+	return res, nil
 }

@@ -340,16 +340,16 @@ type ProductInventoryCreateReq struct {
 	InventoryPersonId string `json:"inventory_person_id" binding:"required"` // 盘点人
 	InspectorId       string `json:"inspector_id" binding:"required"`        // 监盘人
 
-	Type  enums.ProductType           `json:"type" binding:"required"`  // 仓库类型
+	Type  enums.ProductType           `json:"type" binding:"required"`  // 盘点仓库
+	Brand []enums.ProductBrand        `json:"brand"`                    // 盘点品牌
 	Range enums.ProductInventoryRange `json:"range" binding:"required"` // 盘点范围
 
-	Brand    []enums.ProductBrand    `json:"brand"`    // 品牌
-	Class    []enums.ProductClass    `json:"class"`    // 系列
-	Category []enums.ProductCategory `json:"category"` // 类别
-	Craft    []enums.ProductCraft    `json:"craft"`    // 工艺
-	Material []enums.ProductMaterial `json:"material"` // 材质
-	Quality  []enums.ProductQuality  `json:"quality"`  // 质地
-	Gem      []enums.ProductGem      `json:"gem"`      // 宝石
+	Category []enums.ProductCategory `json:"category" binding:"required"` // 品类
+	Craft    []enums.ProductCraft    `json:"craft" binding:"required"`    // 工艺
+	Class    []enums.ProductClass    `json:"class"`                       // 大类
+	Material []enums.ProductMaterial `json:"material"`                    // 材质
+	Quality  []enums.ProductQuality  `json:"quality"`                     // 成色
+	Gem      []enums.ProductGem      `json:"gem"`                         // 宝石
 
 	Remark string `json:"remark"`
 }
@@ -360,6 +360,23 @@ func (req *ProductInventoryCreateReq) Validate() error {
 	}
 	if err := req.Range.InMap(); err != nil {
 		return err
+	}
+
+	switch req.Range {
+	case enums.ProductInventoryRangeBigType:
+		if len(req.Class) == 0 {
+			return errors.New("大类是必填项")
+		}
+	case enums.ProductInventoryRangeMaterialType:
+		if len(req.Material) == 0 {
+			return errors.New("材质是必填项")
+		}
+		if len(req.Quality) == 0 {
+			return errors.New("成色是必填项")
+		}
+		if len(req.Gem) == 0 {
+			return errors.New("主石是必填项")
+		}
 	}
 
 	return nil

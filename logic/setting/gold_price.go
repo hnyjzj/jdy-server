@@ -2,12 +2,12 @@ package setting
 
 import (
 	"errors"
-	"fmt"
 	"jdy/enums"
 	"jdy/logic"
 	"jdy/message"
 	"jdy/model"
 	"jdy/types"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -66,7 +66,7 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 				return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 			})
 		}).First(&store).Error; err != nil {
-			fmt.Printf("获取店铺信息失败: %v\n", err)
+			log.Printf("获取店铺信息失败: %v\n", err)
 			return
 		}
 		var receiver []string

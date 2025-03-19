@@ -24,10 +24,16 @@ func (con MemberIntegralController) List(ctx *gin.Context) {
 		req types.MemberIntegralListReq
 
 		logic = member.MemberIntegralLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -49,10 +55,16 @@ func (con MemberIntegralController) Change(ctx *gin.Context) {
 		req types.MemberIntegralChangeReq
 
 		logic = member.MemberIntegralLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {

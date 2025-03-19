@@ -27,10 +27,16 @@ func (con OrderController) Create(ctx *gin.Context) {
 		req types.OrderCreateReq
 
 		logic = order.OrderLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -60,10 +66,16 @@ func (con OrderController) List(ctx *gin.Context) {
 		req types.OrderListReq
 
 		logic = order.OrderLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -87,10 +99,16 @@ func (con OrderController) Info(ctx *gin.Context) {
 		req types.OrderInfoReq
 
 		logic = order.OrderLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {

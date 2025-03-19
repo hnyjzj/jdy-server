@@ -28,11 +28,17 @@ func (con ProductEnterController) Create(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -57,11 +63,17 @@ func (con ProductEnterController) List(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -86,11 +98,17 @@ func (con ProductEnterController) Info(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -115,11 +133,17 @@ func (con ProductEnterController) AddProduct(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -144,11 +168,17 @@ func (con ProductEnterController) EditProduct(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -172,11 +202,17 @@ func (con ProductEnterController) DelProduct(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -200,11 +236,17 @@ func (con ProductEnterController) Finish(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -228,11 +270,17 @@ func (con ProductEnterController) Cancel(ctx *gin.Context) {
 
 		logic = product.ProductEnterLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {

@@ -37,8 +37,9 @@ type MemberCreateReq struct {
 	Nickname    string       `json:"nickname"`
 	IDCard      string       `json:"id_card"`
 
-	ConsultantId string `json:"consultant_id"`
-	StoreId      string `json:"store_id" binding:"required"`
+	ConsultantId   string `json:"consultant_id"`
+	StoreId        string `json:"store_id" binding:"required"`
+	ExternalUserId string `json:"external_user_id"`
 }
 
 type MemberUpdateReq struct {

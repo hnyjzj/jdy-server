@@ -77,7 +77,7 @@ func migrator() {
 		if config.Config.Database.Refresh {
 			for _, againTable := range Refresh {
 				if reflect.DeepEqual(table, againTable) {
-					fmt.Println("删除了", reflect.TypeOf(table).Elem().Name())
+					log.Println("删除了", reflect.TypeOf(table).Elem().Name())
 					DB.Migrator().DropTable(table)
 					break
 				}
@@ -88,6 +88,6 @@ func migrator() {
 		if err != nil {
 			panic(fmt.Sprintf("迁移表 %s 失败: %s", strings.Split(reflect.TypeOf(table).Elem().Name(), ""), err.Error()))
 		}
-		// fmt.Println("迁移了", reflect.TypeOf(table).Elem().Name())
+		// log.Println("迁移了", reflect.TypeOf(table).Elem().Name())
 	}
 }

@@ -17,10 +17,16 @@ func (con StoreStaffController) List(ctx *gin.Context) {
 	var (
 		req   types.StoreStaffListReq
 		logic = store.StoreStaffLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -42,10 +48,16 @@ func (con StoreStaffController) Add(ctx *gin.Context) {
 	var (
 		req   types.StoreStaffAddReq
 		logic = store.StoreStaffLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -54,8 +66,7 @@ func (con StoreStaffController) Add(ctx *gin.Context) {
 	}
 
 	// 添加门店
-	err := logic.Add(&req)
-	if err != nil {
+	if err := logic.Add(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
@@ -67,10 +78,16 @@ func (con StoreStaffController) Del(ctx *gin.Context) {
 	var (
 		req   types.StoreStaffDelReq
 		logic = store.StoreStaffLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -79,8 +96,7 @@ func (con StoreStaffController) Del(ctx *gin.Context) {
 	}
 
 	// 删除门店
-	err := logic.Del(&req)
-	if err != nil {
+	if err := logic.Del(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

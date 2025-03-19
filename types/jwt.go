@@ -22,6 +22,5 @@ type Staff struct {
 
 	Platform enums.PlatformType `json:"platform"`
 
-	IP        string `json:"ip"`
-	UserAgent string `json:"user_agent"`
+	IP string `json:"ip"`
 }

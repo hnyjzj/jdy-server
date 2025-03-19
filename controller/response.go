@@ -66,3 +66,14 @@ func (con BaseController) ExceptionWithResult(c *gin.Context, message string, da
 	c.JSON(http.StatusOK, response)
 	c.Abort()
 }
+
+// 异常响应（带状态）
+func (con BaseController) ExceptionWithAuth(c *gin.Context, message string) {
+	response := gin.H{
+		"code":    http.StatusUnauthorized,
+		"message": message,
+	}
+
+	c.JSON(http.StatusUnauthorized, response)
+	c.Abort()
+}

@@ -29,7 +29,11 @@ func (con UploadController) Avatar(ctx *gin.Context) {
 		s Res
 	)
 
-	staff := con.GetStaff(ctx)
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
 
 	// 验证参数
 	if err := ctx.ShouldBind(&r); err != nil {

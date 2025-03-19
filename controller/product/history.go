@@ -28,11 +28,17 @@ func (con ProductHistoryController) List(ctx *gin.Context) {
 
 		logic = product.ProductHistoryLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
@@ -55,11 +61,17 @@ func (con ProductHistoryController) Info(ctx *gin.Context) {
 
 		logic = product.ProductHistoryLogic{
 			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
+				Ctx: ctx,
 			},
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())

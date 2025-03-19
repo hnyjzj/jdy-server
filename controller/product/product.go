@@ -33,10 +33,16 @@ func (con ProductController) List(ctx *gin.Context) {
 		req types.ProductListReq
 
 		logic = product.ProductLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -59,10 +65,16 @@ func (con ProductController) Info(ctx *gin.Context) {
 		req types.ProductInfoReq
 
 		logic = product.ProductLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
@@ -84,10 +96,16 @@ func (con ProductController) Update(ctx *gin.Context) {
 		req types.ProductUpdateReq
 
 		logic = product.ProductLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -110,10 +128,16 @@ func (con ProductController) Damage(ctx *gin.Context) {
 		req types.ProductDamageReq
 
 		logic = product.ProductLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
@@ -134,10 +158,16 @@ func (con ProductController) Conversion(ctx *gin.Context) {
 		req types.ProductConversionReq
 
 		logic = product.ProductLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())

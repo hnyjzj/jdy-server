@@ -34,7 +34,8 @@ func (l *MemberLogic) Create(req *types.MemberCreateReq) error {
 			ConsultantId: req.ConsultantId,
 			StoreId:      req.StoreId,
 
-			Status: enums.MemberStatusNormal,
+			Status:         enums.MemberStatusNormal,
+			ExternalUserId: req.ExternalUserId,
 		}
 		if err := tx.Create(&m).Error; err != nil {
 			return err

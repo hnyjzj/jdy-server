@@ -25,8 +25,6 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types
 
 	// 保存 ip
 	staff.IP = ctx.ClientIP()
-	// 保存 user agent
-	staff.UserAgent = ctx.GetHeader("User-Agent")
 
 	expires := time.Now().Add(time.Second * time.Duration(conf.Expire))
 	countdown_timer := time.Until(expires)

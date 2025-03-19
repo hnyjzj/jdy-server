@@ -3,8 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"jdy/types"
+	"log"
 	"reflect"
 	"strconv"
 )
@@ -26,7 +26,7 @@ func StructToWhere[S any](s S) map[string]types.WhereForm {
 
 		whereForm, err := parseTag(class, tag)
 		if err != nil {
-			fmt.Printf("Error parsing tag for field %s: %v\n", json, err)
+			log.Printf("Error parsing tag for field %s: %v\n", json, err)
 			continue
 		}
 		params[json] = whereForm
@@ -86,7 +86,7 @@ func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error
 		var tempConditions []types.WhereCondition
 		err := json.Unmarshal([]byte(tga.Get("condition")), &tempConditions)
 		if err != nil {
-			fmt.Printf("err.Error(): %v\n", err.Error())
+			log.Printf("err.Error(): %v\n", err.Error())
 			return whereForm, err
 		}
 		whereForm.Condition = tempConditions

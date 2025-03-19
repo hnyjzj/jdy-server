@@ -27,10 +27,16 @@ func (con MemberController) List(ctx *gin.Context) {
 		req types.MemberListReq
 
 		logic = member.MemberLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -53,10 +59,16 @@ func (con MemberController) Info(ctx *gin.Context) {
 		req types.MemberInfoReq
 
 		logic = member.MemberLogic{
-			Ctx:   ctx,
-			Staff: con.GetStaff(ctx),
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())

@@ -26,3 +26,7 @@ func (p PlatformType) InMap() error {
 	}
 	return nil
 }
+
+func (p PlatformType) String() string {
+	return string(p)
+}

@@ -86,11 +86,6 @@ func (l *ProductLogic) Conversion(req *types.ProductConversionReq) *errors.Error
 		return errors.New("产品不在库存中")
 	}
 
-	// 判断是否可以转换
-	if err := product.Type.CanTransitionTo(req.Type); err != nil {
-		return errors.New("产品状态不允许转换")
-	}
-
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 更新产品状态

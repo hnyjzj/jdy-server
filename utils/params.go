@@ -16,6 +16,14 @@ func StructToWhere[S any](s S) map[string]types.WhereForm {
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
+		// 如果字段是匿名字段，递归处理
+		if field.Anonymous {
+			nestedParams := StructToWhere(reflect.ValueOf(s).Field(i).Interface())
+			for k, v := range nestedParams {
+				params[k] = v
+			}
+			continue
+		}
 		class := field.Type
 		tag := field.Tag
 

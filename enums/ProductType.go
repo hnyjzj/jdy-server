@@ -2,7 +2,6 @@ package enums
 
 import (
 	"errors"
-	"slices"
 )
 
 /* 产品类型 */
@@ -30,20 +29,4 @@ func (p ProductType) InMap() error {
 		return errors.New("not in enum")
 	}
 	return nil
-}
-
-// 判断状态是否可以转换
-func (p ProductType) CanTransitionTo(n ProductType) error {
-	transitions := map[ProductType][]ProductType{
-		ProductTypeFinished: {ProductTypeOld},
-		ProductTypeOld:      {ProductTypeFinished},
-	}
-
-	if allowed, ok := transitions[p]; ok {
-		if slices.Contains(allowed, n) {
-			return nil
-		}
-	}
-
-	return errors.New("非法的状态转换")
 }

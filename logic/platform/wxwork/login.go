@@ -126,19 +126,19 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 
 	// 获取用户信息
 	user, err := jdy.OAuth.Provider.GetUserInfo(code)
-	if user.UserID == "" || user.UserTicket == "" {
+	if err != nil || user.UserID == "" || user.UserTicket == "" {
 		log.Printf("获取企业微信用户信息失败: %+v", err)
 		return errors.New("获取企业微信用户信息失败")
 	}
 	// 获取用户详情
 	detail, err := jdy.OAuth.Provider.GetUserDetail(user.UserTicket)
-	if detail.Mobile == "" {
+	if err != nil || detail.Mobile == "" {
 		log.Printf("获取企业微信用户详情失败: %+v", err)
 		return errors.New("获取企业微信用户详情失败")
 	}
 	// 读取员工信息
 	userinfo, err := jdy.User.Get(l.Ctx, user.UserID)
-	if userinfo.UserID == "" {
+	if err != nil || userinfo.UserID == "" {
 		log.Printf("读取员工信息失败: %+v", err)
 		return errors.New("读取员工信息失败")
 	}

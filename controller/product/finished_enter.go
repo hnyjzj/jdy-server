@@ -10,26 +10,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductEnterController struct {
+type ProductFinishedEnterController struct {
 	controller.BaseController
 }
 
 // 入库单筛选条件
-func (con ProductEnterController) Where(ctx *gin.Context) {
-	where := utils.StructToWhere(types.ProductEnterWhere{})
+func (con ProductFinishedEnterController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductFinishedEnterWhere{})
 
 	con.Success(ctx, "ok", where)
 }
 
 // 入库单
-func (con ProductEnterController) Create(ctx *gin.Context) {
+func (con ProductFinishedEnterController) Create(ctx *gin.Context) {
 	var (
-		req types.ProductEnterCreateReq
+		req types.ProductFinishedEnterCreateReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 
@@ -57,14 +55,12 @@ func (con ProductEnterController) Create(ctx *gin.Context) {
 }
 
 // 入库单列表
-func (con ProductEnterController) List(ctx *gin.Context) {
+func (con ProductFinishedEnterController) List(ctx *gin.Context) {
 	var (
-		req types.ProductEnterListReq
+		req types.ProductFinishedEnterListReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 
@@ -92,14 +88,12 @@ func (con ProductEnterController) List(ctx *gin.Context) {
 }
 
 // 入库单详情
-func (con ProductEnterController) Info(ctx *gin.Context) {
+func (con ProductFinishedEnterController) Info(ctx *gin.Context) {
 	var (
-		req types.ProductEnterInfoReq
+		req types.ProductFinishedEnterInfoReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 
@@ -127,14 +121,12 @@ func (con ProductEnterController) Info(ctx *gin.Context) {
 }
 
 // 入库单添加产品
-func (con ProductEnterController) AddProduct(ctx *gin.Context) {
+func (con ProductFinishedEnterController) AddProduct(ctx *gin.Context) {
 	var (
-		req types.ProductEnterAddProductReq
+		req types.ProductFinishedEnterAddProductReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 
@@ -162,14 +154,12 @@ func (con ProductEnterController) AddProduct(ctx *gin.Context) {
 }
 
 // 入库单编辑产品
-func (con ProductEnterController) EditProduct(ctx *gin.Context) {
+func (con ProductFinishedEnterController) EditProduct(ctx *gin.Context) {
 	var (
-		req types.ProductEnterEditProductReq
+		req types.ProductFinishedEnterEditProductReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 
@@ -196,14 +186,12 @@ func (con ProductEnterController) EditProduct(ctx *gin.Context) {
 }
 
 // 入库单删除产品
-func (con ProductEnterController) DelProduct(ctx *gin.Context) {
+func (con ProductFinishedEnterController) DelProduct(ctx *gin.Context) {
 	var (
-		req types.ProductEnterDelProductReq
+		req types.ProductFinishedEnterDelProductReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 
@@ -230,14 +218,12 @@ func (con ProductEnterController) DelProduct(ctx *gin.Context) {
 }
 
 // 入库单完成
-func (con ProductEnterController) Finish(ctx *gin.Context) {
+func (con ProductFinishedEnterController) Finish(ctx *gin.Context) {
 	var (
-		req types.ProductEnterFinishReq
+		req types.ProductFinishedEnterFinishReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 
@@ -264,14 +250,12 @@ func (con ProductEnterController) Finish(ctx *gin.Context) {
 }
 
 // 入库单取消
-func (con ProductEnterController) Cancel(ctx *gin.Context) {
+func (con ProductFinishedEnterController) Cancel(ctx *gin.Context) {
 	var (
-		req types.ProductEnterCancelReq
+		req types.ProductFinishedEnterCancelReq
 
-		logic = product.ProductEnterLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+		logic = product.ProductFinishedEnterLogic{
+			Ctx: ctx,
 		}
 	)
 

@@ -10,29 +10,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductController struct {
+type ProductAccessorieCategoryController struct {
 	controller.BaseController
 }
 
-// 产品筛选条件
-func (con ProductController) Where(ctx *gin.Context) {
-	where := utils.StructToWhere(types.ProductWhere{})
+// 配件条目筛选
+func (con ProductAccessorieCategoryController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductAccessorieCategoryWhere{})
 
 	con.Success(ctx, "ok", where)
 }
 
-func (con ProductController) WhereProductOld(ctx *gin.Context) {
-	where := utils.StructToWhere(types.ProductOldWhere{})
-
-	con.Success(ctx, "ok", where)
-}
-
-// 产品列表
-func (con ProductController) List(ctx *gin.Context) {
+// 配件条目列表
+func (con ProductAccessorieCategoryController) List(ctx *gin.Context) {
 	var (
-		req types.ProductListReq
+		req types.ProductAccessorieCategoryListReq
 
-		logic = product.ProductLogic{
+		logic = product.ProductAccessorieCategoryLogic{
 			Ctx: ctx,
 		}
 	)
@@ -59,12 +53,12 @@ func (con ProductController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
-// 产品详情
-func (con ProductController) Info(ctx *gin.Context) {
+// 配件条目详情
+func (con ProductAccessorieCategoryController) Info(ctx *gin.Context) {
 	var (
-		req types.ProductInfoReq
+		req types.ProductAccessorieCategoryInfoReq
 
-		logic = product.ProductLogic{
+		logic = product.ProductAccessorieCategoryLogic{
 			Ctx: ctx,
 		}
 	)
@@ -90,12 +84,44 @@ func (con ProductController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
-// 更新商品信息
-func (con ProductController) Update(ctx *gin.Context) {
+// 新增配件条目
+func (con ProductAccessorieCategoryController) Create(ctx *gin.Context) {
 	var (
-		req types.ProductUpdateReq
+		req types.ProductAccessorieCategoryCreateReq
 
-		logic = product.ProductLogic{
+		logic = product.ProductAccessorieCategoryLogic{
+			Ctx: ctx,
+		}
+	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	if err := logic.Create(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+// 更新配件条目
+func (con ProductAccessorieCategoryController) Update(ctx *gin.Context) {
+	var (
+		req types.ProductAccessorieCategoryUpdateReq
+
+		logic = product.ProductAccessorieCategoryLogic{
 			Ctx: ctx,
 		}
 	)
@@ -122,12 +148,12 @@ func (con ProductController) Update(ctx *gin.Context) {
 	con.Success(ctx, "ok", nil)
 }
 
-// 产品报损
-func (con ProductController) Damage(ctx *gin.Context) {
+// 删除配件条目
+func (con ProductAccessorieCategoryController) Delete(ctx *gin.Context) {
 	var (
-		req types.ProductDamageReq
+		req types.ProductAccessorieCategoryDeleteReq
 
-		logic = product.ProductLogic{
+		logic = product.ProductAccessorieCategoryLogic{
 			Ctx: ctx,
 		}
 	)
@@ -139,42 +165,14 @@ func (con ProductController) Damage(ctx *gin.Context) {
 	}
 	logic.Staff = staff
 
+	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	if err := logic.Damage(&req); err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
-	con.Success(ctx, "ok", nil)
-}
-
-// 产品转换
-func (con ProductController) Conversion(ctx *gin.Context) {
-	var (
-		req types.ProductConversionReq
-
-		logic = product.ProductLogic{
-			Ctx: ctx,
-		}
-	)
-
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
-		return
-	}
-	logic.Staff = staff
-
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
-	}
-
-	if err := logic.Conversion(&req); err != nil {
+	// 调用逻辑层
+	if err := logic.Delete(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

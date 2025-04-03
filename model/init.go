@@ -89,5 +89,13 @@ func migrator() {
 			panic(fmt.Sprintf("迁移表 %s 失败: %s", strings.Split(reflect.TypeOf(table).Elem().Name(), ""), err.Error()))
 		}
 		// log.Println("迁移了", reflect.TypeOf(table).Elem().Name())
+
+		// 如果是门店表，则插入一条默认数据
+		if reflect.TypeOf(table).Elem().Name() == "Store" {
+			var store Store
+			if err := DB.Where(&Store{Name: "公司总店"}).FirstOrCreate(&store).Error; err != nil {
+				panic(fmt.Sprintf("插入默认门店失败: %s", err.Error()))
+			}
+		}
 	}
 }

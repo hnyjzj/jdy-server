@@ -4,11 +4,32 @@
         "main.go": "go.mod, go.sum",
     },
     "go-struct-tag.customTags": {
+        "required": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ],
+        },
         "label": {
             "cases": [],
             "options": [],
         },
-        "show": {
+        "create": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ],
+        },
+        "find": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ],
+        },
+        "update": {
             "cases": [],
             "options": [
                 "true",
@@ -26,6 +47,8 @@
                 "float",
                 "string",
                 "select",
+                "date",
+                "boolean",
             ],
         },
         "input": {
@@ -34,6 +57,10 @@
                 "select",
                 "number",
                 "text",
+                "search",
+                "date",
+                "textarea",
+                "switch",
             ],
         },
         "preset": {
@@ -42,12 +69,9 @@
                 "typeMap",
             ],
         },
-        "required": {
+        "condition": {
             "cases": [],
-            "options": [
-                "true",
-                "false"
-            ],
-        }
+            "options": [],
+        },
     }
 }

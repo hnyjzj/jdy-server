@@ -8,17 +8,19 @@ import (
 	"jdy/utils"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-type ProductEnterLogic struct {
-	ProductLogic
+type ProductFinishedEnterLogic struct {
+	Ctx   *gin.Context
+	Staff *types.Staff
 }
 
 // 产品入库
-func (l *ProductEnterLogic) Create(req *types.ProductEnterCreateReq) (*model.ProductEnter, error) {
-	enter := model.ProductEnter{
+func (l *ProductFinishedEnterLogic) Create(req *types.ProductFinishedEnterCreateReq) (*model.ProductFinishedEnter, error) {
+	enter := model.ProductFinishedEnter{
 		StoreId:    req.StoreId,
 		Remark:     req.Remark,
 		Status:     enums.ProductEnterStatusDraft,
@@ -34,11 +36,11 @@ func (l *ProductEnterLogic) Create(req *types.ProductEnterCreateReq) (*model.Pro
 }
 
 // 产品入库单列表
-func (l *ProductEnterLogic) EnterList(req *types.ProductEnterListReq) (*types.PageRes[model.ProductEnter], error) {
+func (l *ProductFinishedEnterLogic) EnterList(req *types.ProductFinishedEnterListReq) (*types.PageRes[model.ProductFinishedEnter], error) {
 	var (
-		enter model.ProductEnter
+		enter model.ProductFinishedEnter
 
-		res types.PageRes[model.ProductEnter]
+		res types.PageRes[model.ProductFinishedEnter]
 	)
 
 	db := model.DB.Model(&enter)
@@ -64,9 +66,9 @@ func (l *ProductEnterLogic) EnterList(req *types.ProductEnterListReq) (*types.Pa
 }
 
 // 产品入库单详情
-func (l *ProductEnterLogic) EnterInfo(req *types.ProductEnterInfoReq) (*model.ProductEnter, error) {
+func (l *ProductFinishedEnterLogic) EnterInfo(req *types.ProductFinishedEnterInfoReq) (*model.ProductFinishedEnter, error) {
 	var (
-		enter model.ProductEnter
+		enter model.ProductFinishedEnter
 	)
 
 	db := model.DB.Model(&enter)
@@ -84,10 +86,10 @@ func (l *ProductEnterLogic) EnterInfo(req *types.ProductEnterInfoReq) (*model.Pr
 }
 
 // 产品入库单添加产品
-func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*map[string]string, error) {
+func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAddProductReq) (*map[string]string, error) {
 	// 查询入库单
-	var enter model.ProductEnter
-	if err := model.DB.Where("id = ?", req.ProductEnterId).First(&enter).Error; err != nil {
+	var enter model.ProductFinishedEnter
+	if err := model.DB.Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
 		return nil, errors.New("入库单不存在")
 	}
 
@@ -106,12 +108,12 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		for _, p := range req.Products {
 			// 转换数据结构
-			product, err := utils.StructToStruct[model.Product](p)
+			product, err := utils.StructToStruct[model.ProductFinished](p)
 			if err != nil {
 				return errors.New("参数错误")
 			}
 
-			var p model.Product
+			var p model.ProductFinished
 			if err := tx.Where("code = ?", product.Code).First(&p).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("产品不存在")
@@ -122,12 +124,12 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 				continue
 			}
 
-			// 产品入库
-			product.ProductEnterId = enter.Id
+			// 产品信息
+			product.EnterId = enter.Id
 			product.StoreId = enter.StoreId
-			product.EnterTime = time.Now()
-			// 商品状态
+			product.Class = product.GetClass()
 			product.Status = enums.ProductStatusDraft
+			product.EnterTime = time.Now()
 
 			if err := tx.Create(&product).Error; err != nil {
 				products[product.Code] = "入库失败"
@@ -154,13 +156,13 @@ func (l *ProductEnterLogic) AddProduct(req *types.ProductEnterAddProductReq) (*m
 }
 
 // 入库单编辑产品
-func (l *ProductEnterLogic) EditProduct(req *types.ProductEnterEditProductReq) error {
+func (l *ProductFinishedEnterLogic) EditProduct(req *types.ProductFinishedEnterEditProductReq) error {
 
 	// 编辑产品逻辑存在潜在并发风险，使用事务包裹并加锁
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
-		var enter model.ProductEnter
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.ProductEnterId).First(&enter).Error; err != nil {
+		var enter model.ProductFinishedEnter
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -168,23 +170,23 @@ func (l *ProductEnterLogic) EditProduct(req *types.ProductEnterEditProductReq) e
 			return errors.New("入库单已结束")
 		}
 
-		var product model.Product
+		var product model.ProductFinished
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.ProductId).First(&product).Error; err != nil {
 			return errors.New("产品不存在")
 		}
 
-		if product.ProductEnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
+		if product.EnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
 			return errors.New("产品不属于该入库单")
 		}
 
 		// 转换数据结构
-		product, err := utils.StructToStruct[model.Product](req.Product)
+		product, err := utils.StructToStruct[model.ProductFinished](req.Product)
 		if err != nil {
 			return errors.New("产品录入失败: 参数错误")
 		}
 
 		// 更新产品
-		if err := tx.Model(model.Product{}).Where("id = ?", req.ProductId).Updates(product).Error; err != nil {
+		if err := tx.Model(model.ProductFinished{}).Where("id = ?", req.ProductId).Updates(product).Error; err != nil {
 			return errors.New("产品更新失败")
 		}
 
@@ -197,11 +199,11 @@ func (l *ProductEnterLogic) EditProduct(req *types.ProductEnterEditProductReq) e
 }
 
 // 入库单删除产品
-func (l *ProductEnterLogic) DelProduct(req *types.ProductEnterDelProductReq) error {
+func (l *ProductFinishedEnterLogic) DelProduct(req *types.ProductFinishedEnterDelProductReq) error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
-		var enter model.ProductEnter
-		if err := tx.Where("id = ?", req.ProductEnterId).First(&enter).Error; err != nil {
+		var enter model.ProductFinishedEnter
+		if err := tx.Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -211,17 +213,17 @@ func (l *ProductEnterLogic) DelProduct(req *types.ProductEnterDelProductReq) err
 
 		// 查询产品
 		for _, id := range req.ProductIds {
-			var product model.Product
+			var product model.ProductFinished
 			if err := tx.Where("id = ?", id).First(&product).Error; err != nil {
 				return errors.New("产品不存在")
 			}
 
-			if product.ProductEnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
+			if product.EnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductStatusDraft {
 				return errors.New("产品不属于该入库单")
 			}
 
 			// 删除产品(真实删除)
-			if err := tx.Where("id = ?", product.Id).Unscoped().Delete(&model.Product{}).Error; err != nil {
+			if err := tx.Where("id = ?", product.Id).Unscoped().Delete(&model.ProductFinished{}).Error; err != nil {
 				return errors.New("产品删除失败")
 			}
 		}
@@ -234,11 +236,11 @@ func (l *ProductEnterLogic) DelProduct(req *types.ProductEnterDelProductReq) err
 }
 
 // 入库单完成
-func (l *ProductEnterLogic) Finish(req *types.ProductEnterFinishReq) error {
+func (l *ProductFinishedEnterLogic) Finish(req *types.ProductFinishedEnterFinishReq) error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
-		var enter model.ProductEnter
-		if err := tx.Where("id = ?", req.ProductEnterId).Preload("Products").First(&enter).Error; err != nil {
+		var enter model.ProductFinishedEnter
+		if err := tx.Where("id = ?", req.EnterId).Preload("Products").First(&enter).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -292,10 +294,10 @@ func (l *ProductEnterLogic) Finish(req *types.ProductEnterFinishReq) error {
 }
 
 // 入库单取消
-func (l *ProductEnterLogic) Cancel(req *types.ProductEnterCancelReq) error {
+func (l *ProductFinishedEnterLogic) Cancel(req *types.ProductFinishedEnterCancelReq) error {
 	// 查询入库单
-	var enter model.ProductEnter
-	if err := model.DB.Where("id = ?", req.ProductEnterId).Preload("Products").First(&enter).Error; err != nil {
+	var enter model.ProductFinishedEnter
+	if err := model.DB.Where("id = ?", req.EnterId).Preload("Products").First(&enter).Error; err != nil {
 		return errors.New("入库单不存在")
 	}
 

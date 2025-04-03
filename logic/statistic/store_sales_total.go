@@ -105,7 +105,7 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 func (l *StoreSalesTotalLogic) getWhereDb() *gorm.DB {
 	db := model.DB.Model(&model.OrderProduct{})
 	db = db.
-		Joins("JOIN products ON order_products.product_id = products.id").
+		Joins("JOIN product_finisheds ON order_products.product_id = products.id").
 		Where("order_products.status = ?", enums.OrderStatusComplete).
 		Scopes(model.DurationCondition(l.Req.Duration, "order_products.created_at"))
 
@@ -180,7 +180,7 @@ func (l *StoreSalesTotalLogic) getPieceAccessories(res *StoreSalesTotalRes) erro
 	)
 
 	if err := l.getWhereDb().
-		Where("products.type =?", enums.ProductTypeAccessories).
+		Where("products.type =?", enums.ProductTypeAccessorie).
 		// Where("products.class =?", enums.ProductClassPieceAccessories).
 		Select("SUM(order_products.amount)").
 		Scan(&pieceAccessories).Error; err != nil {

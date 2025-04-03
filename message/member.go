@@ -13,9 +13,9 @@ type MemberCreateMessage struct {
 	Name           string `json:"name"`             // 外部联系人的名称
 }
 
-// 发送黄金价格设置提醒
+// 发送新增会员提醒
 func (M *BaseMessage) SendMemberCreateMessage(req *MemberCreateMessage) {
-	url := fmt.Sprintf("%s/member/lists/new?external_user_id=%s", M.App.Home, req.ExternalUserID)
+	url := fmt.Sprintf("%s/member/lists/edit?external_user_id=%s", M.App.Home, req.ExternalUserID)
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  req.ToUser, // 接收消息的用户ID列表，列表不可为空，最多支持100个用户
@@ -25,7 +25,7 @@ func (M *BaseMessage) SendMemberCreateMessage(req *MemberCreateMessage) {
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",
 			MainTitle: &request.TemplateCardMainTitle{
-				Title: "创建会员提醒",
+				Title: "新增会员提醒",
 				Desc:  "会员已创建，请及时更新信息",
 			},
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{

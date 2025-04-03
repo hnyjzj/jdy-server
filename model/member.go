@@ -11,7 +11,7 @@ import (
 type Member struct {
 	SoftDelete
 
-	Phone       *string      `json:"phone" gorm:"column:phone;unique;size:255;comment:手机号;"`      // 手机号
+	Phone       *string      `json:"phone" gorm:"column:phone;uniqueIndex;size:255;comment:手机号;"` // 手机号
 	Name        string       `json:"name" gorm:"column:name;size:255;not NULL;comment:姓名;"`       // 姓名
 	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"`     // 性别
 	Birthday    string       `json:"birthday" gorm:"column:birthday;size:255;comment:生日;"`        // 生日

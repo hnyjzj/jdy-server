@@ -27,9 +27,7 @@ func (con ProductHistoryController) List(ctx *gin.Context) {
 		req types.ProductHistoryListReq
 
 		logic = product.ProductHistoryLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+			Ctx: ctx,
 		}
 	)
 
@@ -60,9 +58,7 @@ func (con ProductHistoryController) Info(ctx *gin.Context) {
 		req types.ProductHistoryInfoReq
 
 		logic = product.ProductHistoryLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx: ctx,
-			},
+			Ctx: ctx,
 		}
 	)
 

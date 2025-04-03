@@ -2,7 +2,7 @@ package enums
 
 import "errors"
 
-/* 调拨方式 */
+/* 调拨类型 */
 // 门店调拨、调拨出库
 type ProductAllocateMethod int
 

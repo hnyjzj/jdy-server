@@ -7,24 +7,26 @@ import (
 	"jdy/model"
 	"jdy/types"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type ProductAllocateLogic struct {
-	ProductLogic
+type ProductFinishedAllocateLogic struct {
+	Ctx   *gin.Context
+	Staff *types.Staff
 }
 
 // 创建产品调拨单
-func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *errors.Errors {
+func (l *ProductFinishedAllocateLogic) Create(req *types.ProductFinishedAllocateCreateReq) *errors.Errors {
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 创建调拨单
-		data := model.ProductAllocate{
+		data := model.ProductFinishedAllocate{
 			Method: req.Method,
 			Type:   req.Type,
 			Reason: req.Reason,
 			Remark: req.Remark,
-			Status: enums.ProductAllocateStatusInventory,
+			Status: enums.ProductAllocateStatusDraft,
 
 			FromStoreId: req.FromStoreId,
 
@@ -37,10 +39,10 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 		}
 
 		// 判断是不是整单调拨
-		if req.ProductEnterId != "" {
+		if req.EnterId != "" {
 			// 获取产品
-			var enter model.ProductEnter
-			if err := tx.Preload("Products").First(&enter, req.ProductEnterId).Error; err != nil {
+			var enter model.ProductFinishedEnter
+			if err := tx.Preload("Products").Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
 				return errors.New("获取入库单失败")
 			}
 			// 添加产品
@@ -60,11 +62,11 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 }
 
 // 获取产品调拨单列表
-func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.PageRes[model.ProductAllocate], error) {
+func (p *ProductFinishedAllocateLogic) List(req *types.ProductFinishedAllocateListReq) (*types.PageRes[model.ProductFinishedAllocate], error) {
 	var (
-		allocate model.ProductAllocate
+		allocate model.ProductFinishedAllocate
 
-		res types.PageRes[model.ProductAllocate]
+		res types.PageRes[model.ProductFinishedAllocate]
 	)
 
 	db := model.DB.Model(&allocate)
@@ -86,9 +88,9 @@ func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.P
 }
 
 // 获取产品调拨单详情
-func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.ProductAllocate, error) {
+func (p *ProductFinishedAllocateLogic) Info(req *types.ProductFinishedAllocateInfoReq) (*model.ProductFinishedAllocate, error) {
 	var (
-		allocate model.ProductAllocate
+		allocate model.ProductFinishedAllocate
 	)
 
 	db := model.DB.Model(&allocate)
@@ -106,19 +108,18 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 }
 
 // 添加产品调拨单产品
-func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Errors {
+func (p *ProductFinishedAllocateLogic) Add(req *types.ProductFinishedAllocateAddReq) *errors.Errors {
 	var (
-		allocate model.ProductAllocate
-		product  model.Product
+		allocate model.ProductFinishedAllocate
 	)
 
 	// 获取调拨单
 	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
-
+	var product model.ProductFinished
 	// 获取产品
-	if err := model.DB.Where(&model.Product{Code: req.Code}).First(&product).Error; err != nil {
+	if err := model.DB.Where(&model.ProductFinished{Code: req.Code}).First(&product).Error; err != nil {
 		return errors.New("产品不存在")
 	}
 
@@ -130,24 +131,22 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 	if err := model.DB.Model(&allocate).Association("Products").Append(&product); err != nil {
 		return errors.New("添加产品失败")
 	}
-
 	return nil
 }
 
 // 移除产品调拨单产品
-func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *errors.Errors {
+func (p *ProductFinishedAllocateLogic) Remove(req *types.ProductFinishedAllocateRemoveReq) *errors.Errors {
 	var (
-		allocate model.ProductAllocate
-		product  model.Product
+		allocate model.ProductFinishedAllocate
 	)
 
 	// 获取调拨单
 	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
-
+	var product model.ProductFinished
 	// 获取产品
-	if err := model.DB.Where(&model.Product{Code: req.Code}).First(&product).Error; err != nil {
+	if err := model.DB.Where(&model.ProductFinished{Code: req.Code}).First(&product).Error; err != nil {
 		return errors.New("产品不存在")
 	}
 
@@ -160,9 +159,9 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 }
 
 // 确认调拨
-func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *errors.Errors {
+func (p *ProductFinishedAllocateLogic) Confirm(req *types.ProductFinishedAllocateConfirmReq) *errors.Errors {
 	var (
-		allocate model.ProductAllocate
+		allocate model.ProductFinishedAllocate
 	)
 
 	// 获取调拨单
@@ -170,7 +169,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		return errors.New("调拨单不存在")
 	}
 
-	if allocate.Status != enums.ProductAllocateStatusInventory {
+	if allocate.Status != enums.ProductAllocateStatusDraft {
 		return errors.New("调拨单状态异常")
 	}
 
@@ -186,7 +185,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 			}
 		}
 		// 确认调拨
-		allocate.Status = enums.ProductAllocateStatusAllocate
+		allocate.Status = enums.ProductAllocateStatusOnTheWay
 		if err := model.DB.Save(&allocate).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
@@ -200,9 +199,9 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 }
 
 // 取消调拨
-func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *errors.Errors {
+func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocateCancelReq) *errors.Errors {
 	var (
-		allocate model.ProductAllocate
+		allocate model.ProductFinishedAllocate
 	)
 
 	// 获取调拨单
@@ -210,13 +209,13 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 		return errors.New("调拨单不存在")
 	}
 
-	if allocate.Status != enums.ProductAllocateStatusInventory && allocate.Status != enums.ProductAllocateStatusAllocate {
+	if allocate.Status != enums.ProductAllocateStatusDraft && allocate.Status == enums.ProductAllocateStatusCancelled {
 		return errors.New("调拨单状态异常")
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 取消调拨
-		allocate.Status = enums.ProductAllocateStatusCanceled
+		allocate.Status = enums.ProductAllocateStatusCancelled
 		if err := model.DB.Save(&allocate).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
@@ -238,25 +237,27 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 }
 
 // 完成调拨
-func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *errors.Errors {
+func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAllocateCompleteReq) *errors.Errors {
 	var (
-		allocate model.ProductAllocate
+		allocate model.ProductFinishedAllocate
 	)
 
 	// 获取调拨单
-	if err := model.DB.Preload("Products", func(db *gorm.DB) *gorm.DB {
-		db = db.Preload("Store")
-		db = db.Preload("RecycleStore")
-		return db
-	}).First(&allocate, req.Id).Error; err != nil {
+	db := model.DB.Model(&allocate)
+	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+		tx = tx.Preload("Store")
+		return tx
+	})
+	if err := db.First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
-	if allocate.Status != enums.ProductAllocateStatusAllocate {
+	if allocate.Status != enums.ProductAllocateStatusOnTheWay {
 		return errors.New("调拨单状态异常")
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+
 		// 解锁产品
 		for _, product := range allocate.Products {
 			log := model.ProductHistory{
@@ -274,13 +275,12 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
 
-			data := &model.Product{
+			data := &model.ProductFinished{
 				StoreId: allocate.ToStoreId,
-				Type:    allocate.Type,
 			}
 
 			// 解锁产品
-			if err := model.DB.Model(&model.Product{}).Where("id = ?", product.Id).Updates(data).Error; err != nil {
+			if err := model.DB.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(data).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
 

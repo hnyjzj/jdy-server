@@ -3,11 +3,11 @@ package enums
 import "errors"
 
 /* 主石 */
-// 素金、钻石、蓝宝石、碧玺、珍珠、翡翠、和田玉、彩宝、其他、红宝石、水晶、祖母绿、玉髓、玛瑙、石榴石、锆石、孔雀石、贝母
+// 素金类、钻石、蓝宝石、碧玺、珍珠、翡翠、和田玉、彩宝、其他、红宝石、水晶、祖母绿、玉髓、玛瑙、石榴石、锆石、孔雀石、贝母
 type ProductGem int
 
 const (
-	ProductGemGold        ProductGem = iota + 1 // 素金
+	ProductGemGold        ProductGem = iota + 1 // 素金类
 	ProductGemDiamond                           // 钻石
 	ProductGemSapphire                          // 蓝宝石
 	ProductGemTurquoise                         // 碧玺
@@ -28,7 +28,7 @@ const (
 )
 
 var ProductGemMap = map[ProductGem]string{
-	ProductGemGold:        "素金",
+	ProductGemGold:        "素金类",
 	ProductGemDiamond:     "钻石",
 	ProductGemSapphire:    "蓝宝石",
 	ProductGemTurquoise:   "碧玺",

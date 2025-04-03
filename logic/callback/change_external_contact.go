@@ -58,7 +58,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 	// 获取外部联系人信息
 	app := config.NewWechatService().JdyWork
 	user, err := app.ExternalContact.Get(l.Handle.Ctx, l.Message.ExternalUserID, "")
-	if err != nil {
+	if err != nil || user == nil || user.ExternalContact == nil {
 		return errors.New("获取外部联系人信息失败: " + err.Error())
 	}
 
@@ -76,9 +76,10 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 
 	// 查找会员
 	var member model.Member
+	var gender enums.Gender
 	if err := model.DB.Where(model.Member{ExternalUserId: l.Message.ExternalUserID}).Attrs(model.Member{
 		Name:           user.ExternalContact.Name,
-		Gender:         enums.GenderUnknown.Convert(user.ExternalContact.Gender),
+		Gender:         gender.Convert(user.ExternalContact.Gender),
 		Nickname:       user.ExternalContact.Name,
 		Level:          enums.MemberLevelNone,
 		SourceId:       account.Staff.Id,

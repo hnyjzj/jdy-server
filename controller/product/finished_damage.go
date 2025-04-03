@@ -10,21 +10,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductInventoryController struct {
+type ProductFinishedDamageController struct {
 	controller.BaseController
 }
 
-func (con ProductInventoryController) Where(ctx *gin.Context) {
-	where := utils.StructToWhere(types.ProductInventoryWhere{})
+// 产品筛选条件
+func (con ProductFinishedDamageController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductFinishedWhere{})
 
 	con.Success(ctx, "ok", where)
 }
 
-func (con ProductInventoryController) Create(ctx *gin.Context) {
+// 成品报损
+func (con ProductFinishedDamageController) Damage(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryCreateReq
+		req types.ProductDamageReq
 
-		logic = product.ProductInventoryLogic{
+		logic = product.ProductFinishedDamageLogic{
 			Ctx: ctx,
 		}
 	)
@@ -36,31 +38,25 @@ func (con ProductInventoryController) Create(ctx *gin.Context) {
 	}
 	logic.Staff = staff
 
-	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
-	if err := req.Validate(); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
-	}
 
-	// 调用逻辑层
-	res, err := logic.Create(&req)
-	if err != nil {
+	if err := logic.Damage(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", res)
+	con.Success(ctx, "ok", nil)
 }
 
-func (con ProductInventoryController) List(ctx *gin.Context) {
+// 产品列表
+func (con ProductFinishedDamageController) List(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryListReq
+		req types.ProductFinishedListReq
 
-		logic = product.ProductInventoryLogic{
+		logic = product.ProductFinishedDamageLogic{
 			Ctx: ctx,
 		}
 	)
@@ -78,7 +74,6 @@ func (con ProductInventoryController) List(ctx *gin.Context) {
 		return
 	}
 
-	// 调用逻辑层
 	res, err := logic.List(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
@@ -88,11 +83,12 @@ func (con ProductInventoryController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
-func (con ProductInventoryController) Info(ctx *gin.Context) {
+// 产品详情
+func (con ProductFinishedDamageController) Info(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryInfoReq
+		req types.ProductFinishedInfoReq
 
-		logic = product.ProductInventoryLogic{
+		logic = product.ProductFinishedDamageLogic{
 			Ctx: ctx,
 		}
 	)
@@ -104,13 +100,11 @@ func (con ProductInventoryController) Info(ctx *gin.Context) {
 	}
 	logic.Staff = staff
 
-	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	// 调用逻辑层
 	res, err := logic.Info(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
@@ -120,11 +114,12 @@ func (con ProductInventoryController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
-func (con ProductInventoryController) Change(ctx *gin.Context) {
+// 产品转换
+func (con ProductFinishedDamageController) Conversion(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryChangeReq
+		req types.ProductConversionReq
 
-		logic = product.ProductInventoryLogic{
+		logic = product.ProductFinishedDamageLogic{
 			Ctx: ctx,
 		}
 	)
@@ -136,14 +131,12 @@ func (con ProductInventoryController) Change(ctx *gin.Context) {
 	}
 	logic.Staff = staff
 
-	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	// 调用逻辑层
-	if err := logic.Change(&req); err != nil {
+	if err := logic.Conversion(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

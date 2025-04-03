@@ -3,7 +3,7 @@ package enums
 import "errors"
 
 /* 产品成色 */
-// 999.99、999.9、999、990、950、925、916、900、750、585、375、1、裸石
+// 999.99、999.9、999、990、950、925、916、900、750、585、375、1、裸石类
 type ProductQuality int
 
 const (
@@ -19,7 +19,7 @@ const (
 	ProductQuality585                             // 585
 	ProductQuality375                             // 375
 	ProductQuality1                               // 1
-	ProductQualityGem                             // 裸石
+	ProductQualityGem                             // 裸石类
 )
 
 var ProductQualityMap = map[ProductQuality]string{
@@ -35,7 +35,7 @@ var ProductQualityMap = map[ProductQuality]string{
 	ProductQuality585:   "585",
 	ProductQuality375:   "375",
 	ProductQuality1:     "1",
-	ProductQualityGem:   "裸石",
+	ProductQualityGem:   "裸石类",
 }
 
 func (p ProductQuality) ToMap() any {

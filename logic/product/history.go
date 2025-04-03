@@ -4,10 +4,13 @@ import (
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ProductHistoryLogic struct {
-	ProductLogic
+	Ctx   *gin.Context
+	Staff *types.Staff
 }
 
 // 产品操作记录列表

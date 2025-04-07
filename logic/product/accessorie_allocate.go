@@ -100,30 +100,66 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 	)
 
 	// 获取调拨单
-	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
+	if err := model.DB.Preload("Products.Product.Category").First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
-	var product model.ProductAccessorie
-	// 获取配件
-	if err := model.DB.Where("id = ?", req.ProductId).First(&product).Error; err != nil {
-		return errors.New("配件不存在")
+	// 检查调拨单状态
+	if allocate.Status != enums.ProductAllocateStatusDraft {
+		return errors.New("调拨单状态异常")
 	}
-	// 检查配件状态
-	if product.Status != enums.ProductStatusNormal {
-		return errors.New("配件状态异常")
+
+	// 所有配件ID
+	products := make(map[string]model.ProductAccessorieAllocateProduct)
+	for _, p := range allocate.Products {
+		products[p.ProductId] = p
 	}
-	// 检查配件库存
-	if product.Stock < req.Quantity {
-		return errors.New("配件库存不足")
-	}
-	// 检查配件是否已存在
-	data := model.ProductAccessorieAllocateProduct{
-		ProductId: req.ProductId,
-		Quantity:  req.Quantity,
-	}
+
 	// 添加配件
-	if err := model.DB.Model(&allocate).Association("Products").Append(&data); err != nil {
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		for _, rp := range req.Products {
+			var product model.ProductAccessorie
+			// 获取配件
+			if err := model.DB.Where("id = ?", rp.ProductId).First(&product).Error; err != nil {
+				return errors.New("配件不存在")
+			}
+			// 检查配件状态
+			if product.Status != enums.ProductStatusNormal {
+				return errors.New("配件状态异常")
+			}
+
+			// 检查配件是否已存在
+			pap, ok := products[rp.ProductId]
+			if ok { // 已存在，更新数量
+				// 检查配件库存
+				if product.Stock < (rp.Quantity + pap.Quantity) {
+					return errors.New("配件库存不足")
+				}
+				// 更新配件数量
+				if err := model.DB.Model(&model.ProductAccessorieAllocateProduct{}).
+					Where(&model.ProductAccessorieAllocateProduct{
+						AllocateId: req.Id,
+						ProductId:  rp.ProductId,
+					}).Update("quantity", gorm.Expr("quantity + ?", rp.Quantity)).Error; err != nil {
+					return errors.New("更新配件数量失败")
+				}
+			} else { // 不存在，新增
+				// 检查配件库存
+				if product.Stock < rp.Quantity {
+					return errors.New("配件库存不足")
+				}
+				data := model.ProductAccessorieAllocateProduct{
+					ProductId: rp.ProductId,
+					Quantity:  rp.Quantity,
+				}
+				// 添加配件
+				if err := model.DB.Model(&allocate).Association("Products").Append(&data); err != nil {
+					return errors.New("添加配件失败")
+				}
+			}
+		}
+		return nil
+	}); err != nil {
 		return errors.New("添加配件失败")
 	}
 

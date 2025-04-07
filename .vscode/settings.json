@@ -9,36 +9,36 @@
             "options": [
                 "true",
                 "false"
-            ],
+            ]
         },
         "label": {
             "cases": [],
-            "options": [],
+            "options": []
         },
         "create": {
             "cases": [],
             "options": [
                 "true",
                 "false"
-            ],
+            ]
         },
         "find": {
             "cases": [],
             "options": [
                 "true",
                 "false"
-            ],
+            ]
         },
         "update": {
             "cases": [],
             "options": [
                 "true",
                 "false"
-            ],
+            ]
         },
         "sort": {
             "cases": [],
-            "options": [],
+            "options": []
         },
         "type": {
             "cases": [],
@@ -49,7 +49,7 @@
                 "select",
                 "date",
                 "boolean",
-            ],
+            ]
         },
         "input": {
             "cases": [],
@@ -61,17 +61,17 @@
                 "date",
                 "textarea",
                 "switch",
-            ],
+            ]
         },
         "preset": {
             "cases": [],
             "options": [
                 "typeMap",
-            ],
+            ]
         },
         "condition": {
             "cases": [],
-            "options": [],
-        },
+            "options": []
+        }
     }
 }

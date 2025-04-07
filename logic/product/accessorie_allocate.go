@@ -177,9 +177,13 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 扣除配件库存
-		for _, product := range allocate.Products {
-			if err := model.DB.Model(&product).Update("stock", gorm.Expr("stock - ?", product.Quantity)).Error; err != nil {
-				return fmt.Errorf("【%s】%s 扣除库存失败", product.Product.Category.Code, product.Product.Category.Name)
+		for _, p := range allocate.Products {
+			var product model.ProductAccessorie
+			if err := model.DB.First(&product, p.ProductId).Error; err != nil {
+				return fmt.Errorf("【%s】%s 不存在", p.Product.Category.Code, p.Product.Category.Name)
+			}
+			if err := model.DB.Model(&product).Update("stock", gorm.Expr("stock - ?", p.Quantity)).Error; err != nil {
+				return fmt.Errorf("【%s】%s 扣除库存失败", p.Product.Category.Code, p.Product.Category.Name)
 			}
 		}
 

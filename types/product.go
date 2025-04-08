@@ -52,20 +52,21 @@ type ProductInventoryWhere struct {
 	Range enums.ProductInventoryRange `json:"range" label:"盘点范围" input:"select" type:"number" find:"true" create:"true" sort:"7" required:"true" preset:"typeMap"`     // 盘点范围
 
 	Class    enums.ProductClass    `json:"class" label:"大类" input:"multiple" type:"number" find:"false" create:"true" sort:"8" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":1}]"`     // 大类
-	Category enums.ProductCategory `json:"category" label:"品类" input:"multiple" type:"number" find:"false" create:"true" sort:"9" required:"false" preset:"typeMap"`                                                                   // 品类
-	Craft    enums.ProductCraft    `json:"craft" label:"工艺" input:"multiple" type:"number" find:"false" create:"true" sort:"10" required:"false" preset:"typeMap"`                                                                     // 工艺
-	Material enums.ProductMaterial `json:"material" label:"材质" input:"multiple" type:"number" find:"false" create:"true" sort:"11" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"` // 材质
-	Quality  enums.ProductQuality  `json:"quality" label:"成色" input:"multiple" type:"number" find:"false" create:"true" sort:"12" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`  // 成色
-	Gem      enums.ProductGem      `json:"gem" label:"主石" input:"multiple" type:"number" find:"false" create:"true" sort:"13" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`      // 主石
+	ClassOld enums.ProductOldClass `json:"class_old" label:"大类" input:"multiple" type:"number" find:"false" create:"true" sort:"9" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":1}]"` // 大类
+	Category enums.ProductCategory `json:"category" label:"品类" input:"multiple" type:"number" find:"false" create:"true" sort:"10" required:"false" preset:"typeMap"`                                                                  // 品类
+	Craft    enums.ProductCraft    `json:"craft" label:"工艺" input:"multiple" type:"number" find:"false" create:"true" sort:"11" required:"false" preset:"typeMap"`                                                                     // 工艺
+	Material enums.ProductMaterial `json:"material" label:"材质" input:"multiple" type:"number" find:"false" create:"true" sort:"12" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"` // 材质
+	Quality  enums.ProductQuality  `json:"quality" label:"成色" input:"multiple" type:"number" find:"false" create:"true" sort:"13" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`  // 成色
+	Gem      enums.ProductGem      `json:"gem" label:"主石" input:"multiple" type:"number" find:"false" create:"true" sort:"14" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`      // 主石
 
-	Remark string `json:"remark" label:"备注" input:"textarea" type:"string" find:"false" create:"true" sort:"14" required:"false"` // 备注
+	Remark string `json:"remark" label:"备注" input:"textarea" type:"string" find:"false" create:"true" sort:"15" required:"false"` // 备注
 
-	Status enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" find:"false" sort:"15" required:"false" preset:"typeMap"` // 状态
+	Status enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" find:"false" sort:"16" required:"false" preset:"typeMap"` // 状态
 
-	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"16" required:"false"` // 开始时间
-	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"17" required:"false"`   // 结束时间
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"17" required:"false"` // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"18" required:"false"`   // 结束时间
 
-	ProductStatus enums.ProductInventoryProductStatus `json:"product_status" label:"状态" input:"select" type:"number" find:"false" create:"false" sort:"18" required:"false" preset:"typeMap"` // 产品状态
+	ProductStatus enums.ProductInventoryProductStatus `json:"product_status" label:"状态" input:"select" type:"number" find:"false" create:"false" sort:"19" required:"false" preset:"typeMap"` // 产品状态
 }
 
 type ProductInventoryCreateReq struct {

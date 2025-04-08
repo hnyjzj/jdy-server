@@ -9,6 +9,7 @@ import (
 type ProductOldWhere struct {
 	Code        string                `json:"code" label:"条码" find:"true" create:"true" update:"false" sort:"4" type:"string" input:"text" required:"false"`
 	Name        string                `json:"name" label:"名称" find:"true" create:"true" update:"false" sort:"5" type:"string" input:"text" required:"false"`
+	Class       enums.ProductOldClass `json:"class" label:"大类" find:"true" create:"false" update:"false" sort:"3" type:"number" input:"select" required:"false" preset:"typeMap"`
 	Status      enums.ProductStatus   `json:"status" label:"状态" find:"true" create:"true" update:"false" sort:"13" type:"number" input:"select" required:"false" preset:"typeMap"`
 	LabelPrice  *decimal.Decimal      `json:"label_price" label:"标签价" find:"true" create:"true" update:"false" sort:"12" type:"number" input:"number" required:"false"`
 	Brand       enums.ProductBrand    `json:"brand" label:"品牌" find:"true" create:"true" update:"false" sort:"16" type:"number" input:"select" required:"false" preset:"typeMap"`

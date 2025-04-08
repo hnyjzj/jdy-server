@@ -190,6 +190,9 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				RecycleSource:   enums.ProductRecycleSourceBaoSongZhenGold,
 				RecycleSourceId: product.Id,
 			}
+
+			old.Class = old.GetClass()
+
 			if err := tx.Create(&old).Error; err != nil {
 				return errors.New("转换失败")
 			}

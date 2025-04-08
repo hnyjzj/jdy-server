@@ -17,6 +17,7 @@ type ProductInventoryLogic struct {
 	Staff *types.Staff
 }
 
+// 创建产品盘点单
 func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*model.ProductInventory, error) {
 	var (
 		db = model.DB
@@ -152,6 +153,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 	return &data, nil
 }
 
+// 搜索产品盘点单
 func (l *ProductInventoryLogic) List(req *types.ProductInventoryListReq) (*types.PageRes[model.ProductInventory], error) {
 
 	var (
@@ -179,6 +181,7 @@ func (l *ProductInventoryLogic) List(req *types.ProductInventoryListReq) (*types
 	return &res, nil
 }
 
+// 获取产品盘点单详情
 func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model.ProductInventory, error) {
 	var (
 		inventory model.ProductInventory
@@ -202,6 +205,7 @@ func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model
 	return &res, nil
 }
 
+// 切换盘点单状态
 func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) error {
 	var (
 		inventory model.ProductInventory

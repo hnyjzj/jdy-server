@@ -219,7 +219,7 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 			if err := tx.Where("product_id = ?", p.ProductId).First(&product).Error; err != nil {
 				return fmt.Errorf("【%s】%s 不存在", p.Product.Category.Code, p.Product.Category.Name)
 			}
-			if err := tx.Model(&product).Update("quantity", gorm.Expr("quantity - ?", p.Quantity)).Error; err != nil {
+			if err := tx.Model(&product).Where("product_id = ?", p.ProductId).Update("quantity", gorm.Expr("quantity - ?", p.Quantity)).Error; err != nil {
 				return fmt.Errorf("【%s】%s 扣除库存失败", p.Product.Category.Code, p.Product.Category.Name)
 			}
 		}
@@ -257,7 +257,7 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 		// 解锁配件
 		if allocate.Status == enums.ProductAllocateStatusOnTheWay {
 			for _, product := range allocate.Products {
-				if err := tx.Model(&product).Update("quantity", gorm.Expr("quantity + ?", product.Quantity)).Error; err != nil {
+				if err := tx.Model(&product).Where("product_id = ?", product.ProductId).Update("quantity", gorm.Expr("quantity + ?", product.Quantity)).Error; err != nil {
 					return fmt.Errorf("【%s】%s 扣除库存失败", product.Product.Category.Code, product.Product.Category.Name)
 				}
 			}
@@ -284,8 +284,9 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 
 	// 获取调拨单
 	db := model.DB.Model(&allocate)
-	db = db.Preload("Products.Product.Category", func(tx *gorm.DB) *gorm.DB {
-		tx = tx.Preload("Product")
+	db = db.Preload("Products.Product", func(tx *gorm.DB) *gorm.DB {
+		tx = tx.Preload("Category.Product")
+		tx = tx.Preload("Store")
 		return tx
 	})
 	if err := db.First(&allocate, req.Id).Error; err != nil {

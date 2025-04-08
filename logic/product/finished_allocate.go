@@ -225,7 +225,7 @@ func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocate
 			if product.Status != enums.ProductStatusAllocate {
 				return fmt.Errorf("【%s】%s 状态异常", product.Code, product.Name)
 			}
-			if err := tx.Model(&product).Update("status", enums.ProductStatusNormal).Error; err != nil {
+			if err := tx.Model(&product).Where("id = ?", product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
 				return fmt.Errorf("【%s】%s 解锁失败", product.Code, product.Name)
 			}
 		}

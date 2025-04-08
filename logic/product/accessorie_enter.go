@@ -230,7 +230,11 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
 		var enter model.ProductAccessorieEnter
-		if err := tx.Where("id = ?", req.EnterId).Preload("Products").First(&enter).Error; err != nil {
+		if err := tx.Where("id = ?", req.EnterId).Preload("Products", func(tx *gorm.DB) *gorm.DB {
+			tx = tx.Preload("Category")
+			tx = tx.Preload("Store")
+			return tx
+		}).First(&enter).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 

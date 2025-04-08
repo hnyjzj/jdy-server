@@ -126,7 +126,7 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status) // 状态
 	} else {
-		db = db.Where("status != ?", enums.ProductStatusNormal) // 状态
+		db = db.Where("status = ?", enums.ProductStatusNormal) // 状态
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId) // 门店ID

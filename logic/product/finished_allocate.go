@@ -180,13 +180,13 @@ func (p *ProductFinishedAllocateLogic) Confirm(req *types.ProductFinishedAllocat
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
 			product.Status = enums.ProductStatusAllocate
-			if err := model.DB.Save(&product).Error; err != nil {
+			if err := tx.Save(&product).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}
 		}
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusOnTheWay
-		if err := model.DB.Save(&allocate).Error; err != nil {
+		if err := tx.Save(&allocate).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
 
@@ -216,7 +216,7 @@ func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocate
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 取消调拨
 		allocate.Status = enums.ProductAllocateStatusCancelled
-		if err := model.DB.Save(&allocate).Error; err != nil {
+		if err := tx.Save(&allocate).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
 
@@ -225,7 +225,7 @@ func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocate
 			if product.Status != enums.ProductStatusAllocate {
 				return fmt.Errorf("【%s】%s 状态异常", product.Code, product.Name)
 			}
-			if err := model.DB.Model(&product).Update("status", enums.ProductStatusNormal).Error; err != nil {
+			if err := tx.Model(&product).Update("status", enums.ProductStatusNormal).Error; err != nil {
 				return fmt.Errorf("【%s】%s 解锁失败", product.Code, product.Name)
 			}
 		}
@@ -280,7 +280,7 @@ func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAlloca
 			}
 
 			// 解锁产品
-			if err := model.DB.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(data).Error; err != nil {
+			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(data).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
 
@@ -299,7 +299,7 @@ func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAlloca
 
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusCompleted
-		if err := model.DB.Save(&allocate).Error; err != nil {
+		if err := tx.Save(&allocate).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
 

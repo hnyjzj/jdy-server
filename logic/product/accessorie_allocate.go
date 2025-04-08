@@ -301,6 +301,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 		for _, product := range allocate.Products {
 
 			log := model.ProductHistory{
+				Type:       enums.ProductTypeAccessorie,
 				OldValue:   product,
 				ProductId:  product.ProductId,
 				StoreId:    allocate.ToStoreId,

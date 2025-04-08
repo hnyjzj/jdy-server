@@ -261,6 +261,7 @@ func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAlloca
 		// 解锁产品
 		for _, product := range allocate.Products {
 			log := model.ProductHistory{
+				Type:       enums.ProductTypeFinished,
 				Action:     enums.ProductActionTransfer,
 				OldValue:   product,
 				ProductId:  product.Id,

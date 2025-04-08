@@ -265,6 +265,7 @@ func (l *ProductFinishedEnterLogic) Finish(req *types.ProductFinishedEnterFinish
 
 			// 添加记录
 			history := model.ProductHistory{
+				Type:       enums.ProductTypeFinished,
 				OldValue:   nil,
 				NewValue:   product,
 				Action:     enums.ProductActionEntry,

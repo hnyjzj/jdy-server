@@ -19,13 +19,21 @@ type ProductConversionReq struct {
 
 type ProductHistoryWhere struct {
 	ProductId string              `json:"product_id" label:"产品" input:"text" type:"string" find:"true" sort:"1" required:"true"`                   // 产品
-	StoreId   string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"2" required:"true" binding:"required"` // 门店
-	Action    enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"3" required:"true" preset:"typeMap"`    // 操作
+	Type      enums.ProductType   `json:"type" label:"产品类型" input:"multiple" type:"number" find:"true" sort:"2" required:"false" preset:"typeMap"` // 产品类型
+	StoreId   string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"true" binding:"required"` // 门店
+	Action    enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"true" preset:"typeMap"`    // 操作
+}
+
+type ProductHistoryWhereReq struct {
+	ProductId string              `json:"product_id"`                  // 产品ID
+	Type      []enums.ProductType `json:"type"`                        // 产品类型
+	StoreId   string              `json:"store_id" binding:"required"` // 门店ID
+	Action    enums.ProductAction `json:"action"`                      // 操作
 }
 
 type ProductHistoryListReq struct {
 	PageReq
-	Where ProductHistoryWhere `json:"where" binding:"required"`
+	Where ProductHistoryWhereReq `json:"where" binding:"required"`
 }
 
 type ProductHistoryInfoReq struct {

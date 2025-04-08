@@ -79,6 +79,7 @@ func (p *ProductAccessorieLogic) Update(req *types.ProductAccessorieUpdateReq) e
 		}
 
 		history := model.ProductHistory{
+			Type:       enums.ProductTypeAccessorie,
 			Action:     enums.ProductActionUpdate,
 			OldValue:   product,
 			ProductId:  product.Id,

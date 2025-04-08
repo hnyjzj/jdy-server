@@ -153,6 +153,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere) 
 type ProductHistory struct {
 	Model
 
+	Type   enums.ProductType   `json:"type" gorm:"type:tinyint(2);comment:产品类型;"` // 产品类型
 	Action enums.ProductAction `json:"action" gorm:"type:tinyint(2);comment:操作;"` // 操作
 
 	NewValue any `json:"new_value" gorm:"type:text;serializer:json;comment:值;"`  // 值
@@ -172,7 +173,10 @@ type ProductHistory struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"`                 // IP
 }
 
-func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhere) *gorm.DB {
+func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhereReq) *gorm.DB {
+	if len(query.Type) > 0 {
+		db = db.Where("type in (?)", query.Type)
+	}
 	if query.ProductId != "" {
 		db = db.Where("product_id = ?", query.ProductId)
 	}

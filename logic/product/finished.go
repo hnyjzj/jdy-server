@@ -80,6 +80,7 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 		}
 
 		history := model.ProductHistory{
+			Type:       enums.ProductTypeFinished,
 			Action:     enums.ProductActionUpdate,
 			OldValue:   product,
 			ProductId:  product.Id,

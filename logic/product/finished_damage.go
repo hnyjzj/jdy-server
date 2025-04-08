@@ -39,6 +39,7 @@ func (l *ProductFinishedDamageLogic) Damage(req *types.ProductDamageReq) *errors
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 
 		history := model.ProductHistory{
+			Type:       enums.ProductTypeFinished,
 			Action:     enums.ProductActionDamage,
 			OldValue:   product,
 			ProductId:  product.Id,
@@ -130,6 +131,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 		}
 
 		log := &model.ProductHistory{
+			Type:       enums.ProductTypeFinished,
 			OldValue:   product,
 			ProductId:  product.Id,
 			StoreId:    product.StoreId,

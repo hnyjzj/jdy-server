@@ -26,7 +26,10 @@ func (p *ProductAccessorieLogic) List(req *types.ProductAccessorieListReq) (*typ
 	)
 
 	db := model.DB.Model(&product)
-	db = product.WhereCondition(db, &req.Where).Or("status <> ?", enums.ProductStatusDraft)
+	db = product.WhereCondition(db, &req.Where).
+		Where(&model.ProductAccessorie{
+			Status: enums.ProductStatusNormal,
+		})
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
@@ -34,8 +37,8 @@ func (p *ProductAccessorieLogic) List(req *types.ProductAccessorieListReq) (*typ
 	}
 
 	// 获取列表
-	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
+	db = db.Order("created_at desc")
 	db = db.Preload("Category")
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取配件列表失败")

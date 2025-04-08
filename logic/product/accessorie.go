@@ -26,10 +26,7 @@ func (p *ProductAccessorieLogic) List(req *types.ProductAccessorieListReq) (*typ
 	)
 
 	db := model.DB.Model(&product)
-	db = product.WhereCondition(db, &req.Where).
-		Where(&model.ProductAccessorie{
-			Status: enums.ProductStatusNormal,
-		})
+	db = product.WhereCondition(db, &req.Where)
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {

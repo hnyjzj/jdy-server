@@ -26,9 +26,7 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	)
 
 	db := model.DB.Model(&product)
-	db = product.WhereCondition(db, &req.Where).Where(&model.ProductFinished{
-		Status: enums.ProductStatusNormal,
-	})
+	db = product.WhereCondition(db, &req.Where)
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {

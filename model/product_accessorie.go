@@ -41,6 +41,8 @@ func (ProductAccessorie) WhereCondition(db *gorm.DB, query *types.ProductAccesso
 		db = db.Where("code IN (SELECT id FROM product_accessorie_categories WHERE name LIKE ?)", fmt.Sprintf("%%%s%%", query.Name))
 	}
 
+	db = db.Where("status = ?", enums.ProductStatusNormal)
+
 	return db
 }
 

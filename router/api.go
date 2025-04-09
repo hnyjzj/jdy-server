@@ -345,11 +345,23 @@ func Api(g *gin.Engine) {
 
 			integrals := members.Group("/integral")
 			{
-				integrals.GET("/where", member.MemberIntegralController{}.Where) // 积分变动筛选
-				integrals.Use(middlewares.JWTMiddleware())
+				integral := integrals.Group("/")
 				{
-					integrals.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
-					integrals.POST("/change", member.MemberIntegralController{}.Change) // 积分变动
+					integral.GET("/where", member.MemberIntegralController{}.Where) // 积分变动筛选
+					integral.Use(middlewares.JWTMiddleware())
+					{
+						integral.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
+						integral.POST("/change", member.MemberIntegralController{}.Change) // 积分变动
+					}
+				}
+
+				rule := integrals.Group("/rule")
+				{
+					rule.Use(middlewares.JWTMiddleware())
+					{
+						rule.POST("/finished", member.MemberIntegralRuleController{}.Finished) // 成品积分规则
+						rule.POST("/old", member.MemberIntegralRuleController{}.Old)           // 旧料积分规则
+					}
 				}
 			}
 		}

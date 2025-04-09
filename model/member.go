@@ -150,15 +150,29 @@ func (MemberIntegralLog) WhereCondition(db *gorm.DB, query *types.MemberIntegral
 	return db
 }
 
+type MemberIntegralRule struct {
+	SoftDelete
+
+	Type enums.MemberIntegralRuleType `json:"type" gorm:"column:type;type:tinyint(1);not NULL;default:0;comment:类型;"` // 类型
+
+	Class int             `json:"class" gorm:"column:class;type:tinyint(1);NULL;comment:大类;"`            // 大类
+	Rate  decimal.Decimal `json:"rate" gorm:"column:rate;type:decimal(10,2);NULL;default:0;comment:比例;"` // 比例
+
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
+	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(
 		&Member{},
 		&MemberIntegralLog{},
+		&MemberIntegralRule{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &Member{},
 	// &MemberIntegralLog{},
+	// &MemberIntegralRule{},
 	)
 }

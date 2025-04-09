@@ -211,12 +211,14 @@ func Api(g *gin.Engine) {
 				// 旧料管理
 				old := olds.Group("/")
 				{
-					old.GET("/where", product.ProductOldController{}.Where) // 旧料筛选
+					old.GET("/where", product.ProductOldController{}.Where)         // 旧料筛选
+					old.POST("/get_class", product.ProductOldController{}.GetClass) // 获取旧料分类
 					old.Use(middlewares.JWTMiddleware())
 					{
 						old.POST("/list", product.ProductOldController{}.List)            // 旧料列表
 						old.POST("/info", product.ProductOldController{}.Info)            // 旧料详情
 						old.PUT("/conversion", product.ProductOldController{}.Conversion) // 旧料转换
+
 					}
 				}
 

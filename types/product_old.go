@@ -57,3 +57,13 @@ type ProductOldUpdateReq struct {
 	Id string `json:"id" binding:"required"` // 产品ID
 	ProductOldWhere
 }
+
+type ProductOldGetClassReq struct {
+	Material enums.ProductMaterial `json:"material" binding:"required"` // 材质
+	Quality  enums.ProductQuality  `json:"quality" binding:"required"`  // 成色
+	Gem      enums.ProductGem      `json:"gem" binding:"required"`      // 主石
+}
+type ProductOldGetClassRes struct {
+	Value enums.ProductOldClass `json:"value"` // 大类
+	Label string                `json:"label"` // 大类名称
+}

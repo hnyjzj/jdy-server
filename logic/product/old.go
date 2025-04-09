@@ -103,3 +103,18 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 
 	return nil
 }
+
+// 获取大类
+func (p *ProductOldLogic) GetClass(req *types.ProductOldGetClassReq) types.ProductOldGetClassRes {
+	old := model.ProductOld{
+		Material: req.Material,
+		Quality:  req.Quality,
+		Gem:      req.Gem,
+	}
+	class := old.GetClass()
+
+	return types.ProductOldGetClassRes{
+		Value: class,
+		Label: enums.ProductOldClassMap[class],
+	}
+}

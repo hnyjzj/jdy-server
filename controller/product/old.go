@@ -113,3 +113,23 @@ func (con ProductOldController) Conversion(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 获取大类
+func (con ProductOldController) GetClass(ctx *gin.Context) {
+	var (
+		req types.ProductOldGetClassReq
+
+		logic = product.ProductOldLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	class := logic.GetClass(&req)
+
+	con.Success(ctx, "ok", class)
+}

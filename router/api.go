@@ -118,9 +118,12 @@ func Api(g *gin.Engine) {
 
 			staffs := stores.Group("/staff")
 			{
-				staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
-				staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
-				staffs.DELETE("/del", store.StoreStaffController{}.Del) // 删除门店员工
+				staffs.Use(middlewares.JWTMiddleware())
+				{
+					staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
+					staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
+					staffs.DELETE("/del", store.StoreStaffController{}.Del) // 删除门店员工
+				}
 			}
 		}
 

@@ -78,9 +78,8 @@ func (p *ProductFinishedDamageLogic) List(req *types.ProductFinishedListReq) (*t
 	)
 
 	db := model.DB.Model(&product)
-	db = product.WhereCondition(db, &req.Where).Where(&model.ProductFinished{
-		Status: enums.ProductStatusDamage,
-	})
+	req.Where.Status = enums.ProductStatusDamage
+	db = product.WhereCondition(db, &req.Where)
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
@@ -150,9 +149,6 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 			log.NewValue = product
 		case enums.ProductTypeOld:
 			log.Action = enums.ProductActionDamageToOld
-			if err := tx.Delete(&model.ProductFinished{}, "id = ?", req.Id).Error; err != nil {
-				return errors.New("删除失败")
-			}
 			var old model.ProductOld
 			if err := tx.Unscoped().Where(&model.ProductOld{Code: product.Code}).First(&old).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
@@ -160,11 +156,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				}
 			}
 
-			if old.Id != "" {
-				return errors.New("旧料已存在")
-			}
-
-			old = model.ProductOld{
+			data := model.ProductOld{
 				Code:            product.Code,
 				Name:            product.Name,
 				Status:          enums.ProductStatusNormal,
@@ -191,13 +183,24 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				RecycleSourceId: product.Id,
 			}
 
-			old.Class = old.GetClass()
+			data.Class = data.GetClass()
 
-			if err := tx.Create(&old).Error; err != nil {
-				return errors.New("转换失败")
+			if old.Id != "" {
+				if old.DeletedAt.Valid {
+					if err := tx.Model(&model.ProductOld{}).Unscoped().Where("id = ?", old.Id).Update("deleted_at", nil).Error; err != nil {
+						return errors.New("恢复成品失败")
+					}
+				}
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", old.Id).Updates(&data).Error; err != nil {
+					return errors.New("转换失败")
+				}
+			} else {
+				if err := tx.Create(&data).Error; err != nil {
+					return errors.New("转换失败")
+				}
 			}
-			log.NewValue = old
 
+			log.NewValue = data
 			if err := tx.Delete(&model.ProductFinished{}, "id = ?", req.Id).Error; err != nil {
 				return errors.New("删除失败")
 			}

@@ -49,3 +49,25 @@ func (l *MemberIntegraRulelLogic) Old(req *types.MemberIntegralRuleReq) (*model.
 
 	return &rule, nil
 }
+func (l *MemberIntegraRulelLogic) Accessorie(req *types.MemberIntegralRuleReq) (*[]model.MemberIntegralRule, error) {
+	var (
+		rule []model.MemberIntegralRule
+	)
+
+	for _, v := range req.Classes {
+		if enums.ProductTypePart.InMap(enums.ProductTypePart(v)) != nil {
+			return nil, errors.New("类型错误")
+		}
+	}
+
+	if err := model.DB.
+		Where(&model.MemberIntegralRule{
+			Type: enums.MemberIntegralRuleTypeAccessorie,
+		}).
+		Where("class in (?)", req.Classes).
+		Find(&rule).Error; err != nil {
+		return nil, errors.New("没有找到积分规则")
+	}
+
+	return &rule, nil
+}

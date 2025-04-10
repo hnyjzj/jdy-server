@@ -4,6 +4,7 @@ package enums
 type MemberIntegralRuleType int
 
 const (
-	MemberIntegralRuleTypeFinished MemberIntegralRuleType = iota + 1 //成品
-	MemberIntegralRuleTypeOld                                        // 旧料
+	MemberIntegralRuleTypeFinished   MemberIntegralRuleType = iota + 1 //成品
+	MemberIntegralRuleTypeOld                                          // 旧料
+	MemberIntegralRuleTypeAccessorie                                   //配件
 )

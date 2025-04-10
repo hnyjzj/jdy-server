@@ -59,3 +59,27 @@ func (con MemberIntegralRuleController) Old(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+func (con MemberIntegralRuleController) Accessorie(ctx *gin.Context) {
+	var (
+		req types.MemberIntegralRuleReq
+
+		logic = member.MemberIntegraRulelLogic{
+			Ctx: ctx,
+		}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	res, err := logic.Accessorie(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}

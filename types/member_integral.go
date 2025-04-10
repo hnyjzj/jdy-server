@@ -23,5 +23,6 @@ type MemberIntegralChangeReq struct {
 }
 
 type MemberIntegralRuleReq struct {
-	Class int `json:"class" binding:"required"`
+	Class   int   `json:"class"`
+	Classes []int `json:"classes"`
 }

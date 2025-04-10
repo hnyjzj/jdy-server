@@ -349,8 +349,9 @@ func Api(g *gin.Engine) {
 				{
 					rule.Use(middlewares.JWTMiddleware())
 					{
-						rule.POST("/finished", member.MemberIntegralRuleController{}.Finished) // 成品积分规则
-						rule.POST("/old", member.MemberIntegralRuleController{}.Old)           // 旧料积分规则
+						rule.POST("/finished", member.MemberIntegralRuleController{}.Finished)     // 成品积分规则
+						rule.POST("/old", member.MemberIntegralRuleController{}.Old)               // 旧料积分规则
+						rule.POST("/accessorie", member.MemberIntegralRuleController{}.Accessorie) // 配件积分规则
 					}
 				}
 			}

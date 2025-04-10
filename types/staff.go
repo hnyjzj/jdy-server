@@ -59,7 +59,7 @@ type StaffWxWorkReq struct {
 
 // 员工响应
 type StaffRes struct {
-	Id    int64  `json:"id"`
+	Id    string `json:"id"`
 	Phone string `json:"phone"`
 
 	Nickname string       `json:"nickname"`

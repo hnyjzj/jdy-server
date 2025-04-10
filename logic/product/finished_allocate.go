@@ -117,6 +117,11 @@ func (p *ProductFinishedAllocateLogic) Add(req *types.ProductFinishedAllocateAdd
 	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
+
+	if allocate.Status != enums.ProductAllocateStatusDraft {
+		return errors.New("调拨单状态异常")
+	}
+
 	var product model.ProductFinished
 	// 获取产品
 	if err := model.DB.Where(&model.ProductFinished{Code: req.Code}).First(&product).Error; err != nil {
@@ -144,6 +149,11 @@ func (p *ProductFinishedAllocateLogic) Remove(req *types.ProductFinishedAllocate
 	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
+
+	if allocate.Status != enums.ProductAllocateStatusDraft {
+		return errors.New("调拨单状态异常")
+	}
+
 	var product model.ProductFinished
 	// 获取产品
 	if err := model.DB.Where(&model.ProductFinished{Code: req.Code}).First(&product).Error; err != nil {
@@ -209,7 +219,7 @@ func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocate
 		return errors.New("调拨单不存在")
 	}
 
-	if allocate.Status != enums.ProductAllocateStatusDraft && allocate.Status == enums.ProductAllocateStatusCancelled {
+	if allocate.Status != enums.ProductAllocateStatusDraft && allocate.Status != enums.ProductAllocateStatusOnTheWay {
 		return errors.New("调拨单状态异常")
 	}
 

@@ -40,6 +40,10 @@ func (req *ProductAccessorieAllocateWhere) Validate() error {
 		return errors.New("调拨门店不能为空")
 	}
 
+	if req.Method == enums.ProductAllocateMethodOut && req.Remark == "" {
+		return errors.New("调拨备注不能为空")
+	}
+
 	return nil
 }
 

@@ -16,7 +16,7 @@ func (con MemberIntegralRuleController) Finished(ctx *gin.Context) {
 	var (
 		req types.MemberIntegralRuleReq
 
-		logic = member.MemberIntegraRulelLogic{
+		logic = member.MemberIntegralRuleLogic{
 			Ctx: ctx,
 		}
 	)
@@ -40,7 +40,7 @@ func (con MemberIntegralRuleController) Old(ctx *gin.Context) {
 	var (
 		req types.MemberIntegralRuleReq
 
-		logic = member.MemberIntegraRulelLogic{
+		logic = member.MemberIntegralRuleLogic{
 			Ctx: ctx,
 		}
 	)
@@ -64,7 +64,7 @@ func (con MemberIntegralRuleController) Accessorie(ctx *gin.Context) {
 	var (
 		req types.MemberIntegralRuleReq
 
-		logic = member.MemberIntegraRulelLogic{
+		logic = member.MemberIntegralRuleLogic{
 			Ctx: ctx,
 		}
 	)

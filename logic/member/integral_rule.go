@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type MemberIntegraRulelLogic struct {
+type MemberIntegralRuleLogic struct {
 	Ctx *gin.Context
 }
 
-func (l *MemberIntegraRulelLogic) Finished(req *types.MemberIntegralRuleReq) (*model.MemberIntegralRule, error) {
+func (l *MemberIntegralRuleLogic) Finished(req *types.MemberIntegralRuleReq) (*model.MemberIntegralRule, error) {
 	var (
 		rule model.MemberIntegralRule
 	)
@@ -31,7 +31,7 @@ func (l *MemberIntegraRulelLogic) Finished(req *types.MemberIntegralRuleReq) (*m
 
 	return &rule, nil
 }
-func (l *MemberIntegraRulelLogic) Old(req *types.MemberIntegralRuleReq) (*model.MemberIntegralRule, error) {
+func (l *MemberIntegralRuleLogic) Old(req *types.MemberIntegralRuleReq) (*model.MemberIntegralRule, error) {
 	var (
 		rule model.MemberIntegralRule
 	)
@@ -49,7 +49,7 @@ func (l *MemberIntegraRulelLogic) Old(req *types.MemberIntegralRuleReq) (*model.
 
 	return &rule, nil
 }
-func (l *MemberIntegraRulelLogic) Accessorie(req *types.MemberIntegralRuleReq) ([]model.MemberIntegralRule, error) {
+func (l *MemberIntegralRuleLogic) Accessorie(req *types.MemberIntegralRuleReq) ([]model.MemberIntegralRule, error) {
 	var (
 		rule []model.MemberIntegralRule
 	)

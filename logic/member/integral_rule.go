@@ -49,7 +49,7 @@ func (l *MemberIntegraRulelLogic) Old(req *types.MemberIntegralRuleReq) (*model.
 
 	return &rule, nil
 }
-func (l *MemberIntegraRulelLogic) Accessorie(req *types.MemberIntegralRuleReq) (*[]model.MemberIntegralRule, error) {
+func (l *MemberIntegraRulelLogic) Accessorie(req *types.MemberIntegralRuleReq) ([]model.MemberIntegralRule, error) {
 	var (
 		rule []model.MemberIntegralRule
 	)
@@ -69,5 +69,5 @@ func (l *MemberIntegraRulelLogic) Accessorie(req *types.MemberIntegralRuleReq) (
 		return nil, errors.New("没有找到积分规则")
 	}
 
-	return &rule, nil
+	return rule, nil
 }

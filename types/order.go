@@ -105,6 +105,16 @@ func (req *OrderCreateReq) Validate() error {
 		}
 	}
 
+	// 检查支付方式
+	if len(req.Payments) == 0 {
+		return errors.New("支付方式不能为空")
+	}
+	for _, payment := range req.Payments {
+		if payment.Amount.LessThan(decimal.NewFromFloat(0)) {
+			return errors.New("支付金额错误")
+		}
+	}
+
 	return nil
 }
 

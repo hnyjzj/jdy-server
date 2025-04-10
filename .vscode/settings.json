@@ -60,13 +60,13 @@
                 "search",
                 "date",
                 "textarea",
-                "switch",
+                "switch"
             ]
         },
         "preset": {
             "cases": [],
             "options": [
-                "typeMap",
+                "typeMap"
             ]
         },
         "condition": {

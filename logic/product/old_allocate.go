@@ -118,7 +118,7 @@ func (p *ProductOldAllocateLogic) Add(req *types.ProductOldAllocateAddReq) *erro
 	}
 
 	// 添加产品
-	if err := model.DB.Model(&allocate).Association("ProductOlds").Append(&product); err != nil {
+	if err := model.DB.Model(&allocate).Association("Products").Append(&product); err != nil {
 		return errors.New("添加产品失败")
 	}
 
@@ -201,7 +201,7 @@ func (p *ProductOldAllocateLogic) Cancel(req *types.ProductOldAllocateCancelReq)
 		return errors.New("调拨单不存在")
 	}
 
-	if allocate.Status != enums.ProductAllocateStatusDraft && allocate.Status == enums.ProductAllocateStatusCancelled {
+	if allocate.Status != enums.ProductAllocateStatusDraft && allocate.Status != enums.ProductAllocateStatusOnTheWay {
 		return errors.New("调拨单状态异常")
 	}
 
@@ -279,6 +279,7 @@ func (p *ProductOldAllocateLogic) Complete(req *types.ProductOldAllocateComplete
 
 			// 更新商品状态
 			product.Status = enums.ProductStatusNormal
+			product.StoreId = allocate.ToStoreId
 			if err := tx.Save(&product).Error; err != nil {
 				return err
 			}

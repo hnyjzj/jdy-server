@@ -71,10 +71,6 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 				if err := product.Status.CanTransitionTo(enums.ProductStatusCheck); err != nil {
 					return errors.New("产品状态不正确")
 				}
-				// 更新产品状态
-				if err := tx.Model(&product).Updates(model.ProductFinished{Status: enums.ProductStatusCheck}).Error; err != nil {
-					return errors.New("更新产品状态失败")
-				}
 			}
 
 			// 设置状态
@@ -119,10 +115,6 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 				// 判断是否可以转态
 				if err := product.Status.CanTransitionTo(enums.ProductStatusCheck); err != nil {
 					return errors.New("产品状态不正确")
-				}
-				// 更新产品状态
-				if err := tx.Model(&product).Updates(model.ProductOld{Status: enums.ProductStatusCheck}).Error; err != nil {
-					return errors.New("更新产品状态失败")
 				}
 			}
 

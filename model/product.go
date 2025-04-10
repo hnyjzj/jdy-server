@@ -22,16 +22,20 @@ type ProductInventory struct {
 	InspectorId string `json:"inspector_id" gorm:"type:varchar(255);not NULL;comment:监盘人ID;"`      // 监盘人ID
 	Inspector   Staff  `json:"inspector" gorm:"foreignKey:InspectorId;references:Id;comment:监盘人;"` // 监盘人
 
+	CreatorId string `json:"creator_id" gorm:"type:varchar(255);not NULL;comment:创建人ID;"`    // 创建人ID
+	Creator   Staff  `json:"creator" gorm:"foreignKey:CreatorId;references:Id;comment:创建人;"` // 创建人
+
 	Type  enums.ProductType           `json:"type" gorm:"type:tinyint(2);comment:产品类型;"`  // 仓库类型
 	Range enums.ProductInventoryRange `json:"range" gorm:"type:tinyint(2);comment:盘点范围;"` // 盘点范围
 
-	Brand    []enums.ProductBrand    `json:"brand" gorm:"type:text;serializer:json;comment:产品品牌;"`    // 产品品牌
-	Class    []enums.ProductClass    `json:"class" gorm:"type:text;serializer:json;comment:产品大类;"`    // 产品大类
-	Category []enums.ProductCategory `json:"category" gorm:"type:text;serializer:json;comment:产品品类;"` // 产品品类
-	Craft    []enums.ProductCraft    `json:"craft" gorm:"type:text;serializer:json;comment:产品工艺;"`    // 产品工艺
-	Material []enums.ProductMaterial `json:"material" gorm:"type:text;serializer:json;comment:产品材质;"` // 产品材质
-	Quality  []enums.ProductQuality  `json:"quality" gorm:"type:text;serializer:json;comment:产品成色;"`  // 产品成色
-	Gem      []enums.ProductGem      `json:"gem" gorm:"type:text;serializer:json;comment:宝石种类;"`      // 宝石种类
+	Brand         []enums.ProductBrand         `json:"brand" gorm:"type:text;serializer:json;comment:产品品牌;"`          // 产品品牌
+	ClassFinished []enums.ProductClassFinished `json:"class_finished" gorm:"type:text;serializer:json;comment:成品大类;"` // 成品大类
+	ClassOld      []enums.ProductClassOld      `json:"class_old" gorm:"type:text;serializer:json;comment:旧料大类;"`      // 旧料大类
+	Category      []enums.ProductCategory      `json:"category" gorm:"type:text;serializer:json;comment:产品品类;"`       // 产品品类
+	Craft         []enums.ProductCraft         `json:"craft" gorm:"type:text;serializer:json;comment:产品工艺;"`          // 产品工艺
+	Material      []enums.ProductMaterial      `json:"material" gorm:"type:text;serializer:json;comment:产品材质;"`       // 产品材质
+	Quality       []enums.ProductQuality       `json:"quality" gorm:"type:text;serializer:json;comment:产品成色;"`        // 产品成色
+	Gem           []enums.ProductGem           `json:"gem" gorm:"type:text;serializer:json;comment:宝石种类;"`            // 宝石种类
 
 	Remark string                       `json:"remark" gorm:"type:text;comment:备注;"`         // 备注
 	Status enums.ProductInventoryStatus `json:"status" gorm:"type:tinyint(2);comment:盘点状态;"` // 盘点状态
@@ -54,9 +58,10 @@ type ProductInventoryProduct struct {
 	ProductInventoryId string           `json:"product_inventory_id" gorm:"type:varchar(255);not NULL;comment:盘点ID;"` // 盘点ID
 	ProductInventory   ProductInventory `json:"-" gorm:"foreignKey:ProductInventoryId;references:Id;comment:盘点;"`
 
-	ProductId   string            `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"` // 产品ID
-	ProductType enums.ProductType `json:"product_type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"` // 产品类型
-	Product     any               `json:"product" gorm:"-"`                                           // 产品信息
+	ProductId       string            `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`            // 产品ID
+	ProductType     enums.ProductType `json:"product_type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`            // 产品类型
+	ProductFinished ProductFinished   `json:"product_finished" gorm:"foreignKey:ProductId;references:Id;comment:成品"` // 成品
+	ProductOld      ProductOld        `json:"product_old"  gorm:"foreignKey:ProductId;references:Id;comment:旧料"`     // 旧料
 
 	Status enums.ProductInventoryProductStatus `json:"status" gorm:"type:tinyint(2);comment:盘点状态;"` // 盘点状态
 
@@ -97,8 +102,11 @@ func CreateProductInventoryCondition(db *gorm.DB, req *types.ProductInventoryCre
 	if len(req.Brand) > 0 {
 		db = db.Where("brand in (?)", req.Brand)
 	}
-	if len(req.Class) > 0 {
-		db = db.Where("class in (?)", req.Class)
+	if len(req.ClassFinished) > 0 {
+		db = db.Where("class in (?)", req.ClassFinished)
+	}
+	if len(req.ClassOld) > 0 {
+		db = db.Where("class in (?)", req.ClassOld)
 	}
 	if len(req.Category) > 0 {
 		db = db.Where("category in (?)", req.Category)
@@ -125,7 +133,9 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere) 
 	db = db.Preload("InventoryPerson")
 	db = db.Preload("Inspector")
 	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
-		pdb := tx.Preload("Product")
+		pdb := tx
+		pdb = pdb.Preload("ProductFinished")
+		pdb = pdb.Preload("ProductOld")
 		if req != nil && req.ProductStatus != enums.ProductInventoryProductStatusShould {
 			pdb = pdb.Where(&ProductInventoryProduct{Status: req.ProductStatus})
 		}

@@ -29,6 +29,9 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 		return nil, err
 	}
 
+	// 设置创建人
+	data.CreatorId = l.Staff.Id
+
 	// 创建应盘记录
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		switch req.Type {
@@ -37,7 +40,9 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			pdb := tx.Model(&model.ProductFinished{})
 			pdb = model.CreateProductInventoryCondition(pdb, req)
 
-			if err := pdb.Find(&products).Error; err != nil {
+			if err := pdb.Where(&model.ProductFinished{
+				Status: enums.ProductStatusNormal,
+			}).Find(&products).Error; err != nil {
 				return err
 			}
 			if len(products) == 0 {
@@ -48,8 +53,9 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			for _, product := range products {
 				// 添加产品
 				data.Products = append(data.Products, model.ProductInventoryProduct{
-					ProductId: product.Id,
-					Product:   product,
+					ProductType:     enums.ProductTypeFinished,
+					ProductId:       product.Id,
+					ProductFinished: product,
 
 					Status: enums.ProductInventoryProductStatusShould,
 				})
@@ -84,7 +90,9 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			pdb := tx.Model(&model.ProductOld{})
 			pdb = model.CreateProductInventoryCondition(pdb, req)
 
-			if err := pdb.Find(&products).Error; err != nil {
+			if err := pdb.Where(&model.ProductFinished{
+				Status: enums.ProductStatusNormal,
+			}).Find(&products).Error; err != nil {
 				return err
 			}
 			if len(products) == 0 {
@@ -94,8 +102,9 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			for _, product := range products {
 				// 添加产品
 				data.Products = append(data.Products, model.ProductInventoryProduct{
-					ProductId: product.Id,
-					Product:   product,
+					ProductType: enums.ProductTypeOld,
+					ProductId:   product.Id,
+					ProductOld:  product,
 
 					Status: enums.ProductInventoryProductStatusShould,
 				})

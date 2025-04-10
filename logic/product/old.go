@@ -115,6 +115,6 @@ func (p *ProductOldLogic) GetClass(req *types.ProductOldGetClassReq) types.Produ
 
 	return types.ProductOldGetClassRes{
 		Value: class,
-		Label: enums.ProductOldClassMap[class],
+		Label: enums.ProductClassOldMap[class],
 	}
 }

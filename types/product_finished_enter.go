@@ -62,21 +62,21 @@ type ProductFinishedEnterReqProduct struct {
 	LabelPrice *decimal.Decimal `json:"label_price" binding:"required"` // 标签价
 	LaborFee   *decimal.Decimal `json:"labor_fee" binding:"required"`   // 工费
 
-	WeightTotal *decimal.Decimal        `json:"weight_total"`                   // 总重量
-	WeightMetal *decimal.Decimal        `json:"weight_metal"`                   // 金重
-	WeightGem   *decimal.Decimal        `json:"weight_gem"`                     // 主石重
-	WeightOther *decimal.Decimal        `json:"weight_other"`                   // 杂料重
-	NumGem      int                     `json:"num_gem"`                        // 主石数
-	NumOther    int                     `json:"num_other"`                      // 杂料数
-	ColorMetal  string                  `json:"color_metal"`                    // 贵金属颜色
-	ColorGem    enums.ProductColor      `json:"color_gem"`                      // 颜色
-	Clarity     enums.ProductClarity    `json:"clarity"`                        // 净度
-	RetailType  enums.ProductRetailType `json:"retail_type" binding:"required"` // 零售方式
-	Class       enums.ProductClass      `json:"class" binding:"required"`       // 大类
-	Supplier    enums.ProductSupplier   `json:"supplier" binding:"required"`    // 供应商
-	Material    enums.ProductMaterial   `json:"material" binding:"required"`    // 材质
-	Quality     enums.ProductQuality    `json:"quality" binding:"required"`     // 成色
-	Gem         enums.ProductGem        `json:"gem" binding:"required"`         // 宝石
+	WeightTotal *decimal.Decimal           `json:"weight_total"`                   // 总重量
+	WeightMetal *decimal.Decimal           `json:"weight_metal"`                   // 金重
+	WeightGem   *decimal.Decimal           `json:"weight_gem"`                     // 主石重
+	WeightOther *decimal.Decimal           `json:"weight_other"`                   // 杂料重
+	NumGem      int                        `json:"num_gem"`                        // 主石数
+	NumOther    int                        `json:"num_other"`                      // 杂料数
+	ColorMetal  string                     `json:"color_metal"`                    // 贵金属颜色
+	ColorGem    enums.ProductColor         `json:"color_gem"`                      // 颜色
+	Clarity     enums.ProductClarity       `json:"clarity"`                        // 净度
+	RetailType  enums.ProductRetailType    `json:"retail_type" binding:"required"` // 零售方式
+	Class       enums.ProductClassFinished `json:"class" binding:"required"`       // 大类
+	Supplier    enums.ProductSupplier      `json:"supplier" binding:"required"`    // 供应商
+	Material    enums.ProductMaterial      `json:"material" binding:"required"`    // 材质
+	Quality     enums.ProductQuality       `json:"quality" binding:"required"`     // 成色
+	Gem         enums.ProductGem           `json:"gem" binding:"required"`         // 宝石
 
 	Category enums.ProductCategory `json:"category" binding:"required"` // 品类
 	Brand    enums.ProductBrand    `json:"brand"`                       // 品牌

@@ -118,7 +118,7 @@ func (l *StoreSalesTotalLogic) getSilver(res *StoreSalesTotalRes) error {
 	)
 
 	if err := l.getWhereDb().
-		Where("products.class = ?", enums.ProductClassSilver).
+		Where("products.class = ?", enums.ProductClassFinishedSilver).
 		Select("SUM(order_products.amount)").
 		Scan(&silver).Error; err != nil {
 		return errors.New("获取银饰数量失败")
@@ -139,7 +139,7 @@ func (l *StoreSalesTotalLogic) getGold(res *StoreSalesTotalRes) error {
 	)
 
 	if err := l.getWhereDb().
-		Where("products.class = ?", enums.ProductClassGoldPiece).
+		Where("products.class = ?", enums.ProductClassFinishedGoldPiece).
 		Select("SUM(order_products.amount)").
 		Scan(&gold).Error; err != nil {
 		return errors.New("获取足金数量失败")
@@ -159,7 +159,7 @@ func (l *StoreSalesTotalLogic) getGoldWeight(res *StoreSalesTotalRes) error {
 	)
 
 	if err := l.getWhereDb().
-		Where("products.class = ?", enums.ProductClassGoldKg).
+		Where("products.class = ?", enums.ProductClassFinishedGoldKg).
 		Select("SUM(order_products.amount)").
 		Scan(&goldWeight).Error; err != nil {
 		return errors.New("获取金重数量失败")

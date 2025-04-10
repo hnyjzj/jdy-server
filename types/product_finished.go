@@ -14,21 +14,21 @@ type ProductFinishedWhere struct {
 	LabelPrice *decimal.Decimal `json:"label_price" label:"标签价" find:"true" create:"true" update:"true" sort:"4" type:"float" input:"number" required:"true"` // 标签价
 	LaborFee   *decimal.Decimal `json:"labor_fee" label:"工费" find:"true" create:"true" update:"true" sort:"5" type:"float" input:"number" required:"true"`    // 工费
 
-	WeightTotal *decimal.Decimal        `json:"weight_total" label:"总重量" find:"true" create:"true" update:"true" sort:"6" type:"float" input:"number"`                    // 总重量
-	WeightMetal *decimal.Decimal        `json:"weight_metal" label:"金重" find:"true" create:"true" update:"true" sort:"7" type:"float" input:"number"`                     // 金重
-	WeightGem   *decimal.Decimal        `json:"weight_gem" label:"主石重" find:"true" create:"true" update:"true" sort:"8" type:"float" input:"number"`                      // 主石重
-	WeightOther *decimal.Decimal        `json:"weight_other" label:"杂料重" find:"true" create:"true" update:"true" sort:"9" type:"float" input:"number"`                    // 杂料重
-	NumGem      int                     `json:"num_gem" label:"主石数" find:"true" create:"true" update:"true" sort:"10" type:"number" input:"number"`                       // 主石数
-	NumOther    int                     `json:"num_other" label:"杂料数" find:"true" create:"true" update:"true" sort:"11" type:"number" input:"number"`                     // 杂料数
-	ColorMetal  string                  `json:"color_metal" label:"贵金属颜色" find:"true" create:"true" update:"true" sort:"12" type:"string" input:"text"`                   // 贵金属颜色
-	ColorGem    enums.ProductColor      `json:"color_gem" label:"颜色" find:"true" create:"true" update:"true" sort:"13" type:"number" input:"select" preset:"typeMap"`     // 颜色
-	Clarity     enums.ProductClarity    `json:"clarity" label:"净度" find:"true" create:"true" update:"true" sort:"14" type:"number" input:"select" preset:"typeMap"`       // 净度
-	RetailType  enums.ProductRetailType `json:"retail_type" label:"零售方式" find:"true" create:"true" update:"true" sort:"15" type:"number" input:"select" preset:"typeMap"` // 零售方式
-	Class       enums.ProductClass      `json:"class" label:"大类" find:"true" create:"false" update:"false" sort:"16" type:"number" input:"select" preset:"typeMap"`       // 大类
-	Supplier    enums.ProductSupplier   `json:"supplier" label:"供应商" find:"true" create:"true" update:"true" sort:"17" type:"number" input:"select" preset:"typeMap"`     // 供应商
-	Material    enums.ProductMaterial   `json:"material" label:"材质" find:"true" create:"true" update:"true" sort:"18" type:"number" input:"select" preset:"typeMap"`      // 材质
-	Quality     enums.ProductQuality    `json:"quality" label:"成色" find:"true" create:"true" update:"true" sort:"19" type:"number" input:"select" preset:"typeMap"`       // 成色
-	Gem         enums.ProductGem        `json:"gem" label:"宝石" find:"true" create:"true" update:"true" sort:"20" type:"number" input:"select" preset:"typeMap"`           // 宝石
+	WeightTotal *decimal.Decimal           `json:"weight_total" label:"总重量" find:"true" create:"true" update:"true" sort:"6" type:"float" input:"number"`                    // 总重量
+	WeightMetal *decimal.Decimal           `json:"weight_metal" label:"金重" find:"true" create:"true" update:"true" sort:"7" type:"float" input:"number"`                     // 金重
+	WeightGem   *decimal.Decimal           `json:"weight_gem" label:"主石重" find:"true" create:"true" update:"true" sort:"8" type:"float" input:"number"`                      // 主石重
+	WeightOther *decimal.Decimal           `json:"weight_other" label:"杂料重" find:"true" create:"true" update:"true" sort:"9" type:"float" input:"number"`                    // 杂料重
+	NumGem      int                        `json:"num_gem" label:"主石数" find:"true" create:"true" update:"true" sort:"10" type:"number" input:"number"`                       // 主石数
+	NumOther    int                        `json:"num_other" label:"杂料数" find:"true" create:"true" update:"true" sort:"11" type:"number" input:"number"`                     // 杂料数
+	ColorMetal  string                     `json:"color_metal" label:"贵金属颜色" find:"true" create:"true" update:"true" sort:"12" type:"string" input:"text"`                   // 贵金属颜色
+	ColorGem    enums.ProductColor         `json:"color_gem" label:"颜色" find:"true" create:"true" update:"true" sort:"13" type:"number" input:"select" preset:"typeMap"`     // 颜色
+	Clarity     enums.ProductClarity       `json:"clarity" label:"净度" find:"true" create:"true" update:"true" sort:"14" type:"number" input:"select" preset:"typeMap"`       // 净度
+	RetailType  enums.ProductRetailType    `json:"retail_type" label:"零售方式" find:"true" create:"true" update:"true" sort:"15" type:"number" input:"select" preset:"typeMap"` // 零售方式
+	Class       enums.ProductClassFinished `json:"class" label:"大类" find:"true" create:"false" update:"false" sort:"16" type:"number" input:"select" preset:"typeMap"`       // 大类
+	Supplier    enums.ProductSupplier      `json:"supplier" label:"供应商" find:"true" create:"true" update:"true" sort:"17" type:"number" input:"select" preset:"typeMap"`     // 供应商
+	Material    enums.ProductMaterial      `json:"material" label:"材质" find:"true" create:"true" update:"true" sort:"18" type:"number" input:"select" preset:"typeMap"`      // 材质
+	Quality     enums.ProductQuality       `json:"quality" label:"成色" find:"true" create:"true" update:"true" sort:"19" type:"number" input:"select" preset:"typeMap"`       // 成色
+	Gem         enums.ProductGem           `json:"gem" label:"宝石" find:"true" create:"true" update:"true" sort:"20" type:"number" input:"select" preset:"typeMap"`           // 宝石
 
 	Category enums.ProductCategory `json:"category" label:"品类" find:"true" create:"true" update:"true" sort:"21" type:"number" input:"select" preset:"typeMap"` // 品类
 	Brand    enums.ProductBrand    `json:"brand" label:"品牌" find:"true" create:"true" update:"true" sort:"22" type:"number" input:"select" preset:"typeMap"`    // 品牌

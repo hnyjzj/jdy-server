@@ -14,7 +14,7 @@ type ProductOld struct {
 	Code        string                `json:"code" gorm:"uniqueIndex;type:varchar(255);comment:条码;"`       // 条码
 	Name        string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
 	Status      enums.ProductStatus   `json:"status" gorm:"type:tinyint(2);comment:状态;"`                   // 状态
-	Class       enums.ProductOldClass `json:"class" gorm:"type:tinyint(2);not NULL;comment:旧料大类;"`         // 旧料大类
+	Class       enums.ProductClassOld `json:"class" gorm:"type:tinyint(2);not NULL;comment:旧料大类;"`         // 旧料大类
 	LabelPrice  decimal.Decimal       `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
 	Brand       enums.ProductBrand    `json:"brand" gorm:"type:tinyint(2);comment:品牌;"`                    // 品牌
 	Material    enums.ProductMaterial `json:"material" gorm:"type:tinyint(2);not NULL;comment:材质;"`        // 材质
@@ -156,13 +156,13 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 	return db
 }
 
-func (p *ProductOld) GetClass() enums.ProductOldClass {
+func (p *ProductOld) GetClass() enums.ProductClassOld {
 	// 黄金旧料
 	// 黄金 + 999/999.9/999.99 + 素金类
 	if p.Material == enums.ProductMaterialGold &&
 		(p.Quality == enums.ProductQuality99999 || p.Quality == enums.ProductQuality9999 || p.Quality == enums.ProductQuality999) &&
 		p.Gem == enums.ProductGemGold {
-		return enums.ProductOldClassGold
+		return enums.ProductClassOldGold
 	}
 
 	// K金旧料
@@ -170,7 +170,7 @@ func (p *ProductOld) GetClass() enums.ProductOldClass {
 	if p.Material == enums.ProductMaterialGold &&
 		(p.Quality == enums.ProductQuality999 || p.Quality == enums.ProductQuality916) &&
 		p.Gem == enums.ProductGemGold {
-		return enums.ProductOldClassKGold
+		return enums.ProductClassOldKGold
 	}
 
 	// 铂金旧料
@@ -178,7 +178,7 @@ func (p *ProductOld) GetClass() enums.ProductOldClass {
 	if p.Material == enums.ProductMaterialPlatinum &&
 		(p.Quality == enums.ProductQuality990 || p.Quality == enums.ProductQuality950) &&
 		p.Gem == enums.ProductGemGold {
-		return enums.ProductOldClassPlatinum
+		return enums.ProductClassOldPlatinum
 	}
 
 	// 银旧料
@@ -186,7 +186,7 @@ func (p *ProductOld) GetClass() enums.ProductOldClass {
 	if p.Material == enums.ProductMaterialSilver &&
 		(p.Quality == enums.ProductQuality990 || p.Quality == enums.ProductQuality925) &&
 		p.Gem == enums.ProductGemGold {
-		return enums.ProductOldClassSilver
+		return enums.ProductClassOldSilver
 	}
 
 	// 足金镶嵌旧料
@@ -194,7 +194,7 @@ func (p *ProductOld) GetClass() enums.ProductOldClass {
 	if p.Material == enums.ProductMaterialGold &&
 		(p.Quality == enums.ProductQuality999 || p.Quality == enums.ProductQuality9999 || p.Quality == enums.ProductQuality99999) &&
 		p.Gem != enums.ProductGemGold {
-		return enums.ProductOldClassInlayGold
+		return enums.ProductClassOldInlayGold
 	}
 
 	// 镶嵌旧料
@@ -202,9 +202,9 @@ func (p *ProductOld) GetClass() enums.ProductOldClass {
 	if p.Material == enums.ProductMaterialGold &&
 		(p.Quality != enums.ProductQuality999 && p.Quality != enums.ProductQuality9999 && p.Quality != enums.ProductQuality99999) &&
 		p.Gem != enums.ProductGemGold {
-		return enums.ProductOldClassInlay
+		return enums.ProductClassOldInlay
 	}
-	return enums.ProductOldClassOther
+	return enums.ProductClassOldOther
 }
 
 // 产品调拨单

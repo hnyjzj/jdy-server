@@ -193,19 +193,6 @@ func Api(g *gin.Engine) {
 						allocate.PUT("/complete", product.ProductFinishedAllocateController{}.Complete) // 完成调拨
 					}
 				}
-
-				// 成品盘点
-				inventory := finisheds.Group("/inventory")
-				{
-					inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
-					inventory.Use(middlewares.JWTMiddleware())
-					{
-						inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
-						inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
-						inventory.POST("/info", product.ProductInventoryController{}.Info)     // 盘点单详情
-						inventory.PUT("/change", product.ProductInventoryController{}.Change)  // 盘点单变化
-					}
-				}
 			}
 
 			// 旧料
@@ -239,19 +226,6 @@ func Api(g *gin.Engine) {
 						allocate.PUT("/confirm", product.ProductOldAllocateController{}.Confirm)   // 确认调拨
 						allocate.PUT("/cancel", product.ProductOldAllocateController{}.Cancel)     // 取消调拨
 						allocate.PUT("/complete", product.ProductOldAllocateController{}.Complete) // 完成调拨
-					}
-				}
-
-				// 旧料盘点
-				inventory := olds.Group("/inventory")
-				{
-					inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
-					inventory.Use(middlewares.JWTMiddleware())
-					{
-						inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
-						inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
-						inventory.POST("/info", product.ProductInventoryController{}.Info)     // 盘点单详情
-						inventory.PUT("/change", product.ProductInventoryController{}.Change)  // 盘点单变化
 					}
 				}
 			}
@@ -318,6 +292,19 @@ func Api(g *gin.Engine) {
 						allocate.PUT("/cancel", product.ProductAccessorieAllocateController{}.Cancel)     // 取消调拨
 						allocate.PUT("/complete", product.ProductAccessorieAllocateController{}.Complete) // 完成调拨
 					}
+				}
+			}
+
+			// 货品盘点
+			inventory := products.Group("/inventory")
+			{
+				inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
+				inventory.Use(middlewares.JWTMiddleware())
+				{
+					inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
+					inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
+					inventory.POST("/info", product.ProductInventoryController{}.Info)     // 盘点单详情
+					inventory.PUT("/change", product.ProductInventoryController{}.Change)  // 盘点单变化
 				}
 			}
 

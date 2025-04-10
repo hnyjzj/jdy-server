@@ -18,7 +18,7 @@ func (l *MemberIntegraRulelLogic) Finished(req *types.MemberIntegralRuleReq) (*m
 		rule model.MemberIntegralRule
 	)
 
-	if enums.ProductClass.InMap(enums.ProductClass(req.Class)) != nil {
+	if enums.ProductClassFinished.InMap(enums.ProductClassFinished(req.Class)) != nil {
 		return nil, errors.New("类型错误")
 	}
 
@@ -36,7 +36,7 @@ func (l *MemberIntegraRulelLogic) Old(req *types.MemberIntegralRuleReq) (*model.
 		rule model.MemberIntegralRule
 	)
 
-	if enums.ProductOldClass.InMap(enums.ProductOldClass(req.Class)) != nil {
+	if enums.ProductClassOld.InMap(enums.ProductClassOld(req.Class)) != nil {
 		return nil, errors.New("类型错误")
 	}
 

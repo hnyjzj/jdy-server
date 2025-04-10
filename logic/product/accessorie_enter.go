@@ -170,13 +170,13 @@ func (l *ProductAccessorieEnterLogic) EditProduct(req *types.ProductAccessorieEn
 		}
 
 		// 转换数据结构
-		product, err := utils.StructToStruct[model.ProductAccessorie](req.Product)
+		data, err := utils.StructToStruct[model.ProductAccessorie](req.Product)
 		if err != nil {
 			return errors.New("配件录入失败: 参数错误")
 		}
 
 		// 更新配件
-		if err := tx.Model(model.ProductAccessorie{}).Where("id = ?", req.ProductId).Updates(product).Error; err != nil {
+		if err := tx.Model(model.ProductAccessorie{}).Where("id = ?", req.ProductId).Updates(data).Error; err != nil {
 			return errors.New("配件更新失败")
 		}
 

@@ -177,6 +177,10 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 		return errors.New("调拨单不存在")
 	}
 
+	if allocate.Status != enums.ProductAllocateStatusDraft {
+		return errors.New("调拨单状态异常")
+	}
+
 	var product model.ProductAccessorieAllocateProduct
 	// 获取配件
 	where := &model.ProductAccessorieAllocateProduct{

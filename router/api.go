@@ -176,23 +176,6 @@ func Api(g *gin.Engine) {
 						damages.PUT("/conversion", product.ProductFinishedDamageController{}.Conversion) // 成品转换
 					}
 				}
-
-				// 成品调拨
-				allocate := finisheds.Group("/allocate")
-				{
-					allocate.GET("/where", product.ProductFinishedAllocateController{}.Where) // 调拨单筛选
-					allocate.Use(middlewares.JWTMiddleware())
-					{
-						allocate.POST("/create", product.ProductFinishedAllocateController{}.Create)    // 创建调拨单
-						allocate.POST("/list", product.ProductFinishedAllocateController{}.List)        // 调拨单列表
-						allocate.POST("/info", product.ProductFinishedAllocateController{}.Info)        // 调拨单详情
-						allocate.PUT("/add", product.ProductFinishedAllocateController{}.Add)           // 添加产品
-						allocate.PUT("/remove", product.ProductFinishedAllocateController{}.Remove)     // 移除产品
-						allocate.PUT("/confirm", product.ProductFinishedAllocateController{}.Confirm)   // 确认调拨
-						allocate.PUT("/cancel", product.ProductFinishedAllocateController{}.Cancel)     // 取消调拨
-						allocate.PUT("/complete", product.ProductFinishedAllocateController{}.Complete) // 完成调拨
-					}
-				}
 			}
 
 			// 旧料
@@ -209,23 +192,6 @@ func Api(g *gin.Engine) {
 						old.POST("/info", product.ProductOldController{}.Info)            // 旧料详情
 						old.PUT("/conversion", product.ProductOldController{}.Conversion) // 旧料转换
 
-					}
-				}
-
-				// 旧料调拨
-				allocate := olds.Group("/allocate")
-				{
-					allocate.GET("/where", product.ProductOldAllocateController{}.Where) // 调拨单筛选
-					allocate.Use(middlewares.JWTMiddleware())
-					{
-						allocate.POST("/create", product.ProductOldAllocateController{}.Create)    // 创建调拨单
-						allocate.POST("/list", product.ProductOldAllocateController{}.List)        // 调拨单列表
-						allocate.POST("/info", product.ProductOldAllocateController{}.Info)        // 调拨单详情
-						allocate.PUT("/add", product.ProductOldAllocateController{}.Add)           // 添加产品
-						allocate.PUT("/remove", product.ProductOldAllocateController{}.Remove)     // 移除产品
-						allocate.PUT("/confirm", product.ProductOldAllocateController{}.Confirm)   // 确认调拨
-						allocate.PUT("/cancel", product.ProductOldAllocateController{}.Cancel)     // 取消调拨
-						allocate.PUT("/complete", product.ProductOldAllocateController{}.Complete) // 完成调拨
 					}
 				}
 			}
@@ -292,6 +258,23 @@ func Api(g *gin.Engine) {
 						allocate.PUT("/cancel", product.ProductAccessorieAllocateController{}.Cancel)     // 取消调拨
 						allocate.PUT("/complete", product.ProductAccessorieAllocateController{}.Complete) // 完成调拨
 					}
+				}
+			}
+
+			// 成品调拨
+			allocate := products.Group("/allocate")
+			{
+				allocate.GET("/where", product.ProductAllocateController{}.Where) // 调拨单筛选
+				allocate.Use(middlewares.JWTMiddleware())
+				{
+					allocate.POST("/create", product.ProductAllocateController{}.Create)    // 创建调拨单
+					allocate.POST("/list", product.ProductAllocateController{}.List)        // 调拨单列表
+					allocate.POST("/info", product.ProductAllocateController{}.Info)        // 调拨单详情
+					allocate.PUT("/add", product.ProductAllocateController{}.Add)           // 添加产品
+					allocate.PUT("/remove", product.ProductAllocateController{}.Remove)     // 移除产品
+					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)   // 确认调拨
+					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)     // 取消调拨
+					allocate.PUT("/complete", product.ProductAllocateController{}.Complete) // 完成调拨
 				}
 			}
 

@@ -10,16 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductOldAllocateController struct {
+type ProductAllocateController struct {
 	controller.BaseController
 }
 
 // 创建产品调拨单
-func (con ProductOldAllocateController) Create(ctx *gin.Context) {
+func (con ProductAllocateController) Create(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateCreateReq
+		req types.ProductAllocateCreateReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)
@@ -52,18 +52,18 @@ func (con ProductOldAllocateController) Create(ctx *gin.Context) {
 }
 
 // 产品调拨单筛选条件
-func (con ProductOldAllocateController) Where(ctx *gin.Context) {
-	where := utils.StructToWhere(types.ProductOldAllocateWhere{})
+func (con ProductAllocateController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductAllocateWhere{})
 
 	con.Success(ctx, "ok", where)
 }
 
 // 获取产品调拨单列表
-func (con ProductOldAllocateController) List(ctx *gin.Context) {
+func (con ProductAllocateController) List(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateListReq
+		req types.ProductAllocateListReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)
@@ -98,11 +98,11 @@ func (con ProductOldAllocateController) List(ctx *gin.Context) {
 }
 
 // 获取产品调拨单详情
-func (con ProductOldAllocateController) Info(ctx *gin.Context) {
+func (con ProductAllocateController) Info(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateInfoReq
+		req types.ProductAllocateInfoReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)
@@ -131,11 +131,11 @@ func (con ProductOldAllocateController) Info(ctx *gin.Context) {
 }
 
 // 添加调拨单产品
-func (con ProductOldAllocateController) Add(ctx *gin.Context) {
+func (con ProductAllocateController) Add(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateAddReq
+		req types.ProductAllocateAddReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)
@@ -162,11 +162,11 @@ func (con ProductOldAllocateController) Add(ctx *gin.Context) {
 }
 
 // 移除调拨单产品
-func (con ProductOldAllocateController) Remove(ctx *gin.Context) {
+func (con ProductAllocateController) Remove(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateRemoveReq
+		req types.ProductAllocateRemoveReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)
@@ -193,11 +193,11 @@ func (con ProductOldAllocateController) Remove(ctx *gin.Context) {
 }
 
 // 确认调拨
-func (con ProductOldAllocateController) Confirm(ctx *gin.Context) {
+func (con ProductAllocateController) Confirm(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateConfirmReq
+		req types.ProductAllocateConfirmReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)
@@ -224,11 +224,11 @@ func (con ProductOldAllocateController) Confirm(ctx *gin.Context) {
 }
 
 // 取消调拨
-func (con ProductOldAllocateController) Cancel(ctx *gin.Context) {
+func (con ProductAllocateController) Cancel(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateCancelReq
+		req types.ProductAllocateCancelReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)
@@ -255,11 +255,11 @@ func (con ProductOldAllocateController) Cancel(ctx *gin.Context) {
 }
 
 // 完成调拨
-func (con ProductOldAllocateController) Complete(ctx *gin.Context) {
+func (con ProductAllocateController) Complete(ctx *gin.Context) {
 	var (
-		req types.ProductOldAllocateCompleteReq
+		req types.ProductAllocateCompleteReq
 
-		logic = product.ProductOldAllocateLogic{
+		logic = product.ProductAllocateLogic{
 			Ctx: ctx,
 		}
 	)

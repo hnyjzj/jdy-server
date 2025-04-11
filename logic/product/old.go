@@ -47,10 +47,16 @@ func (p *ProductOldLogic) Info(req *types.ProductOldInfoReq) (*model.ProductOld,
 		product model.ProductOld
 	)
 
-	if err := model.DB.
-		Where("id = ?", req.Id).
-		Preload("Store").
-		First(&product).Error; err != nil {
+	db := model.DB.Model(&model.ProductOld{})
+	db = db.Preload("Store")
+	if req.Id != "" {
+		db = db.Where("id = ?", req.Id)
+	}
+	if req.Code != "" {
+		db = db.Where(&model.ProductOld{Code: req.Code})
+	}
+
+	if err := db.First(&product).Error; err != nil {
 		return nil, errors.New("获取旧料信息失败")
 	}
 

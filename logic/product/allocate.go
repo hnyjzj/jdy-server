@@ -12,17 +12,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProductFinishedAllocateLogic struct {
+type ProductAllocateLogic struct {
 	Ctx   *gin.Context
 	Staff *types.Staff
 }
 
 // 创建产品调拨单
-func (l *ProductFinishedAllocateLogic) Create(req *types.ProductFinishedAllocateCreateReq) *errors.Errors {
+func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *errors.Errors {
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 创建调拨单
-		data := model.ProductFinishedAllocate{
+		data := model.ProductAllocate{
 			Method: req.Method,
 			Type:   req.Type,
 			Reason: req.Reason,
@@ -39,8 +39,8 @@ func (l *ProductFinishedAllocateLogic) Create(req *types.ProductFinishedAllocate
 			data.ToStoreId = req.ToStoreId
 		}
 
-		// 判断是不是整单调拨
-		if req.EnterId != "" {
+		// 判断是不是成品整单调拨
+		if req.EnterId != "" && req.Type == enums.ProductTypeFinished {
 			// 获取产品
 			var enter model.ProductFinishedEnter
 			if err := tx.Preload("Products", func(tx *gorm.DB) *gorm.DB {
@@ -52,7 +52,7 @@ func (l *ProductFinishedAllocateLogic) Create(req *types.ProductFinishedAllocate
 				return errors.New("获取入库单失败")
 			}
 			// 添加产品
-			data.Products = append(data.Products, enter.Products...)
+			data.ProductFinisheds = append(data.ProductFinisheds, enter.Products...)
 		}
 
 		// 创建调拨单
@@ -68,11 +68,11 @@ func (l *ProductFinishedAllocateLogic) Create(req *types.ProductFinishedAllocate
 }
 
 // 获取产品调拨单列表
-func (p *ProductFinishedAllocateLogic) List(req *types.ProductFinishedAllocateListReq) (*types.PageRes[model.ProductFinishedAllocate], error) {
+func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.PageRes[model.ProductAllocate], error) {
 	var (
-		allocate model.ProductFinishedAllocate
+		allocate model.ProductAllocate
 
-		res types.PageRes[model.ProductFinishedAllocate]
+		res types.PageRes[model.ProductAllocate]
 	)
 
 	db := model.DB.Model(&allocate)
@@ -94,14 +94,15 @@ func (p *ProductFinishedAllocateLogic) List(req *types.ProductFinishedAllocateLi
 }
 
 // 获取产品调拨单详情
-func (p *ProductFinishedAllocateLogic) Info(req *types.ProductFinishedAllocateInfoReq) (*model.ProductFinishedAllocate, error) {
+func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.ProductAllocate, error) {
 	var (
-		allocate model.ProductFinishedAllocate
+		allocate model.ProductAllocate
 	)
 
 	db := model.DB.Model(&allocate)
 
-	db = db.Preload("Products")
+	db = db.Preload("ProductFinisheds")
+	db = db.Preload("ProductOlds")
 	db = db.Preload("Operator")
 	db = db.Preload("FromStore")
 	db = db.Preload("ToStore")
@@ -114,9 +115,9 @@ func (p *ProductFinishedAllocateLogic) Info(req *types.ProductFinishedAllocateIn
 }
 
 // 添加产品调拨单产品
-func (p *ProductFinishedAllocateLogic) Add(req *types.ProductFinishedAllocateAddReq) *errors.Errors {
+func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Errors {
 	var (
-		allocate model.ProductFinishedAllocate
+		allocate model.ProductAllocate
 	)
 
 	// 获取调拨单
@@ -128,27 +129,50 @@ func (p *ProductFinishedAllocateLogic) Add(req *types.ProductFinishedAllocateAdd
 		return errors.New("调拨单状态异常")
 	}
 
-	var product model.ProductFinished
-	// 获取产品
-	if err := model.DB.Where(&model.ProductFinished{Code: req.Code}).First(&product).Error; err != nil {
-		return errors.New("产品不存在")
+	switch allocate.Type {
+	case enums.ProductTypeFinished:
+		var product []model.ProductFinished
+		// 获取产品
+		if err := model.DB.Where("id in (?)", req.ProductId).Find(&product).Error; err != nil {
+			return errors.New("产品不存在")
+		}
+
+		for _, p := range product {
+			if p.Status != enums.ProductStatusNormal {
+				return errors.New("产品状态不正确")
+			}
+		}
+
+		// 添加产品
+		if err := model.DB.Model(&allocate).Association("ProductFinisheds").Append(product); err != nil {
+			return errors.New("添加产品失败")
+		}
+	case enums.ProductTypeOld:
+		var product []model.ProductOld
+		// 获取产品
+		if err := model.DB.Where("id in (?)", req.ProductId).Find(&product).Error; err != nil {
+			return errors.New("产品不存在")
+		}
+
+		for _, p := range product {
+			if p.Status != enums.ProductStatusNormal {
+				return errors.New("产品状态不正确")
+			}
+		}
+
+		// 添加产品
+		if err := model.DB.Model(&allocate).Association("ProductOlds").Append(product); err != nil {
+			return errors.New("添加产品失败")
+		}
 	}
 
-	if product.Status != enums.ProductStatusNormal {
-		return errors.New("产品状态不正确")
-	}
-
-	// 添加产品
-	if err := model.DB.Model(&allocate).Association("Products").Append(&product); err != nil {
-		return errors.New("添加产品失败")
-	}
 	return nil
 }
 
 // 移除产品调拨单产品
-func (p *ProductFinishedAllocateLogic) Remove(req *types.ProductFinishedAllocateRemoveReq) *errors.Errors {
+func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *errors.Errors {
 	var (
-		allocate model.ProductFinishedAllocate
+		allocate model.ProductAllocate
 	)
 
 	// 获取调拨单
@@ -160,28 +184,42 @@ func (p *ProductFinishedAllocateLogic) Remove(req *types.ProductFinishedAllocate
 		return errors.New("调拨单状态异常")
 	}
 
-	var product model.ProductFinished
-	// 获取产品
-	if err := model.DB.Where(&model.ProductFinished{Code: req.Code}).First(&product).Error; err != nil {
-		return errors.New("产品不存在")
-	}
+	switch allocate.Type {
+	case enums.ProductTypeFinished:
+		var product model.ProductFinished
+		// 获取产品
+		if err := model.DB.First(&product, "id = ?", req.ProductId).Error; err != nil {
+			return errors.New("产品不存在")
+		}
 
-	// 移除产品
-	if err := model.DB.Model(&allocate).Association("Products").Delete(&product); err != nil {
-		return errors.New("移除产品失败")
+		// 移除产品
+		if err := model.DB.Model(&allocate).Association("ProductFinisheds").Delete(&product); err != nil {
+			return errors.New("移除产品失败")
+		}
+	case enums.ProductTypeOld:
+		var product model.ProductOld
+		// 获取产品
+		if err := model.DB.First(&product, "id = ?", req.ProductId).Error; err != nil {
+			return errors.New("产品不存在")
+		}
+
+		// 移除产品
+		if err := model.DB.Model(&allocate).Association("ProductOlds").Delete(&product); err != nil {
+			return errors.New("移除产品失败")
+		}
 	}
 
 	return nil
 }
 
 // 确认调拨
-func (p *ProductFinishedAllocateLogic) Confirm(req *types.ProductFinishedAllocateConfirmReq) *errors.Errors {
+func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *errors.Errors {
 	var (
-		allocate model.ProductFinishedAllocate
+		allocate model.ProductAllocate
 	)
 
 	// 获取调拨单
-	if err := model.DB.Preload("Products").First(&allocate, req.Id).Error; err != nil {
+	if err := model.DB.Preload("ProductFinisheds").Preload("ProductOlds").First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -191,7 +229,16 @@ func (p *ProductFinishedAllocateLogic) Confirm(req *types.ProductFinishedAllocat
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 锁定产品
-		for _, product := range allocate.Products {
+		for _, product := range allocate.ProductFinisheds {
+			if product.Status != enums.ProductStatusNormal {
+				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
+			}
+			product.Status = enums.ProductStatusAllocate
+			if err := tx.Save(&product).Error; err != nil {
+				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
+			}
+		}
+		for _, product := range allocate.ProductOlds {
 			if product.Status != enums.ProductStatusNormal {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
@@ -215,13 +262,13 @@ func (p *ProductFinishedAllocateLogic) Confirm(req *types.ProductFinishedAllocat
 }
 
 // 取消调拨
-func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocateCancelReq) *errors.Errors {
+func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *errors.Errors {
 	var (
-		allocate model.ProductFinishedAllocate
+		allocate model.ProductAllocate
 	)
 
 	// 获取调拨单
-	if err := model.DB.Preload("Products").First(&allocate, req.Id).Error; err != nil {
+	if err := model.DB.Preload("ProductFinisheds").Preload("ProductOlds").First(&allocate, req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -237,7 +284,18 @@ func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocate
 		}
 
 		// 解锁产品
-		for _, product := range allocate.Products {
+		for _, product := range allocate.ProductFinisheds {
+			if product.Status == enums.ProductStatusNormal {
+				continue
+			}
+			if product.Status != enums.ProductStatusAllocate {
+				return fmt.Errorf("【%s】%s 状态异常", product.Code, product.Name)
+			}
+			if err := tx.Model(&product).Where("id = ?", product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
+				return fmt.Errorf("【%s】%s 解锁失败", product.Code, product.Name)
+			}
+		}
+		for _, product := range allocate.ProductOlds {
 			if product.Status == enums.ProductStatusNormal {
 				continue
 			}
@@ -256,9 +314,9 @@ func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocate
 }
 
 // 完成调拨
-func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAllocateCompleteReq) *errors.Errors {
+func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *errors.Errors {
 	var (
-		allocate model.ProductFinishedAllocate
+		allocate model.ProductAllocate
 	)
 
 	// 获取调拨单
@@ -277,7 +335,7 @@ func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAlloca
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 解锁产品
-		for _, product := range allocate.Products {
+		for _, product := range allocate.ProductFinisheds {
 			log := model.ProductHistory{
 				Type:       enums.ProductTypeFinished,
 				Action:     enums.ProductActionTransfer,
@@ -301,6 +359,43 @@ func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAlloca
 
 			// 解锁产品
 			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(&data).Error; err != nil {
+				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
+			}
+
+			// 添加记录
+			if err := utils.StructMerge(&product, data); err != nil {
+				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
+			}
+			log.NewValue = product
+			if err := tx.Create(&log).Error; err != nil {
+				return err
+			}
+		}
+
+		for _, product := range allocate.ProductOlds {
+			log := model.ProductHistory{
+				Type:       enums.ProductTypeOld,
+				Action:     enums.ProductActionTransfer,
+				OldValue:   product,
+				ProductId:  product.Id,
+				StoreId:    product.StoreId,
+				SourceId:   allocate.Id,
+				OperatorId: p.Staff.Id,
+				IP:         p.Ctx.ClientIP(),
+			}
+
+			// 判断产品状态是否为锁定状态
+			if product.Status != enums.ProductStatusAllocate {
+				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
+			}
+
+			data := model.ProductOld{
+				Status:  enums.ProductStatusNormal,
+				StoreId: allocate.ToStoreId,
+			}
+
+			// 解锁产品
+			if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Id).Updates(&data).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
 

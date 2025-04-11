@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type ProductFinishedAllocateCreateReq struct {
+type ProductAllocateCreateReq struct {
 	Method      enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨类型
 	Type        enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
 	Reason      enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
@@ -17,7 +17,7 @@ type ProductFinishedAllocateCreateReq struct {
 	EnterId string `json:"enter_id"` // 入库单号
 }
 
-func (req *ProductFinishedAllocateCreateReq) Validate() error {
+func (req *ProductAllocateCreateReq) Validate() error {
 	if req.Method == enums.ProductAllocateMethodStore && req.ToStoreId == "" {
 		return errors.New("调拨门店不能为空")
 	}
@@ -25,7 +25,7 @@ func (req *ProductFinishedAllocateCreateReq) Validate() error {
 	return nil
 }
 
-type ProductFinishedAllocateWhere struct {
+type ProductAllocateWhere struct {
 	Method      enums.ProductAllocateMethod `json:"method" label:"调拨类型" input:"select" type:"number" find:"true" create:"true" sort:"1" required:"true" preset:"typeMap"` // 调拨类型
 	Type        enums.ProductType           `json:"type" label:"仓库类型" input:"select" type:"number" find:"true" create:"true" sort:"2" required:"true" preset:"typeMap"`   // 仓库类型
 	Reason      enums.ProductAllocateReason `json:"reason" label:"调拨原因" input:"select" type:"number" find:"true" create:"true" sort:"3" required:"true" preset:"typeMap"` // 调拨原因
@@ -37,7 +37,7 @@ type ProductFinishedAllocateWhere struct {
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间
 }
 
-func (req *ProductFinishedAllocateWhere) Validate() error {
+func (req *ProductAllocateWhere) Validate() error {
 	if req.Method == enums.ProductAllocateMethodStore && req.ToStoreId == "" {
 		return errors.New("调拨门店不能为空")
 	}
@@ -45,33 +45,33 @@ func (req *ProductFinishedAllocateWhere) Validate() error {
 	return nil
 }
 
-type ProductFinishedAllocateListReq struct {
+type ProductAllocateListReq struct {
 	PageReq
-	Where ProductFinishedAllocateWhere `json:"where"`
+	Where ProductAllocateWhere `json:"where"`
 }
 
-type ProductFinishedAllocateInfoReq struct {
+type ProductAllocateInfoReq struct {
 	Id string `json:"id" binding:"required"`
 }
 
-type ProductFinishedAllocateAddReq struct {
-	Id   string `json:"id" binding:"required"`   // 调拨单ID
-	Code string `json:"code" binding:"required"` // 产品条码
+type ProductAllocateAddReq struct {
+	Id        string   `json:"id" binding:"required"` // 调拨单ID
+	ProductId []string `json:"product_id" binding:"required"`
 }
 
-type ProductFinishedAllocateRemoveReq struct {
-	Id   string `json:"id" binding:"required"`   // 调拨单ID
-	Code string `json:"code" binding:"required"` // 产品条码
+type ProductAllocateRemoveReq struct {
+	Id        string `json:"id" binding:"required"` // 调拨单ID
+	ProductId string `json:"product_id" binding:"required"`
 }
 
-type ProductFinishedAllocateConfirmReq struct {
+type ProductAllocateConfirmReq struct {
 	Id string `json:"id" binding:"required"` // 调拨单ID
 }
 
-type ProductFinishedAllocateCancelReq struct {
+type ProductAllocateCancelReq struct {
 	Id string `json:"id" binding:"required"` // 调拨单ID
 }
 
-type ProductFinishedAllocateCompleteReq struct {
+type ProductAllocateCompleteReq struct {
 	Id string `json:"id" binding:"required"` // 调拨单ID
 }

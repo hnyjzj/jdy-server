@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"jdy/enums"
 
 	"github.com/shopspring/decimal"
@@ -50,7 +51,16 @@ type ProductOldListReq struct {
 }
 
 type ProductOldInfoReq struct {
-	Id string `json:"id" binding:"required"` // 产品ID
+	Id   string `json:"id"`   // 产品ID
+	Code string `json:"code"` // 产品编码
+}
+
+func (r *ProductOldInfoReq) Validate() error {
+	if r.Id == "" && r.Code == "" {
+		return errors.New("条件不能为空")
+	}
+
+	return nil
 }
 
 type ProductOldUpdateReq struct {

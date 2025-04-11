@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -29,4 +30,31 @@ func StructToStruct[Output any](input any) (Output, error) {
 		return dstStruct, fmt.Errorf("结构体转换失败: %w", err)
 	}
 	return dstStruct, err
+}
+
+// StructMerge 将 src 的字段值合并到 dst 中，如果 src 中存在 dst 中不存在的字段，则忽略
+func StructMerge[T any](dst *T, src T) error {
+	dstValue := reflect.ValueOf(dst)
+	if dstValue.Kind() != reflect.Ptr || dstValue.IsNil() {
+		return fmt.Errorf("dst must be a non - nil pointer")
+	}
+	dstValue = dstValue.Elem()
+
+	srcValue := reflect.ValueOf(src)
+	if srcValue.Kind() != reflect.Struct {
+		return fmt.Errorf("src must be a struct")
+	}
+
+	if dstValue.Type() != srcValue.Type() {
+		return fmt.Errorf("dst and src must be of the same type")
+	}
+
+	for i := range dstValue.NumField() {
+		srcField := srcValue.Field(i)
+		if srcField.CanInterface() && !reflect.DeepEqual(srcField.Interface(), reflect.Zero(srcField.Type()).Interface()) {
+			dstValue.Field(i).Set(srcField)
+		}
+	}
+
+	return nil
 }

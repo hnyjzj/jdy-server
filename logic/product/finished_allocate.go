@@ -6,6 +6,7 @@ import (
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
+	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -42,8 +43,11 @@ func (l *ProductFinishedAllocateLogic) Create(req *types.ProductFinishedAllocate
 		if req.EnterId != "" {
 			// 获取产品
 			var enter model.ProductFinishedEnter
-			if err := tx.Preload("Products").Where(&model.ProductFinishedEnter{
-				StoreId: req.FromStoreId,
+			if err := tx.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+				return tx.Where(&model.ProductFinished{
+					StoreId: req.FromStoreId,
+					Status:  enums.ProductStatusNormal,
+				})
 			}).Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
 				return errors.New("获取入库单失败")
 			}
@@ -272,7 +276,6 @@ func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAlloca
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-
 		// 解锁产品
 		for _, product := range allocate.Products {
 			log := model.ProductHistory{
@@ -291,22 +294,20 @@ func (p *ProductFinishedAllocateLogic) Complete(req *types.ProductFinishedAlloca
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
 
-			data := &model.ProductFinished{
+			data := model.ProductFinished{
+				Status:  enums.ProductStatusNormal,
 				StoreId: allocate.ToStoreId,
 			}
 
 			// 解锁产品
-			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(data).Error; err != nil {
+			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(&data).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 解锁失败", product.Code, product.Name))
 			}
 
-			// 更新商品状态
-			product.Status = enums.ProductStatusNormal
-			if err := tx.Save(&product).Error; err != nil {
-				return err
-			}
-
 			// 添加记录
+			if err := utils.StructMerge(&product, data); err != nil {
+				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
+			}
 			log.NewValue = product
 			if err := tx.Create(&log).Error; err != nil {
 				return err

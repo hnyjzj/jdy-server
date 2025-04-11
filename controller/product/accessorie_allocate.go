@@ -153,6 +153,12 @@ func (con ProductAccessorieAllocateController) Add(ctx *gin.Context) {
 		return
 	}
 
+	// 校验参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	if err := logic.Add(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return

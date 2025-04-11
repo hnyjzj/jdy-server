@@ -61,6 +61,21 @@ type ProductAccessorieAllocateAddReq struct {
 	Products []ProductAccessorieAllocateAddProduct `json:"products" binding:"required"` // 产品信息
 }
 
+// 添加验证方法
+func (req *ProductAccessorieAllocateAddReq) Validate() error {
+	if len(req.Products) == 0 {
+		return errors.New("产品列表不能为空")
+	}
+
+	for _, product := range req.Products {
+		if product.Quantity <= 0 {
+			return errors.New("产品数量必须大于0")
+		}
+	}
+
+	return nil
+}
+
 type ProductAccessorieAllocateAddProduct struct {
 	ProductId string `json:"product_id" binding:"required"` // 产品ID
 	Quantity  int64  `json:"quantity" binding:"required"`   // 数量

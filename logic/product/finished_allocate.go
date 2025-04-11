@@ -42,7 +42,9 @@ func (l *ProductFinishedAllocateLogic) Create(req *types.ProductFinishedAllocate
 		if req.EnterId != "" {
 			// 获取产品
 			var enter model.ProductFinishedEnter
-			if err := tx.Preload("Products").Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
+			if err := tx.Preload("Products").Where(&model.ProductFinishedEnter{
+				StoreId: req.FromStoreId,
+			}).Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
 				return errors.New("获取入库单失败")
 			}
 			// 添加产品

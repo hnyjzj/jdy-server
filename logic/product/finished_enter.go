@@ -74,7 +74,9 @@ func (l *ProductFinishedEnterLogic) EnterInfo(req *types.ProductFinishedEnterInf
 	db := model.DB.Model(&enter)
 
 	// 获取产品入库单详情
-	db = db.Preload("Products")
+	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+		return tx.Unscoped()
+	})
 	db = db.Preload("Operator")
 	db = db.Preload("Store")
 

@@ -234,6 +234,9 @@ func (p *ProductFinishedAllocateLogic) Cancel(req *types.ProductFinishedAllocate
 
 		// 解锁产品
 		for _, product := range allocate.Products {
+			if product.Status == enums.ProductStatusNormal {
+				continue
+			}
 			if product.Status != enums.ProductStatusAllocate {
 				return fmt.Errorf("【%s】%s 状态异常", product.Code, product.Name)
 			}

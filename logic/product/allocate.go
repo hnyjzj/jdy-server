@@ -321,7 +321,11 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 
 	// 获取调拨单
 	db := model.DB.Model(&allocate)
-	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+	db = db.Preload("ProductFinisheds", func(tx *gorm.DB) *gorm.DB {
+		tx = tx.Preload("Store")
+		return tx
+	})
+	db = db.Preload("ProductOlds", func(tx *gorm.DB) *gorm.DB {
 		tx = tx.Preload("Store")
 		return tx
 	})

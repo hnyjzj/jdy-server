@@ -112,18 +112,39 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 				continue
 			}
 
-			product := model.ProductAccessorie{
-				StoreId:   enter.StoreId,
-				Code:      p.Code,
-				Stock:     p.Stock,
-				AccessFee: *p.AccessFee,
-				Status:    enums.ProductStatusDraft,
-				EnterId:   enter.Id,
+			var product model.ProductAccessorie
+			if err := tx.Where(&model.ProductAccessorie{
+				EnterId: enter.Id,
+				Code:    p.Code,
+			}).First(&product).Error; err != nil {
+				if err != gorm.ErrRecordNotFound {
+					return errors.New("配件条目错误")
+				}
 			}
 
-			if err := tx.Create(&product).Error; err != nil {
-				products[product.Code] = "入库失败"
-				continue
+			if product.Id != "" {
+				// 配件已存在，更新配件
+				if err := tx.Model(model.ProductAccessorie{}).Where("id = ?", product.Id).Updates(model.ProductAccessorie{
+					Stock:     product.Stock + p.Stock,
+					AccessFee: *p.AccessFee,
+				}).Error; err != nil {
+					products[p.Code] = "配件更新失败"
+					continue
+				}
+			} else {
+				data := model.ProductAccessorie{
+					StoreId:   enter.StoreId,
+					Code:      p.Code,
+					Stock:     p.Stock,
+					AccessFee: *p.AccessFee,
+					Status:    enums.ProductStatusDraft,
+					EnterId:   enter.Id,
+				}
+
+				if err := tx.Create(&data).Error; err != nil {
+					products[product.Code] = "入库失败"
+					continue
+				}
 			}
 
 			success++
@@ -248,8 +269,13 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 
 		// 更新配件状态
 		for _, product := range enter.Products {
-			// 加锁
-			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND status = ?", product.Id, enums.ProductStatusDraft).First(&product).Error; err != nil {
+			// 加锁查询配件
+			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+				Where("id = ?", product.Id).
+				Where(&model.ProductAccessorie{
+					Status: enums.ProductStatusDraft,
+				}).
+				First(&product).Error; err != nil {
 				return errors.New("配件状态不正确或配件不存在")
 			}
 			product.Status = enums.ProductStatusNormal

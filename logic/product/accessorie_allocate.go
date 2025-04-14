@@ -160,7 +160,7 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 		}
 		return nil
 	}); err != nil {
-		return errors.New("添加配件失败")
+		return errors.New("添加配件失败：" + err.Error())
 	}
 
 	return nil

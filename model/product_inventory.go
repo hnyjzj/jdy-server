@@ -72,6 +72,9 @@ func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryW
 	if req.Id != "" {
 		db = db.Where("id = ?", req.Id)
 	}
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
+	}
 	if req.Type != 0 {
 		db = db.Where("type = ?", req.Type)
 	}

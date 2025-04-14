@@ -54,7 +54,7 @@ func (ProductAccessorie) WhereCondition(db *gorm.DB, query *types.ProductAccesso
 type ProductAccessorieCategory struct {
 	SoftDelete
 
-	TypePart enums.ProductTypePart `json:"type_part,omitempty" gorm:"type:tinyint(2);comment:配件类型;"` // 配件类型
+	TypePart enums.ProductTypePart `json:"type_part" gorm:"type:tinyint(2);comment:配件类型;"` // 配件类型
 
 	Name          string                            `json:"name" gorm:"type:varchar(255);uniqueIndex;comment:名称;"`       // 名称
 	Code          string                            `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
@@ -72,7 +72,8 @@ type ProductAccessorieCategory struct {
 	Supplier      string                            `json:"supplier" gorm:"type:varchar(255);comment:供应商;"`              // 供应商
 	Remark        string                            `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注
 
-	Product ProductAccessorie `json:"product,omitempty" gorm:"foreignKey:Id;references:Code;comment:产品;"` // 产品
+	Product  ProductAccessorie   `json:"product" gorm:"foreignKey:Code;references:Id;comment:产品;"`  // 产品
+	Products []ProductAccessorie `json:"products" gorm:"foreignKey:Code;references:Id;comment:产品;"` // 产品
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
@@ -133,8 +134,8 @@ func (ProductAccessorieCategory) WhereCondition(db *gorm.DB, query *types.Produc
 	}
 
 	if query.StoreId != "" {
-		db = db.Preload("Product", func(*gorm.DB) *gorm.DB {
-			return db.Where("store_id = ?", query.StoreId)
+		db = db.Preload("Product", func(tx *gorm.DB) *gorm.DB {
+			return tx.Where("store_id = ?", query.StoreId)
 		})
 	}
 

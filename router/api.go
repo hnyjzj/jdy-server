@@ -355,12 +355,24 @@ func Api(g *gin.Engine) {
 		// 设置
 		settings := r.Group("/setting")
 		{
+			// 金价设置
 			gold_price := settings.Group("/gold_price")
 			{
 				gold_price.Use(middlewares.JWTMiddleware())
 				{
 					gold_price.POST("/list", setting.GoldPriceController{}.List)     // 金价历史列表
 					gold_price.POST("/create", setting.GoldPriceController{}.Create) // 创建金价
+				}
+			}
+
+			// 开单设置
+			open_orders := settings.Group("/open_order")
+			{
+				open_orders.GET("/where", setting.OpenOrderController{}.Where) // 开单设置筛选
+				open_orders.Use(middlewares.JWTMiddleware())
+				{
+					open_orders.POST("/info", setting.OpenOrderController{}.Info)    // 开单设置详情
+					open_orders.PUT("/update", setting.OpenOrderController{}.Update) // 开单设置更新
 				}
 			}
 		}

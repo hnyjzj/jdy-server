@@ -51,13 +51,36 @@ func GetGoldPrice(req *types.GoldPriceOptions) (decimal.Decimal, error) {
 	return goldPrice.Price, nil
 }
 
+type OpenOrder struct {
+	SoftDelete
+
+	StoreId string `json:"store_id" gorm:"type:varchar(255);comment:店铺ID;"`                     // 店铺ID
+	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:店铺;"` // 店铺
+
+	DiscountRate decimal.Decimal    `json:"discount_rate" gorm:"type:decimal(10,2);comment:积分抵扣比例;"` // 积分抵扣比例
+	DecimalPoint enums.DecimalPoint `json:"decimal_point" gorm:"type:int(11);comment:金额小数点控制;"`      // 金额小数点控制
+	Rounding     enums.Rounding     `json:"rounding" gorm:"type:int(11);comment:金额进位控制;"`            // 金额进位控制
+	UseConfirm   bool               `json:"use_confirm" gorm:"type:tinyint(1);comment:积分使用二次确认;"`    // 积分使用二次确认
+}
+
+func (OpenOrder) Default() *OpenOrder {
+	return &OpenOrder{
+		DiscountRate: decimal.NewFromFloat(0),
+		DecimalPoint: enums.DecimalPointNone,
+		Rounding:     enums.RoundingRound,
+		UseConfirm:   false,
+	}
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(
 		&GoldPrice{},
+		&OpenOrder{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &GoldPrice{},
+	// &OpenOrder{},
 	)
 }

@@ -2,12 +2,10 @@ package order
 
 import (
 	"jdy/enums"
-	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -50,20 +48,20 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 			return err
 		}
 
-		// 计算金额
-		if err := l.getAmount(); err != nil {
-			return err
-		}
+		// // 计算金额
+		// if err := l.loopSales(); err != nil {
+		// 	return err
+		// }
 
-		// 添加优惠
-		if err := l.getDiscount(); err != nil {
-			return err
-		}
+		// // 添加优惠
+		// if err := l.getDiscount(); err != nil {
+		// 	return err
+		// }
 
-		// 计算业绩
-		if err := l.getPerformance(); err != nil {
-			return err
-		}
+		// // 计算业绩
+		// if err := l.getPerformance(); err != nil {
+		// 	return err
+		// }
 
 		// 更新订单
 		if err := tx.Save(&l.Order).Error; err != nil {
@@ -78,184 +76,174 @@ func (c *OrderLogic) Create(req *types.OrderCreateReq) (*model.Order, error) {
 	return l.Order, nil
 }
 
-// 计算金额
-func (l *OrderCreateLogic) getAmount() error {
-	switch l.Order.Type {
-	case enums.OrderTypeSales:
-		{
-			if err := l.loopSales(); err != nil {
-				return err
-			}
-		}
-	default:
-		{
-			return errors.New("订单类型错误")
-		}
-	}
-	return nil
-}
+// // 销售单金额
+// func (l *OrderCreateLogic) loopSales() error {
+// 	for _, p := range l.Req.Products {
+// 		// 获取商品
+// 		product, err := l.getProduct(p.ProductId)
+// 		if err != nil {
+// 			return err
+// 		}
 
-// 销售单金额
-func (l *OrderCreateLogic) loopSales() error {
-	for _, p := range l.Req.Products {
-		// 获取商品
-		product, err := l.getProduct(p.ProductId)
-		if err != nil {
-			return err
-		}
-		// 获取金价
-		gold_price, err := model.GetGoldPrice(&types.GoldPriceOptions{
-			StoreId:         l.Order.StoreId,
-			ProductMaterial: product.Material,
-			ProductType:     product.Type,
-			ProductBrand:    []enums.ProductBrand{product.Brand},
-			ProductQuality:  []enums.ProductQuality{product.Quality},
-		})
-		if err != nil {
-			return err
-		}
+// 		old_product := *product
+// 		log := model.ProductHistory{
+// 			Action:     enums.ProductActionOrder,
+// 			OldValue:   old_product,
+// 			ProductId:  old_product.Id,
+// 			StoreId:    old_product.StoreId,
+// 			SourceId:   l.Order.Id,
+// 			OperatorId: l.Staff.Id,
+// 			IP:         l.Ctx.ClientIP(),
+// 		}
 
-		var (
-			price           decimal.Decimal                                                                         // 单价
-			amount          decimal.Decimal                                                                         // 原价
-			discount        decimal.Decimal = decimal.NewFromFloat(1).Sub(p.Discount.Div(decimal.NewFromFloat(10))) // 折扣
-			amount_discount decimal.Decimal                                                                         // 折扣价
-		)
+// 		// 获取金价
+// 		gold_price, err := model.GetGoldPrice(&types.GoldPriceOptions{
+// 			StoreId:         l.Order.StoreId,
+// 			ProductMaterial: product.Material,
+// 			ProductType:     product.Type,
+// 			ProductBrand:    []enums.ProductBrand{product.Brand},
+// 			ProductQuality:  []enums.ProductQuality{product.Quality},
+// 		})
+// 		if err != nil {
+// 			return err
+// 		}
 
-		switch product.RetailType {
-		case enums.ProductRetailTypePiece: // 一口价 = 单价x数量
-			{
-				// 单价
-				price = product.Price
-				// 原价
-				amount = price.Mul(decimal.NewFromInt(p.Quantity))
-			}
+// 		var (
+// 			price           decimal.Decimal                                                                         // 单价
+// 			amount          decimal.Decimal                                                                         // 原价
+// 			discount        decimal.Decimal = decimal.NewFromFloat(1).Sub(p.Discount.Div(decimal.NewFromFloat(10))) // 折扣
+// 			amount_discount decimal.Decimal                                                                         // 折扣价
+// 		)
 
-		case enums.ProductRetailTypeGoldKg: // 计重论克 = (金价+工费)×克重×数量
-			{
-				// 单价 = 今日金价
-				price = gold_price.Add(product.LaborFee)
-				// 原价 = (金价+工费)×克重×数量
-				amount = product.WeightMetal.Mul(price).Mul(decimal.NewFromInt(p.Quantity))
-			}
+// 		switch product.RetailType {
+// 		case enums.ProductRetailTypePiece: // 一口价 = 标签价×数量
+// 			{
+// 				// 单价
+// 				price = product.LabelPrice
+// 				// 原价
+// 				amount = price.Mul(decimal.NewFromInt(p.Quantity))
+// 			}
 
-		case enums.ProductRetailTypeGoldPiece: // 计重工费论件 = 金价×克重+工费
-			{
-				// 单价
-				price = gold_price
-				// 原价 = 金价×克重+工费×数量
-				amount = gold_price.Mul(product.WeightMetal).Add(product.LaborFee).Mul(decimal.NewFromInt(p.Quantity))
-			}
-		default:
-			{
-				return errors.New("产品类型错误")
-			}
-		}
+// 		case enums.ProductRetailTypeGoldKg: // 计重论克 = (金价+工费)×克重×数量
+// 			{
+// 				// 单价 = 今日金价
+// 				price = gold_price.Add(product.LaborFee)
+// 				// 原价 = (金价+工费)×克重×数量
+// 				amount = product.WeightMetal.Mul(price).Mul(decimal.NewFromInt(p.Quantity))
+// 			}
 
-		// 折扣价
-		amount_discount = amount.Mul(discount)
+// 		case enums.ProductRetailTypeGoldPiece: // 计重工费论件 = 金价×克重+工费
+// 			{
+// 				// 单价
+// 				price = gold_price
+// 				// 原价 = 金价×克重+工费×数量
+// 				amount = gold_price.Mul(product.WeightMetal).Add(product.LaborFee).Mul(decimal.NewFromInt(p.Quantity))
+// 			}
+// 		default:
+// 			{
+// 				return errors.New("产品类型错误")
+// 			}
+// 		}
 
-		// 添加订单商品
-		order_product := model.OrderProduct{
-			ProductId: product.Id,
-			Status:    enums.OrderStatusWaitPay,
+// 		// 折扣价
+// 		amount_discount = amount.Mul(discount)
 
-			Quantity:       p.Quantity,
-			Price:          price,
-			Amount:         amount.Sub(amount_discount),
-			AmountOriginal: amount,
+// 		// 添加订单商品
+// 		order_product := model.OrderProduct{
+// 			ProductId: product.Id,
+// 			Status:    enums.OrderStatusWaitPay,
 
-			Discount:       p.Discount,
-			DiscountAmount: amount_discount,
-		}
-		l.Order.Products = append(l.Order.Products, order_product)
+// 			Quantity:       p.Quantity,
+// 			Price:          price,
+// 			Amount:         amount.Sub(amount_discount),
+// 			AmountOriginal: amount,
 
-		// 添加记录
-		if err := l.Tx.Create(&model.ProductHistory{
-			Action:     enums.ProductActionOrder,
-			Key:        "status",
-			Value:      enums.ProductStatusSold,
-			OldValue:   product.Status,
-			ProductId:  product.Id,
-			StoreId:    product.StoreId,
-			SourceId:   l.Order.Id,
-			OperatorId: l.Staff.Id,
-			IP:         l.Ctx.ClientIP(),
-		}).Error; err != nil {
-			return err
-		}
-		// 更新商品状态
-		product.Status = enums.ProductStatusSold
-		if err := l.Tx.Save(&product).Error; err != nil {
-			return err
-		}
+// 			Discount:       p.Discount,
+// 			DiscountAmount: amount_discount,
+// 		}
+// 		l.Order.Products = append(l.Order.Products, order_product)
 
-		// 计算总金额
-		l.Order.Amount = l.Order.Amount.Add(order_product.Amount)
-		l.Order.AmountOriginal = l.Order.AmountOriginal.Add(order_product.AmountOriginal)
-	}
+// 		// 更新商品状态
+// 		product.Status = enums.ProductStatusSold
+// 		if err := l.Tx.Save(&product).Error; err != nil {
+// 			return err
+// 		}
 
-	return nil
-}
+// 		// 添加记录
+// 		log.NewValue = product
+// 		if err := l.Tx.Create(&log).Error; err != nil {
+// 			return err
+// 		}
 
-// 获取商品
-func (l *OrderCreateLogic) getProduct(product_id string) (*model.Product, error) {
-	// 获取商品信息
-	var product model.Product
-	db := l.Tx.Model(&model.Product{})
-	db = db.Where("id = ?", product_id)
-	if err := db.First(&product).Error; err != nil {
-		return nil, errors.New("产品不存在")
-	}
+// 		// 计算总金额
+// 		l.Order.Amount = l.Order.Amount.Add(order_product.Amount)
+// 		l.Order.AmountOriginal = l.Order.AmountOriginal.Add(order_product.AmountOriginal)
+// 	}
 
-	// 判断商品状态
-	if product.Status != enums.ProductStatusNormal {
-		return nil, errors.New("产品当前不能销售")
-	}
+// 	return nil
+// }
 
-	return &product, nil
-}
+// // 获取商品
+// func (l *OrderCreateLogic) getProduct(product_id string) (*model.Product, error) {
+// 	// 获取商品信息
+// 	var product model.Product
+// 	db := l.Tx.Model(&model.Product{})
+// 	db = db.Where("id = ?", product_id)
+// 	db = db.Preload("Store")
+// 	db = db.Preload("RecycleStore")
 
-// 计算整单优惠
-func (l *OrderCreateLogic) getDiscount() error {
-	// 判断整单折扣
-	// 折扣
-	l.Order.DiscountRate = decimal.NewFromFloat(1).Sub(l.Req.DiscountRate.Div(decimal.NewFromFloat(10)))
-	// 折扣金额
-	l.Order.DiscountAmount = l.Order.Amount.Mul(l.Order.DiscountRate)
-	// 折扣后金额
-	l.Order.Amount = l.Order.Amount.Sub(l.Order.DiscountAmount)
+// 	if err := db.First(&product).Error; err != nil {
+// 		return nil, errors.New("产品不存在")
+// 	}
 
-	// 抹零
-	l.Order.AmountReduce = l.Req.AmountReduce
-	l.Order.Amount = l.Order.Amount.Sub(l.Req.AmountReduce)
+// 	// 判断商品状态
+// 	if product.Status != enums.ProductStatusNormal {
+// 		return nil, errors.New("产品当前不能销售")
+// 	}
 
-	return nil
-}
+// 	return &product, nil
+// }
 
-// 计算业绩
-func (l *OrderCreateLogic) getPerformance() error {
-	// 添加导购员业绩
-	for _, s := range l.Req.Salesmans {
-		var salesman model.Staff
-		db := l.Tx.Model(&model.Staff{})
-		db = db.Where("id = ?", s.SalesmanId)
-		db = db.Where(&model.Staff{IsDisabled: false})
-		if err := db.First(&salesman).Error; err != nil {
-			return err
-		}
+// // 计算整单优惠
+// func (l *OrderCreateLogic) getDiscount() error {
+// 	// 判断整单折扣
+// 	// 折扣
+// 	l.Order.DiscountRate = decimal.NewFromFloat(1).Sub(l.Req.DiscountRate.Div(decimal.NewFromFloat(10)))
+// 	// 折扣金额
+// 	l.Order.DiscountAmount = l.Order.Amount.Mul(l.Order.DiscountRate)
+// 	// 折扣后金额
+// 	l.Order.Amount = l.Order.Amount.Sub(l.Order.DiscountAmount)
 
-		// 计算业绩 佣金 = 佣金率/100 * 订单金额
-		performance := l.Order.Amount.Mul(s.PerformanceRate).Div(decimal.NewFromFloat(100))
+// 	// 抹零
+// 	l.Order.AmountReduce = l.Req.AmountReduce
+// 	l.Order.Amount = l.Order.Amount.Sub(l.Req.AmountReduce)
 
-		// 添加导购员业绩
-		l.Order.Salesmans = append(l.Order.Salesmans, model.OrderSalesman{
-			SalesmanId:        salesman.Id,
-			PerformanceRate:   s.PerformanceRate,
-			PerformanceAmount: performance,
-			IsMain:            s.IsMain,
-		})
-	}
+// 	return nil
+// }
 
-	return nil
-}
+// // 计算业绩
+// func (l *OrderCreateLogic) getPerformance() error {
+// 	// 添加导购员业绩
+// 	for _, s := range l.Req.Salesmans {
+// 		var salesman model.Staff
+// 		db := l.Tx.Model(&model.Staff{})
+// 		db = db.Where("id = ?", s.SalesmanId)
+// 		db = db.Where(&model.Staff{IsDisabled: false})
+// 		if err := db.First(&salesman).Error; err != nil {
+// 			return err
+// 		}
+
+// 		// 计算业绩 佣金 = 佣金率/100 * 订单金额
+// 		performance := l.Order.Amount.Mul(s.PerformanceRate).Div(decimal.NewFromFloat(100))
+
+// 		// 添加导购员业绩
+// 		l.Order.Salesmans = append(l.Order.Salesmans, model.OrderSalesman{
+// 			SalesmanId:        salesman.Id,
+// 			PerformanceRate:   s.PerformanceRate,
+// 			PerformanceAmount: performance,
+// 			IsMain:            s.IsMain,
+// 		})
+// 	}
+
+// 	return nil
+// }

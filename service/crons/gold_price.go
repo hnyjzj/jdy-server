@@ -2,7 +2,6 @@ package crons
 
 import (
 	"context"
-	"fmt"
 	"jdy/enums"
 	"jdy/message"
 	"jdy/model"
@@ -20,7 +19,7 @@ func SendGoldPriceSetMessage() {
 			return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 		})
 	}).Find(&stores).Error; err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
+		log.Printf("SendGoldPriceSetMessage: %v\n", err.Error())
 		return
 	}
 
@@ -37,11 +36,15 @@ func SendGoldPriceSetMessage() {
 				continue
 			}
 			m := message.NewMessage(context.Background())
-			m.SendGoldPriceSetMessage(&message.GoldPriceMessage{
+			err := m.SendGoldPriceSetMessage(&message.GoldPriceMessage{
 				ToUser:    receiver,
 				StoreName: v.Name,
 			})
-			log.Printf("成功向门店 %s 的 %d 位员工发送金价设置提醒", v.Name, len(receiver))
+			if err != nil {
+				log.Printf("SendGoldPriceSetMessage: %v\n", err.Error())
+			} else {
+				log.Printf("成功向门店 %s 的 %d 位员工发送金价设置提醒", v.Name, len(receiver))
+			}
 		}
 	}
 }

@@ -37,8 +37,10 @@ type Order struct {
 	CashierId string `json:"cashier_id" gorm:"type:varchar(255);not NULL;comment:收银员ID;"`    // 收银员ID
 	Cashier   Staff  `json:"cashier" gorm:"foreignKey:CashierId;references:Id;comment:收银员;"` // 收银员
 
-	Salesmans []OrderSalesman `json:"salesmans" gorm:"foreignKey:OrderId;references:Id;comment:订单导购员;"` // 订单导购员
-	Products  []OrderProduct  `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:订单商品;"`   // 订单商品
+	Salesmans         []OrderSalesman `json:"salesmans" gorm:"foreignKey:OrderId;references:Id;comment:订单导购员;"`      // 订单导购员
+	ProductFinished   []OrderProduct  `json:"product_finished" gorm:"foreignKey:OrderId;references:Id;comment:成品;"`  // 成品
+	ProductOld        []OrderProduct  `json:"product_old" gorm:"foreignKey:OrderId;references:Id;comment:旧料;"`       // 旧料
+	ProductAccessorie []OrderProduct  `json:"product_accessory" gorm:"foreignKey:OrderId;references:Id;comment:配件;"` // 配件
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
@@ -115,8 +117,7 @@ type OrderProduct struct {
 	OrderId string `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`            // 订单ID
 	Order   Order  `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
 
-	ProductId string  `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`              // 产品ID
-	Product   Product `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
+	ProductId string `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"` // 产品ID
 
 	Quantity       int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`              // 数量
 	Price          decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:单价;"`           // 单价

@@ -1,6 +1,7 @@
 package product
 
 import (
+	"fmt"
 	"jdy/controller"
 	"jdy/errors"
 	"jdy/logic/product"
@@ -25,19 +26,25 @@ func (con ProductInventoryController) Create(ctx *gin.Context) {
 		req types.ProductInventoryCreateReq
 
 		logic = product.ProductInventoryLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
 
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
+
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
+		fmt.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 	if err := req.Validate(); err != nil {
+		fmt.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
@@ -57,12 +64,16 @@ func (con ProductInventoryController) List(ctx *gin.Context) {
 		req types.ProductInventoryListReq
 
 		logic = product.ProductInventoryLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -85,12 +96,16 @@ func (con ProductInventoryController) Info(ctx *gin.Context) {
 		req types.ProductInventoryInfoReq
 
 		logic = product.ProductInventoryLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -113,12 +128,16 @@ func (con ProductInventoryController) Change(ctx *gin.Context) {
 		req types.ProductInventoryChangeReq
 
 		logic = product.ProductInventoryLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {

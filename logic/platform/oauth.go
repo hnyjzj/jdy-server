@@ -2,7 +2,6 @@ package platform
 
 import (
 	"errors"
-	"fmt"
 	"jdy/enums"
 	"jdy/logic/platform/wxwork"
 	"jdy/types"
@@ -10,21 +9,20 @@ import (
 
 // 获取授权链接
 func (l *PlatformLogic) OauthUri(req *types.PlatformOAuthReq) (*types.PlatformOAuthRes, error) {
-	platformType := fmt.Sprint(req.Platform)
-
 	switch req.Platform {
 	case enums.PlatformTypeWxWork:
 
 		var (
 			wxwork wxwork.WxWorkLogic
 		)
-		res, err := wxwork.OauthUri(req.Agent, platformType, req.Uri)
+		res, err := wxwork.OauthUri(req.Agent, req.Platform.String(), req.Uri)
 		if err != nil {
 			return nil, err
 		}
 		result := &types.PlatformOAuthRes{
 			RedirectURL: res,
 		}
+
 		return result, nil
 
 	default:

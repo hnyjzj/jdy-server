@@ -17,9 +17,9 @@ type WorkbenchSearchReq struct {
 
 type WorkbenchAddReq struct {
 	Title    string `json:"title" binding:"required"`
-	Path     string `json:"path"  binding:"-"`
-	Icon     string `json:"icon"  binding:"-"`
-	ParentId string `json:"parent_id" binding:"-"`
+	Path     string `json:"path" `
+	Icon     string `json:"icon" `
+	ParentId string `json:"parent_id"`
 }
 
 type WorkbenchDelReq struct {

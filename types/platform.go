@@ -20,10 +20,4 @@ type PlatformOAuthRes struct {
 type PlatformJSSdkReq struct {
 	Agent string `json:"agent"` // 用户浏览器环境
 	PlatformReq
-
-	Type string `json:"type" binding:"required"` // jsapi_ticket类型，可选值：jsapi, agent
-}
-
-type PlatformJSSdkRes struct {
-	Ticket string `json:"ticket"` // jsapi_ticket
 }

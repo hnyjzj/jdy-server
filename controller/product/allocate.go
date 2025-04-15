@@ -20,12 +20,16 @@ func (con ProductAllocateController) Create(ctx *gin.Context) {
 		req types.ProductAllocateCreateReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -60,12 +64,16 @@ func (con ProductAllocateController) List(ctx *gin.Context) {
 		req types.ProductAllocateListReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -95,12 +103,16 @@ func (con ProductAllocateController) Info(ctx *gin.Context) {
 		req types.ProductAllocateInfoReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -124,12 +136,16 @@ func (con ProductAllocateController) Add(ctx *gin.Context) {
 		req types.ProductAllocateAddReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -151,12 +167,16 @@ func (con ProductAllocateController) Remove(ctx *gin.Context) {
 		req types.ProductAllocateRemoveReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -178,12 +198,16 @@ func (con ProductAllocateController) Confirm(ctx *gin.Context) {
 		req types.ProductAllocateConfirmReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -205,12 +229,16 @@ func (con ProductAllocateController) Cancel(ctx *gin.Context) {
 		req types.ProductAllocateCancelReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -232,12 +260,16 @@ func (con ProductAllocateController) Complete(ctx *gin.Context) {
 		req types.ProductAllocateCompleteReq
 
 		logic = product.ProductAllocateLogic{
-			ProductLogic: product.ProductLogic{
-				Ctx:   ctx,
-				Staff: con.GetStaff(ctx),
-			},
+			Ctx: ctx,
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {

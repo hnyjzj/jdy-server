@@ -22,7 +22,7 @@ type MemberWhere struct {
 
 	Source       enums.MemberSource `json:"source" label:"来源" find:"true" sort:"12" type:"number" input:"select" preset:"typeMap"`
 	ConsultantId string             `json:"consultant_id" label:"顾问" find:"true" sort:"13" type:"string" input:"text"`
-	StoreId      string             `json:"store_id" label:"门店" find:"true" sort:"14" type:"string" input:"text" required:"true" binding:"required"`
+	StoreId      string             `json:"store_id" label:"门店" find:"true" sort:"14" type:"string" input:"text" required:"true"`
 
 	Status         enums.MemberStatus `json:"status" label:"状态" find:"true" sort:"15" type:"number" input:"select" preset:"typeMap"`
 	ExternalUserId string             `json:"external_user_id" label:"外部用户id" find:"true" sort:"16" type:"string" input:"text"`
@@ -32,13 +32,14 @@ type MemberCreateReq struct {
 	Phone       *string      `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"`
 	Name        string       `json:"name" binding:"required"`
 	Gender      enums.Gender `json:"gender" binding:"oneof=0 1 2"`
-	Birthday    string       `json:"birthday" binding:"-"`
-	Anniversary string       `json:"anniversary" binding:"-"`
-	Nickname    string       `json:"nickname" binding:"-"`
-	IDCard      string       `json:"id_card" binding:"-"`
+	Birthday    string       `json:"birthday"`
+	Anniversary string       `json:"anniversary"`
+	Nickname    string       `json:"nickname"`
+	IDCard      string       `json:"id_card"`
 
-	ConsultantId string `json:"consultant_id" binding:"-"`
-	StoreId      string `json:"store_id" binding:"required"`
+	ConsultantId   string `json:"consultant_id"`
+	StoreId        string `json:"store_id" binding:"required"`
+	ExternalUserId string `json:"external_user_id"`
 }
 
 type MemberUpdateReq struct {
@@ -62,20 +63,4 @@ func (req *MemberInfoReq) Validate() error {
 	}
 
 	return nil
-}
-
-type MemberIntegralListReq struct {
-	PageReq
-	Where MemberIntegralWhere `json:"where" binding:"required"`
-}
-
-type MemberIntegralWhere struct {
-	MemberId   string                         `json:"member_id" label:"会员id" find:"true" sort:"1" type:"string" input:"text" binding:"required" `
-	ChangeType enums.MemberIntegralChangeType `json:"change_type" label:"变更类型" find:"true" sort:"2" type:"number" input:"select" preset:"typeMap"`
-}
-
-type MemberIntegralChangeReq struct {
-	MemberId string          `json:"id" binding:"required"`
-	Change   decimal.Decimal `json:"change" binding:"required"`
-	Remark   string          `json:"remark" binding:"required"`
 }

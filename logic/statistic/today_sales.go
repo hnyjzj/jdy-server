@@ -106,19 +106,17 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 			Status:  enums.OrderStatusComplete,
 		}).
 		Scopes(model.DurationCondition(enums.DurationToday)).
-		Preload("Products").
+		Preload("ProductFinished").
 		Find(&orders).Error; err != nil {
 		return errors.New("获取今日销售件数失败")
 	}
 
-	sales_count := int64(0)
+	sales_count := int(0)
 	for _, order := range orders {
-		for _, product := range order.Products {
-			sales_count += product.Quantity
-		}
+		sales_count += len(order.ProductFinished)
 	}
 
-	l.Res.SalesCount = sales_count
+	l.Res.SalesCount = int64(sales_count)
 
 	return nil
 }

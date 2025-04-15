@@ -45,8 +45,13 @@ func (l *MemberLogic) Info(req *types.MemberInfoReq) (*model.Member, error) {
 	)
 
 	db := model.DB.Model(&member)
-	db = db.Where("id = ?", req.Id)
-	db = db.Or(&model.Member{ExternalUserId: req.ExternalUserId})
+
+	if req.Id != "" {
+		db = db.Where("id = ?", req.Id)
+	}
+	if req.ExternalUserId != "" {
+		db = db.Or(&model.Member{ExternalUserId: req.ExternalUserId})
+	}
 
 	db = db.Preload("Store")
 	db = db.Preload("Consultant")

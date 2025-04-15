@@ -29,7 +29,11 @@ func (con UploadController) Avatar(ctx *gin.Context) {
 		s Res
 	)
 
-	staff := con.GetStaff(ctx)
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
 
 	// 验证参数
 	if err := ctx.ShouldBind(&r); err != nil {
@@ -100,7 +104,7 @@ func (con UploadController) Store(ctx *gin.Context) {
 	// 接收参数
 	type Req struct {
 		File    *multipart.FileHeader `form:"image" binding:"required"`
-		StoreId string                `form:"store_id" binding:"-"`
+		StoreId string                `form:"store_id"`
 	}
 	type Res struct {
 		Url string `json:"url"`

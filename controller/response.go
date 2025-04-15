@@ -51,3 +51,29 @@ func (con BaseController) Exception(c *gin.Context, message string) {
 	c.JSON(http.StatusOK, response)
 	c.Abort()
 }
+
+// 异常响应（带结果）
+func (con BaseController) ExceptionWithResult(c *gin.Context, message string, data any) {
+	response := gin.H{
+		"code":    http.StatusInternalServerError,
+		"message": message,
+	}
+
+	if data != nil {
+		response["data"] = data
+	}
+
+	c.JSON(http.StatusOK, response)
+	c.Abort()
+}
+
+// 异常响应（带状态）
+func (con BaseController) ExceptionWithAuth(c *gin.Context, message string) {
+	response := gin.H{
+		"code":    http.StatusUnauthorized,
+		"message": message,
+	}
+
+	c.JSON(http.StatusUnauthorized, response)
+	c.Abort()
+}

@@ -105,7 +105,7 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 func (l *StoreSalesTotalLogic) getWhereDb() *gorm.DB {
 	db := model.DB.Model(&model.OrderProduct{})
 	db = db.
-		Joins("JOIN products ON order_products.product_id = products.id").
+		Joins("JOIN product_finisheds as products ON order_products.product_id = products.id").
 		Where("order_products.status = ?", enums.OrderStatusComplete).
 		Scopes(model.DurationCondition(l.Req.Duration, "order_products.created_at"))
 
@@ -118,7 +118,7 @@ func (l *StoreSalesTotalLogic) getSilver(res *StoreSalesTotalRes) error {
 	)
 
 	if err := l.getWhereDb().
-		Where("products.class =?", enums.ProductClassSilver).
+		Where("products.class = ?", enums.ProductClassFinishedSilver).
 		Select("SUM(order_products.amount)").
 		Scan(&silver).Error; err != nil {
 		return errors.New("获取银饰数量失败")
@@ -139,7 +139,7 @@ func (l *StoreSalesTotalLogic) getGold(res *StoreSalesTotalRes) error {
 	)
 
 	if err := l.getWhereDb().
-		Where("products.class =?", enums.ProductClassGoldPiece).
+		Where("products.class = ?", enums.ProductClassFinishedGoldPiece).
 		Select("SUM(order_products.amount)").
 		Scan(&gold).Error; err != nil {
 		return errors.New("获取足金数量失败")
@@ -159,7 +159,7 @@ func (l *StoreSalesTotalLogic) getGoldWeight(res *StoreSalesTotalRes) error {
 	)
 
 	if err := l.getWhereDb().
-		Where("products.class =?", enums.ProductClassGoldKg).
+		Where("products.class = ?", enums.ProductClassFinishedGoldKg).
 		Select("SUM(order_products.amount)").
 		Scan(&goldWeight).Error; err != nil {
 		return errors.New("获取金重数量失败")
@@ -180,7 +180,7 @@ func (l *StoreSalesTotalLogic) getPieceAccessories(res *StoreSalesTotalRes) erro
 	)
 
 	if err := l.getWhereDb().
-		Where("products.type =?", enums.ProductTypeAccessories).
+		// Where("products.type = ?", enums.ProductTypeAccessorie).
 		// Where("products.class =?", enums.ProductClassPieceAccessories).
 		Select("SUM(order_products.amount)").
 		Scan(&pieceAccessories).Error; err != nil {

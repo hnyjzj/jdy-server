@@ -1,69 +1,76 @@
 package enums
 
-import "errors"
+import (
+	"errors"
+	"slices"
+)
 
 /* 产品状态 */
-// 全部、正常、已报损、已调拨、已出售、已定出、盘点中
+// 草稿、正常、已报损、已调拨、已出售、已定出、盘点中、无库存
 type ProductStatus int
 
 const (
-	ProductStatusAll      ProductStatus = iota // 全部
-	ProductStatusNormal                        // 正常
-	ProductStatusDamage                        // 已报损
-	ProductStatusAllocate                      // 已调拨
-	ProductStatusSold                          // 已出售
-	ProductStatusReturn                        // 已定出
-	ProductStatusCheck                         // 盘点中
+	ProductStatusDraft    ProductStatus = iota + 1 // 草稿
+	ProductStatusNormal                            // 正常
+	ProductStatusDamage                            // 已报损
+	ProductStatusAllocate                          // 已调拨
+	ProductStatusSold                              // 已出售
+	ProductStatusReturn                            // 已定出
+	ProductStatusCheck                             // 盘点中
+	ProductStatusNoStock                           // 无库存
 )
 
 var ProductStatusMap = map[ProductStatus]string{
-	ProductStatusAll:      "全部",
+	ProductStatusDraft:    "草稿",
 	ProductStatusNormal:   "正常",
 	ProductStatusDamage:   "已报损",
 	ProductStatusAllocate: "已调拨",
 	ProductStatusSold:     "已出售",
 	ProductStatusReturn:   "已定出",
 	ProductStatusCheck:    "盘点中",
+	ProductStatusNoStock:  "无库存",
 }
 
 // 判断状态是否可以转换
 func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
 	transitions := map[ProductStatus][]ProductStatus{
-		ProductStatusAll: {
-			ProductStatusNormal,
-		},
+		// 正常
 		ProductStatusNormal: {
-			ProductStatusDamage,
-			ProductStatusAllocate,
-			ProductStatusSold,
-			ProductStatusReturn,
-			ProductStatusCheck,
+			ProductStatusDamage,   // 已报损
+			ProductStatusAllocate, // 已调拨
+			ProductStatusSold,     // 已出售
+			ProductStatusReturn,   // 已定出
+			ProductStatusCheck,    // 盘点中
+			ProductStatusNoStock,  // 无库存
 		},
+		// 已报损
 		ProductStatusDamage: {
-			ProductStatusNormal,
-			ProductStatusAllocate,
+			ProductStatusNormal,   // 正常
+			ProductStatusAllocate, // 已调拨
 		},
+		// 已调拨
 		ProductStatusAllocate: {
-			ProductStatusNormal,
-			ProductStatusDamage,
+			ProductStatusNormal, // 正常
+			ProductStatusDamage, // 已报损
 		},
+		// 已出售
 		ProductStatusSold: {
-			ProductStatusNormal,
-			ProductStatusReturn,
+			ProductStatusNormal, // 正常
+			ProductStatusReturn, // 已定出
 		},
+		// 已定出
 		ProductStatusReturn: {
-			ProductStatusNormal,
-			ProductStatusDamage,
+			ProductStatusNormal, // 正常
+			ProductStatusDamage, // 已报损
 		},
+		// 盘点中
 		ProductStatusCheck: {
-			ProductStatusNormal,
+			ProductStatusNormal, // 正常
 		},
 	}
 	if allowed, ok := transitions[p]; ok {
-		for _, status := range allowed {
-			if status == newStatus {
-				return nil
-			}
+		if slices.Contains(allowed, newStatus) {
+			return nil
 		}
 	}
 	return errors.New("非法的状态转换")

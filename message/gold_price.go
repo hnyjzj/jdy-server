@@ -16,7 +16,7 @@ type GoldPriceMessage struct {
 }
 
 // 发送黄金价格设置提醒
-func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) {
+func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) error {
 	url := fmt.Sprintf("%s/system/gold/price", M.App.Home)
 	ToUser := strings.Join(req.ToUser, "|")
 	messages := &request.RequestMessageSendTemplateCard{
@@ -53,9 +53,11 @@ func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) {
 	}
 
 	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
-		log.Println("发送消息失败:", err)
-		fmt.Printf("a: %+v\n", a)
+		log.Printf("a: %+v\n", a)
+		return err
 	}
+
+	return nil
 }
 
 // 发送黄金价格更新提醒
@@ -107,6 +109,6 @@ func (M *BaseMessage) SendGoldPriceUpdateMessage(req *GoldPriceMessage) {
 
 	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
 		log.Println("发送消息失败:", err)
-		fmt.Printf("a: %+v\n", a)
+		log.Printf("a: %+v\n", a)
 	}
 }

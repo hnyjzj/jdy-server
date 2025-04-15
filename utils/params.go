@@ -1,9 +1,10 @@
 package utils
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
 	"jdy/types"
+	"log"
 	"reflect"
 	"strconv"
 )
@@ -15,6 +16,14 @@ func StructToWhere[S any](s S) map[string]types.WhereForm {
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
+		// 如果字段是匿名字段，递归处理
+		if field.Anonymous {
+			nestedParams := StructToWhere(reflect.ValueOf(s).Field(i).Interface())
+			for k, v := range nestedParams {
+				params[k] = v
+			}
+			continue
+		}
 		class := field.Type
 		tag := field.Tag
 
@@ -25,7 +34,7 @@ func StructToWhere[S any](s S) map[string]types.WhereForm {
 
 		whereForm, err := parseTag(class, tag)
 		if err != nil {
-			fmt.Printf("Error parsing tag for field %s: %v\n", json, err)
+			log.Printf("Error parsing tag for field %s: %v\n", json, err)
 			continue
 		}
 		params[json] = whereForm
@@ -79,6 +88,16 @@ func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error
 		default:
 			whereForm.Preset = tga.Get("preset")
 		}
+	}
+	if tga.Get("condition") != "" {
+		// 字符串转json
+		var tempConditions []types.WhereCondition
+		err := json.Unmarshal([]byte(tga.Get("condition")), &tempConditions)
+		if err != nil {
+			log.Printf("err.Error(): %v\n", err.Error())
+			return whereForm, err
+		}
+		whereForm.Condition = tempConditions
 	}
 
 	return whereForm, nil

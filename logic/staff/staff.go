@@ -50,7 +50,10 @@ func (l *StaffLogic) Info(req *types.StaffInfoReq) (*model.Staff, error) {
 // 获取员工信息
 func (l *StaffLogic) My() (*types.StaffRes, error) {
 	var staffRes types.StaffRes
-	if err := model.DB.Model(&model.Staff{}).First(&staffRes, l.Staff.Id).Error; err != nil {
+	db := model.DB.Model(&model.Staff{})
+	db = db.Where("id = ?", l.Staff.Id)
+
+	if err := db.First(&staffRes).Error; err != nil {
 		return nil, errors.ErrStaffNotFound
 	}
 

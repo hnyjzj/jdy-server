@@ -101,17 +101,24 @@ func Api(g *gin.Engine) {
 		// 门店
 		stores := r.Group("/store")
 		{
-			stores.GET("/where", store.StoreController{}.Where) // 门店筛选
-			stores.Use(middlewares.JWTMiddleware())
+			storesm := stores.Group("/")
 			{
-				stores.POST("/create", store.StoreController{}.Create)   // 创建门店
-				stores.PUT("/update", store.StoreController{}.Update)    // 门店更新
-				stores.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
-				stores.POST("/list", store.StoreController{}.List)       // 门店列表
-				stores.POST("/my", store.StoreController{}.My)           // 我的门店
-				stores.POST("/info", store.StoreController{}.Info)       // 门店详情
+				storesm.GET("/where", store.StoreController{}.Where) // 门店筛选
+				storesm.Use(middlewares.JWTMiddleware())
+				{
+					storesm.POST("/create", store.StoreController{}.Create)   // 创建门店
+					storesm.PUT("/update", store.StoreController{}.Update)    // 门店更新
+					storesm.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
+					storesm.POST("/list", store.StoreController{}.List)       // 门店列表
+					storesm.POST("/my", store.StoreController{}.My)           // 我的门店
+					storesm.POST("/info", store.StoreController{}.Info)       // 门店详情
+				}
 
-				staffs := stores.Group("/staff")
+			}
+
+			staffs := stores.Group("/staff")
+			{
+				staffs.Use(middlewares.JWTMiddleware())
 				{
 					staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
 					staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
@@ -123,33 +130,138 @@ func Api(g *gin.Engine) {
 		// 产品
 		products := r.Group("/product")
 		{
-			// 产品管理
-			p := products.Group("/")
+			// 成品
+			finisheds := products.Group("/finished")
 			{
-				p.GET("/where", product.ProductController{}.Where) // 产品筛选
-				p.Use(middlewares.JWTMiddleware())
+				// 成品管理
+				finished := finisheds.Group("/")
 				{
-					p.POST("/list", product.ProductController{}.List)            // 产品列表
-					p.POST("/info", product.ProductController{}.Info)            // 产品详情
-					p.PUT("/update", product.ProductController{}.Update)         // 产品更新
-					p.PUT("/damage", product.ProductController{}.Damage)         // 产品报损
-					p.PUT("/conversion", product.ProductController{}.Conversion) // 产品转换
+					finished.GET("/where", product.ProductFinishedController{}.Where) // 成品筛选
+					finished.Use(middlewares.JWTMiddleware())
+					{
+						finished.POST("/list", product.ProductFinishedController{}.List)    // 成品列表
+						finished.POST("/info", product.ProductFinishedController{}.Info)    // 成品详情
+						finished.PUT("/update", product.ProductFinishedController{}.Update) // 成品更新
+					}
+				}
+
+				// 成品入库
+				enters := finisheds.Group("/enter")
+				{
+					enters.GET("/where", product.ProductFinishedEnterController{}.Where) // 成品入库单筛选
+					enters.Use(middlewares.JWTMiddleware())
+					{
+						enters.POST("/create", product.ProductFinishedEnterController{}.Create) // 创建成品入库单
+						enters.POST("/list", product.ProductFinishedEnterController{}.List)     // 成品入库单列表
+						enters.POST("/info", product.ProductFinishedEnterController{}.Info)     // 成品入库单详情
+
+						enters.POST("/add_product", product.ProductFinishedEnterController{}.AddProduct)   // 添加产品
+						enters.DELETE("/del_product", product.ProductFinishedEnterController{}.DelProduct) // 删除产品
+						enters.PUT("/edit_product", product.ProductFinishedEnterController{}.EditProduct)  // 编辑产品
+
+						enters.PUT("/finish", product.ProductFinishedEnterController{}.Finish) // 完成入库
+						enters.PUT("/cancel", product.ProductFinishedEnterController{}.Cancel) // 取消入库
+					}
+				}
+
+				// 报损单管理
+				damages := finisheds.Group("/damage")
+				{
+					damages.GET("/where", product.ProductFinishedDamageController{}.Where) // 报损单筛选
+					damages.Use(middlewares.JWTMiddleware())
+					{
+						damages.PUT("/create", product.ProductFinishedDamageController{}.Damage)         // 成品报损
+						damages.POST("/list", product.ProductFinishedDamageController{}.List)            // 报损单列表
+						damages.POST("/info", product.ProductFinishedDamageController{}.Info)            // 报损单详情
+						damages.PUT("/conversion", product.ProductFinishedDamageController{}.Conversion) // 成品转换
+					}
 				}
 			}
 
-			// 产品入库
-			enters := products.Group("/enter")
+			// 旧料
+			olds := products.Group("/old")
 			{
-				enters.GET("/where", product.ProductEnterController{}.Where) // 入库单筛选
-				enters.Use(middlewares.JWTMiddleware())
+				// 旧料管理
+				old := olds.Group("/")
 				{
-					enters.POST("/create", product.ProductEnterController{}.Create) // 创建入库单
-					enters.POST("/list", product.ProductEnterController{}.List)     // 入库单列表
-					enters.POST("/info", product.ProductEnterController{}.Info)     // 入库单详情
+					old.GET("/where", product.ProductOldController{}.Where)         // 旧料筛选
+					old.POST("/get_class", product.ProductOldController{}.GetClass) // 获取旧料分类
+					old.Use(middlewares.JWTMiddleware())
+					{
+						old.POST("/list", product.ProductOldController{}.List)            // 旧料列表
+						old.POST("/info", product.ProductOldController{}.Info)            // 旧料详情
+						old.PUT("/conversion", product.ProductOldController{}.Conversion) // 旧料转换
+
+					}
 				}
 			}
 
-			// 产品调拨
+			// 配件
+			accessories := products.Group("/accessorie")
+			{
+				// 配件管理
+				accessorie := accessories.Group("/")
+				{
+					accessorie.GET("/where", product.ProductAccessorieController{}.Where) // 配件筛选
+					accessorie.Use(middlewares.JWTMiddleware())
+					{
+						accessorie.POST("/list", product.ProductAccessorieController{}.List) // 配件列表
+						accessorie.POST("/info", product.ProductAccessorieController{}.Info) // 配件详情
+					}
+				}
+
+				// 配件条目管理
+				categorys := accessories.Group("/category")
+				{
+					categorys.GET("/where", product.ProductAccessorieCategoryController{}.Where) // 配件条目筛选
+					categorys.Use(middlewares.JWTMiddleware())
+					{
+						categorys.POST("/create", product.ProductAccessorieCategoryController{}.Create) // 创建配件条目
+						categorys.PUT("/update", product.ProductAccessorieCategoryController{}.Update)  // 更新配件条目
+						categorys.DELETE("/del", product.ProductAccessorieCategoryController{}.Delete)  // 删除配件条目
+						categorys.POST("/list", product.ProductAccessorieCategoryController{}.List)     // 配件条目列表
+						categorys.POST("/info", product.ProductAccessorieCategoryController{}.Info)     // 配件条目详情
+					}
+				}
+
+				// 配件入库
+				enters := accessories.Group("/enter")
+				{
+					enters.GET("/where", product.ProductAccessorieEnterController{}.Where) // 配件入库单筛选
+					enters.Use(middlewares.JWTMiddleware())
+					{
+						enters.POST("/create", product.ProductAccessorieEnterController{}.Create) // 创建配件入库单
+						enters.POST("/list", product.ProductAccessorieEnterController{}.List)     // 配件入库单列表
+						enters.POST("/info", product.ProductAccessorieEnterController{}.Info)     // 配件入库单详情
+
+						enters.POST("/add_product", product.ProductAccessorieEnterController{}.AddProduct)   // 添加产品
+						enters.DELETE("/del_product", product.ProductAccessorieEnterController{}.DelProduct) // 删除产品
+						enters.PUT("/edit_product", product.ProductAccessorieEnterController{}.EditProduct)  // 编辑产品
+
+						enters.PUT("/finish", product.ProductAccessorieEnterController{}.Finish) // 完成入库
+						enters.PUT("/cancel", product.ProductAccessorieEnterController{}.Cancel) // 取消入库
+					}
+				}
+
+				// 配件调拨
+				allocate := accessories.Group("/allocate")
+				{
+					allocate.GET("/where", product.ProductAccessorieAllocateController{}.Where) // 调拨单筛选
+					allocate.Use(middlewares.JWTMiddleware())
+					{
+						allocate.POST("/create", product.ProductAccessorieAllocateController{}.Create)    // 创建调拨单
+						allocate.POST("/list", product.ProductAccessorieAllocateController{}.List)        // 调拨单列表
+						allocate.POST("/info", product.ProductAccessorieAllocateController{}.Info)        // 调拨单详情
+						allocate.PUT("/add", product.ProductAccessorieAllocateController{}.Add)           // 添加产品
+						allocate.PUT("/remove", product.ProductAccessorieAllocateController{}.Remove)     // 移除产品
+						allocate.PUT("/confirm", product.ProductAccessorieAllocateController{}.Confirm)   // 确认调拨
+						allocate.PUT("/cancel", product.ProductAccessorieAllocateController{}.Cancel)     // 取消调拨
+						allocate.PUT("/complete", product.ProductAccessorieAllocateController{}.Complete) // 完成调拨
+					}
+				}
+			}
+
+			// 成品调拨
 			allocate := products.Group("/allocate")
 			{
 				allocate.GET("/where", product.ProductAllocateController{}.Where) // 调拨单筛选
@@ -166,7 +278,7 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			// 产品盘点
+			// 货品盘点
 			inventory := products.Group("/inventory")
 			{
 				inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
@@ -179,13 +291,14 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			// 产品盘点
-			history := products.Group("/history")
+			// 货品操作记录
+			historys := products.Group("/history")
 			{
-				history.GET("/where", product.ProductController{}.HistoryWhere) // 产品操作记录筛选
-				history.Use(middlewares.JWTMiddleware())
+				historys.GET("/where", product.ProductHistoryController{}.Where) // 货品操作记录筛选
+				historys.Use(middlewares.JWTMiddleware())
 				{
-					history.POST("/list", product.ProductController{}.History) // 产品操作记录列表
+					historys.POST("/list", product.ProductHistoryController{}.List) // 货品操作记录列表
+					historys.POST("/info", product.ProductHistoryController{}.Info) // 货品操作记录详情
 				}
 			}
 		}
@@ -205,11 +318,24 @@ func Api(g *gin.Engine) {
 
 			integrals := members.Group("/integral")
 			{
-				integrals.GET("/where", member.MemberIntegralController{}.Where) // 积分变动筛选
-				integrals.Use(middlewares.JWTMiddleware())
+				integral := integrals.Group("/")
 				{
-					integrals.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
-					integrals.POST("/change", member.MemberIntegralController{}.Change) // 积分变动
+					integral.GET("/where", member.MemberIntegralController{}.Where) // 积分变动筛选
+					integral.Use(middlewares.JWTMiddleware())
+					{
+						integral.POST("/list", member.MemberIntegralController{}.List)     // 积分变动记录列表
+						integral.POST("/change", member.MemberIntegralController{}.Change) // 积分变动
+					}
+				}
+
+				rule := integrals.Group("/rule")
+				{
+					rule.Use(middlewares.JWTMiddleware())
+					{
+						rule.POST("/finished", member.MemberIntegralRuleController{}.Finished)     // 成品积分规则
+						rule.POST("/old", member.MemberIntegralRuleController{}.Old)               // 旧料积分规则
+						rule.POST("/accessorie", member.MemberIntegralRuleController{}.Accessorie) // 配件积分规则
+					}
 				}
 			}
 		}

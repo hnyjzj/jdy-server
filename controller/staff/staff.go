@@ -55,9 +55,15 @@ func (con StaffController) Info(ctx *gin.Context) {
 			BaseLogic: logic.BaseLogic{
 				Ctx: ctx,
 			},
-			Staff: con.GetStaff(ctx),
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -82,9 +88,15 @@ func (con StaffController) My(ctx *gin.Context) {
 			BaseLogic: logic.BaseLogic{
 				Ctx: ctx,
 			},
-			Staff: con.GetStaff(ctx),
 		}
 	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
 
 	staffinfo, err := logic.My()
 	if err != nil {

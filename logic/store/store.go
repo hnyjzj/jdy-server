@@ -6,7 +6,6 @@ import (
 	"jdy/types"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type StoreLogic struct {
@@ -40,17 +39,21 @@ func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) (*types.Pag
 
 // 门店列表
 func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
+
 	var (
-		store model.Store
+		staff model.Staff
 	)
 
-	var staff model.Staff
-	if err := model.DB.Preload("Stores", func(tx *gorm.DB) *gorm.DB {
-		db := store.WhereCondition(tx, &req.Where)
+	db := model.DB.Model(&staff)
+	db = db.Where("id = ?", l.Staff.Id)
+	db = db.Preload("Stores")
 
-		return db
-	}).First(&staff, l.Staff.Id).Error; err != nil {
+	if err := db.First(&staff).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
+	}
+
+	if staff.Stores == nil {
+		staff.Stores = []model.Store{}
 	}
 
 	// 如果是管理员

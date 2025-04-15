@@ -11,7 +11,7 @@ import (
 type Member struct {
 	SoftDelete
 
-	Phone       *string      `json:"phone" gorm:"column:phone;unique;size:255;comment:手机号;"`      // 手机号
+	Phone       *string      `json:"phone" gorm:"column:phone;uniqueIndex;size:255;comment:手机号;"` // 手机号
 	Name        string       `json:"name" gorm:"column:name;size:255;not NULL;comment:姓名;"`       // 姓名
 	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"`     // 性别
 	Birthday    string       `json:"birthday" gorm:"column:birthday;size:255;comment:生日;"`        // 生日
@@ -150,15 +150,29 @@ func (MemberIntegralLog) WhereCondition(db *gorm.DB, query *types.MemberIntegral
 	return db
 }
 
+type MemberIntegralRule struct {
+	SoftDelete
+
+	Type enums.MemberIntegralRuleType `json:"type" gorm:"column:type;type:tinyint(1);not NULL;default:0;comment:类型;"` // 类型
+
+	Class int             `json:"class" gorm:"column:class;type:tinyint(1);NULL;comment:大类;"`            // 大类
+	Rate  decimal.Decimal `json:"rate" gorm:"column:rate;type:decimal(10,2);NULL;default:0;comment:比例;"` // 比例
+
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
+	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(
 		&Member{},
 		&MemberIntegralLog{},
+		&MemberIntegralRule{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &Member{},
 	// &MemberIntegralLog{},
+	// &MemberIntegralRule{},
 	)
 }

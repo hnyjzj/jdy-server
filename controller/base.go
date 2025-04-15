@@ -10,19 +10,24 @@ import (
 type BaseController struct{}
 
 // 获取 token 中的用户信息
-func (con BaseController) GetStaff(ctx *gin.Context) *types.Staff {
+func (con BaseController) GetStaff(ctx *gin.Context) (*types.Staff, error) {
 	// 获取 token 中的用户信息
 	staffInfo, ok := ctx.MustGet("staff").(*types.Staff)
+
 	// 检查用户是否正确
 	if staffInfo == nil || !ok {
-		con.Exception(ctx, errors.ErrStaffNotFound.Error())
-		return nil
-	}
-	// 检查用户是否被禁用
-	if staffInfo.IsDisabled {
-		con.Exception(ctx, errors.ErrStaffDisabled.Error())
-		return nil
+		return nil, errors.ErrStaffNotFound
 	}
 
-	return staffInfo
+	// 判断 IP
+	// if staffInfo.IP != ctx.ClientIP() {
+	// 	return nil, errors.New("IP 地址不匹配")
+	// }
+
+	// 检查用户是否被禁用
+	if staffInfo.IsDisabled {
+		return nil, errors.ErrStaffDisabled
+	}
+
+	return staffInfo, nil
 }

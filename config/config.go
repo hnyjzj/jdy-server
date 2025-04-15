@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
@@ -28,10 +28,10 @@ func Init() {
 	viper.AddConfigPath("./")
 	viper.AddConfigPath("../")
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Printf("没有读取到配置文件，将使用默认值。%v \n", err)
+		log.Printf("没有读取到配置文件，将使用默认值。%v \n", err)
 	}
 	// 解析配置文件
 	if err := viper.Unmarshal(&Config); err != nil {
-		fmt.Printf("无法解码配置文件, %v \n", err)
+		log.Printf("无法解码配置文件, %v \n", err)
 	}
 }

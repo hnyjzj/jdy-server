@@ -142,7 +142,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 				}
 
 				if err := tx.Create(&data).Error; err != nil {
-					products[product.Code] = "入库失败"
+					products[p.Code] = "入库失败"
 					continue
 				}
 			}

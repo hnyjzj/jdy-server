@@ -51,7 +51,6 @@ func (p *ProductAccessorieCategoryLogic) Info(req *types.ProductAccessorieCatego
 
 	if err := model.DB.
 		Where("id = ?", req.Id).
-		Preload("Store").
 		First(&product).Error; err != nil {
 		return nil, errors.New("获取配件条目信息失败")
 	}

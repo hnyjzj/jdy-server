@@ -75,3 +75,22 @@ type OpenOrderUpdateReq struct {
 	Rounding     enums.Rounding     `json:"rounding"`                    // 金额进位控制
 	UseConfirm   bool               `json:"use_confirm"`                 // 积分使用二次确认
 }
+
+func (req *OpenOrderUpdateReq) Validate() error {
+	// 验证折扣率是否有效（如果提供了）
+	if req.DiscountRate != nil && req.DiscountRate.LessThan(decimal.Zero) {
+		return errors.New("积分抵扣比例不能为负数")
+	}
+
+	// 验证小数点控制枚举值是否有效
+	if err := req.DecimalPoint.InMap(); err != nil {
+		return errors.New("金额小数点控制枚举值无效")
+	}
+
+	// 验证进位控制枚举值是否有效
+	if err := req.Rounding.InMap(); err != nil {
+		return errors.New("金额进位控制枚举值无效")
+	}
+
+	return nil
+}

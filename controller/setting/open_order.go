@@ -61,6 +61,11 @@ func (con OpenOrderController) Update(ctx *gin.Context) {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
+	// 判断参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
 
 	// 设置上下文
 	logic.Ctx = ctx

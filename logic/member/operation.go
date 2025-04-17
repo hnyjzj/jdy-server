@@ -6,6 +6,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"log"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -13,6 +14,17 @@ import (
 
 // 创建会员
 func (l *MemberLogic) Create(req *types.MemberCreateReq) error {
+	var member model.Member
+	if err := model.DB.Where(&model.Member{
+		Phone: req.Phone,
+	}).First(&member).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return errors.New("查询失败")
+		}
+	}
+	if member.Id != "" {
+		return errors.New("手机号可能已存在，请检查是否重复")
+	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		m := model.Member{
@@ -43,6 +55,7 @@ func (l *MemberLogic) Create(req *types.MemberCreateReq) error {
 
 		return nil
 	}); err != nil {
+		log.Println("创建会员失败：", err)
 		return errors.New("创建会员失败")
 	}
 

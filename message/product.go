@@ -14,7 +14,7 @@ type ProductInventoryCreate struct {
 	ProductInventory *model.ProductInventory
 }
 
-// 盘点单创建通知
+// 发送盘点单创建通知
 func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCreate) {
 	url := fmt.Sprintf("%s/product/goods/check/info?id=%s", M.App.Home, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
@@ -80,8 +80,8 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 		},
 	}
 
-	if response, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
-		log.Printf("发送消息失败: err=%v, response=%+v\n", err, response)
+	if err := M.Send(M.WXWork, messages); err != nil {
+		log.Println("发送盘点单创建通知", "失败：", err)
 	}
 }
 
@@ -89,6 +89,7 @@ type ProductInventoryUpdate struct {
 	ProductInventory *model.ProductInventory `json:"product_inventory"`
 }
 
+// 发送盘点单更新通知
 func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpdate) {
 	url := fmt.Sprintf("%s/product/goods/check/info?id=%s", M.App.Home, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
@@ -159,7 +160,7 @@ func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpd
 		},
 	}
 
-	if response, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
-		log.Printf("发送消息失败: err=%v, response=%+v\n", err, response)
+	if err := M.Send(M.WXWork, messages); err != nil {
+		log.Println("发送盘点单更新通知", "失败：", err)
 	}
 }

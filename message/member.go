@@ -49,8 +49,7 @@ func (M *BaseMessage) SendMemberCreateMessage(req *MemberCreateMessage) {
 		},
 	}
 
-	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
-		log.Println("发送消息失败:", err)
-		log.Printf("a: %+v\n", a)
+	if err := M.Send(M.WXWork, messages); err != nil {
+		log.Println("发送新增会员提醒", "失败：", err)
 	}
 }

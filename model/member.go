@@ -40,7 +40,7 @@ type Member struct {
 
 func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	if query.Phone != nil {
-		db = db.Where("phone like ?", "%"+*query.Phone+"%")
+		db = db.Where("phone = ?", *query.Phone)
 	}
 	if query.Name != "" {
 		db = db.Where("name like ?", "%"+query.Name+"%")

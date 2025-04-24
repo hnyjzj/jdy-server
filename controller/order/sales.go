@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"jdy/controller"
 	"jdy/errors"
 	"jdy/logic/order"
@@ -10,23 +11,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type OrderController struct {
+type OrderSalesController struct {
 	controller.BaseController
 }
 
 // 订单筛选条件
-func (con OrderController) Where(ctx *gin.Context) {
-	where := utils.StructToWhere(types.OrderWhere{})
+func (con OrderSalesController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.OrderSalesWhere{})
 
 	con.Success(ctx, "ok", where)
 }
 
 // 创建订单
-func (con OrderController) Create(ctx *gin.Context) {
+func (con OrderSalesController) Create(ctx *gin.Context) {
 	var (
-		req types.OrderCreateReq
+		req types.OrderSalesCreateReq
 
-		logic = order.OrderLogic{
+		logic = order.OrderSalesLogic{
 			Ctx: ctx,
 		}
 	)
@@ -40,12 +41,14 @@ func (con OrderController) Create(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
+		fmt.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
 	// 校验参数
 	if err := req.Validate(); err != nil {
+		fmt.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, err.Error())
 		return
 	}
@@ -61,11 +64,11 @@ func (con OrderController) Create(ctx *gin.Context) {
 }
 
 // 订单列表
-func (con OrderController) List(ctx *gin.Context) {
+func (con OrderSalesController) List(ctx *gin.Context) {
 	var (
-		req types.OrderListReq
+		req types.OrderSalesListReq
 
-		logic = order.OrderLogic{
+		logic = order.OrderSalesLogic{
 			Ctx: ctx,
 		}
 	)
@@ -94,11 +97,11 @@ func (con OrderController) List(ctx *gin.Context) {
 }
 
 // 订单详情
-func (con OrderController) Info(ctx *gin.Context) {
+func (con OrderSalesController) Info(ctx *gin.Context) {
 	var (
-		req types.OrderInfoReq
+		req types.OrderSalesInfoReq
 
-		logic = order.OrderLogic{
+		logic = order.OrderSalesLogic{
 			Ctx: ctx,
 		}
 	)

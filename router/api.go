@@ -184,8 +184,9 @@ func Api(g *gin.Engine) {
 				// 旧料管理
 				old := olds.Group("/")
 				{
-					old.GET("/where", product.ProductOldController{}.Where)         // 旧料筛选
-					old.POST("/get_class", product.ProductOldController{}.GetClass) // 获取旧料分类
+					old.GET("/where", product.ProductOldController{}.Where)              // 旧料筛选
+					old.GET("/where_create", product.ProductOldController{}.WhereCreate) // 旧料筛选
+					old.POST("/get_class", product.ProductOldController{}.GetClass)      // 获取旧料分类
 					old.Use(middlewares.JWTMiddleware())
 					{
 						old.POST("/list", product.ProductOldController{}.List)            // 旧料列表
@@ -343,12 +344,16 @@ func Api(g *gin.Engine) {
 		// 订单
 		orders := r.Group("/order")
 		{
-			orders.GET("/where", order.OrderController{}.Where) // 订单筛选
-			orders.Use(middlewares.JWTMiddleware())
+			// 销售单
+			sales := orders.Group("/sales")
 			{
-				orders.POST("/create", order.OrderController{}.Create) // 创建订单
-				orders.POST("/list", order.OrderController{}.List)     // 订单列表
-				orders.POST("/info", order.OrderController{}.Info)     // 订单详情
+				sales.GET("/where", order.OrderSalesController{}.Where) // 订单筛选
+				sales.Use(middlewares.JWTMiddleware())
+				{
+					sales.POST("/create", order.OrderSalesController{}.Create) // 创建订单
+					sales.POST("/list", order.OrderSalesController{}.List)     // 订单列表
+					sales.POST("/info", order.OrderSalesController{}.Info)     // 订单详情
+				}
 			}
 		}
 

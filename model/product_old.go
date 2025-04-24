@@ -11,7 +11,7 @@ import (
 type ProductOld struct {
 	SoftDelete
 
-	Code        string                `json:"code" gorm:"uniqueIndex;type:varchar(255);comment:条码;"`       // 条码
+	Code        string                `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
 	Name        string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
 	Status      enums.ProductStatus   `json:"status" gorm:"type:tinyint(2);comment:状态;"`                   // 状态
 	Class       enums.ProductClassOld `json:"class" gorm:"type:tinyint(2);not NULL;comment:旧料大类;"`         // 旧料大类
@@ -39,10 +39,10 @@ type ProductOld struct {
 	IsOur                   bool                       `json:"is_our" gorm:"comment:是否本司货品;"`                                                        // 是否本司货品
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:tinyint(2);comment:回收方式;"`                        // 回收方式
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:tinyint(2);comment:回收类型;"`                          // 回收类型
-	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收价格;"`                                // 回收价格
 	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                           // 回收金价
 	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                          // 回收工费
 	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:tinyint(2);comment:回收工费方式;"`          // 回收工费方式
+	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收金额;"`                                // 回收金额
 	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                                // 实际成色
 	RecycleSource           enums.ProductRecycleSource `json:"recycle_source,omitempty" gorm:"type:tinyint(2);comment:回收来源;"`                        // 回收来源
 	RecycleSourceId         string                     `json:"recycle_source_id" gorm:"type:varchar(255);comment:回收来源ID;"`                           // 回收来源ID

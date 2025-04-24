@@ -76,13 +76,12 @@ func (l *TodaySalesLogic) getGoldPrice() error {
 // 获取今日销售数据
 func (l *TodaySalesLogic) getTodaySales() error {
 	var sales_amount sql.NullFloat64
-	if err := l.Db.Model(&model.Order{}).
-		Where(&model.Order{
+	if err := l.Db.Model(&model.OrderSalesProductFinished{}).
+		Where(&model.OrderSales{
 			StoreId: l.Req.StoreId,
-			Type:    enums.OrderTypeSales,
 			Status:  enums.OrderStatusComplete,
 		}).
-		Select("sum(amount_pay) as sales_amount").
+		Select("sum(price_pay) as sales_amount").
 		Scan(&sales_amount).Error; err != nil {
 		return errors.New("获取今日销售数据失败")
 	}
@@ -98,25 +97,18 @@ func (l *TodaySalesLogic) getTodaySales() error {
 
 // 获取今日销售件数
 func (l *TodaySalesLogic) getTodaySalesCount() error {
-	var orders []model.Order
-	if err := l.Db.Model(&model.Order{}).
-		Where(&model.Order{
+	var orders []model.OrderSales
+	if err := l.Db.Model(&model.OrderSalesProductFinished{}).
+		Where(&model.OrderSalesProductFinished{
 			StoreId: l.Req.StoreId,
-			Type:    enums.OrderTypeSales,
 			Status:  enums.OrderStatusComplete,
 		}).
 		Scopes(model.DurationCondition(enums.DurationToday)).
-		Preload("ProductFinished").
 		Find(&orders).Error; err != nil {
 		return errors.New("获取今日销售件数失败")
 	}
 
-	sales_count := int(0)
-	for _, order := range orders {
-		sales_count += len(order.ProductFinished)
-	}
-
-	l.Res.SalesCount = int64(sales_count)
+	l.Res.SalesCount = int64(len(orders))
 
 	return nil
 }
@@ -124,14 +116,13 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 // 获取旧货抵值
 func (l *TodaySalesLogic) getOldGoodsAmount() error {
 	var old_goods_amount sql.NullFloat64
-	if err := l.Db.Model(&model.Order{}).
-		Where(&model.Order{
+	if err := l.Db.Model(&model.OrderSalesProductOld{}).
+		Where(&model.OrderSalesProductOld{
 			StoreId: l.Req.StoreId,
-			Type:    enums.OrderTypeSales,
 			Status:  enums.OrderStatusComplete,
 		}).
 		Scopes(model.DurationCondition(enums.DurationToday)).
-		Select("sum(amount_old_material) as sales_amount").
+		Select("sum(recycle_price) as sales_amount").
 		Scan(&old_goods_amount).Error; err != nil {
 		return errors.New("获取今日销售数据失败")
 	}

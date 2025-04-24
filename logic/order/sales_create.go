@@ -226,7 +226,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 	l.Order.ProductOldPrice = l.Order.ProductOldPrice.Add(order_product.RecyclePrice)
 
 	// 更新商品状态
-	if err := l.Tx.Model(&old).Updates(model.ProductFinished{
+	if err := l.Tx.Model(&old).Updates(model.ProductOld{
 		Status: enums.ProductStatusSold,
 	}).Error; err != nil {
 		return errors.New("旧料状态更新失败")
@@ -312,9 +312,9 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 	}
 
 	// 判断商品状态
-	// if product.Status != enums.ProductStatusNormal {
-	// 	return nil, errors.New("产品当前不能销售")
-	// }
+	if product.Status != enums.ProductStatusNormal {
+		return nil, errors.New("产品当前不能销售")
+	}
 
 	return &product, nil
 }
@@ -377,9 +377,9 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 	}
 
 	// 判断商品状态
-	// if product.Status != enums.ProductStatusNormal {
-	// 	return nil, errors.New("产品当前不能销售")
-	// }
+	if old.Status != enums.ProductStatusNormal {
+		return nil, errors.New("产品当前不能销售")
+	}
 
 	return old, nil
 }

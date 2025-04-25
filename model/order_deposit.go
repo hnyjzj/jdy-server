@@ -2,8 +2,10 @@ package model
 
 import (
 	"jdy/enums"
+	"jdy/types"
 
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 // 定金单
@@ -36,9 +38,30 @@ type OrderDeposit struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP地址;"`               // IP地址
 }
 
-// func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *gorm.DB {
-// 	return db
-// }
+func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *gorm.DB {
+	// 订单编号
+	if req.Id != "" {
+		db = db.Where("id = ?", req.Id)
+	}
+	// 门店
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
+	}
+	// 会员
+	if req.MemberId != "" {
+		db = db.Where("member_id = ?", req.MemberId)
+	}
+	// 收银员
+	if req.CashierId != "" {
+		db = db.Where("cashier_id = ?", req.CashierId)
+	}
+	// 导购员
+	if req.ClerkId != "" {
+		db = db.Where("clerk_id = ?", req.ClerkId)
+	}
+
+	return db
+}
 
 // 定金单商品
 type OrderDepositProduct struct {
@@ -49,25 +72,24 @@ type OrderDepositProduct struct {
 	OrderId string       `json:"order_id" gorm:"type:varchar(255);not NULL;comment:定金单ID;"`            // 定金单ID
 	Order   OrderDeposit `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:定金单;"` // 定金单
 
-	ProductId       string          `json:"product_id" gorm:"type:varchar(255);not NULL;comment:成品ID;"`                       // 成品ID
-	Product         ProductFinished `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:手动添加;"`        // 手动添加
-	ProductFinished ProductFinished `json:"product_finished,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:成品;"` // 成品
+	IsOur           bool            `json:"is_our" gorm:"type:tinyint(1);not NULL;default:0;comment:是否我司;"`                     // 是否我司
+	ProductId       string          `json:"product_id" gorm:"type:varchar(255);not NULL;comment:成品ID;"`                         // 成品ID
+	ProductFinished ProductFinished `json:"product_finished,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:系统货品;"` // 系统货品
+	ProductDemand   ProductFinished `json:"product_demand,omitempty" gorm:"type:text;serializer:json;comment:手动添加;"`            // 手动添加
 
-	PriceGold    decimal.Decimal `json:"price_gold" gorm:"type:decimal(10,2);not NULL;comment:金价;"`      // 金价
-	PricePayable decimal.Decimal `json:"price_payable" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"` // 应付金额
+	PriceGold decimal.Decimal `json:"price_gold" gorm:"type:decimal(10,2);not NULL;comment:金价;"` // 金价
+	Price     decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`    // 应付金额
 }
 
 func init() {
 	// 注册模型
 	RegisterModels(
-	// &OrderDeposit{},
-	// &OrderDepositClerk{},
-	// &OrderDepositProduct{},
+		&OrderDeposit{},
+		&OrderDepositProduct{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &OrderDeposit{},
-	// &OrderDepositClerk{},
 	// &OrderDepositProduct{},
 	)
 }

@@ -128,6 +128,24 @@ func (l *OrderSalesCreateLogic) loopSales() error {
 		}
 	}
 
+	for _, p := range l.Req.OrderDepositIds {
+		// 获取定金订单
+		order, err := l.getOrderDeposit(p)
+		if err != nil {
+			return err
+		}
+
+		if err := l.loopOrderDeposit(order); err != nil {
+			return err
+		}
+
+		if err := l.Tx.Model(&order).Updates(model.OrderDeposit{
+			Status: enums.OrderStatusVerification,
+		}).Error; err != nil {
+			return errors.New("定金单更新失败")
+		}
+	}
+
 	// 计算优惠金额
 	l.Order.PriceDiscount = l.Order.PriceOriginal.Sub(l.Order.Price)
 
@@ -299,6 +317,44 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	return nil
 }
 
+func (l *OrderSalesCreateLogic) loopOrderDeposit(order *model.OrderDeposit) error {
+	// 循环产品
+	for _, product := range order.Products {
+		old_product := product
+		if old_product.IsOur {
+			log := model.ProductHistory{
+				Action:     enums.ProductActionOrder,
+				OldValue:   old_product.ProductFinished,
+				ProductId:  old_product.ProductFinished.Id,
+				StoreId:    old_product.ProductFinished.StoreId,
+				SourceId:   l.Order.Id,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}
+			// 更新商品状态
+			if err := l.Tx.Model(&old_product.ProductFinished).Updates(model.ProductFinished{
+				Status: enums.ProductStatusSold,
+			}).Error; err != nil {
+				return errors.New("配件状态更新失败")
+			}
+			// 添加记录
+			log.NewValue = old_product.ProductFinished
+			if err := l.Tx.Create(&log).Error; err != nil {
+				return errors.New("配件记录添加失败")
+			}
+		}
+
+		// 添加关联
+		l.Order.OrderDeposits = append(l.Order.OrderDeposits, *order)
+
+		// 计算总金额
+		l.Order.Price = l.Order.Price.Sub(product.Price)
+		l.Order.PriceDeposit = l.Order.PriceDeposit.Add(product.Price)
+	}
+
+	return nil
+}
+
 // 获取商品
 func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.ProductFinished, error) {
 	// 获取商品信息
@@ -403,6 +459,27 @@ func (l *OrderSalesCreateLogic) getProductAccessory(product_id string, quantity 
 	}
 
 	return &product, nil
+}
+
+// 获取定金订单
+func (l *OrderSalesCreateLogic) getOrderDeposit(order_id string) (*model.OrderDeposit, error) {
+	// 获取商品信息
+	var order model.OrderDeposit
+	db := l.Tx.Model(&model.OrderDeposit{})
+	db = db.Where("id = ?", order_id)
+	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("ProductFinished")
+	})
+
+	if err := db.First(&order).Error; err != nil {
+		return nil, errors.New("定金订单不存在")
+	}
+
+	if order.Status != enums.OrderStatusReserve {
+		return nil, errors.New("定金单状态不正确")
+	}
+
+	return &order, nil
 }
 
 // 计算整单优惠

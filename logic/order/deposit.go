@@ -36,6 +36,7 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 				ProductId: p.ProductId,
 				PriceGold: p.PriceGold,
 				Price:     p.Price,
+				IsOur:     p.IsOur,
 			}
 
 			if p.IsOur {
@@ -118,6 +119,7 @@ func (l *OrderDepositLogic) List(req *types.OrderDepositListReq) (*types.PageRes
 	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ProductFinished")
 	})
+	db = db.Preload("OrderSales")
 	db = db.Preload("Payments")
 
 	db = db.Order("created_at desc")
@@ -143,6 +145,7 @@ func (l *OrderDepositLogic) Info(req *types.OrderDepositInfoReq) (*model.OrderDe
 	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ProductFinished")
 	})
+	db = db.Preload("OrderSales")
 	db = db.Preload("Payments")
 
 	db = db.Where("id = ?", req.Id)

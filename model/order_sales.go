@@ -38,6 +38,10 @@ type OrderSales struct {
 	ProductAccessories     []OrderSalesProductAccessorie `json:"product_accessories" gorm:"foreignKey:OrderId;references:Id;comment:配件;"`   // 配件
 	ProductAccessoriePrice decimal.Decimal               `json:"product_accessorie_price" gorm:"type:decimal(10,2);not NULL;comment:配件礼品;"` // 配件礼品
 
+	// 其他单
+	OrderDeposits []OrderDeposit  `json:"order_deposits" gorm:"many2many:order_sales_deposits;"`
+	PriceDeposit  decimal.Decimal `json:"price_deposit" gorm:"type:decimal(10,2);not NULL;comment:定金抵扣;"`
+
 	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"`   // 原价
 	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`          // 应付金额
 	PricePay      decimal.Decimal `json:"price_pay" gorm:"type:decimal(10,2);not NULL;comment:实付金额;"`      // 实付金额

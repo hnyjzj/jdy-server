@@ -38,7 +38,7 @@ var OrderStatusMap = map[OrderStatus]string{
 
 var OrderStatusTypeMap = map[OrderType][]OrderStatus{
 	OrderTypeSales:   {OrderStatusWaitPay, OrderStatusCancel, OrderStatusComplete, OrderStatusRefund},
-	OrderTypeDeposit: {OrderStatusReserve, OrderStatusVerification, OrderStatusRefund},
+	OrderTypeDeposit: {OrderStatusReserve, OrderStatusVerification, OrderStatusComplete, OrderStatusCancel, OrderStatusRefund},
 	OrderTypeRepair:  {OrderStatusReceived, OrderStatusSendRepair, OrderStatusRepairing, OrderStatusWaitPickup, OrderStatusRepaired, OrderStatusComplete, OrderStatusCancel, OrderStatusRefund},
 	OrderTypeOthers:  {OrderStatusWaitPay, OrderStatusCancel, OrderStatusComplete, OrderStatusRefund},
 }

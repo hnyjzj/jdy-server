@@ -82,6 +82,11 @@ func (l *OrderSalesLogic) Info(req *types.OrderSalesInfoReq) (*model.OrderSales,
 			return db.Preload("Category")
 		})
 	})
+	db = db.Preload("OrderDeposits", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Products", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("ProductFinished")
+		})
+	})
 	db = db.Preload("Payments")
 
 	db = db.Where("id = ?", req.Id)

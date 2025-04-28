@@ -10,10 +10,10 @@ import (
 type OrderOther struct {
 	SoftDelete
 
-	Type   enums.OrderType   `json:"type" gorm:"type:tinyint(2);not NULL;comment:订单类型;"`     // 订单类型
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"`   // 订单状态
-	Source enums.OrderSource `json:"source" gorm:"type:tinyint(2);not NULL;comment:订单来源;"`   // 订单来源
-	Remark string            `json:"remark" gorm:"type:varchar(255);not NULL;comment:订单备注;"` // 订单备注
+	Type   enums.OrderType        `json:"type" gorm:"type:tinyint(2);not NULL;comment:订单类型;"`     // 订单类型
+	Status enums.OrderOtherStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"`   // 订单状态
+	Source enums.OrderSource      `json:"source" gorm:"type:tinyint(2);not NULL;comment:订单来源;"`   // 订单来源
+	Remark string                 `json:"remark" gorm:"type:varchar(255);not NULL;comment:订单备注;"` // 订单备注
 
 	Amount         decimal.Decimal `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`        // 应付金额
 	AmountOriginal decimal.Decimal `json:"amount_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"` // 原价
@@ -73,7 +73,7 @@ func (OrderSalesman) TableName() string {
 type OrderProduct struct {
 	Model
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderOtherStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
 
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`            // 订单ID
 	Order   OrderOther `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单

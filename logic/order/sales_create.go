@@ -28,7 +28,7 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 		Req:   req,
 		Staff: c.Staff,
 		Order: &model.OrderSales{
-			Status:     enums.OrderStatusWaitPay,
+			Status:     enums.OrderSalesStatusWaitPay,
 			Source:     req.Source,
 			Remark:     req.Remark,
 			MemberId:   req.MemberId,
@@ -140,7 +140,7 @@ func (l *OrderSalesCreateLogic) loopSales() error {
 		}
 
 		if err := l.Tx.Model(&order).Updates(model.OrderDeposit{
-			Status: enums.OrderStatusVerification,
+			Status: enums.OrderDepositStatusComplete,
 		}).Error; err != nil {
 			return errors.New("定金单更新失败")
 		}
@@ -166,7 +166,7 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 
 	// 添加订单商品
 	order_product := model.OrderSalesProductFinished{
-		Status:            enums.OrderStatusWaitPay,
+		Status:            enums.OrderSalesStatusWaitPay,
 		OrderId:           l.Order.Id,
 		StoreId:           finished.StoreId,
 		ProductId:         finished.Id,
@@ -223,7 +223,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 
 	// 添加订单商品
 	order_product := model.OrderSalesProductOld{
-		Status:                  enums.OrderStatusWaitPay,
+		Status:                  enums.OrderSalesStatusWaitPay,
 		OrderId:                 l.Order.Id,
 		StoreId:                 old.StoreId,
 		ProductId:               old.Id,
@@ -276,7 +276,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 
 	// 添加订单商品
 	order_product := model.OrderSalesProductAccessorie{
-		Status:    enums.OrderStatusWaitPay,
+		Status:    enums.OrderSalesStatusWaitPay,
 		OrderId:   l.Order.Id,
 		StoreId:   l.Order.StoreId,
 		ProductId: old_product.Id,
@@ -475,7 +475,7 @@ func (l *OrderSalesCreateLogic) getOrderDeposit(order_id string) (*model.OrderDe
 		return nil, errors.New("定金订单不存在")
 	}
 
-	if order.Status != enums.OrderStatusReserve {
+	if order.Status != enums.OrderDepositStatusBooking {
 		return nil, errors.New("定金单状态不正确")
 	}
 

@@ -13,7 +13,7 @@ type OrderRepair struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
+	Status enums.OrderRepairStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
 
 	ReceptionistId string `json:"receptionist_id" gorm:"type:varchar(255);not NULL;comment:接待人ID;"`         // 接待人ID
 	Receptionist   Staff  `json:"receptionist" gorm:"foreignKey:ReceptionistId;references:Id;comment:接待人;"` // 接待人
@@ -50,7 +50,7 @@ type OrderRepair struct {
 type OrderRepairProduct struct {
 	SoftDelete
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderRepairStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
 
 	OrderId string      `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`  // 订单ID
 	Order   OrderRepair `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单

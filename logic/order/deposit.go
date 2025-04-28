@@ -19,7 +19,7 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 	// 订单信息
 	order := model.OrderDeposit{
 		StoreId:    req.StoreId,
-		Status:     enums.OrderStatusReserve,
+		Status:     enums.OrderDepositStatusWaitPay,
 		MemberId:   req.MemberId,
 		CashierId:  req.CashierId,
 		ClerkId:    req.ClerkId,
@@ -32,7 +32,7 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 		// 商品
 		for _, p := range req.Products {
 			data := model.OrderDepositProduct{
-				Status:    enums.OrderStatusReserve,
+				Status:    enums.OrderDepositStatusWaitPay,
 				ProductId: p.ProductId,
 				PriceGold: p.PriceGold,
 				Price:     p.Price,

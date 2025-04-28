@@ -15,7 +15,7 @@ type OrderDeposit struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
+	Status enums.OrderDepositStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
 
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
 	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
@@ -69,7 +69,7 @@ func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *g
 type OrderDepositProduct struct {
 	Model
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderDepositStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
 
 	OrderId string       `json:"order_id" gorm:"type:varchar(255);not NULL;comment:定金单ID;"`            // 定金单ID
 	Order   OrderDeposit `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:定金单;"` // 定金单

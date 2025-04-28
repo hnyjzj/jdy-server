@@ -15,7 +15,7 @@ type OrderSales struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
 
 	CashierId string            `json:"cashier_id" gorm:"type:varchar(255);not NULL;comment:收银员ID;"`    // 收银员ID
 	Cashier   Staff             `json:"cashier" gorm:"foreignKey:CashierId;references:Id;comment:收银员;"` // 收银员
@@ -98,7 +98,7 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 type OrderSalesProductFinished struct {
 	SoftDelete
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
 
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
@@ -126,7 +126,7 @@ type OrderSalesProductFinished struct {
 type OrderSalesProductOld struct {
 	SoftDelete
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
 
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
@@ -151,7 +151,7 @@ type OrderSalesProductOld struct {
 type OrderSalesProductAccessorie struct {
 	SoftDelete
 
-	Status enums.OrderStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
 
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单

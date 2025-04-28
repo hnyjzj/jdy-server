@@ -89,7 +89,7 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 		Scopes(model.DurationCondition(l.Req.Duration)).
 		Where(&model.OrderSalesProductFinished{
 			StoreId: res.Store.Id,
-			Status:  enums.OrderStatusComplete,
+			Status:  enums.OrderSalesStatusComplete,
 		}).Select("sum(price) as total").Scan(&finished).Error; err != nil {
 		return errors.New("获取总业绩失败")
 	}
@@ -102,7 +102,7 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 		Scopes(model.DurationCondition(l.Req.Duration)).
 		Where(&model.OrderSalesProductOld{
 			StoreId: res.Store.Id,
-			Status:  enums.OrderStatusComplete,
+			Status:  enums.OrderSalesStatusComplete,
 		}).Select("sum(price) as total").Scan(&old).Error; err != nil {
 		return errors.New("获取总业绩失败")
 	}
@@ -115,7 +115,7 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 		Scopes(model.DurationCondition(l.Req.Duration)).
 		Where(&model.OrderSalesProductAccessorie{
 			StoreId: res.Store.Id,
-			Status:  enums.OrderStatusComplete,
+			Status:  enums.OrderSalesStatusComplete,
 		}).Select("sum(price) as total").Scan(&accessories).Error; err != nil {
 		return errors.New("获取总业绩失败")
 	}
@@ -132,7 +132,7 @@ func (l *StoreSalesTotalLogic) getWhereDb() *gorm.DB {
 	db := model.DB.Model(&model.OrderProduct{})
 	db = db.
 		Joins("JOIN product_finisheds as products ON order_products.product_id = products.id").
-		Where("order_products.status = ?", enums.OrderStatusComplete).
+		Where("order_products.status = ?", enums.OrderSalesStatusComplete).
 		Scopes(model.DurationCondition(l.Req.Duration, "order_products.created_at"))
 
 	return db

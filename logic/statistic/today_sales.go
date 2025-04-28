@@ -79,7 +79,7 @@ func (l *TodaySalesLogic) getTodaySales() error {
 	if err := l.Db.Model(&model.OrderSalesProductFinished{}).
 		Where(&model.OrderSales{
 			StoreId: l.Req.StoreId,
-			Status:  enums.OrderStatusComplete,
+			Status:  enums.OrderSalesStatusComplete,
 		}).
 		Select("sum(price_pay) as sales_amount").
 		Scan(&sales_amount).Error; err != nil {
@@ -101,7 +101,7 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 	if err := l.Db.Model(&model.OrderSalesProductFinished{}).
 		Where(&model.OrderSalesProductFinished{
 			StoreId: l.Req.StoreId,
-			Status:  enums.OrderStatusComplete,
+			Status:  enums.OrderSalesStatusComplete,
 		}).
 		Scopes(model.DurationCondition(enums.DurationToday)).
 		Find(&orders).Error; err != nil {
@@ -119,7 +119,7 @@ func (l *TodaySalesLogic) getOldGoodsAmount() error {
 	if err := l.Db.Model(&model.OrderSalesProductOld{}).
 		Where(&model.OrderSalesProductOld{
 			StoreId: l.Req.StoreId,
-			Status:  enums.OrderStatusComplete,
+			Status:  enums.OrderSalesStatusComplete,
 		}).
 		Scopes(model.DurationCondition(enums.DurationToday)).
 		Select("sum(recycle_price) as sales_amount").

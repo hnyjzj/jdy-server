@@ -181,3 +181,32 @@ type OrderSalesListReq struct {
 type OrderSalesInfoReq struct {
 	Id string `json:"id" required:"true"`
 }
+
+type OrderSalesRevokedReq struct {
+	Id string `json:"id" required:"true"`
+}
+
+type OrderSalesPayReq struct {
+	Id string `json:"id" required:"true"` // 订单ID
+}
+
+type OrderSalesRefundReq struct {
+	Id          string                `json:"id" required:"true"`           // 订单ID
+	Method      enums.ProductTypeUsed `json:"method"`                       // 入库方式
+	ProductType enums.ProductType     `json:"product_type" required:"true"` // 货品类型
+	ProductId   string                `json:"product_id" required:"true"`   // 商品ID
+	Price       decimal.Decimal       `json:"price" required:"true"`        // 退款金额
+	Remark      string                `json:"remark" required:"true"`       // 备注
+
+	Payments []OrderPaymentMethods `json:"payments" binding:"required"` // 支付方式
+}
+
+func (req *OrderSalesRefundReq) Validate() error {
+	if req.ProductType == enums.ProductTypeFinished {
+		if req.Method != 0 && req.Method.InMap() != nil {
+			return errors.New("入库方式错误")
+		}
+	}
+
+	return nil
+}

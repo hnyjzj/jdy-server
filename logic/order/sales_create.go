@@ -156,6 +156,7 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 	old_product := *finished
 	log := model.ProductHistory{
 		Action:     enums.ProductActionOrder,
+		Type:       enums.ProductTypeFinished,
 		OldValue:   old_product,
 		ProductId:  old_product.Id,
 		StoreId:    old_product.StoreId,
@@ -213,6 +214,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 	old_product := *old
 	log := model.ProductHistory{
 		Action:     enums.ProductActionOrder,
+		Type:       enums.ProductTypeOld,
 		OldValue:   old_product,
 		ProductId:  old_product.Id,
 		StoreId:    old_product.StoreId,
@@ -266,6 +268,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	old_product := *accessory
 	log := model.ProductHistory{
 		Action:     enums.ProductActionOrder,
+		Type:       enums.ProductTypeAccessorie,
 		OldValue:   old_product,
 		ProductId:  old_product.Id,
 		StoreId:    old_product.StoreId,
@@ -324,6 +327,7 @@ func (l *OrderSalesCreateLogic) loopOrderDeposit(order *model.OrderDeposit) erro
 		if old_product.IsOur {
 			log := model.ProductHistory{
 				Action:     enums.ProductActionOrder,
+				Type:       enums.ProductTypeFinished,
 				OldValue:   old_product.ProductFinished,
 				ProductId:  old_product.ProductFinished.Id,
 				StoreId:    old_product.ProductFinished.StoreId,
@@ -531,7 +535,7 @@ func (l *OrderSalesCreateLogic) setPayment() error {
 			StoreId:       l.Order.StoreId,
 			Type:          enums.FinanceTypeIncome,
 			Source:        enums.FinanceSourceSaleReceive,
-			OrderId:       l.Order.Id,
+			OrderType:     enums.OrderTypeSales,
 			PaymentMethod: p.PaymentMethod,
 			Amount:        p.Amount,
 		}

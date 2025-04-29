@@ -128,3 +128,108 @@ func (con OrderSalesController) Info(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", data)
 }
+
+// 订单撤销
+func (con OrderSalesController) Revoked(ctx *gin.Context) {
+	var (
+		req types.OrderSalesRevokedReq
+
+		logic = order.OrderSalesLogic{
+			Ctx: ctx,
+		}
+	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	err = logic.Revoked(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+// 订单支付
+func (con OrderSalesController) Pay(ctx *gin.Context) {
+	var (
+		req types.OrderSalesPayReq
+
+		logic = order.OrderSalesLogic{
+			Ctx: ctx,
+		}
+	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	err = logic.Pay(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+// 订单退货
+func (con OrderSalesController) Refund(ctx *gin.Context) {
+	var (
+		req types.OrderSalesRefundReq
+
+		logic = order.OrderSalesLogic{
+			Ctx: ctx,
+		}
+	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 判断参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	// 调用逻辑层
+	err = logic.Refund(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

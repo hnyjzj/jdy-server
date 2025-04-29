@@ -80,6 +80,7 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 				Source:        enums.FinanceSourceDepositReceive,
 				PaymentMethod: p.PaymentMethod,
 				Amount:        p.Amount,
+				OrderType:     enums.OrderTypeDeposit,
 			})
 		}
 

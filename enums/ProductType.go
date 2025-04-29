@@ -30,3 +30,28 @@ func (p ProductType) InMap() error {
 	}
 	return nil
 }
+
+/* 产品类型(可操作) */
+// 成品、旧料
+type ProductTypeUsed int
+
+const (
+	ProductTypeUsedFinished ProductTypeUsed = iota + 1 // 成品
+	ProductTypeUsedOld                                 // 旧料
+)
+
+var ProductTypeUsedMap = map[ProductTypeUsed]string{
+	ProductTypeUsedFinished: "成品",
+	ProductTypeUsedOld:      "旧料",
+}
+
+func (p ProductTypeUsed) ToMap() any {
+	return ProductTypeUsedMap
+}
+
+func (p ProductTypeUsed) InMap() error {
+	if _, ok := ProductTypeUsedMap[p]; !ok {
+		return errors.New("not in enum")
+	}
+	return nil
+}

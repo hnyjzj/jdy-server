@@ -39,8 +39,8 @@ func (l *ProductFinishedDamageLogic) Damage(req *types.ProductDamageReq) *errors
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 
 		history := model.ProductHistory{
-			Type:       enums.ProductTypeFinished,
 			Action:     enums.ProductActionDamage,
+			Type:       enums.ProductTypeFinished,
 			OldValue:   product,
 			ProductId:  product.Id,
 			StoreId:    product.StoreId,
@@ -125,7 +125,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 		}
 
 		// 判断产品状态
-		if product.Status != enums.ProductStatusDamage {
+		if product.Status != enums.ProductStatusDamage && product.Status != enums.ProductStatusSold {
 			return errors.New("产品不在库存中")
 		}
 
@@ -140,15 +140,18 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 		}
 
 		switch req.Type {
-		case enums.ProductTypeFinished:
+		case enums.ProductTypeUsedFinished:
 			log.Action = enums.ProductActionDamageToNew
 			product.Status = enums.ProductStatusNormal
 			if err := tx.Save(&product).Error; err != nil {
 				return errors.New("转换失败")
 			}
 			log.NewValue = product
-		case enums.ProductTypeOld:
+		case enums.ProductTypeUsedOld:
 			log.Action = enums.ProductActionDamageToOld
+			if product.Status == enums.ProductStatusSold {
+				log.Action = enums.ProductActionReturn
+			}
 			var old model.ProductOld
 			if err := tx.Unscoped().Where(&model.ProductOld{Code: product.Code}).First(&old).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {

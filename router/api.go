@@ -350,9 +350,12 @@ func Api(g *gin.Engine) {
 				sales.GET("/where", order.OrderSalesController{}.Where) // 订单筛选
 				sales.Use(middlewares.JWTMiddleware())
 				{
-					sales.POST("/create", order.OrderSalesController{}.Create) // 创建订单
-					sales.POST("/list", order.OrderSalesController{}.List)     // 订单列表
-					sales.POST("/info", order.OrderSalesController{}.Info)     // 订单详情
+					sales.POST("/create", order.OrderSalesController{}.Create)  // 创建订单
+					sales.POST("/list", order.OrderSalesController{}.List)      // 订单列表
+					sales.POST("/info", order.OrderSalesController{}.Info)      // 订单详情
+					sales.PUT("/revoked", order.OrderSalesController{}.Revoked) // 订单撤销
+					sales.PUT("/pay", order.OrderSalesController{}.Pay)         // 订单支付
+					sales.PUT("/refund", order.OrderSalesController{}.Refund)   // 退货
 				}
 			}
 

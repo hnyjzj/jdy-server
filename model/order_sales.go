@@ -94,6 +94,34 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 	return db
 }
 
+func (OrderSales) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Member")
+	db = db.Preload("Store")
+	db = db.Preload("Cashier")
+	db = db.Preload("Clerks", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Salesman")
+	})
+	db = db.Preload("ProductFinisheds", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Product")
+	})
+	db = db.Preload("ProductOlds", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Product")
+	})
+	db = db.Preload("ProductAccessories", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Product", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Category")
+		})
+	})
+	db = db.Preload("OrderDeposits", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Products", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("ProductFinished")
+		})
+	})
+	db = db.Preload("Payments")
+
+	return db
+}
+
 // 销售单成品
 type OrderSalesProductFinished struct {
 	SoftDelete

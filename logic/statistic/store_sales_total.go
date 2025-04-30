@@ -107,7 +107,7 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 		return errors.New("获取总业绩失败")
 	}
 	if old.Valid {
-		total = total.Add(decimal.NewFromFloat(finished.Float64))
+		total = total.Add(decimal.NewFromFloat(old.Float64))
 	}
 
 	var accessories sql.NullFloat64

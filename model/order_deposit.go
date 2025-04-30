@@ -65,6 +65,20 @@ func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *g
 	return db
 }
 
+func (OrderDeposit) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Member")
+	db = db.Preload("Store")
+	db = db.Preload("Cashier")
+	db = db.Preload("Clerk")
+	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("ProductFinished")
+	})
+	db = db.Preload("OrderSales")
+	db = db.Preload("Payments")
+
+	return db
+}
+
 // 定金单商品
 type OrderDepositProduct struct {
 	Model

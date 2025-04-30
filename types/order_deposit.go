@@ -84,3 +84,19 @@ type OrderDepositListReq struct {
 type OrderDepositInfoReq struct {
 	Id string `json:"id" required:"true"`
 }
+
+type OrderDepositRevokedReq struct {
+	Id string `json:"id" required:"true"`
+}
+
+type OrderDepositPayReq struct {
+	Id string `json:"id" required:"true"`
+}
+
+type OrderDepositRefundReq struct {
+	Id        string `json:"id" required:"true"`         // 订单ID
+	ProductId string `json:"product_id" required:"true"` // 商品ID
+	Remark    string `json:"remark" required:"true"`     // 备注
+
+	Payments []OrderPaymentMethods `json:"payments" binding:"required"` // 支付方式
+}

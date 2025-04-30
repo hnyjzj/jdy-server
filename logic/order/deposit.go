@@ -113,15 +113,7 @@ func (l *OrderDepositLogic) List(req *types.OrderDepositListReq) (*types.PageRes
 	}
 
 	// 获取列表
-	db = db.Preload("Member")
-	db = db.Preload("Store")
-	db = db.Preload("Cashier")
-	db = db.Preload("Clerk")
-	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("ProductFinished")
-	})
-	db = db.Preload("OrderSales")
-	db = db.Preload("Payments")
+	db = order.Preloads(db)
 
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
@@ -139,15 +131,7 @@ func (l *OrderDepositLogic) Info(req *types.OrderDepositInfoReq) (*model.OrderDe
 
 	db := model.DB.Model(&order)
 
-	db = db.Preload("Member")
-	db = db.Preload("Store")
-	db = db.Preload("Cashier")
-	db = db.Preload("Clerk")
-	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("ProductFinished")
-	})
-	db = db.Preload("OrderSales")
-	db = db.Preload("Payments")
+	db = order.Preloads(db)
 
 	db = db.Where("id = ?", req.Id)
 	if err := db.First(&order).Error; err != nil {
@@ -155,4 +139,190 @@ func (l *OrderDepositLogic) Info(req *types.OrderDepositInfoReq) (*model.OrderDe
 	}
 
 	return &order, nil
+}
+
+// 撤销
+func (l *OrderDepositLogic) Revoked(req *types.OrderDepositRevokedReq) error {
+	var (
+		order model.OrderDeposit
+	)
+
+	db := model.DB.Model(&order)
+
+	db = db.Where("id = ?", req.Id)
+	db = order.Preloads(db)
+	if err := db.First(&order).Error; err != nil {
+		return errors.New("获取订单详情失败")
+	}
+
+	if order.Status != enums.OrderDepositStatusWaitPay {
+		return errors.New("订单状态不正确")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 撤销成品
+		for _, product := range order.Products {
+			// 更新订单状态
+			if err := tx.Model(&product).Updates(&model.OrderDepositProduct{
+				Status: enums.OrderDepositStatusCancel,
+			}).Error; err != nil {
+				return errors.New("更新订单成品状态失败")
+			}
+
+			if product.IsOur && product.ProductFinished.Id != "" {
+				// 更新成品状态
+				if err := tx.Model(&product.ProductFinished).Updates(&model.ProductFinished{
+					Status: enums.ProductStatusNormal,
+				}).Error; err != nil {
+					return errors.New("更新成品状态失败")
+				}
+			}
+		}
+
+		// 更新订单状态
+		if err := tx.Model(&order).Updates(&model.OrderDeposit{
+			Status: enums.OrderDepositStatusCancel,
+		}).Error; err != nil {
+			return errors.New("撤销订单失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("撤销订单失败")
+	}
+
+	return nil
+}
+
+func (l *OrderDepositLogic) Pay(req *types.OrderDepositPayReq) error {
+	var (
+		order model.OrderDeposit
+	)
+
+	db := model.DB.Model(&order)
+
+	db = db.Where("id = ?", req.Id)
+	db = order.Preloads(db)
+	if err := db.First(&order).Error; err != nil {
+		return errors.New("获取订单详情失败")
+	}
+
+	if order.Status != enums.OrderDepositStatusWaitPay {
+		return errors.New("订单状态不正确")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 支付成品
+		for _, product := range order.Products {
+			// 更新订单状态
+			if err := tx.Model(&product).Updates(&model.OrderDepositProduct{
+				Status: enums.OrderDepositStatusBooking,
+			}).Error; err != nil {
+				return errors.New("更新订单成品状态失败")
+			}
+		}
+
+		// 更新订单状态
+		if err := tx.Model(&order).Updates(&model.OrderDeposit{
+			Status: enums.OrderDepositStatusBooking,
+		}).Error; err != nil {
+			return errors.New("支付订单失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("支付订单失败")
+	}
+
+	return nil
+}
+
+func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
+	var (
+		order model.OrderDeposit
+	)
+
+	db := model.DB.Model(&order)
+
+	db = db.Where("id = ?", req.Id)
+	if err := db.First(&order).Error; err != nil {
+		return errors.New("获取订单详情失败")
+	}
+
+	if order.Status != enums.OrderDepositStatusBooking && order.Status != enums.OrderDepositStatusRefund {
+		return errors.New("订单状态不正确")
+	}
+
+	data := model.OrderRefund{
+		StoreId:    order.StoreId,
+		OrderId:    order.Id,
+		OrderType:  enums.OrderTypeDeposit,
+		MemberId:   order.MemberId,
+		Remark:     req.Remark,
+		OperatorId: l.Staff.Id,
+		IP:         l.Ctx.ClientIP(),
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询成品
+		var p model.OrderDepositProduct
+		if err := tx.Preload("ProductFinished").First(&p, "id = ?", req.ProductId).Error; err != nil {
+			return errors.New("获取成品订单详情失败")
+		}
+
+		if p.Status != enums.OrderDepositStatusBooking {
+			return errors.New("成品订单状态不正确")
+		}
+
+		// 更新订单成品状态
+		if err := tx.Model(&p).Updates(&model.OrderDepositProduct{
+			Status: enums.OrderDepositStatusReturn,
+		}).Error; err != nil {
+			return errors.New("更新订单成品状态失败")
+		}
+
+		if !p.IsOur {
+			data.Name = p.ProductDemand.Name
+			return errors.New("成品不是本店制作")
+		} else {
+			data.Name = p.ProductFinished.Name
+			// 添加历史
+			log := model.ProductHistory{
+				Action:     enums.ProductActionReturn,
+				Type:       enums.ProductTypeFinished,
+				OldValue:   p.ProductFinished,
+				ProductId:  p.ProductFinished.Id,
+				StoreId:    p.ProductFinished.StoreId,
+				SourceId:   p.ProductFinished.Id,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}
+			if err := tx.Model(&p.ProductFinished).Updates(&model.ProductFinished{
+				Status: enums.ProductStatusNormal,
+			}).Error; err != nil {
+				return errors.New("更新成品状态失败")
+			}
+
+			log.NewValue = p.ProductFinished
+			if err := tx.Create(&log).Error; err != nil {
+				return errors.New("创建成品历史失败")
+			}
+		}
+
+		data.Quantity = 1
+		data.Price = p.Price
+		data.PriceOriginal = p.Price
+
+		if err := tx.Model(&order).Updates(&model.OrderDeposit{
+			Status: enums.OrderDepositStatusRefund,
+		}).Error; err != nil {
+			return errors.New("更新订单状态失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New(err.Error())
+	}
+
+	return nil
 }

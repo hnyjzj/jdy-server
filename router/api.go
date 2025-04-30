@@ -365,9 +365,12 @@ func Api(g *gin.Engine) {
 				deposits.GET("/where", order.OrderDepositController{}.Where) // 订单筛选
 				deposits.Use(middlewares.JWTMiddleware())
 				{
-					deposits.POST("/create", order.OrderDepositController{}.Create) // 创建订单
-					deposits.POST("/list", order.OrderDepositController{}.List)     // 订单列表
-					deposits.POST("/info", order.OrderDepositController{}.Info)     // 订单详情
+					deposits.POST("/create", order.OrderDepositController{}.Create)  // 创建订单
+					deposits.POST("/list", order.OrderDepositController{}.List)      // 订单列表
+					deposits.POST("/info", order.OrderDepositController{}.Info)      // 订单详情
+					deposits.PUT("/revoked", order.OrderDepositController{}.Revoked) // 订单撤销
+					deposits.PUT("/pay", order.OrderDepositController{}.Pay)         // 订单支付
+					deposits.PUT("/refund", order.OrderDepositController{}.Refund)   // 退货
 				}
 			}
 		}

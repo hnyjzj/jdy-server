@@ -283,7 +283,6 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 
 		if !p.IsOur {
 			data.Name = p.ProductDemand.Name
-			return errors.New("成品不是本店制作")
 		} else {
 			data.Name = p.ProductFinished.Name
 			// 添加历史

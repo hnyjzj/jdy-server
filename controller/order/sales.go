@@ -1,12 +1,12 @@
 package order
 
 import (
-	"fmt"
 	"jdy/controller"
 	"jdy/errors"
 	"jdy/logic/order"
 	"jdy/types"
 	"jdy/utils"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,14 +41,14 @@ func (con OrderSalesController) Create(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
+		log.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
 	// 校验参数
 	if err := req.Validate(); err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
+		log.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, err.Error())
 		return
 	}

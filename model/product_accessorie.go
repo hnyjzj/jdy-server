@@ -33,6 +33,10 @@ func (ProductAccessorie) WhereCondition(db *gorm.DB, query *types.ProductAccesso
 		db = db.Where("access_fee = ?", query.AccessFee)
 	}
 
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
+
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)
 	}

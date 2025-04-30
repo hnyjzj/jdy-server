@@ -33,7 +33,7 @@ type OrderSalesCreateReq struct {
 	Clerks    []OrderCreateReqClerks `json:"clerks" binding:"required"`     // 导购员
 	MemberId  string                 `json:"member_id" binding:"required"`  // 会员ID
 
-	HasIntegral       bool            `json:"has_integral" binding:"required"`       // 是否使用积分
+	HasIntegral       bool            `json:"has_integral"`                          // 是否使用积分
 	DiscountRate      decimal.Decimal `json:"discount_rate" binding:"required"`      // 整单折扣
 	IntegralDeduction decimal.Decimal `json:"integral_deduction" binding:"required"` // 积分抵扣
 	RoundOff          decimal.Decimal `json:"round_off" binding:"required"`          // 抹零

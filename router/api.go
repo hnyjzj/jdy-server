@@ -47,6 +47,7 @@ func Api(g *gin.Engine) {
 					uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
 					uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
 					uploads.POST("/product", common.UploadController{}.Product)     // 上传商品图片
+					uploads.POST("/order", common.UploadController{}.Order)         // 上传订单图片
 				}
 			}
 		}
@@ -371,6 +372,24 @@ func Api(g *gin.Engine) {
 					deposits.PUT("/revoked", order.OrderDepositController{}.Revoked) // 订单撤销
 					deposits.PUT("/pay", order.OrderDepositController{}.Pay)         // 订单支付
 					deposits.PUT("/refund", order.OrderDepositController{}.Refund)   // 退货
+				}
+			}
+
+			// 维修单
+			repairs := orders.Group("/repair")
+			{
+				repairs.GET("/where", order.OrderRepairController{}.Where)                // 订单筛选
+				repairs.GET("/where_product", order.OrderRepairController{}.WhereProduct) // 订单筛选
+				repairs.Use(middlewares.JWTMiddleware())
+				{
+					repairs.POST("/create", order.OrderRepairController{}.Create)      // 创建订单
+					repairs.POST("/list", order.OrderRepairController{}.List)          // 订单列表
+					repairs.POST("/info", order.OrderRepairController{}.Info)          // 订单详情
+					repairs.PUT("/update", order.OrderRepairController{}.Update)       // 订单修改
+					repairs.PUT("/operation", order.OrderRepairController{}.Operation) // 订单操作
+					repairs.PUT("/revoked", order.OrderRepairController{}.Revoked)     // 订单撤销
+					repairs.PUT("/pay", order.OrderRepairController{}.Pay)             // 订单支付
+					repairs.PUT("/refund", order.OrderRepairController{}.Refund)       // 退款
 				}
 			}
 		}

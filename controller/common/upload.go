@@ -177,3 +177,42 @@ func (con UploadController) Product(ctx *gin.Context) {
 	s.Url = url.Uris[0]
 	con.Success(ctx, "ok", s)
 }
+
+// 上传商品图片
+func (con UploadController) Order(ctx *gin.Context) {
+	// 接收参数
+	type Req struct {
+		File    *multipart.FileHeader `form:"image" binding:"required"`
+		OrderId string                `form:"order_id"`
+	}
+	type Res struct {
+		Url string `json:"url"`
+	}
+	var (
+		r Req
+		s Res
+	)
+	// 验证参数
+	if err := ctx.ShouldBind(&r); err != nil {
+		log.Println(err)
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 上传文件
+	upload := &common.Upload{
+		Ctx:    ctx,
+		File:   r.File,
+		Model:  types.UploadModelOrder,
+		Type:   types.UploadTypeImage,
+		Prefix: r.OrderId,
+	}
+	url, err := upload.Save()
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	s.Url = url.Uris[0]
+	con.Success(ctx, "ok", s)
+}

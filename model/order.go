@@ -56,9 +56,11 @@ func init() {
 	// 注册模型
 	RegisterModels(
 		&OrderPayment{},
+		&OrderRefund{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &OrderPayment{},
+	// &OrderRefund{},
 	)
 }

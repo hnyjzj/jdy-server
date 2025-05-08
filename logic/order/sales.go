@@ -408,6 +408,10 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			return errors.New("更新订单状态失败")
 		}
 
+		if err := tx.Create(&data).Error; err != nil {
+			return errors.New("创建退货单失败")
+		}
+
 		return nil
 	}); err != nil {
 		return errors.New(err.Error())

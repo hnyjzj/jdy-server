@@ -318,6 +318,10 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 			return errors.New("更新订单状态失败")
 		}
 
+		if err := tx.Create(&data).Error; err != nil {
+			return errors.New("创建退款记录失败")
+		}
+
 		return nil
 	}); err != nil {
 		return errors.New(err.Error())

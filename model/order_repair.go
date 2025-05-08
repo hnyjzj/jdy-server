@@ -2,8 +2,10 @@ package model
 
 import (
 	"jdy/enums"
+	"jdy/types"
 
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 // 维修单
@@ -27,24 +29,53 @@ type OrderRepair struct {
 	DeliveryMethod enums.DeliveryMethod `json:"delivery_method" gorm:"type:tinyint(2);not NULL;comment:取货方式;"` // 取货方式
 	Province       string               `json:"province" gorm:"type:varchar(255);not NULL;comment:省;"`         // 省
 	City           string               `json:"city" gorm:"type:varchar(255);not NULL;comment:市;"`             // 市
-	District       string               `json:"district" gorm:"type:varchar(255);not NULL;comment:区;"`         // 区
+	Area           string               `json:"area" gorm:"type:varchar(255);not NULL;comment:区;"`             // 区
 	Address        string               `json:"address" gorm:"type:varchar(255);not NULL;comment:地址;"`         // 地址
 
 	Products []OrderRepairProduct `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:维修单商品;"` // 维修单商品
 
 	Images []string `json:"images" gorm:"type:text;not NULL;serializer:json;comment:图片;"` // 图片
 
-	Payments []OrderPayment `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"` // 支付信息
+	Expense  decimal.Decimal `json:"expense" gorm:"type:decimal(10,2);not NULL;comment:维修费;"`        // 维修费
+	Cost     decimal.Decimal `json:"cost" gorm:"type:decimal(10,2);not NULL;comment:维修成本;"`          // 维修成本
+	Payments []OrderPayment  `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"` // 支付信息
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP地址;"`               // IP地址
 }
 
-// func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gorm.DB {
+func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id = ?", req.Id)
+	}
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
+	}
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
+	}
+	if req.StartDate != nil {
+		db = db.Where("created_at >= ?", req.StartDate)
+	}
+	if req.EndDate != nil {
+		db = db.Where("created_at <= ?", req.EndDate)
+	}
 
-// 	return db
-// }
+	return db
+}
+
+func (OrderRepair) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Store")
+	db = db.Preload("Receptionist")
+	db = db.Preload("Member")
+	db = db.Preload("Products")
+	db = db.Preload("Products.Product")
+	db = db.Preload("Payments")
+	db = db.Preload("Operator")
+
+	return db
+}
 
 // 维修单商品
 type OrderRepairProduct struct {
@@ -55,12 +86,26 @@ type OrderRepairProduct struct {
 	OrderId string      `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`  // 订单ID
 	Order   OrderRepair `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
 
-	IsOur     bool            `json:"is_our" gorm:"type:tinyint(1);not NULL;comment:是否本店商品;"`          // 是否本店商品
-	ProductId string          `json:"product_id" gorm:"type:varchar(255);not NULL;comment:商品ID;"`      // 商品ID
-	Product   ProductFinished `json:"product" gorm:"type:text;not NULL;serializer:json;comment:货品信息;"` // 货品信息
+	IsOur     bool            `json:"is_our" gorm:"type:tinyint(1);not NULL;comment:是否本店商品;"`        // 是否本店商品
+	ProductId string          `json:"product_id" gorm:"type:varchar(255);not NULL;comment:商品ID;"`    // 商品ID
+	Product   ProductFinished `json:"product" gorm:"foreignKey:ProductId;references:Id;comment:商品;"` // 商品
 
-	Expense decimal.Decimal `json:"expense" gorm:"type:decimal(10,2);not NULL;comment:维修费;"` // 维修费
-	Cost    decimal.Decimal `json:"cost" gorm:"type:decimal(10,2);not NULL;comment:维修成本;"`   // 维修成本
+	Code        string                `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
+	Name        string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
+	LabelPrice  decimal.Decimal       `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
+	Brand       enums.ProductBrand    `json:"brand" gorm:"type:tinyint(2);comment:品牌;"`                    // 品牌
+	Material    enums.ProductMaterial `json:"material" gorm:"type:tinyint(2);not NULL;comment:材质;"`        // 材质
+	Quality     enums.ProductQuality  `json:"quality" gorm:"type:tinyint(2);not NULL;comment:成色;"`         // 成色
+	Gem         enums.ProductGem      `json:"gem" gorm:"type:tinyint(2);not NULL;comment:主石;"`             // 主石
+	Category    enums.ProductCategory `json:"category" gorm:"type:tinyint(2);not NULL;comment:品类;"`        // 品类
+	Craft       enums.ProductCraft    `json:"craft" gorm:"type:tinyint(2);comment:工艺;"`                    // 工艺
+	WeightMetal decimal.Decimal       `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`          // 金重
+	WeightTotal decimal.Decimal       `json:"weight_total" gorm:"type:decimal(10,2);comment:总重;"`          // 总重
+	ColorGem    enums.ProductColor    `json:"color_gem" gorm:"type:tinyint(2);comment:颜色;"`                // 颜色
+	WeightGem   decimal.Decimal       `json:"weight_gem" gorm:"type:decimal(10,2);comment:主石重;"`           // 主石重
+	Clarity     enums.ProductClarity  `json:"clarity" gorm:"type:tinyint(2);comment:主石净度;"`                // 主石净度
+	Cut         enums.ProductCut      `json:"cut" gorm:"type:tinyint(2);comment:主石切工;"`                    // 主石切工
+	Remark      string                `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注
 }
 
 func init() {

@@ -12,6 +12,7 @@ const (
 	UploadModelWorkbench UploadModel = "workbench" // 工作台
 	UploadModelStore     UploadModel = "store"     // 门店
 	UploadModelProduct   UploadModel = "product"   // 商品
+	UploadModelOrder     UploadModel = "order"     // 订单
 )
 
 // 类型

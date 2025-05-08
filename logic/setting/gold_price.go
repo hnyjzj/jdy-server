@@ -79,6 +79,7 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 		m.SendGoldPriceUpdateMessage(&message.GoldPriceMessage{
 			ToUser:    receiver,
 			StoreName: store.Name,
+			StoreId:   store.Id,
 			Operator:  l.Staff.Nickname,
 		})
 	}()

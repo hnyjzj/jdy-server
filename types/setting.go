@@ -23,6 +23,7 @@ type GoldPriceOptions struct {
 
 type GoldPriceCreateReq struct {
 	Options []GoldPriceOptions `json:"options" binding:"required"` // 金价创建参数
+	Deletes []string           `json:"deletes"`                    // 金价删除参数
 }
 
 func (q *GoldPriceCreateReq) Validate() error {

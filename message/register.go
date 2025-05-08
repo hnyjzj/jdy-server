@@ -47,8 +47,8 @@ func (M *BaseMessage) SendRegisterMessage(message *RegisterMessageContent) {
 			Content: content,
 		},
 	}
-	_, err := M.WXWork.Message.SendMarkdown(M.Ctx, messages)
-	if err != nil {
+
+	if res, err := M.WXWork.Message.SendMarkdown(M.Ctx, messages); err != nil || res.ErrCode != 0 {
 		log.Println("发送消息失败:", err)
 	}
 }

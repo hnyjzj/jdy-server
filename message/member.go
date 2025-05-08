@@ -49,7 +49,7 @@ func (M *BaseMessage) SendMemberCreateMessage(req *MemberCreateMessage) {
 		},
 	}
 
-	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil {
+	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || a.ErrCode != 0 {
 		log.Println("发送消息失败:", err)
 		log.Printf("a: %+v\n", a)
 	}

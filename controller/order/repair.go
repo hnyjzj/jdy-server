@@ -162,6 +162,7 @@ func (con OrderRepairController) Update(ctx *gin.Context) {
 	err = logic.Update(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)
@@ -193,6 +194,7 @@ func (con OrderRepairController) Operation(ctx *gin.Context) {
 	err = logic.Operation(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)
@@ -225,6 +227,7 @@ func (con OrderRepairController) Revoked(ctx *gin.Context) {
 	err = logic.Revoked(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)
@@ -257,6 +260,7 @@ func (con OrderRepairController) Pay(ctx *gin.Context) {
 	err = logic.Pay(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)
@@ -289,6 +293,7 @@ func (con OrderRepairController) Refund(ctx *gin.Context) {
 	err = logic.Refund(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)

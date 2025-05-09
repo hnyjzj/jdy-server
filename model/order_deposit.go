@@ -45,6 +45,9 @@ func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *g
 	if req.Id != "" {
 		db = db.Where("id = ?", req.Id)
 	}
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
+	}
 	// 门店
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)

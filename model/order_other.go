@@ -25,7 +25,7 @@ type OrderOther struct {
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
 	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
 
-	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`    // 销售单ID
+	OrderId string     `json:"order_id" gorm:"type:varchar(255);comment:销售单ID;"`             // 销售单ID
 	Order   OrderSales `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:关联销售单;"` // 关联销售单
 
 	Amount   decimal.Decimal `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:订单金额;"`        // 订单金额

@@ -85,10 +85,10 @@ func (l *OrderRepairLogic) Create(req *types.OrderRepairCreateReq) (*model.Order
 			order.Payments = append(order.Payments, model.OrderPayment{
 				StoreId:       order.StoreId,
 				Type:          enums.FinanceTypeIncome,
-				Source:        enums.FinanceSourceDepositReceive,
+				Source:        enums.FinanceSourceOtherReturn,
 				PaymentMethod: p.PaymentMethod,
 				Amount:        p.Amount,
-				OrderType:     enums.OrderTypeDeposit,
+				OrderType:     enums.OrderTypeRepair,
 			})
 		}
 		if expense.Cmp(order.Expense) != 0 {

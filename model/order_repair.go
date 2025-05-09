@@ -52,8 +52,32 @@ func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gor
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
 	}
+	if req.ReceptionistId != "" {
+		db = db.Where("receptionist_id = ?", req.ReceptionistId)
+	}
+	if req.Name != "" {
+		db = db.Where("name LIKE ?", "%"+req.Name+"%")
+	}
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
+	}
+	if req.MemberId != "" {
+		db = db.Where("member_id = ?", req.MemberId)
+	}
+	if req.DeliveryMethod != 0 {
+		db = db.Where("delivery_method = ?", req.DeliveryMethod)
+	}
+	if req.Province != "" {
+		db = db.Where("province = ?", req.Province)
+	}
+	if req.City != "" {
+		db = db.Where("city = ?", req.City)
+	}
+	if req.Area != "" {
+		db = db.Where("area = ?", req.Area)
+	}
+	if req.Address != "" {
+		db = db.Where("address LIKE ?", "%"+req.Address+"%")
 	}
 	if req.StartDate != nil {
 		db = db.Where("created_at >= ?", req.StartDate)

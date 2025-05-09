@@ -18,10 +18,10 @@ type OrderRepairWhere struct {
 
 	ReceptionistId string `json:"receptionist_id" label:"接待人" find:"true" sort:"6" type:"string" input:"search"` // 收银员
 
-	Name string `json:"name" label:"维修项目" find:"true" create:"true" update:"true" sort:"7" input:"text" type:"string"`     // 维修项目
-	Desc string `json:"desc" label:"问题描述" find:"true" create:"true" update:"true" sort:"8" input:"textarea" type:"string"` // 问题描述
+	Name string `json:"name" label:"维修项目" find:"true" create:"true" update:"true" sort:"7" input:"text" type:"string"`      // 维修项目
+	Desc string `json:"desc" label:"问题描述" find:"false" create:"true" update:"true" sort:"8" input:"textarea" type:"string"` // 问题描述
 
-	DeliveryMethod enums.DeliveryMethod `json:"delivery_method" label:"取货方式" find:"true" create:"true" update:"true" sort:"9" input:"select" preset:"typeMap"`
+	DeliveryMethod enums.DeliveryMethod `json:"delivery_method" label:"取货方式" find:"true" create:"true" update:"true" sort:"9" input:"select" type:"number" preset:"typeMap"`
 	Province       string               `json:"province" label:"省" find:"true" create:"true" update:"true" sort:"12" input:"text" type:"string"` // 省份
 	City           string               `json:"city" label:"市" find:"true" create:"true" update:"true" sort:"13" input:"text" type:"string"`     // 城市
 	Area           string               `json:"area" label:"区" find:"true" create:"true" update:"true" sort:"14" input:"text" type:"string"`     // 区

@@ -359,7 +359,7 @@ func (l *OrderRepairLogic) Refund(req *types.OrderRepairRefundReq) error {
 
 		return nil
 	}); err != nil {
-		return errors.New(err.Error())
+		return err
 	}
 
 	return nil

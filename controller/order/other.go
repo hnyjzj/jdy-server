@@ -82,6 +82,7 @@ func (con OrderOtherController) List(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
+		log.Printf("参数错误: %v\n", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
@@ -89,6 +90,7 @@ func (con OrderOtherController) List(ctx *gin.Context) {
 	// 调用逻辑层
 	data, err := logic.List(&req)
 	if err != nil {
+		log.Printf("参数错误: %v\n", err.Error())
 		con.Exception(ctx, err.Error())
 		return
 	}

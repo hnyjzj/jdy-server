@@ -14,7 +14,7 @@ type ProductInventoryCreate struct {
 	ProductInventory *model.ProductInventory
 }
 
-// 盘点单创建通知
+// 发送盘点单创建通知
 func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCreate) {
 	url := fmt.Sprintf("%s/product/goods/check/info?id=%s", M.App.Home, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
@@ -89,6 +89,7 @@ type ProductInventoryUpdate struct {
 	ProductInventory *model.ProductInventory `json:"product_inventory"`
 }
 
+// 发送盘点单更新通知
 func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpdate) {
 	url := fmt.Sprintf("%s/product/goods/check/info?id=%s", M.App.Home, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{

@@ -129,7 +129,7 @@ func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 }
 
 func (l *StoreSalesTotalLogic) getWhereDb() *gorm.DB {
-	db := model.DB.Model(&model.OrderProduct{})
+	db := model.DB.Model(&model.OrderSalesProductAccessorie{})
 	db = db.
 		Joins("JOIN product_finisheds as products ON order_products.product_id = products.id").
 		Where("order_products.status = ?", enums.OrderSalesStatusComplete).

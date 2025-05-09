@@ -392,6 +392,20 @@ func Api(g *gin.Engine) {
 					repairs.PUT("/refund", order.OrderRepairController{}.Refund)       // 退款
 				}
 			}
+
+			// 其他收支单
+			other := orders.Group("/other")
+			{
+				other.GET("/where", order.OrderOtherController{}.Where) // 订单筛选
+				other.Use(middlewares.JWTMiddleware())
+				{
+					other.POST("/create", order.OrderOtherController{}.Create)   // 创建订单
+					other.POST("/list", order.OrderOtherController{}.List)       // 订单列表
+					other.POST("/info", order.OrderOtherController{}.Info)       // 订单详情
+					other.PUT("/update", order.OrderOtherController{}.Update)    // 订单修改
+					other.DELETE("/delete", order.OrderOtherController{}.Delete) // 订单删除
+				}
+			}
 		}
 
 		// 设置

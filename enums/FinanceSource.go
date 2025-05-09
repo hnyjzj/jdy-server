@@ -29,7 +29,7 @@ var FinanceSourceMap = map[FinanceSource]string{
 }
 
 func (p FinanceSource) ToMap() any {
-	return FinanceSourceMap[p]
+	return FinanceSourceMap
 }
 
 func (p FinanceSource) InMap() error {

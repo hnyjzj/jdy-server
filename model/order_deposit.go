@@ -64,6 +64,12 @@ func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *g
 	if req.ClerkId != "" {
 		db = db.Where("clerk_id = ?", req.ClerkId)
 	}
+	if req.StartDate != nil {
+		db = db.Where("created_at >= ?", req.StartDate)
+	}
+	if req.EndDate != nil {
+		db = db.Where("created_at <= ?", req.EndDate)
+	}
 
 	return db
 }

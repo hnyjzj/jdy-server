@@ -156,6 +156,7 @@ func (con OrderDepositController) Revoked(ctx *gin.Context) {
 	err = logic.Revoked(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)
@@ -188,6 +189,7 @@ func (con OrderDepositController) Pay(ctx *gin.Context) {
 	err = logic.Pay(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)
@@ -219,6 +221,7 @@ func (con OrderDepositController) Refund(ctx *gin.Context) {
 	err = logic.Refund(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
+		return
 	}
 
 	con.Success(ctx, "ok", nil)

@@ -73,7 +73,7 @@ func (p OrderRepairStatus) CanOperationTo(status OrderRepairStatus) bool {
 			return true
 		}
 	}
-	return true
+	return false
 }
 
 func (p OrderRepairStatus) ToMap() any {

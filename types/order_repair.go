@@ -13,8 +13,8 @@ type OrderRepairWhere struct {
 	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true" binding:"required"` // 门店
 	MemberId string `json:"member_id" label:"会员" find:"true" create:"true" sort:"3" type:"string" input:"search"`                      // 会员
 
-	Status        enums.OrderRepairStatus  `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`                                     // 订单状态
-	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" label:"支付方式" find:"true" create:"true" update:"true" sort:"5" type:"number" input:"select" preset:"typeMap"` // 支付方式
+	Status        enums.OrderRepairStatus  `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`                                      // 订单状态
+	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" label:"支付方式" find:"false" create:"true" update:"true" sort:"5" type:"number" input:"select" preset:"typeMap"` // 支付方式
 
 	ReceptionistId string `json:"receptionist_id" label:"接待人" find:"true" sort:"6" type:"string" input:"search"` // 收银员
 

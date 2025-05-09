@@ -130,7 +130,7 @@ func (req *OrderSalesCreateReq) Validate() error {
 	// 主导购数量
 	var mainSalesmanCount int
 	// 检查导购员
-	for _, salesman := range req.Clerks {
+	for i, salesman := range req.Clerks {
 		totalPerformanceRate = totalPerformanceRate.Add(salesman.PerformanceRate)
 		if salesman.IsMain {
 			mainSalesmanCount++
@@ -141,7 +141,7 @@ func (req *OrderSalesCreateReq) Validate() error {
 				return errors.New("佣金比例错误")
 			}
 		} else {
-			salesman.PerformanceRate = decimal.NewFromFloat(10)
+			req.Clerks[i].PerformanceRate = decimal.NewFromFloat(10)
 		}
 	}
 	// 总佣金比例必须等于100

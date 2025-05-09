@@ -76,10 +76,18 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 		db = db.Where("cashier_id = ?", req.CashierId)
 	}
 	if req.SalesmanId != "" {
-		db = db.Where("id IN (SELECT order_id FROM order_salesmans WHERE salesman_id = ?)", req.SalesmanId)
+		db = db.Where("id IN (SELECT order_id FROM order_sales_clerks WHERE salesman_id = ?)", req.SalesmanId)
 	}
 	if req.ProductId != "" {
-		db = db.Where("id IN (SELECT order_id FROM order_products WHERE product_id = ?)", req.ProductId)
+		db = db.Where(`
+			id IN (
+				SELECT order_id FROM order_sales_product_finisheds WHERE product_id = ?
+				UNION
+				SELECT order_id FROM order_sales_product_olds WHERE product_id = ?
+				UNION
+				SELECT order_id FROM order_sales_product_accessories WHERE product_id = ?
+			)
+		`, req.ProductId, req.ProductId, req.ProductId)
 	}
 	if req.StartDate != nil && req.EndDate == nil {
 		db = db.Where("created_at >= ?", req.StartDate)

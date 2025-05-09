@@ -12,12 +12,13 @@ import (
 type GoldPriceMessage struct {
 	ToUser    []string `json:"to_user"`    // 接收消息的用户ID列表，列表不可为空，最多支持100个用户
 	StoreName string   `json:"store_name"` // 门店名称
+	StoreId   string   `json:"store_id"`   // 门店ID
 	Operator  string   `json:"operator"`   // 操作人
 }
 
 // 发送黄金价格设置提醒
 func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) error {
-	url := fmt.Sprintf("%s/system/gold/price", M.App.Home)
+	url := fmt.Sprintf("%s/system/gold/price?store_id=%s", M.App.Home, req.StoreId)
 	ToUser := strings.Join(req.ToUser, "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
@@ -52,8 +53,8 @@ func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) error {
 		},
 	}
 
-	if err := M.Send(M.WXWork, messages); err != nil {
-		log.Println("发送黄金价格设置提醒失败：", err)
+	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || a.ErrCode != 0 {
+		log.Printf("a: %+v\n", a)
 		return err
 	}
 
@@ -62,7 +63,7 @@ func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) error {
 
 // 发送黄金价格更新提醒
 func (M *BaseMessage) SendGoldPriceUpdateMessage(req *GoldPriceMessage) {
-	url := fmt.Sprintf("%s/system/gold/price", M.App.Home)
+	url := fmt.Sprintf("%s/system/gold/price?store_id=%s", M.App.Home, req.StoreId)
 	ToUser := strings.Join(req.ToUser, "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
@@ -107,7 +108,8 @@ func (M *BaseMessage) SendGoldPriceUpdateMessage(req *GoldPriceMessage) {
 		},
 	}
 
-	if err := M.Send(M.WXWork, messages); err != nil {
-		log.Println("发送黄金价格更新提醒失败：", err)
+	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || a.ErrCode != 0 {
+		log.Println("发送消息失败:", err)
+		log.Printf("a: %+v\n", a)
 	}
 }

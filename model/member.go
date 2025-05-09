@@ -14,6 +14,7 @@ type Member struct {
 	Phone       *string      `json:"phone" gorm:"column:phone;uniqueIndex;size:255;comment:手机号;"` // 手机号
 	Name        string       `json:"name" gorm:"column:name;size:255;not NULL;comment:姓名;"`       // 姓名
 	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"`     // 性别
+	Avatar      string       `json:"avatar" gorm:"column:avatar;type:text;comment:头像;"`           // 头像
 	Birthday    string       `json:"birthday" gorm:"column:birthday;size:255;comment:生日;"`        // 生日
 	Anniversary string       `json:"anniversary" gorm:"column:anniversary;size:255;comment:纪念日;"` // 纪念日
 	Nickname    string       `json:"nickname" gorm:"column:nickname;size:255;comment:昵称;"`        // 昵称
@@ -40,7 +41,7 @@ type Member struct {
 
 func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 	if query.Phone != nil {
-		db = db.Where("phone like ?", "%"+*query.Phone+"%")
+		db = db.Where("phone = ?", *query.Phone)
 	}
 	if query.Name != "" {
 		db = db.Where("name like ?", "%"+query.Name+"%")

@@ -12,9 +12,9 @@ type ProductDamageReq struct {
 }
 
 type ProductConversionReq struct {
-	Id     string            `json:"id" binding:"required"`   // 产品ID
-	Type   enums.ProductType `json:"type" binding:"required"` // 仓库类型
-	Remark string            `json:"remark"`                  // 备注
+	Id     string                `json:"id" binding:"required"`   // 产品ID
+	Type   enums.ProductTypeUsed `json:"type" binding:"required"` // 仓库类型
+	Remark string                `json:"remark"`                  // 备注
 }
 
 type ProductHistoryWhere struct {

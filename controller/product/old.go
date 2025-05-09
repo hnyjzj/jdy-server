@@ -21,6 +21,13 @@ func (con ProductOldController) Where(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
+// 产品创建条件
+func (con ProductOldController) WhereCreate(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductOldCreateWhere{})
+
+	con.Success(ctx, "ok", where)
+}
+
 // 产品列表
 func (con ProductOldController) List(ctx *gin.Context) {
 	var (

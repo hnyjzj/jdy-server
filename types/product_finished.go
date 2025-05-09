@@ -46,6 +46,8 @@ type ProductFinishedWhere struct {
 	Images      []string `json:"images" label:"图片" find:"false" create:"false" update:"true" sort:"33" type:"string[]" input:"list"`                    // 图片
 
 	EnterId string `json:"enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"` // 产品入库单ID
+
+	All bool `json:"all" label:"全部" find:"true" sort:"1" type:"boolean" input:"switch"` // 全部
 }
 
 type ProductFinishedListReq struct {

@@ -38,6 +38,7 @@ func SendGoldPriceSetMessage() {
 			m := message.NewMessage(context.Background())
 			err := m.SendGoldPriceSetMessage(&message.GoldPriceMessage{
 				ToUser:    receiver,
+				StoreId:   v.Id,
 				StoreName: v.Name,
 			})
 			if err != nil {

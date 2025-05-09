@@ -6,6 +6,7 @@ import (
 
 // 配件条件
 type ProductAccessorieWhere struct {
+	Id        string          `json:"id" label:"ID" find:"true" create:"false" update:"false" sort:"1" type:"string" input:"text" required:"false"`
 	StoreId   string          `json:"store_id" label:"门店" find:"true" create:"true" update:"false" sort:"1" type:"string" input:"text" required:"true"`      // 门店
 	EntryId   string          `json:"entry_id" label:"入库单" find:"true" create:"true" update:"false" sort:"2" type:"string" input:"text" required:"true"`     // 入库单
 	Code      string          `json:"code" label:"类目" find:"true" create:"true" update:"false" sort:"3" type:"string" input:"text" required:"true"`          // 类目

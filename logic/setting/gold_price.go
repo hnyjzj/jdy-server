@@ -20,10 +20,10 @@ type GoldPriceLogic struct {
 
 // 设置金价
 func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
+	if len(req.Options) == 0 {
+		return errors.New("请至少设置一条金价")
+	}
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		if len(req.Options) == 0 {
-			return errors.New("请至少设置一条金价")
-		}
 		// 添加/更新金价列表
 		for _, v := range req.Options {
 			var ProductBrand []enums.ProductBrand
@@ -53,6 +53,13 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 			}
 		}
 
+		// 删除
+		for _, v := range req.Deletes {
+			if err := tx.Delete(&model.GoldPrice{}, "id = ?", v).Error; err != nil {
+				return err
+			}
+		}
+
 		return nil
 	}); err != nil {
 		return errors.New("设置金价失败")
@@ -61,11 +68,13 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 	// 发送审批消息
 	go func() {
 		var store model.Store
-		if err := model.DB.Where("id = ?", req.Options[0].StoreId).Preload("Staffs", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("Account", func(db *gorm.DB) *gorm.DB {
-				return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
-			})
-		}).First(&store).Error; err != nil {
+		if err := model.DB.Where("id = ?", req.Options[0].StoreId).
+			Preload("Staffs", func(db *gorm.DB) *gorm.DB {
+				return db.Preload("Account", func(db *gorm.DB) *gorm.DB {
+					return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
+				})
+			}).
+			First(&store).Error; err != nil {
 			log.Printf("获取店铺信息失败: %v\n", err)
 			return
 		}
@@ -79,6 +88,7 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 		m.SendGoldPriceUpdateMessage(&message.GoldPriceMessage{
 			ToUser:    receiver,
 			StoreName: store.Name,
+			StoreId:   store.Id,
 			Operator:  l.Staff.Nickname,
 		})
 	}()

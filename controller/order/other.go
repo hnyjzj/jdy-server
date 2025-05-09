@@ -1,9 +1,9 @@
-package product
+package order
 
 import (
 	"jdy/controller"
 	"jdy/errors"
-	"jdy/logic/product"
+	"jdy/logic/order"
 	"jdy/types"
 	"jdy/utils"
 	"log"
@@ -11,21 +11,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductInventoryController struct {
+type OrderOtherController struct {
 	controller.BaseController
 }
 
-func (con ProductInventoryController) Where(ctx *gin.Context) {
-	where := utils.StructToWhere(types.ProductInventoryWhere{})
+// 订单筛选条件
+func (con OrderOtherController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.OrderOtherWhere{})
 
 	con.Success(ctx, "ok", where)
 }
 
-func (con ProductInventoryController) Create(ctx *gin.Context) {
+// 创建订单
+func (con OrderOtherController) Create(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryCreateReq
+		req types.OrderOtherCreateReq
 
-		logic = product.ProductInventoryLogic{
+		logic = order.OrderOtherLogic{
 			Ctx: ctx,
 		}
 	)
@@ -43,27 +45,65 @@ func (con ProductInventoryController) Create(ctx *gin.Context) {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
+
+	// 校验参数
 	if err := req.Validate(); err != nil {
 		log.Printf("err.Error(): %v\n", err.Error())
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
 	// 调用逻辑层
-	res, err := logic.Create(&req)
+	order, err := logic.Create(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", res)
+	con.Success(ctx, "ok", order)
 }
 
-func (con ProductInventoryController) List(ctx *gin.Context) {
+// 订单列表
+func (con OrderOtherController) List(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryListReq
+		req types.OrderOtherListReq
 
-		logic = product.ProductInventoryLogic{
+		logic = order.OrderOtherLogic{
+			Ctx: ctx,
+		}
+	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		log.Printf("参数错误: %v\n", err.Error())
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	data, err := logic.List(&req)
+	if err != nil {
+		log.Printf("参数错误: %v\n", err.Error())
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", data)
+}
+
+// 订单详情
+func (con OrderOtherController) Info(ctx *gin.Context) {
+	var (
+		req types.OrderOtherInfoReq
+
+		logic = order.OrderOtherLogic{
 			Ctx: ctx,
 		}
 	)
@@ -82,20 +122,21 @@ func (con ProductInventoryController) List(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	res, err := logic.List(&req)
+	data, err := logic.Info(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", res)
+	con.Success(ctx, "ok", data)
 }
 
-func (con ProductInventoryController) Info(ctx *gin.Context) {
+// 更新订单
+func (con OrderOtherController) Update(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryInfoReq
+		req types.OrderOtherUpdateReq
 
-		logic = product.ProductInventoryLogic{
+		logic = order.OrderOtherLogic{
 			Ctx: ctx,
 		}
 	)
@@ -114,20 +155,21 @@ func (con ProductInventoryController) Info(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	res, err := logic.Info(&req)
+	order, err := logic.Update(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", res)
+	con.Success(ctx, "ok", order)
 }
 
-func (con ProductInventoryController) Change(ctx *gin.Context) {
+// 删除订单
+func (con OrderOtherController) Delete(ctx *gin.Context) {
 	var (
-		req types.ProductInventoryChangeReq
+		req types.OrderOtherDeleteReq
 
-		logic = product.ProductInventoryLogic{
+		logic = order.OrderOtherLogic{
 			Ctx: ctx,
 		}
 	)
@@ -146,7 +188,8 @@ func (con ProductInventoryController) Change(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	if err := logic.Change(&req); err != nil {
+	err = logic.Delete(&req)
+	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

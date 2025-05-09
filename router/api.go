@@ -47,6 +47,7 @@ func Api(g *gin.Engine) {
 					uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
 					uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
 					uploads.POST("/product", common.UploadController{}.Product)     // 上传商品图片
+					uploads.POST("/order", common.UploadController{}.Order)         // 上传订单图片
 				}
 			}
 		}
@@ -184,8 +185,9 @@ func Api(g *gin.Engine) {
 				// 旧料管理
 				old := olds.Group("/")
 				{
-					old.GET("/where", product.ProductOldController{}.Where)         // 旧料筛选
-					old.POST("/get_class", product.ProductOldController{}.GetClass) // 获取旧料分类
+					old.GET("/where", product.ProductOldController{}.Where)              // 旧料筛选
+					old.GET("/where_create", product.ProductOldController{}.WhereCreate) // 旧料筛选
+					old.POST("/get_class", product.ProductOldController{}.GetClass)      // 获取旧料分类
 					old.Use(middlewares.JWTMiddleware())
 					{
 						old.POST("/list", product.ProductOldController{}.List)            // 旧料列表
@@ -343,24 +345,90 @@ func Api(g *gin.Engine) {
 		// 订单
 		orders := r.Group("/order")
 		{
-			orders.GET("/where", order.OrderController{}.Where) // 订单筛选
-			orders.Use(middlewares.JWTMiddleware())
+			// 销售单
+			sales := orders.Group("/sales")
 			{
-				orders.POST("/create", order.OrderController{}.Create) // 创建订单
-				orders.POST("/list", order.OrderController{}.List)     // 订单列表
-				orders.POST("/info", order.OrderController{}.Info)     // 订单详情
+				sales.GET("/where", order.OrderSalesController{}.Where) // 订单筛选
+				sales.Use(middlewares.JWTMiddleware())
+				{
+					sales.POST("/create", order.OrderSalesController{}.Create)  // 创建订单
+					sales.POST("/list", order.OrderSalesController{}.List)      // 订单列表
+					sales.POST("/info", order.OrderSalesController{}.Info)      // 订单详情
+					sales.PUT("/revoked", order.OrderSalesController{}.Revoked) // 订单撤销
+					sales.PUT("/pay", order.OrderSalesController{}.Pay)         // 订单支付
+					sales.PUT("/refund", order.OrderSalesController{}.Refund)   // 退货
+				}
+			}
+
+			// 定金单
+			deposits := orders.Group("/deposit")
+			{
+				deposits.GET("/where", order.OrderDepositController{}.Where) // 订单筛选
+				deposits.Use(middlewares.JWTMiddleware())
+				{
+					deposits.POST("/create", order.OrderDepositController{}.Create)  // 创建订单
+					deposits.POST("/list", order.OrderDepositController{}.List)      // 订单列表
+					deposits.POST("/info", order.OrderDepositController{}.Info)      // 订单详情
+					deposits.PUT("/revoked", order.OrderDepositController{}.Revoked) // 订单撤销
+					deposits.PUT("/pay", order.OrderDepositController{}.Pay)         // 订单支付
+					deposits.PUT("/refund", order.OrderDepositController{}.Refund)   // 退货
+				}
+			}
+
+			// 维修单
+			repairs := orders.Group("/repair")
+			{
+				repairs.GET("/where", order.OrderRepairController{}.Where)                // 订单筛选
+				repairs.GET("/where_product", order.OrderRepairController{}.WhereProduct) // 订单筛选
+				repairs.Use(middlewares.JWTMiddleware())
+				{
+					repairs.POST("/create", order.OrderRepairController{}.Create)      // 创建订单
+					repairs.POST("/list", order.OrderRepairController{}.List)          // 订单列表
+					repairs.POST("/info", order.OrderRepairController{}.Info)          // 订单详情
+					repairs.PUT("/update", order.OrderRepairController{}.Update)       // 订单修改
+					repairs.PUT("/operation", order.OrderRepairController{}.Operation) // 订单操作
+					repairs.PUT("/revoked", order.OrderRepairController{}.Revoked)     // 订单撤销
+					repairs.PUT("/pay", order.OrderRepairController{}.Pay)             // 订单支付
+					repairs.PUT("/refund", order.OrderRepairController{}.Refund)       // 退款
+				}
+			}
+
+			// 其他收支单
+			other := orders.Group("/other")
+			{
+				other.GET("/where", order.OrderOtherController{}.Where) // 订单筛选
+				other.Use(middlewares.JWTMiddleware())
+				{
+					other.POST("/create", order.OrderOtherController{}.Create)   // 创建订单
+					other.POST("/list", order.OrderOtherController{}.List)       // 订单列表
+					other.POST("/info", order.OrderOtherController{}.Info)       // 订单详情
+					other.PUT("/update", order.OrderOtherController{}.Update)    // 订单修改
+					other.DELETE("/delete", order.OrderOtherController{}.Delete) // 订单删除
+				}
 			}
 		}
 
 		// 设置
 		settings := r.Group("/setting")
 		{
+			// 金价设置
 			gold_price := settings.Group("/gold_price")
 			{
 				gold_price.Use(middlewares.JWTMiddleware())
 				{
 					gold_price.POST("/list", setting.GoldPriceController{}.List)     // 金价历史列表
 					gold_price.POST("/create", setting.GoldPriceController{}.Create) // 创建金价
+				}
+			}
+
+			// 开单设置
+			open_orders := settings.Group("/open_order")
+			{
+				open_orders.GET("/where", setting.OpenOrderController{}.Where) // 开单设置筛选
+				open_orders.Use(middlewares.JWTMiddleware())
+				{
+					open_orders.POST("/info", setting.OpenOrderController{}.Info)    // 开单设置详情
+					open_orders.PUT("/update", setting.OpenOrderController{}.Update) // 开单设置更新
 				}
 			}
 		}

@@ -81,32 +81,58 @@ func (*StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq) (
 func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 	var (
 		db    = model.DB
-		total sql.NullFloat64
+		total = decimal.NewFromFloat(0)
 	)
 
-	if err := db.Model(&model.Order{}).
+	var finished sql.NullFloat64
+	if err := db.Model(&model.OrderSalesProductFinished{}).
 		Scopes(model.DurationCondition(l.Req.Duration)).
-		Where(&model.Order{
+		Where(&model.OrderSalesProductFinished{
 			StoreId: res.Store.Id,
-			Status:  enums.OrderStatusComplete,
-		}).Select("sum(amount_pay) as total").Scan(&total).Error; err != nil {
+			Status:  enums.OrderSalesStatusComplete,
+		}).Select("sum(price) as total").Scan(&finished).Error; err != nil {
 		return errors.New("获取总业绩失败")
 	}
-
-	if total.Valid {
-		res.Total = decimal.NewFromFloat(total.Float64)
-	} else {
-		res.Total = decimal.NewFromFloat(0)
+	if finished.Valid {
+		total = total.Add(decimal.NewFromFloat(finished.Float64))
 	}
+
+	var old sql.NullFloat64
+	if err := db.Model(&model.OrderSalesProductOld{}).
+		Scopes(model.DurationCondition(l.Req.Duration)).
+		Where(&model.OrderSalesProductOld{
+			StoreId: res.Store.Id,
+			Status:  enums.OrderSalesStatusComplete,
+		}).Select("sum(price) as total").Scan(&old).Error; err != nil {
+		return errors.New("获取总业绩失败")
+	}
+	if old.Valid {
+		total = total.Add(decimal.NewFromFloat(old.Float64))
+	}
+
+	var accessories sql.NullFloat64
+	if err := db.Model(&model.OrderSalesProductAccessorie{}).
+		Scopes(model.DurationCondition(l.Req.Duration)).
+		Where(&model.OrderSalesProductAccessorie{
+			StoreId: res.Store.Id,
+			Status:  enums.OrderSalesStatusComplete,
+		}).Select("sum(price) as total").Scan(&accessories).Error; err != nil {
+		return errors.New("获取总业绩失败")
+	}
+	if accessories.Valid {
+		total = total.Add(decimal.NewFromFloat(accessories.Float64))
+	}
+
+	res.Total = total
 
 	return nil
 }
 
 func (l *StoreSalesTotalLogic) getWhereDb() *gorm.DB {
-	db := model.DB.Model(&model.OrderProduct{})
+	db := model.DB.Model(&model.OrderSalesProductAccessorie{})
 	db = db.
 		Joins("JOIN product_finisheds as products ON order_products.product_id = products.id").
-		Where("order_products.status = ?", enums.OrderStatusComplete).
+		Where("order_products.status = ?", enums.OrderSalesStatusComplete).
 		Scopes(model.DurationCondition(l.Req.Duration, "order_products.created_at"))
 
 	return db

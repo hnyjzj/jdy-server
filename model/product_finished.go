@@ -134,6 +134,9 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 	if query.EnterId != "" {
 		db = db.Where("enter_id = ?", query.EnterId) // 入库单ID
 	}
+	if query.All {
+		db = db.Unscoped()
+	}
 
 	return db
 }

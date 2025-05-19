@@ -295,7 +295,7 @@ func (l *wxworkLoginLogic) getStaff() error {
 	if err := l.Db.
 		Preload("Account", func(db *gorm.DB) *gorm.DB {
 			return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
-		}).First(&l.Staff, l.Account.StaffId).Error; err != nil {
+		}).First(&l.Staff, "id = ?", l.Account.StaffId).Error; err != nil {
 		return errors.ErrStaffNotFound
 	}
 

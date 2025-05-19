@@ -54,7 +54,7 @@ func (l WorkbenchLogic) AddRoute(req *types.WorkbenchAddReq) (*model.Router, *er
 // 删除路由
 func (l WorkbenchLogic) DelRoute(id string) *errors.Errors {
 	var route model.Router
-	if err := model.DB.First(&route, id).Error; err != nil {
+	if err := model.DB.First(&route, "id = ?", id).Error; err != nil {
 		return errors.New("删除失败，不存在或已被删除")
 	}
 
@@ -72,7 +72,7 @@ func (l WorkbenchLogic) DelRoute(id string) *errors.Errors {
 // 更新路由
 func (l WorkbenchLogic) UpdateRoute(req *types.WorkbenchUpdateReq) *errors.Errors {
 	var route model.Router
-	if err := model.DB.First(&route, req.Id).Error; err != nil {
+	if err := model.DB.First(&route, "id = ?", req.Id).Error; err != nil {
 		return errors.New("更新失败，不存在或已被删除")
 	}
 

@@ -65,7 +65,7 @@ func (l *MemberLogic) Create(req *types.MemberCreateReq) error {
 func (l *MemberLogic) Update(req *types.MemberUpdateReq) error {
 
 	var member model.Member
-	if err := model.DB.First(&member, req.Id).Error; err != nil || err == gorm.ErrRecordNotFound {
+	if err := model.DB.First(&member, "id = ?", req.Id).Error; err != nil || err == gorm.ErrRecordNotFound {
 		return errors.New("更新会员失败")
 	}
 

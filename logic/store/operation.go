@@ -39,7 +39,7 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 
 	// 查询门店信息
 	var store model.Store
-	if err := model.DB.First(&store, req.Id).Error; err != nil {
+	if err := model.DB.First(&store, "id = ?", req.Id).Error; err != nil {
 		return errors.New("门店不存在或已被删除")
 	}
 
@@ -66,7 +66,7 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 func (l *StoreLogic) Delete(ctx *gin.Context, req *types.StoreDeleteReq) error {
 	// 查询门店信息
 	store := &model.Store{}
-	if err := model.DB.First(store, req.Id).Error; err != nil {
+	if err := model.DB.First(store, "id = ?", req.Id).Error; err != nil {
 		return errors.New("门店不存在或已被删除")
 	}
 

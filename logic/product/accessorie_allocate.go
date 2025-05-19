@@ -86,7 +86,7 @@ func (p *ProductAccessorieAllocateLogic) Info(req *types.ProductAccessorieAlloca
 	db = db.Preload("ToStore")
 	db = db.Preload("Operator")
 
-	if err := db.First(&allocate, req.Id).Error; err != nil {
+	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取调拨单详情失败")
 	}
 
@@ -100,7 +100,7 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 	)
 
 	// 获取调拨单
-	if err := model.DB.Preload("Products.Product.Category").First(&allocate, req.Id).Error; err != nil {
+	if err := model.DB.Preload("Products.Product.Category").First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -173,7 +173,7 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 	)
 
 	// 获取调拨单
-	if err := model.DB.First(&allocate, req.Id).Error; err != nil {
+	if err := model.DB.First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -255,7 +255,7 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 	)
 
 	// 获取调拨单
-	if err := model.DB.Preload("Products").First(&allocate, req.Id).Error; err != nil {
+	if err := model.DB.Preload("Products").First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -307,7 +307,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 		tx = tx.Preload("Store")
 		return tx
 	})
-	if err := db.First(&allocate, req.Id).Error; err != nil {
+	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 

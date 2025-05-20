@@ -13,6 +13,50 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	EventTemplateCard          = "template_card_event"     // 模板卡片事件
+	EventChangeExternalContact = "change_external_contact" // 客户变更事件
+	ChangeContact              = "change_contact"          // 客户变更事件
+)
+
+func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
+
+	var (
+		logic = callback.WxWork{
+			Ctx: c,
+		}
+	)
+
+	rs, err := App.Server.Notify(c.Request, func(event contract.EventInterface) any {
+		logic.Event = event
+		var res any
+
+		switch event.GetEvent() {
+		case EventTemplateCard:
+			res = logic.TemplateCardEvent()
+		case EventChangeExternalContact:
+			res = logic.ChangeExternalContactEvent()
+		case ChangeContact:
+			res = logic.ChangeContactEvent()
+		}
+
+		if res == nil {
+			res = kernel.SUCCESS_EMPTY_RESPONSE
+		}
+
+		return res
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = helper.HttpResponseSend(rs, c.Writer)
+	if err != nil {
+		panic(err)
+	}
+}
+
 type WxWorkCongtroller struct {
 	CallbackController
 }
@@ -56,45 +100,4 @@ func (con WxWorkCongtroller) ContactsNotify(c *gin.Context) {
 	)
 
 	con.notify(c, App)
-}
-
-const (
-	EventTemplateCard          = "template_card_event"     // 模板卡片事件
-	EventChangeExternalContact = "change_external_contact" // 客户变更事件
-)
-
-func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
-
-	var (
-		logic = callback.WxWork{
-			Ctx: c,
-		}
-	)
-
-	rs, err := App.Server.Notify(c.Request, func(event contract.EventInterface) any {
-		logic.Event = event
-		var res any
-
-		switch event.GetEvent() {
-		case EventTemplateCard:
-			res = logic.TemplateCardEvent()
-		case EventChangeExternalContact:
-			res = logic.ChangeExternalContactEvent()
-		}
-
-		if res == nil {
-			res = kernel.SUCCESS_EMPTY_RESPONSE
-		}
-
-		return res
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = helper.HttpResponseSend(rs, c.Writer)
-	if err != nil {
-		panic(err)
-	}
 }

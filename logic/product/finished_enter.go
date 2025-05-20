@@ -80,7 +80,7 @@ func (l *ProductFinishedEnterLogic) EnterInfo(req *types.ProductFinishedEnterInf
 	db = db.Preload("Operator")
 	db = db.Preload("Store")
 
-	if err := db.First(&enter, req.Id).Error; err != nil {
+	if err := db.First(&enter, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取产品入库单详情失败")
 	}
 

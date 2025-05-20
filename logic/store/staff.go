@@ -20,7 +20,7 @@ func (l *StoreStaffLogic) List(req *types.StoreStaffListReq) (*[]model.Staff, er
 		store   model.Store
 		inStore = false
 	)
-	if err := model.DB.Preload("Staffs").First(&store, req.StoreId).Error; err != nil {
+	if err := model.DB.Preload("Staffs").First(&store, "id = ?", req.StoreId).Error; err != nil {
 		return nil, errors.New("门店不存在")
 	}
 	for _, staff := range store.Staffs {
@@ -40,13 +40,13 @@ func (l *StoreStaffLogic) List(req *types.StoreStaffListReq) (*[]model.Staff, er
 func (l *StoreStaffLogic) Add(req *types.StoreStaffAddReq) error {
 	// 查询门店
 	var store model.Store
-	if err := model.DB.First(&store, req.StoreId).Error; err != nil {
+	if err := model.DB.First(&store, "id = ?", req.StoreId).Error; err != nil {
 		return errors.New("门店不存在")
 	}
 
 	// 查询员工
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, req.StaffId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id = ?", req.StaffId).Error; err != nil {
 		return errors.New("员工不存在")
 	}
 
@@ -62,13 +62,13 @@ func (l *StoreStaffLogic) Add(req *types.StoreStaffAddReq) error {
 func (l *StoreStaffLogic) Del(req *types.StoreStaffDelReq) error {
 	// 查询门店
 	var store model.Store
-	if err := model.DB.First(&store, req.StoreId).Error; err != nil {
+	if err := model.DB.First(&store, "id = ?", req.StoreId).Error; err != nil {
 		return errors.New("门店不存在")
 	}
 
 	// 查询员工
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, req.StaffId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id = ?", req.StaffId).Error; err != nil {
 		return errors.New("员工不存在")
 	}
 

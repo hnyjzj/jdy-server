@@ -155,6 +155,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 		Avatar:   &detail.Avatar,
 		Email:    &detail.Email,
 		Gender:   gender.Convert(detail.Gender),
+		Info:     &userinfo,
 	}
 
 	return nil
@@ -265,6 +266,7 @@ func (l *wxworkLoginLogic) register() error {
 					Avatar:   l.UserInfo.Avatar,
 					Email:    l.UserInfo.Email,
 					Gender:   l.UserInfo.Gender,
+					Info:     l.UserInfo.Info,
 					StaffId:  &data.Id,
 				}
 				if err := l.Db.Create(&account).Error; err != nil {

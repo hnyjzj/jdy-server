@@ -223,70 +223,77 @@ func (l *wxworkLoginLogic) register() error {
 		return errors.New("手机号不一致")
 	}
 
-	if l.Account.StaffId == nil {
-		// 查询员工
-		var data *model.Staff
-		err := l.Db.Where(&model.Staff{Phone: l.UserInfo.Phone}).First(&data).Error
+	if l.Account.StaffId != nil {
+		return nil
+	}
+
+	// 查询员工
+	var data *model.Staff
+	err := l.Db.Where(&model.Staff{Phone: l.UserInfo.Phone}).First(&data).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		l.Db.Rollback()
+		return errors.New("注册员工失败")
+	}
+
+	// 员工不存在
+	if data.Id == "" {
+		// 创建员工
+		data = &model.Staff{
+			Phone:    l.UserInfo.Phone,
+			Nickname: *l.UserInfo.Nickname,
+			Avatar:   *l.UserInfo.Avatar,
+			Email:    *l.UserInfo.Email,
+			Gender:   l.UserInfo.Gender,
+		}
+		if err := l.Db.Create(&data).Error; err != nil {
+			l.Db.Rollback()
+			return errors.New("员工注册失败")
+		}
+
+		// 查询账号
+		var account *model.Account
+		err := l.Db.Where(&model.Account{
+			Platform: enums.PlatformTypeAccount,
+			Phone:    l.UserInfo.Phone,
+		}).First(&account).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			l.Db.Rollback()
 			return errors.New("注册员工失败")
 		}
-		// 员工不存在
-		if data.Id == "" {
-			data = &model.Staff{
-				Phone:    l.UserInfo.Phone,
-				Nickname: *l.UserInfo.Nickname,
-				Avatar:   *l.UserInfo.Avatar,
-				Email:    *l.UserInfo.Email,
-				Gender:   l.UserInfo.Gender,
-			}
-			if err := l.Db.Create(&data).Error; err != nil {
-				l.Db.Rollback()
-				return errors.New("员工注册失败")
-			}
-			// 查询账号
-			var account *model.Account
-			err := l.Db.Where(&model.Account{
+
+		// 账号不存在
+		if account.Id == "" {
+			password := utils.RandomAlphanumeric(8)
+			account = &model.Account{
 				Platform: enums.PlatformTypeAccount,
 				Phone:    l.UserInfo.Phone,
-			}).First(&account).Error
-			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				Password: &password,
+				Username: l.UserInfo.Username,
+				Nickname: l.UserInfo.Nickname,
+				Avatar:   l.UserInfo.Avatar,
+				Email:    l.UserInfo.Email,
+				Gender:   l.UserInfo.Gender,
+				Info:     l.UserInfo.Info,
+				StaffId:  &data.Id,
+			}
+			if err := l.Db.Create(&account).Error; err != nil {
 				l.Db.Rollback()
-				return errors.New("注册员工失败")
+				return errors.New("创建账号失败")
 			}
-			// 账号不存在
-			if account.Id == "" {
-				password := utils.RandomAlphanumeric(8)
-				account = &model.Account{
-					Platform: enums.PlatformTypeAccount,
-					Phone:    l.UserInfo.Phone,
-					Password: &password,
-					Username: l.UserInfo.Username,
-					Nickname: l.UserInfo.Nickname,
-					Avatar:   l.UserInfo.Avatar,
-					Email:    l.UserInfo.Email,
-					Gender:   l.UserInfo.Gender,
-					Info:     l.UserInfo.Info,
-					StaffId:  &data.Id,
-				}
-				if err := l.Db.Create(&account).Error; err != nil {
-					l.Db.Rollback()
-					return errors.New("创建账号失败")
-				}
 
-				go func(UserInfo *model.Account) {
-					m := message.NewMessage(l.Ctx)
-					m.SendRegisterMessage(&message.RegisterMessageContent{
-						Nickname: *UserInfo.Nickname,
-						Username: *UserInfo.Username,
-						Phone:    *UserInfo.Phone,
-						Password: password,
-					})
-				}(l.UserInfo)
-			}
+			go func(UserInfo *model.Account) {
+				m := message.NewMessage(l.Ctx)
+				m.SendRegisterMessage(&message.RegisterMessageContent{
+					Nickname: *UserInfo.Nickname,
+					Username: *UserInfo.Username,
+					Phone:    *UserInfo.Phone,
+					Password: password,
+				})
+			}(l.UserInfo)
 		}
-		l.Account.StaffId = &data.Id
 	}
+
+	l.Account.StaffId = &data.Id
 
 	return nil
 }

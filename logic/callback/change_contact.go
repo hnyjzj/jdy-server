@@ -18,6 +18,8 @@ func (l *EventChangeContactEvent) Distribute() error {
 		return l.UpdateUser(l.Message)
 	case models.CALLBACK_EVENT_CHANGE_TYPE_DELETE_USER: // 删除成员
 		return l.DeleteUser(l.Message)
+	default:
+		log.Printf("未知变更类型(%v):%+v", l.Message.ChangeType, l.Message)
 	}
 	return nil
 }

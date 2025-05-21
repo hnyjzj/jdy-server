@@ -23,7 +23,7 @@ func (l *EventChangeExternalContact) Distribute() error {
 		}
 
 	default:
-		return errors.New("TemplateCardEvent.GetEventKey(): event key not found")
+		return errors.New("ChangeExternalContactEvent.ChangeType not supported")
 	}
 
 	return nil

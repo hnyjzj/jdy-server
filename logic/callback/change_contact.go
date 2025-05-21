@@ -1,6 +1,8 @@
 package callback
 
 import (
+	"jdy/enums"
+	"jdy/model"
 	"log"
 
 	models1 "github.com/ArtisanCloud/PowerWeChat/v3/src/kernel/models"
@@ -37,6 +39,30 @@ func (l *EventChangeContactEvent) CreateUser(message *models1.CallbackMessageHea
 		return err
 	}
 
+	if l.UserCreate.UserID == "" {
+		return nil
+	}
+
+	if l.UserCreate.Mobile == "" {
+		log.Printf("%v,手机号为空", l.UserCreate.UserID)
+		return nil
+	}
+
+	var account model.Account
+	if err := model.DB.Where(model.Account{
+		Username: &l.UserCreate.UserID,
+		Platform: enums.PlatformTypeWxWork,
+	}).Attrs(model.Account{
+		Phone:    &l.UserCreate.Mobile,
+		Nickname: &l.UserCreate.Name,
+		Avatar:   &l.UserCreate.Avatar,
+		Email:    &l.UserCreate.Email,
+		Gender:   enums.GenderUnknown.Convert(l.UserCreate.Gender),
+		Info:     &l.UserCreate,
+	}).FirstOrCreate(&account).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -44,6 +70,38 @@ func (l *EventChangeContactEvent) CreateUser(message *models1.CallbackMessageHea
 func (l *EventChangeContactEvent) UpdateUser(message *models1.CallbackMessageHeader) error {
 	// 解析消息体
 	if err := l.Handle.Event.ReadMessage(&l.UserUpdate); err != nil {
+		return err
+	}
+
+	if l.UserUpdate.UserID == "" {
+		return nil
+	}
+
+	if l.UserUpdate.Mobile == "" {
+		log.Printf("%v,手机号为空", l.UserUpdate.UserID)
+	}
+
+	uid := l.UserUpdate.UserID
+	if l.UserUpdate.NewUserID != "" {
+		uid = l.UserUpdate.NewUserID
+	}
+
+	var account model.Account
+	if err := model.DB.Where(model.Account{
+		Username: &uid,
+		Platform: enums.PlatformTypeWxWork,
+	}).First(&account).Error; err != nil {
+		return err
+	}
+
+	if err := model.DB.Model(&account).Updates(model.Account{
+		Phone:    &l.UserUpdate.Mobile,
+		Nickname: &l.UserUpdate.Name,
+		Avatar:   &l.UserUpdate.Avatar,
+		Email:    &l.UserUpdate.Email,
+		Gender:   enums.GenderUnknown.Convert(l.UserUpdate.Gender),
+		Info:     &l.UserUpdate,
+	}).Error; err != nil {
 		return err
 	}
 

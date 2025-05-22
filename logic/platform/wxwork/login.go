@@ -218,8 +218,13 @@ func (l *wxworkLoginLogic) register() error {
 		l.Account.Phone = l.UserInfo.Phone
 	}
 
+	// 手机号未授权
+	if l.UserInfo.Phone == nil {
+		return errors.New("手机号未授权")
+	}
+
 	// 手机号不一致
-	if (l.Account.Phone == nil || l.UserInfo.Phone == nil) || *l.Account.Phone != *l.UserInfo.Phone {
+	if l.Account.Phone != nil && *l.Account.Phone != *l.UserInfo.Phone {
 		return errors.New("手机号不一致")
 	}
 

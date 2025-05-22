@@ -84,21 +84,21 @@ func (l *EventChangeContactEvent) UpdateUser(message *models1.CallbackMessageHea
 	if l.UserUpdate.Mobile == "" {
 		log.Printf("%v,手机号为空", l.UserUpdate.UserID)
 	}
+	var account model.Account
+	if err := model.DB.Where(model.Account{
+		Username: &l.UserUpdate.UserID,
+		Platform: enums.PlatformTypeWxWork,
+	}).First(&account).Error; err != nil {
+		return err
+	}
 
 	uid := l.UserUpdate.UserID
 	if l.UserUpdate.NewUserID != "" {
 		uid = l.UserUpdate.NewUserID
 	}
 
-	var account model.Account
-	if err := model.DB.Where(model.Account{
-		Username: &uid,
-		Platform: enums.PlatformTypeWxWork,
-	}).First(&account).Error; err != nil {
-		return err
-	}
-
 	if err := model.DB.Model(&account).Updates(model.Account{
+		Username: &uid,
 		Phone:    &l.UserUpdate.Mobile,
 		Nickname: &l.UserUpdate.Name,
 		Avatar:   &l.UserUpdate.Avatar,

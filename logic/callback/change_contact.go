@@ -47,8 +47,12 @@ func (l *EventChangeContactEvent) CreateUser(message *models1.CallbackMessageHea
 		return nil
 	}
 
+	var mobile *string
 	if l.UserCreate.Mobile == "" {
+		mobile = nil
 		log.Printf("%v,手机号为空", l.UserCreate.UserID)
+	} else {
+		mobile = &l.UserCreate.Mobile
 	}
 
 	var account model.Account
@@ -56,7 +60,7 @@ func (l *EventChangeContactEvent) CreateUser(message *models1.CallbackMessageHea
 		Username: &l.UserCreate.UserID,
 		Platform: enums.PlatformTypeWxWork,
 	}).Attrs(model.Account{
-		Phone:    &l.UserCreate.Mobile,
+		Phone:    mobile,
 		Nickname: &l.UserCreate.Name,
 		Avatar:   &l.UserCreate.Avatar,
 		Email:    &l.UserCreate.Email,

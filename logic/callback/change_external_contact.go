@@ -34,7 +34,7 @@ type EventChangeExternalContact struct {
 	Handle  *WxWork                       // 处理器
 	Message models1.CallbackMessageHeader // 消息体
 
-	ExternalUserAdd *models.EventExternalUserAdd // 外部联系人添加
+	ExternalUserAdd models.EventExternalUserAdd // 外部联系人添加
 }
 
 // 获取外部联系人

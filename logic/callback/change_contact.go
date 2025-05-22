@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/model"
 	"log"
@@ -19,9 +20,10 @@ func (l *EventChangeContactEvent) Distribute() error {
 	case models.CALLBACK_EVENT_CHANGE_TYPE_DELETE_USER: // 删除成员
 		return l.DeleteUser(&l.Message)
 	default:
-		log.Printf("未知变更类型(%v):%+v", l.Message.ChangeType, l.Message)
+		err := fmt.Errorf("不支持更改类型(%v)", l.Message.ChangeType)
+		log.Printf(err.Error()+": %+v", l.Message)
+		return err
 	}
-	return nil
 }
 
 // 员工变更事件

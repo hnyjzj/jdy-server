@@ -7,8 +7,8 @@ import (
 )
 
 type TemplateCardEvent struct {
-	Handle  *WxWork                        // 处理器
-	Message *models.EventTemplateCardEvent // 消息体
+	Handle  *WxWork                       // 处理器
+	Message models.EventTemplateCardEvent // 消息体
 }
 
 // 模板卡片事件

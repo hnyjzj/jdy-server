@@ -13,11 +13,11 @@ import (
 func (l *EventChangeContactEvent) Distribute() error {
 	switch l.Message.ChangeType {
 	case models.CALLBACK_EVENT_CHANGE_TYPE_CREATE_USER: // 新增成员
-		return l.CreateUser(l.Message)
+		return l.CreateUser(&l.Message)
 	case models.CALLBACK_EVENT_CHANGE_TYPE_UPDATE_USER: // 更新成员
-		return l.UpdateUser(l.Message)
+		return l.UpdateUser(&l.Message)
 	case models.CALLBACK_EVENT_CHANGE_TYPE_DELETE_USER: // 删除成员
-		return l.DeleteUser(l.Message)
+		return l.DeleteUser(&l.Message)
 	default:
 		log.Printf("未知变更类型(%v):%+v", l.Message.ChangeType, l.Message)
 	}
@@ -26,8 +26,8 @@ func (l *EventChangeContactEvent) Distribute() error {
 
 // 员工变更事件
 type EventChangeContactEvent struct {
-	Handle  *WxWork                        // 处理器
-	Message *models1.CallbackMessageHeader // 消息体
+	Handle  *WxWork                       // 处理器
+	Message models1.CallbackMessageHeader // 消息体
 
 	UserCreate models.EventUserCreate // 新增成员
 	UserUpdate models.EventUserUpdate // 更新成员

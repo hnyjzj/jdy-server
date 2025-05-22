@@ -31,8 +31,8 @@ func (l *EventChangeExternalContact) Distribute() error {
 
 // 外部联系人事件
 type EventChangeExternalContact struct {
-	Handle  *WxWork                        // 处理器
-	Message *models1.CallbackMessageHeader // 消息体
+	Handle  *WxWork                       // 处理器
+	Message models1.CallbackMessageHeader // 消息体
 
 	ExternalUserAdd *models.EventExternalUserAdd // 外部联系人添加
 }

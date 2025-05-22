@@ -49,12 +49,16 @@ func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
 	})
 
 	if err != nil {
-		panic(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Printf("wxwork notify error: %+v", err)
+		return
 	}
 
 	err = helper.HttpResponseSend(rs, c.Writer)
 	if err != nil {
-		panic(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Printf("wxwork notify error: %+v", err)
+		return
 	}
 }
 

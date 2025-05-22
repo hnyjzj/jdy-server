@@ -49,7 +49,6 @@ func (l *EventChangeContactEvent) CreateUser(message *models1.CallbackMessageHea
 
 	if l.UserCreate.Mobile == "" {
 		log.Printf("%v,手机号为空", l.UserCreate.UserID)
-		return nil
 	}
 
 	var account model.Account
@@ -84,6 +83,7 @@ func (l *EventChangeContactEvent) UpdateUser(message *models1.CallbackMessageHea
 	if l.UserUpdate.Mobile == "" {
 		log.Printf("%v,手机号为空", l.UserUpdate.UserID)
 	}
+
 	var account model.Account
 	if err := model.DB.Where(model.Account{
 		Username: &l.UserUpdate.UserID,

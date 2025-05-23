@@ -9,5 +9,5 @@ var (
 
 var (
 	// 验证码错误
-	ErrInvalidCaptcha = New("验证码错误", C403)
+	ErrInvalidCaptcha = New("验证码错误", C500)
 )

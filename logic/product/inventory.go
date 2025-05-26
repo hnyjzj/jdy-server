@@ -222,7 +222,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 		return errors.New("当前状态不允许这样操作")
 	}
 
-	if can := inventory.Status.CanEdit(l.Staff.Id, inventory.InventoryPersonId, inventory.InspectorId); !can {
+	if can := inventory.Status.CanEdit(req.Status, l.Staff.Id, inventory.InventoryPersonId, inventory.InspectorId); !can {
 		return errors.New("处理人不一致")
 	}
 

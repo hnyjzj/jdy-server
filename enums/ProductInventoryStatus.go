@@ -78,17 +78,25 @@ func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error 
 }
 
 // 权限判断
-func (p ProductInventoryStatus) CanEdit(StaffId, InventoryPersonId, InspectorId string) bool {
-	var ProcessPerson string
-
-	switch p {
-	case ProductInventoryStatusDraft: // 草稿 -> 开始盘点：盘点人
-		ProcessPerson = InventoryPersonId
-	case ProductInventoryStatusInventorying: // 盘点中 -> 待验证：盘点人
-		ProcessPerson = InventoryPersonId
-	case ProductInventoryStatusToBeVerified: // 待验证 -> 盘点完成：监盘人
-		ProcessPerson = InspectorId
+func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId, InventoryPersonId, InspectorId string) bool {
+	type Condition struct {
+		P, S ProductInventoryStatus
 	}
 
-	return ProcessPerson == StaffId
+	condition := Condition{p, status}
+
+	switch condition {
+	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusInventorying}: // 开始盘点: 草稿->盘点中 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusCancelled}: // 取消盘点: 草稿->盘点取消 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusToBeVerified}: // 开始盘点/结束盘点: 盘点中->待验证 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusCompleted}: // 盘点完成: 待验证->盘点完成 : 监盘人
+		return StaffId == InspectorId
+	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusAbnormal}: // 盘点异常: 待验证->盘点异常 : 监盘人
+		return StaffId == InspectorId
+	}
+
+	return false
 }

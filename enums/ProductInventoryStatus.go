@@ -42,6 +42,15 @@ func (p ProductInventoryStatus) String() string {
 	return ProductInventoryStatusMap[p]
 }
 
+func (p ProductInventoryStatus) IsOver() bool {
+	return slices.Contains([]ProductInventoryStatus{
+		ProductInventoryStatusToBeVerified,
+		ProductInventoryStatusCompleted,
+		ProductInventoryStatusAbnormal,
+		ProductInventoryStatusCancelled,
+	}, p)
+}
+
 // 判断状态是否可以转换
 func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error {
 	transitions := map[ProductInventoryStatus][]ProductInventoryStatus{
@@ -88,7 +97,13 @@ func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId, 
 	switch condition {
 	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusInventorying}: // 开始盘点: 草稿->盘点中 : 盘点人
 		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusInventorying}: // 继续盘点: 盘点中->盘点中 : 盘点人
+		return StaffId == InventoryPersonId
 	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusCancelled}: // 取消盘点: 草稿->盘点取消 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusCancelled}: // 取消盘点: 草稿->盘点取消 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusCancelled}: // 取消盘点: 盘点中->盘点取消 : 盘点人
 		return StaffId == InventoryPersonId
 	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusToBeVerified}: // 开始盘点/结束盘点: 盘点中->待验证 : 盘点人
 		return StaffId == InventoryPersonId

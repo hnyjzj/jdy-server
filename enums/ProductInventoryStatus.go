@@ -76,3 +76,19 @@ func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error 
 
 	return errors.New("非法的状态转换")
 }
+
+// 权限判断
+func (p ProductInventoryStatus) CanEdit(StaffId, InventoryPersonId, InspectorId string) bool {
+	var ProcessPerson string
+
+	switch p {
+	case ProductInventoryStatusDraft: // 草稿 -> 开始盘点：盘点人
+		ProcessPerson = InventoryPersonId
+	case ProductInventoryStatusInventorying: // 盘点中 -> 待验证：盘点人
+		ProcessPerson = InventoryPersonId
+	case ProductInventoryStatusToBeVerified: // 待验证 -> 盘点完成：监盘人
+		ProcessPerson = InspectorId
+	}
+
+	return ProcessPerson == StaffId
+}

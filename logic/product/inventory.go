@@ -222,6 +222,10 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 		return errors.New("当前状态不允许这样操作")
 	}
 
+	if can := inventory.Status.CanEdit(l.Staff.Id, inventory.InventoryPersonId, inventory.InspectorId); !can {
+		return errors.New("处理人不一致")
+	}
+
 	if err := db.Model(&inventory).Updates(model.ProductInventory{Status: req.Status}).Error; err != nil {
 		return errors.New("更新失败")
 	}

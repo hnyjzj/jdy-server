@@ -281,6 +281,7 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 				inventory.ActualCount++
 			}
 		}
+
 		if err := tx.Save(&inventory).Error; err != nil {
 			return err
 		}

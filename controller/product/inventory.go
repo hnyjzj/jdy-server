@@ -45,7 +45,7 @@ func (con ProductInventoryController) Create(ctx *gin.Context) {
 	}
 	if err := req.Validate(); err != nil {
 		log.Printf("err.Error(): %v\n", err.Error())
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 

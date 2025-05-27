@@ -66,7 +66,7 @@ type ProductInventoryProduct struct {
 	ProductFinished ProductFinished       `json:"product_finished" gorm:"foreignKey:ProductCode;references:Code;comment:成品"`               // 成品
 	ProductOld      ProductOld            `json:"product_old"  gorm:"foreignKey:ProductCode;references:Code;comment:旧料"`                   // 旧料
 
-	Status enums.ProductInventoryProductStatus `json:"status" gorm:"type:tinyint(2);comment:盘点状态;"` // 盘点状态
+	Status enums.ProductInventoryProductStatus `json:"status" gorm:"uniqueIndex:unique_product;type:tinyint(2);comment:盘点状态;"` // 盘点状态
 
 	InventoryTime *time.Time `json:"inventory_time" gorm:"type:datetime;comment:盘点时间;"` // 盘点时间
 }

@@ -55,9 +55,9 @@ type ProductInventoryWhere struct {
 	ClassOld      enums.ProductClassOld      `json:"class_old" label:"大类" input:"multiple" type:"number" find:"false" create:"true" sort:"9" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":1}]"`      // 大类
 	Category      enums.ProductCategory      `json:"category" label:"品类" input:"multiple" type:"number" find:"false" create:"true" sort:"10" required:"false" preset:"typeMap"`                                                                      // 品类
 	Craft         enums.ProductCraft         `json:"craft" label:"工艺" input:"multiple" type:"number" find:"false" create:"true" sort:"11" required:"false" preset:"typeMap"`                                                                         // 工艺
-	Material      enums.ProductMaterial      `json:"material" label:"材质" input:"multiple" type:"number" find:"false" create:"true" sort:"12" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`     // 材质
-	Quality       enums.ProductQuality       `json:"quality" label:"成色" input:"multiple" type:"number" find:"false" create:"true" sort:"13" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`      // 成色
-	Gem           enums.ProductGem           `json:"gem" label:"主石" input:"multiple" type:"number" find:"false" create:"true" sort:"14" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`          // 主石
+	Material      enums.ProductMaterial      `json:"material" label:"材质" input:"multiple" type:"number" find:"false" create:"true" sort:"12" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`      // 材质
+	Quality       enums.ProductQuality       `json:"quality" label:"成色" input:"multiple" type:"number" find:"false" create:"true" sort:"13" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`       // 成色
+	Gem           enums.ProductGem           `json:"gem" label:"主石" input:"multiple" type:"number" find:"false" create:"true" sort:"14" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`           // 主石
 
 	Remark string `json:"remark" label:"备注" input:"textarea" type:"string" find:"false" create:"true" sort:"15" required:"false"` // 备注
 
@@ -92,10 +92,10 @@ type ProductInventoryCreateReq struct {
 
 func (req *ProductInventoryCreateReq) Validate() error {
 	if err := req.Type.InMap(); err != nil {
-		return err
+		return errors.New("盘点仓库类型是必填项")
 	}
 	if err := req.Range.InMap(); err != nil {
-		return err
+		return errors.New("盘点范围是必填项")
 	}
 
 	switch req.Range {

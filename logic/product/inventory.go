@@ -7,6 +7,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"slices"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -201,7 +202,7 @@ func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model
 		return nil, errors.New("获取失败")
 	}
 
-	if inventory.Status.IsOver() {
+	if res.Status.IsOver() {
 		db = inventory.Preloads(db, &where, true)
 		if err := db.First(&res).Error; err != nil {
 			return nil, errors.New("获取失败")
@@ -279,8 +280,72 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 		return errors.New("处理人不一致")
 	}
 
-	if err := db.Model(&inventory).Updates(model.ProductInventory{Status: req.Status}).Error; err != nil {
-		return errors.New("更新失败")
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 设置状态
+		res := model.ProductInventory{
+			Status: req.Status,
+		}
+		inventory.Status = req.Status
+		// 如果是完成状态
+		if req.Status == enums.ProductInventoryStatusToBeVerified {
+			// 计算盘盈、盘亏
+			var data, products []model.ProductInventoryProduct
+			if err := tx.Where("product_inventory_id = ?", req.Id).Find(&products).Error; err != nil {
+				return errors.New("获取失败")
+			}
+
+			var ShouldCodes []string                           // 应盘
+			var ShouldProducts []model.ProductInventoryProduct // 应盘
+			var ActualCodes []string                           // 实盘
+			var ActualProducts []model.ProductInventoryProduct // 实盘
+			for _, product := range products {
+				switch product.Status {
+				case enums.ProductInventoryProductStatusShould:
+					ShouldCodes = append(ShouldCodes, product.ProductCode)
+					ShouldProducts = append(ShouldProducts, product)
+				case enums.ProductInventoryProductStatusActual:
+					ActualCodes = append(ActualCodes, product.ProductCode)
+					ActualProducts = append(ActualProducts, product)
+				}
+			}
+
+			for _, actual := range ShouldProducts {
+				if !slices.Contains(ActualCodes, actual.ProductCode) {
+					loss := model.ProductInventoryProduct{
+						ProductInventoryId: req.Id,
+						ProductType:        inventory.Type,
+						ProductCode:        actual.ProductCode,
+						Status:             enums.ProductInventoryProductStatusLoss,
+					}
+					data = append(data, loss)
+					res.LossCount++
+				}
+			}
+			for _, actual := range ActualProducts {
+				if !slices.Contains(ShouldCodes, actual.ProductCode) {
+					extra := model.ProductInventoryProduct{
+						ProductInventoryId: req.Id,
+						ProductType:        inventory.Type,
+						ProductCode:        actual.ProductCode,
+						Status:             enums.ProductInventoryProductStatusExtra,
+					}
+					data = append(data, extra)
+					res.ExtraCount++
+				}
+			}
+
+			if err := tx.Create(&data).Error; err != nil {
+				return errors.New("添加失败")
+			}
+		}
+
+		if err := tx.Where("id = ?", req.Id).Updates(&res).Error; err != nil {
+			return errors.New("更新失败")
+		}
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	go func() {

@@ -25,7 +25,7 @@ type ProductInventory struct {
 	CreatorId string `json:"creator_id" gorm:"type:varchar(255);not NULL;comment:创建人ID;"`    // 创建人ID
 	Creator   Staff  `json:"creator" gorm:"foreignKey:CreatorId;references:Id;comment:创建人;"` // 创建人
 
-	Type  enums.ProductType           `json:"type" gorm:"type:tinyint(2);comment:产品类型;"`  // 仓库类型
+	Type  enums.ProductTypeUsed       `json:"type" gorm:"type:tinyint(2);comment:产品类型;"`  // 仓库类型
 	Range enums.ProductInventoryRange `json:"range" gorm:"type:tinyint(2);comment:盘点范围;"` // 盘点范围
 
 	Brand         []enums.ProductBrand         `json:"brand" gorm:"type:text;serializer:json;comment:产品品牌;"`          // 产品品牌
@@ -51,20 +51,20 @@ type ProductInventory struct {
 
 	CountWeightMetal decimal.Decimal `json:"count_weight_metal" gorm:"type:decimal(10,2);comment:总重量;"` // 总重量
 	CountPrice       decimal.Decimal `json:"count_price" gorm:"type:decimal(10,2);comment:总价值;"`        // 总价值
-	ContQuantity     int64           `json:"cont_quantity" gorm:"type:tinyint(5);comment:总件数;"`         // 总件数
+	CountQuantity    int64           `json:"count_quantity" gorm:"type:tinyint(5);comment:总件数;"`        // 总件数
 }
 
 // 产品盘点产品
 type ProductInventoryProduct struct {
 	Model
 
-	ProductInventoryId string           `json:"product_inventory_id" gorm:"type:varchar(255);not NULL;comment:盘点ID;"` // 盘点ID
+	ProductInventoryId string           `json:"product_inventory_id" gorm:"uniqueIndex:unique_product;type:varchar(255);not NULL;comment:盘点ID;"` // 盘点ID
 	ProductInventory   ProductInventory `json:"-" gorm:"foreignKey:ProductInventoryId;references:Id;comment:盘点;"`
 
-	ProductType     enums.ProductType `json:"product_type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`                // 产品类型
-	ProductCode     string            `json:"product_code" gorm:"type:varchar(255);not NULL;comment:产品编码;"`              // 产品编码
-	ProductFinished ProductFinished   `json:"product_finished" gorm:"foreignKey:ProductCode;references:Code;comment:成品"` // 成品
-	ProductOld      ProductOld        `json:"product_old"  gorm:"foreignKey:ProductCode;references:Code;comment:旧料"`     // 旧料
+	ProductType     enums.ProductTypeUsed `json:"product_type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`                              // 产品类型
+	ProductCode     string                `json:"product_code" gorm:"uniqueIndex:unique_product;type:varchar(255);not NULL;comment:产品编码;"` // 产品编码
+	ProductFinished ProductFinished       `json:"product_finished" gorm:"foreignKey:ProductCode;references:Code;comment:成品"`               // 成品
+	ProductOld      ProductOld            `json:"product_old"  gorm:"foreignKey:ProductCode;references:Code;comment:旧料"`                   // 旧料
 
 	Status enums.ProductInventoryProductStatus `json:"status" gorm:"type:tinyint(2);comment:盘点状态;"` // 盘点状态
 
@@ -153,7 +153,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 
 	if isOver {
 		// 应盘产品
-		db = db.Preload("CountShouldProducts", func(tx *gorm.DB) *gorm.DB {
+		db = db.Preload("ShouldProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx
 			pdb = pdb.Preload("ProductFinished")
 			pdb = pdb.Preload("ProductOld")
@@ -162,7 +162,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			return pdb
 		})
 		// 盘亏产品
-		db = db.Preload("CountExtraProducts", func(tx *gorm.DB) *gorm.DB {
+		db = db.Preload("ExtraProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx
 			pdb = pdb.Preload("ProductFinished")
 			pdb = pdb.Preload("ProductOld")
@@ -171,7 +171,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			return pdb
 		})
 		// 盘盈产品
-		db = db.Preload("CountLossProducts", func(tx *gorm.DB) *gorm.DB {
+		db = db.Preload("LossProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx
 			pdb = pdb.Preload("ProductFinished")
 			pdb = pdb.Preload("ProductOld")
@@ -182,7 +182,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 	}
 
 	// 实盘产品
-	db = db.Preload("CountActualProducts", func(tx *gorm.DB) *gorm.DB {
+	db = db.Preload("ActualProducts", func(tx *gorm.DB) *gorm.DB {
 		pdb := tx
 		pdb = pdb.Preload("ProductFinished")
 		pdb = pdb.Preload("ProductOld")

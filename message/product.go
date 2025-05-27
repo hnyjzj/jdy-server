@@ -51,7 +51,7 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 				{
 					Type:    0,
 					Keyname: "总件数",
-					Value:   fmt.Sprintf("%d", req.ProductInventory.ContQuantity),
+					Value:   fmt.Sprintf("%d", req.ProductInventory.CountQuantity),
 				},
 				{
 					Type:    3,

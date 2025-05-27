@@ -36,7 +36,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 	// 创建应盘记录
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		switch req.Type {
-		case enums.ProductTypeFinished:
+		case enums.ProductTypeUsedFinished:
 			var products []model.ProductFinished
 			pdb := tx.Model(&model.ProductFinished{})
 			pdb = model.CreateProductInventoryCondition(pdb, req)
@@ -54,14 +54,14 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			for _, product := range products {
 				// 添加产品
 				data.ShouldProducts = append(data.ShouldProducts, model.ProductInventoryProduct{
-					ProductType: enums.ProductTypeFinished,
+					ProductType: enums.ProductTypeUsedFinished,
 					ProductCode: product.Code,
 					Status:      enums.ProductInventoryProductStatusShould,
 				})
 				// 产品总数
 				data.ShouldCount++
 				// 总件数
-				data.ContQuantity++
+				data.CountQuantity++
 				// 总标价
 				data.CountPrice = data.CountPrice.Add(product.LabelPrice)
 				// 总重量
@@ -80,7 +80,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 				return errors.New("创建失败")
 			}
 
-		case enums.ProductTypeOld:
+		case enums.ProductTypeUsedOld:
 			var products []model.ProductOld
 			pdb := tx.Model(&model.ProductOld{})
 			pdb = model.CreateProductInventoryCondition(pdb, req)
@@ -98,14 +98,14 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			for _, product := range products {
 				// 添加产品
 				data.ShouldProducts = append(data.ShouldProducts, model.ProductInventoryProduct{
-					ProductType: enums.ProductTypeOld,
+					ProductType: enums.ProductTypeUsedOld,
 					ProductCode: product.Code,
 					Status:      enums.ProductInventoryProductStatusShould,
 				})
 				// 产品总数
 				data.ShouldCount++
 				// 总件数
-				data.ContQuantity++
+				data.CountQuantity++
 				// 总标价
 				data.CountPrice = data.CountPrice.Add(product.LabelPrice)
 				// 总重量
@@ -216,8 +216,9 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 	var (
 		inventory model.ProductInventory
 	)
-
-	if err := model.DB.First(&inventory, "id = ?", req.Id).Error; err != nil {
+	db := model.DB.Model(&model.ProductInventory{})
+	db = inventory.Preloads(db, nil, false)
+	if err := db.First(&inventory, "id = ?", req.Id).Error; err != nil {
 		return errors.New("获取失败")
 	}
 
@@ -228,67 +229,31 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 	now := time.Now()
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		switch inventory.Type {
-		case enums.ProductTypeFinished:
-			var products []model.ProductFinished
-			pdb := tx.Model(&model.ProductFinished{})
-			pdb = pdb.Where("code in (?)", req.Codes)
-			pdb = pdb.Where(&model.ProductFinished{
-				Status: enums.ProductStatusNormal,
+		// 计算并添加产品
+		for _, code := range req.Codes {
+			for _, product := range inventory.ActualProducts {
+				if product.ProductCode == code {
+					return errors.New(code + "产品已存在")
+				}
+			}
+			// 添加产品
+			inventory.ActualProducts = append(inventory.ActualProducts, model.ProductInventoryProduct{
+				ProductType:   inventory.Type,
+				ProductCode:   code,
+				Status:        enums.ProductInventoryProductStatusActual,
+				InventoryTime: &now,
 			})
-			if err := pdb.Find(&products).Error; err != nil {
-				return err
-			}
-			if len(products) == 0 || len(products) != len(req.Codes) {
-				return errors.New("没有符合条件的产品")
-			}
-			// 计算并添加产品
-			for _, product := range products {
-				// 添加产品
-				inventory.ActualProducts = append(inventory.ActualProducts, model.ProductInventoryProduct{
-					ProductType:   enums.ProductTypeFinished,
-					ProductCode:   product.Code,
-					Status:        enums.ProductInventoryProductStatusActual,
-					InventoryTime: &now,
-				})
-				// 产品总数
-				inventory.ActualCount++
-			}
-		case enums.ProductTypeOld:
-			var products []model.ProductOld
-			pdb := tx.Model(&model.ProductOld{})
-			pdb = pdb.Where("code in (?)", req.Codes)
-			pdb = pdb.Where(&model.ProductOld{
-				IsOur:  true,
-				Status: enums.ProductStatusNormal,
-			})
-			if err := pdb.Find(&products).Error; err != nil {
-				return err
-			}
-			if len(products) == 0 || len(products) != len(req.Codes) {
-				return errors.New("没有符合条件的产品")
-			}
-			// 计算并添加产品
-			for _, product := range products {
-				// 添加产品
-				inventory.ActualProducts = append(inventory.ActualProducts, model.ProductInventoryProduct{
-					ProductType:   enums.ProductTypeOld,
-					ProductCode:   product.Code,
-					Status:        enums.ProductInventoryProductStatusActual,
-					InventoryTime: &now,
-				})
-				// 产品总数
-				inventory.ActualCount++
-			}
+			// 产品总数
+			inventory.ActualCount++
 		}
 
 		if err := tx.Save(&inventory).Error; err != nil {
-			return err
+			return errors.New("添加失败")
 		}
 
 		return nil
 	}); err != nil {
-		return errors.New("添加失败")
+		return err
 	}
 
 	return nil

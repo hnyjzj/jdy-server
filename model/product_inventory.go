@@ -90,14 +90,11 @@ func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryW
 	if req.InspectorId != "" {
 		db = db.Where("inspector_id = ?", req.InspectorId)
 	}
-	if req.StartTime != nil && req.EndTime == nil {
+	if req.StartTime != nil {
 		db = db.Where("created_at >= ?", req.StartTime)
 	}
-	if req.StartTime == nil && req.EndTime != nil {
+	if req.EndTime != nil {
 		db = db.Where("created_at <= ?", req.EndTime)
-	}
-	if req.StartTime != nil && req.EndTime != nil {
-		db = db.Where("created_at BETWEEN ? AND ?", req.StartTime, req.EndTime)
 	}
 
 	return db

@@ -287,7 +287,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 		}
 		inventory.Status = req.Status
 		// 如果是完成状态
-		if req.Status == enums.ProductInventoryStatusToBeVerified {
+		if req.Status == enums.ProductInventoryStatusToBeVerified || req.Status == enums.ProductInventoryStatusCancelled {
 			// 计算盘盈、盘亏
 			var data, products []model.ProductInventoryProduct
 			if err := tx.Where("product_inventory_id = ?", req.Id).Find(&products).Error; err != nil {

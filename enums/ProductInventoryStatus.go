@@ -101,8 +101,6 @@ func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId, 
 		return StaffId == InventoryPersonId
 	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusCancelled}: // 取消盘点: 草稿->盘点取消 : 盘点人
 		return StaffId == InventoryPersonId
-	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusCancelled}: // 取消盘点: 草稿->盘点取消 : 盘点人
-		return StaffId == InventoryPersonId
 	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusCancelled}: // 取消盘点: 盘点中->盘点取消 : 盘点人
 		return StaffId == InventoryPersonId
 	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusToBeVerified}: // 开始盘点/结束盘点: 盘点中->待验证 : 盘点人

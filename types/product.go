@@ -129,8 +129,8 @@ type ProductInventoryInfoReq struct {
 }
 
 type ProductInventoryAddReq struct {
-	Id    string   `json:"id" binding:"required"` // 盘点单ID
-	Codes []string `json:"codes"`                 // 产品编码
+	Id    string   `json:"id" binding:"required"`          // 盘点单ID
+	Codes []string `json:"codes" binding:"required,min=1"` // 产品编码
 }
 
 type ProductInventoryChangeReq struct {

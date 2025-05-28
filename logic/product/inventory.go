@@ -223,7 +223,7 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 		return errors.New("获取失败")
 	}
 
-	if err := inventory.Status.CanEdit(enums.ProductInventoryStatusInventorying, l.Staff.Id, inventory.InventoryPersonId, inventory.InspectorId); !err {
+	if can := inventory.Status.CanEdit(enums.ProductInventoryStatusInventorying, l.Staff.Id, inventory.InventoryPersonId, inventory.InspectorId); !can {
 		return errors.New("当前状态不允许这样操作")
 	}
 
@@ -334,8 +334,10 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 				}
 			}
 
-			if err := tx.Create(&data).Error; err != nil {
-				return errors.New("添加失败")
+			if len(data) > 0 {
+				if err := tx.Create(&data).Error; err != nil {
+					return errors.New("添加失败")
+				}
 			}
 		}
 

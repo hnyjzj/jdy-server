@@ -42,6 +42,15 @@ func (p ProductInventoryStatus) String() string {
 	return ProductInventoryStatusMap[p]
 }
 
+func (p ProductInventoryStatus) IsOver() bool {
+	return slices.Contains([]ProductInventoryStatus{
+		ProductInventoryStatusToBeVerified,
+		ProductInventoryStatusCompleted,
+		ProductInventoryStatusAbnormal,
+		ProductInventoryStatusCancelled,
+	}, p)
+}
+
 // 判断状态是否可以转换
 func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error {
 	transitions := map[ProductInventoryStatus][]ProductInventoryStatus{
@@ -75,4 +84,32 @@ func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error 
 	}
 
 	return errors.New("非法的状态转换")
+}
+
+// 权限判断
+func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId, InventoryPersonId, InspectorId string) bool {
+	type Condition struct {
+		P, S ProductInventoryStatus
+	}
+
+	condition := Condition{p, status}
+
+	switch condition {
+	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusInventorying}: // 开始盘点: 草稿->盘点中 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusInventorying}: // 继续盘点: 盘点中->盘点中 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusCancelled}: // 取消盘点: 草稿->盘点取消 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusCancelled}: // 取消盘点: 盘点中->盘点取消 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusToBeVerified}: // 开始盘点/结束盘点: 盘点中->待验证 : 盘点人
+		return StaffId == InventoryPersonId
+	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusCompleted}: // 盘点完成: 待验证->盘点完成 : 监盘人
+		return StaffId == InspectorId
+	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusAbnormal}: // 盘点异常: 待验证->盘点异常 : 监盘人
+		return StaffId == InspectorId
+	}
+
+	return false
 }

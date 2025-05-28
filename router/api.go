@@ -289,6 +289,7 @@ func Api(g *gin.Engine) {
 					inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
 					inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
 					inventory.POST("/info", product.ProductInventoryController{}.Info)     // 盘点单详情
+					inventory.POST("/add", product.ProductInventoryController{}.Add)       // 添加产品
 					inventory.PUT("/change", product.ProductInventoryController{}.Change)  // 盘点单变化
 				}
 			}

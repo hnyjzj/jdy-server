@@ -34,7 +34,7 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 				Desc:  fmt.Sprintf("新盘点单【%s】，请及时处理", req.ProductInventory.Id),
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
-				Title: fmt.Sprintf("%d", req.ProductInventory.CountShould),
+				Title: fmt.Sprintf("%d", req.ProductInventory.ShouldCount),
 				Desc:  "应盘数量",
 			},
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
@@ -51,7 +51,7 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 				{
 					Type:    0,
 					Keyname: "总件数",
-					Value:   fmt.Sprintf("%d", req.ProductInventory.ContQuantity),
+					Value:   fmt.Sprintf("%d", req.ProductInventory.CountQuantity),
 				},
 				{
 					Type:    3,
@@ -116,22 +116,22 @@ func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpd
 				{
 					Type:    0,
 					Keyname: "应盘数量",
-					Value:   fmt.Sprintf("%d", req.ProductInventory.CountShould),
+					Value:   fmt.Sprintf("%d", req.ProductInventory.ShouldCount),
 				},
 				{
 					Type:    0,
 					Keyname: "实盘数量",
-					Value:   fmt.Sprintf("%d", req.ProductInventory.CountActual),
+					Value:   fmt.Sprintf("%d", req.ProductInventory.ActualCount),
 				},
 				{
 					Type:    0,
 					Keyname: "盘盈数量",
-					Value:   fmt.Sprintf("%d", req.ProductInventory.CountExtra),
+					Value:   fmt.Sprintf("%d", req.ProductInventory.ExtraCount),
 				},
 				{
 					Type:    0,
 					Keyname: "盘亏数量",
-					Value:   fmt.Sprintf("%d", req.ProductInventory.CountLoss),
+					Value:   fmt.Sprintf("%d", req.ProductInventory.LossCount),
 				},
 				{
 					Type:    3,

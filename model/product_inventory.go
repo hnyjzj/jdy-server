@@ -161,7 +161,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 
 			return pdb
 		})
-		// 盘亏产品
+		// 盘盈产品
 		db = db.Preload("ExtraProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx
 			pdb = pdb.Preload("ProductFinished")
@@ -170,7 +170,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 
 			return pdb
 		})
-		// 盘盈产品
+		// 盘亏产品
 		db = db.Preload("LossProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx
 			pdb = pdb.Preload("ProductFinished")

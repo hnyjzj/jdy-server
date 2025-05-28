@@ -45,7 +45,7 @@ func (con ProductInventoryController) Create(ctx *gin.Context) {
 	}
 	if err := req.Validate(); err != nil {
 		log.Printf("err.Error(): %v\n", err.Error())
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
@@ -121,6 +121,37 @@ func (con ProductInventoryController) Info(ctx *gin.Context) {
 	}
 
 	con.Success(ctx, "ok", res)
+}
+
+func (con ProductInventoryController) Add(ctx *gin.Context) {
+	var (
+		req types.ProductInventoryAddReq
+
+		logic = product.ProductInventoryLogic{
+			Ctx: ctx,
+		}
+	)
+
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err.Error())
+		return
+	}
+	logic.Staff = staff
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	if err := logic.Add(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
 }
 
 func (con ProductInventoryController) Change(ctx *gin.Context) {

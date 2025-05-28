@@ -46,8 +46,14 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 	if query.ToStoreId != "" {
 		db = db.Where("to_store_id = ?", query.ToStoreId)
 	}
-	if query.StartTime != nil && query.EndTime != nil {
-		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
+	if query.Status != 0 {
+		db = db.Where("status = ?", query.Status)
+	}
+	if query.StartTime != nil {
+		db = db.Where("created_at >= ?", query.StartTime)
+	}
+	if query.EndTime != nil {
+		db = db.Where("created_at <= ?", query.EndTime)
 	}
 	if query.StoreId != "" {
 		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)

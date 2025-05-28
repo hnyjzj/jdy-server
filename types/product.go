@@ -18,17 +18,17 @@ type ProductConversionReq struct {
 }
 
 type ProductHistoryWhere struct {
-	ProductId string              `json:"product_id" label:"产品" input:"text" type:"string" find:"true" sort:"1" required:"true"`                   // 产品
-	Type      enums.ProductType   `json:"type" label:"产品类型" input:"multiple" type:"number" find:"true" sort:"2" required:"false" preset:"typeMap"` // 产品类型
-	StoreId   string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"true" binding:"required"` // 门店
-	Action    enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"true" preset:"typeMap"`    // 操作
+	ProductId string                `json:"product_id" label:"产品" input:"text" type:"string" find:"true" sort:"1" required:"true"`                   // 产品
+	Type      enums.ProductTypeUsed `json:"type" label:"产品类型" input:"multiple" type:"number" find:"true" sort:"2" required:"false" preset:"typeMap"` // 产品类型
+	StoreId   string                `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"true" binding:"required"` // 门店
+	Action    enums.ProductAction   `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"true" preset:"typeMap"`    // 操作
 }
 
 type ProductHistoryWhereReq struct {
-	ProductId string              `json:"product_id"`                  // 产品ID
-	Type      []enums.ProductType `json:"type"`                        // 产品类型
-	StoreId   string              `json:"store_id" binding:"required"` // 门店ID
-	Action    enums.ProductAction `json:"action"`                      // 操作
+	ProductId string                  `json:"product_id"`                  // 产品ID
+	Type      []enums.ProductTypeUsed `json:"type"`                        // 产品类型
+	StoreId   string                  `json:"store_id" binding:"required"` // 门店ID
+	Action    enums.ProductAction     `json:"action"`                      // 操作
 }
 
 type ProductHistoryListReq struct {
@@ -47,7 +47,7 @@ type ProductInventoryWhere struct {
 	InventoryPersonId string `json:"inventory_person_id" label:"盘点人" input:"search" type:"string" find:"true" create:"true" sort:"3" required:"true"` // 盘点人
 	InspectorId       string `json:"inspector_id" label:"监盘人" input:"search" type:"string" find:"true" create:"true" sort:"4" required:"true"`        // 监盘人
 
-	Type  enums.ProductType           `json:"type" label:"盘点仓库" input:"select" type:"number" find:"true" create:"true" sort:"5" required:"true" preset:"typeMap"`      // 盘点仓库
+	Type  enums.ProductTypeUsed       `json:"type" label:"盘点仓库" input:"select" type:"number" find:"true" create:"true" sort:"5" required:"true" preset:"typeMap"`      // 盘点仓库
 	Brand enums.ProductBrand          `json:"brand" label:"盘点品牌" input:"multiple" type:"number" find:"false" create:"true" sort:"6" required:"false" preset:"typeMap"` // 盘点品牌
 	Range enums.ProductInventoryRange `json:"range" label:"盘点范围" input:"select" type:"number" find:"true" create:"true" sort:"7" required:"true" preset:"typeMap"`     // 盘点范围
 
@@ -55,9 +55,9 @@ type ProductInventoryWhere struct {
 	ClassOld      enums.ProductClassOld      `json:"class_old" label:"大类" input:"multiple" type:"number" find:"false" create:"true" sort:"9" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":1}]"`      // 大类
 	Category      enums.ProductCategory      `json:"category" label:"品类" input:"multiple" type:"number" find:"false" create:"true" sort:"10" required:"false" preset:"typeMap"`                                                                      // 品类
 	Craft         enums.ProductCraft         `json:"craft" label:"工艺" input:"multiple" type:"number" find:"false" create:"true" sort:"11" required:"false" preset:"typeMap"`                                                                         // 工艺
-	Material      enums.ProductMaterial      `json:"material" label:"材质" input:"multiple" type:"number" find:"false" create:"true" sort:"12" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`     // 材质
-	Quality       enums.ProductQuality       `json:"quality" label:"成色" input:"multiple" type:"number" find:"false" create:"true" sort:"13" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`      // 成色
-	Gem           enums.ProductGem           `json:"gem" label:"主石" input:"multiple" type:"number" find:"false" create:"true" sort:"14" required:"false" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`          // 主石
+	Material      enums.ProductMaterial      `json:"material" label:"材质" input:"multiple" type:"number" find:"false" create:"true" sort:"12" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`      // 材质
+	Quality       enums.ProductQuality       `json:"quality" label:"成色" input:"multiple" type:"number" find:"false" create:"true" sort:"13" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`       // 成色
+	Gem           enums.ProductGem           `json:"gem" label:"主石" input:"multiple" type:"number" find:"false" create:"true" sort:"14" required:"true" preset:"typeMap" condition:"[{\"key\":\"range\",\"operator\":\"=\",\"value\":2}]"`           // 主石
 
 	Remark string `json:"remark" label:"备注" input:"textarea" type:"string" find:"false" create:"true" sort:"15" required:"false"` // 备注
 
@@ -75,7 +75,7 @@ type ProductInventoryCreateReq struct {
 	InventoryPersonId string `json:"inventory_person_id" binding:"required"` // 盘点人
 	InspectorId       string `json:"inspector_id" binding:"required"`        // 监盘人
 
-	Type  enums.ProductType           `json:"type" binding:"required"`  // 盘点仓库
+	Type  enums.ProductTypeUsed       `json:"type" binding:"required"`  // 盘点仓库
 	Brand []enums.ProductBrand        `json:"brand"`                    // 盘点品牌
 	Range enums.ProductInventoryRange `json:"range" binding:"required"` // 盘点范围
 
@@ -92,10 +92,10 @@ type ProductInventoryCreateReq struct {
 
 func (req *ProductInventoryCreateReq) Validate() error {
 	if err := req.Type.InMap(); err != nil {
-		return err
+		return errors.New("盘点仓库类型是必填项")
 	}
 	if err := req.Range.InMap(); err != nil {
-		return err
+		return errors.New("盘点范围是必填项")
 	}
 
 	switch req.Range {
@@ -126,6 +126,11 @@ type ProductInventoryListReq struct {
 type ProductInventoryInfoReq struct {
 	Id            string                              `json:"id" binding:"required"`
 	ProductStatus enums.ProductInventoryProductStatus `json:"product_status"` // 产品状态
+}
+
+type ProductInventoryAddReq struct {
+	Id    string   `json:"id" binding:"required"`          // 盘点单ID
+	Codes []string `json:"codes" binding:"required,min=1"` // 产品编码
 }
 
 type ProductInventoryChangeReq struct {

@@ -247,7 +247,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 
 	// 更新商品状态
 	if err := l.Tx.Model(&old).Updates(model.ProductOld{
-		Status: enums.ProductStatusSold,
+		Status: enums.ProductStatusNormal,
 	}).Error; err != nil {
 		return errors.New("旧料状态更新失败")
 	}

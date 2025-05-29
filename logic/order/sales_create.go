@@ -438,7 +438,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 
 	// 添加商品
 	old.Class = old.GetClass()
-	if err := l.Tx.Debug().Create(&old).Error; err != nil {
+	if err := l.Tx.Create(old).Error; err != nil {
 		return nil, errors.New("旧料添加失败")
 	}
 

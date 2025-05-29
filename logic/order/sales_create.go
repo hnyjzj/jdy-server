@@ -380,65 +380,66 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 }
 
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
-	var old *model.ProductOld
+	old := &model.ProductOld{
+		Code:                    p.Code,
+		Name:                    p.Name,
+		Status:                  enums.ProductStatusNormal,
+		LabelPrice:              p.LabelPrice,
+		Brand:                   p.Brand,
+		Material:                p.Material,
+		Quality:                 p.Quality,
+		Gem:                     p.Gem,
+		Category:                p.Category,
+		Craft:                   p.Craft,
+		WeightMetal:             p.WeightMetal,
+		WeightTotal:             p.WeightTotal,
+		ColorGem:                p.ColorGem,
+		WeightGem:               p.WeightGem,
+		NumGem:                  p.NumGem,
+		Clarity:                 p.ClarityGem,
+		Cut:                     p.Cut,
+		WeightOther:             p.WeightOther,
+		NumOther:                p.NumOther,
+		Remark:                  p.Remark,
+		StoreId:                 l.Order.StoreId,
+		RecycleMethod:           p.RecycleMethod,
+		RecycleType:             p.RecycleType,
+		RecyclePriceGold:        p.RecyclePriceGold,
+		RecyclePriceLabor:       p.RecyclePriceLabor,
+		RecyclePriceLaborMethod: p.RecyclePriceLaborMethod,
+		RecyclePrice:            p.RecyclePrice,
+		QualityActual:           p.QualityActual,
+		RecycleSource:           enums.ProductRecycleSourceHuiShou,
+		RecycleSourceId:         l.Order.Id,
+		RecycleStoreId:          l.Order.StoreId,
+	}
+
 	if !p.IsOur {
-		old = &model.ProductOld{
-			Code:                    p.Code,
-			Name:                    p.Name,
-			Status:                  enums.ProductStatusNormal,
-			LabelPrice:              p.LabelPrice,
-			Brand:                   p.Brand,
-			Material:                p.Material,
-			Quality:                 p.Quality,
-			Gem:                     p.Gem,
-			Category:                p.Category,
-			Craft:                   p.Craft,
-			WeightMetal:             p.WeightMetal,
-			WeightTotal:             p.WeightTotal,
-			ColorGem:                p.ColorGem,
-			WeightGem:               p.WeightGem,
-			NumGem:                  p.NumGem,
-			Clarity:                 p.ClarityGem,
-			Cut:                     p.Cut,
-			WeightOther:             p.WeightOther,
-			NumOther:                p.NumOther,
-			Remark:                  p.Remark,
-			StoreId:                 l.Order.StoreId,
-			IsOur:                   false,
-			RecycleMethod:           p.RecycleMethod,
-			RecycleType:             p.RecycleType,
-			RecyclePriceGold:        p.RecyclePriceGold,
-			RecyclePriceLabor:       p.RecyclePriceLabor,
-			RecyclePriceLaborMethod: p.RecyclePriceLaborMethod,
-			RecyclePrice:            p.RecyclePrice,
-			QualityActual:           p.QualityActual,
-			RecycleSource:           enums.ProductRecycleSourceHuiShou,
-			RecycleSourceId:         l.Order.Id,
-			RecycleStoreId:          l.Order.StoreId,
-		}
-		old.Class = old.GetClass()
-		// 添加商品
-		if err := l.Tx.Create(&old).Error; err != nil {
-			return nil, errors.New("旧料添加失败")
-		}
+		old.IsOur = false
 	} else {
 		if p.ProductId == "" {
 			return nil, errors.New("旧料ID不能为空")
 		}
 		// 获取商品信息
-		db := l.Tx.Model(&model.ProductOld{})
+		var finished model.ProductFinished
+		db := l.Tx.Model(&model.ProductFinished{})
 		db = db.Where("id = ?", product_id)
+		db = db.Where(&model.ProductFinished{
+			Status: enums.ProductStatusSold,
+		})
 		db = db.Preload("Store")
 
-		if err := db.First(&old).Error; err != nil {
+		if err := db.First(&finished).Error; err != nil {
 			return nil, errors.New("旧料不存在")
 		}
 
+		old.IsOur = true
 	}
 
-	// 判断商品状态
-	if old.Status != enums.ProductStatusNormal {
-		return nil, errors.New("产品当前不能销售")
+	// 添加商品
+	old.Class = old.GetClass()
+	if err := l.Tx.Create(old).Error; err != nil {
+		return nil, errors.New("旧料添加失败")
 	}
 
 	return old, nil

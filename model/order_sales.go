@@ -31,12 +31,11 @@ type OrderSales struct {
 	IntegralDeduction decimal.Decimal `json:"integral_deduction" gorm:"type:decimal(10,2);not NULL;comment:积分抵扣;"` // 积分抵扣
 	RoundOff          decimal.Decimal `json:"round_off" gorm:"type:decimal(10,2);not NULL;comment:抹零;"`            // 抹零
 
-	ProductFinisheds       []OrderSalesProductFinished   `json:"product_finisheds" gorm:"foreignKey:OrderId;references:Id;comment:成品;"`     // 成品
-	ProductFinishedPrice   decimal.Decimal               `json:"product_finished_price" gorm:"type:decimal(10,2);not NULL;comment:货品金额;"`   // 货品金额
-	ProductOlds            []OrderSalesProductOld        `json:"product_olds" gorm:"foreignKey:OrderId;references:Id;comment:旧料;"`          // 旧料
-	ProductOldPrice        decimal.Decimal               `json:"product_old_price" gorm:"type:decimal(10,2);not NULL;comment:旧料抵扣;"`        // 旧料抵扣
-	ProductAccessories     []OrderSalesProductAccessorie `json:"product_accessories" gorm:"foreignKey:OrderId;references:Id;comment:配件;"`   // 配件
-	ProductAccessoriePrice decimal.Decimal               `json:"product_accessorie_price" gorm:"type:decimal(10,2);not NULL;comment:配件礼品;"` // 配件礼品
+	ProductFinishedPrice   decimal.Decimal `json:"product_finished_price" gorm:"type:decimal(10,2);not NULL;comment:货品金额;"`   // 货品金额
+	ProductOldPrice        decimal.Decimal `json:"product_old_price" gorm:"type:decimal(10,2);not NULL;comment:旧料抵扣;"`        // 旧料抵扣
+	ProductAccessoriePrice decimal.Decimal `json:"product_accessorie_price" gorm:"type:decimal(10,2);not NULL;comment:配件礼品;"` // 配件礼品
+
+	Products []OrderSalesProduct `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:货品;"` // 货品
 
 	// 其他单
 	OrderDeposits []OrderDeposit  `json:"order_deposits" gorm:"many2many:order_sales_deposits;"`
@@ -106,28 +105,50 @@ func (OrderSales) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Member")
 	db = db.Preload("Store")
 	db = db.Preload("Cashier")
-	db = db.Preload("Clerks", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Salesman")
+	db = db.Preload("Clerks", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("Salesman")
 	})
-	db = db.Preload("ProductFinisheds", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Product")
-	})
-	db = db.Preload("ProductOlds", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Product")
-	})
-	db = db.Preload("ProductAccessories", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Product", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("Category")
+	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+		tx = tx.Preload("Finished", func(tx1 *gorm.DB) *gorm.DB {
+			return tx1.Preload("Product")
 		})
+		tx = tx.Preload("Old", func(tx1 *gorm.DB) *gorm.DB {
+			return tx1.Preload("Product")
+		})
+		tx = tx.Preload("Accessorie", func(tx1 *gorm.DB) *gorm.DB {
+			return tx1.Preload("Product", func(tx2 *gorm.DB) *gorm.DB {
+				return tx2.Preload("Category")
+			})
+		})
+
+		return tx
 	})
-	db = db.Preload("OrderDeposits", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Products", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("ProductFinished")
+	db = db.Preload("OrderDeposits", func(tx1 *gorm.DB) *gorm.DB {
+		return tx1.Preload("Products", func(tx2 *gorm.DB) *gorm.DB {
+			return tx2.Preload("ProductFinished")
 		})
 	})
 	db = db.Preload("Payments")
 
 	return db
+}
+
+type OrderSalesProduct struct {
+	SoftDelete
+
+	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
+	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
+
+	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`            // 门店ID
+	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+
+	Type enums.ProductType `json:"type" gorm:"type:tinyint(1);not NULL;comment:类型;"` // 类型
+
+	Finished   OrderSalesProductFinished   `json:"finished,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:成品;"`
+	Old        OrderSalesProductOld        `json:"old,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:旧料;"`
+	Accessorie OrderSalesProductAccessorie `json:"accessorie,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:配件;"`
 }
 
 // 销售单成品
@@ -138,6 +159,8 @@ type OrderSalesProductFinished struct {
 
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
+
+	OrderProductId string `json:"order_product_id" gorm:"type:varchar(255);not NULL;comment:销售单产品ID;"` // 销售单产品ID
 
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`            // 门店ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
@@ -162,10 +185,10 @@ type OrderSalesProductFinished struct {
 type OrderSalesProductOld struct {
 	SoftDelete
 
-	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
-
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
+
+	OrderProductId string `json:"order_product_id" gorm:"type:varchar(255);not NULL;comment:销售单产品ID;"` // 销售单产品ID
 
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`            // 门店ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
@@ -187,10 +210,10 @@ type OrderSalesProductOld struct {
 type OrderSalesProductAccessorie struct {
 	SoftDelete
 
-	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
-
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
+
+	OrderProductId string `json:"order_product_id" gorm:"type:varchar(255);not NULL;comment:销售单产品ID;"` // 销售单产品ID
 
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`            // 门店ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店

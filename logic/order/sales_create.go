@@ -166,28 +166,33 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 	}
 
 	// 添加订单商品
-	order_product := model.OrderSalesProductFinished{
-		Status:            enums.OrderSalesStatusWaitPay,
-		OrderId:           l.Order.Id,
-		StoreId:           finished.StoreId,
-		ProductId:         finished.Id,
-		PriceGold:         p.PriceGold,
-		LaborFee:          p.LaborFee,
-		DiscountFixed:     p.DiscountFixed,
-		IntegralDeduction: p.IntegralDeduction,
-		DiscountMember:    p.DiscountMember,
-		RoundOff:          p.RoundOff,
-		PriceOriginal:     p.PriceOriginal,
-		Price:             p.Price,
-		DiscountFinal:     p.DiscountFinal,
+	order_product := model.OrderSalesProduct{
+		OrderId: l.Order.Id,
+		StoreId: finished.StoreId,
+		Status:  enums.OrderSalesStatusWaitPay,
+		Type:    enums.ProductTypeFinished,
+		Finished: model.OrderSalesProductFinished{
+			OrderId:           l.Order.Id,
+			StoreId:           finished.StoreId,
+			ProductId:         finished.Id,
+			PriceGold:         p.PriceGold,
+			LaborFee:          p.LaborFee,
+			DiscountFixed:     p.DiscountFixed,
+			IntegralDeduction: p.IntegralDeduction,
+			DiscountMember:    p.DiscountMember,
+			RoundOff:          p.RoundOff,
+			PriceOriginal:     p.PriceOriginal,
+			Price:             p.Price,
+			DiscountFinal:     p.DiscountFinal,
+		},
 	}
 
 	if l.Req.HasIntegral {
-		order_product.Integral = p.Integral
+		order_product.Finished.Integral = p.Integral
 	}
 
-	l.Order.ProductFinisheds = append(l.Order.ProductFinisheds, order_product)
-	l.Order.ProductFinishedPrice = l.Order.ProductFinishedPrice.Add(order_product.Price)
+	l.Order.Products = append(l.Order.Products, order_product)
+	l.Order.ProductFinishedPrice = l.Order.ProductFinishedPrice.Add(order_product.Finished.Price)
 
 	// 更新商品状态
 	if err := l.Tx.Model(&finished).Updates(model.ProductFinished{
@@ -203,9 +208,9 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 	}
 
 	// 计算总金额
-	l.Order.Price = l.Order.Price.Add(order_product.Price)
-	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.PriceOriginal)
-	l.Order.Integral = l.Order.Integral.Add(order_product.Integral)
+	l.Order.Price = l.Order.Price.Add(order_product.Finished.Price)
+	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Finished.PriceOriginal)
+	l.Order.Integral = l.Order.Integral.Add(order_product.Finished.Integral)
 
 	return nil
 }
@@ -224,26 +229,31 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 	}
 
 	// 添加订单商品
-	order_product := model.OrderSalesProductOld{
-		Status:                  enums.OrderSalesStatusWaitPay,
-		OrderId:                 l.Order.Id,
-		StoreId:                 old.StoreId,
-		ProductId:               old.Id,
-		WeightMetal:             p.WeightMetal,
-		RecyclePriceGold:        p.RecyclePriceGold,
-		RecyclePriceLabor:       p.RecyclePriceLabor,
-		RecyclePriceLaborMethod: p.RecyclePriceLaborMethod,
-		QualityActual:           p.QualityActual,
-		RecyclePrice:            p.RecyclePrice,
-		Integral:                p.Integral,
+	order_product := model.OrderSalesProduct{
+		OrderId: l.Order.Id,
+		StoreId: old.StoreId,
+		Status:  enums.OrderSalesStatusWaitPay,
+		Type:    enums.ProductTypeOld,
+		Old: model.OrderSalesProductOld{
+			OrderId:                 l.Order.Id,
+			StoreId:                 old.StoreId,
+			ProductId:               old.Id,
+			WeightMetal:             p.WeightMetal,
+			RecyclePriceGold:        p.RecyclePriceGold,
+			RecyclePriceLabor:       p.RecyclePriceLabor,
+			RecyclePriceLaborMethod: p.RecyclePriceLaborMethod,
+			QualityActual:           p.QualityActual,
+			RecyclePrice:            p.RecyclePrice,
+			Integral:                p.Integral,
+		},
 	}
 
 	if l.Req.HasIntegral {
-		order_product.Integral = p.Integral
+		order_product.Old.Integral = p.Integral
 	}
 
-	l.Order.ProductOlds = append(l.Order.ProductOlds, order_product)
-	l.Order.ProductOldPrice = l.Order.ProductOldPrice.Add(order_product.RecyclePrice)
+	l.Order.Products = append(l.Order.Products, order_product)
+	l.Order.ProductOldPrice = l.Order.ProductOldPrice.Add(order_product.Old.RecyclePrice)
 
 	// 更新商品状态
 	if err := l.Tx.Model(&old).Updates(model.ProductOld{
@@ -257,9 +267,9 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 		return errors.New("旧料记录添加失败")
 	}
 	// 计算总金额(减少)
-	l.Order.Price = l.Order.Price.Sub(order_product.RecyclePrice)
-	l.Order.PriceOriginal = l.Order.PriceOriginal.Sub(order_product.RecyclePrice)
-	l.Order.Integral = l.Order.Integral.Sub(order_product.Integral)
+	l.Order.Price = l.Order.Price.Sub(order_product.Old.RecyclePrice)
+	l.Order.PriceOriginal = l.Order.PriceOriginal.Sub(order_product.Old.RecyclePrice)
+	l.Order.Integral = l.Order.Integral.Sub(order_product.Old.Integral)
 
 	return nil
 }
@@ -278,21 +288,26 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	}
 
 	// 添加订单商品
-	order_product := model.OrderSalesProductAccessorie{
-		Status:    enums.OrderSalesStatusWaitPay,
-		OrderId:   l.Order.Id,
-		StoreId:   l.Order.StoreId,
-		ProductId: old_product.Id,
-		Quantity:  p.Quantity,
-		Price:     p.Price,
+	order_product := model.OrderSalesProduct{
+		OrderId: l.Order.Id,
+		StoreId: accessory.StoreId,
+		Status:  enums.OrderSalesStatusWaitPay,
+		Type:    enums.ProductTypeAccessorie,
+		Accessorie: model.OrderSalesProductAccessorie{
+			OrderId:   l.Order.Id,
+			StoreId:   l.Order.StoreId,
+			ProductId: old_product.Id,
+			Quantity:  p.Quantity,
+			Price:     p.Price,
+		},
 	}
 
 	if l.Req.HasIntegral {
-		order_product.Integral = p.Integral
+		order_product.Accessorie.Integral = p.Integral
 	}
 
-	l.Order.ProductAccessories = append(l.Order.ProductAccessories, order_product)
-	l.Order.ProductAccessoriePrice = l.Order.ProductAccessoriePrice.Add(order_product.Price)
+	l.Order.Products = append(l.Order.Products, order_product)
+	l.Order.ProductAccessoriePrice = l.Order.ProductAccessoriePrice.Add(order_product.Accessorie.Price)
 
 	status := accessory.Status
 	// 判断库存
@@ -313,9 +328,9 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		return errors.New("配件记录添加失败")
 	}
 	// 计算总金额
-	l.Order.Price = l.Order.Price.Add(order_product.Price)
-	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Price)
-	l.Order.Integral = l.Order.Integral.Add(order_product.Integral)
+	l.Order.Price = l.Order.Price.Add(order_product.Accessorie.Price)
+	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Accessorie.Price)
+	l.Order.Integral = l.Order.Integral.Add(order_product.Accessorie.Integral)
 
 	return nil
 }

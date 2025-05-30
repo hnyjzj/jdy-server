@@ -6,6 +6,7 @@ import (
 	"jdy/logic/order"
 	"jdy/types"
 	"jdy/utils"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,6 +41,7 @@ func (con OrderSalesDetailController) List(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
+		log.Panicf("err: %v", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

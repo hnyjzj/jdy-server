@@ -13,11 +13,11 @@ type OrderSalesDetailLogic struct {
 	Staff *types.Staff
 }
 
-func (l *OrderSalesDetailLogic) List(req *types.OrderSalesDetailListReq) (*types.PageRes[[]model.OrderSalesProduct], error) {
+func (l *OrderSalesDetailLogic) List(req *types.OrderSalesDetailListReq) (*types.PageRes[model.OrderSalesProduct], error) {
 	var (
 		product model.OrderSalesProduct
 
-		res types.PageRes[[]model.OrderSalesProduct]
+		res types.PageRes[model.OrderSalesProduct]
 	)
 
 	db := model.DB.Model(&product)

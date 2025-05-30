@@ -13,11 +13,11 @@ type OrderSalesRefundLogic struct {
 	Staff *types.Staff
 }
 
-func (l *OrderSalesRefundLogic) List(req *types.OrderSalesRefundListReq) (*types.PageRes[[]model.OrderRefund], error) {
+func (l *OrderSalesRefundLogic) List(req *types.OrderSalesRefundListReq) (*types.PageRes[model.OrderRefund], error) {
 	var (
 		product model.OrderRefund
 
-		res types.PageRes[[]model.OrderRefund]
+		res types.PageRes[model.OrderRefund]
 	)
 
 	db := model.DB.Model(&product)

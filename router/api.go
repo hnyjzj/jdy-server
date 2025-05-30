@@ -102,17 +102,17 @@ func Api(g *gin.Engine) {
 		// 门店
 		stores := r.Group("/store")
 		{
-			storesm := stores.Group("/")
+			root := stores.Group("/")
 			{
-				storesm.GET("/where", store.StoreController{}.Where) // 门店筛选
-				storesm.Use(middlewares.JWTMiddleware())
+				root.GET("/where", store.StoreController{}.Where) // 门店筛选
+				root.Use(middlewares.JWTMiddleware())
 				{
-					storesm.POST("/create", store.StoreController{}.Create)   // 创建门店
-					storesm.PUT("/update", store.StoreController{}.Update)    // 门店更新
-					storesm.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
-					storesm.POST("/list", store.StoreController{}.List)       // 门店列表
-					storesm.POST("/my", store.StoreController{}.My)           // 我的门店
-					storesm.POST("/info", store.StoreController{}.Info)       // 门店详情
+					root.POST("/create", store.StoreController{}.Create)   // 创建门店
+					root.PUT("/update", store.StoreController{}.Update)    // 门店更新
+					root.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
+					root.POST("/list", store.StoreController{}.List)       // 门店列表
+					root.POST("/my", store.StoreController{}.My)           // 我的门店
+					root.POST("/info", store.StoreController{}.Info)       // 门店详情
 				}
 
 			}
@@ -309,14 +309,16 @@ func Api(g *gin.Engine) {
 		// 会员
 		members := r.Group("/member")
 		{
-			members.GET("/where", member.MemberController{}.Where) // 会员筛选
-			members.Use(middlewares.JWTMiddleware())
+			root := members.Group("/")
 			{
-				members.POST("/create", member.MemberController{}.Create) // 创建会员
-				members.POST("/list", member.MemberController{}.List)     // 会员列表
-				members.POST("/info", member.MemberController{}.Info)     // 会员详情
-				members.PUT("/update", member.MemberController{}.Update)  // 会员更新
-
+				root.GET("/where", member.MemberController{}.Where) // 会员筛选
+				root.Use(middlewares.JWTMiddleware())
+				{
+					root.POST("/create", member.MemberController{}.Create) // 创建会员
+					root.POST("/list", member.MemberController{}.List)     // 会员列表
+					root.POST("/info", member.MemberController{}.Info)     // 会员详情
+					root.PUT("/update", member.MemberController{}.Update)  // 会员更新
+				}
 			}
 
 			integrals := members.Group("/integral")
@@ -349,15 +351,18 @@ func Api(g *gin.Engine) {
 			// 销售单
 			sales := orders.Group("/sales")
 			{
-				sales.GET("/where", order.OrderSalesController{}.Where) // 订单筛选
-				sales.Use(middlewares.JWTMiddleware())
+				root := sales.Group("/")
 				{
-					sales.POST("/create", order.OrderSalesController{}.Create)  // 创建订单
-					sales.POST("/list", order.OrderSalesController{}.List)      // 订单列表
-					sales.POST("/info", order.OrderSalesController{}.Info)      // 订单详情
-					sales.PUT("/revoked", order.OrderSalesController{}.Revoked) // 订单撤销
-					sales.PUT("/pay", order.OrderSalesController{}.Pay)         // 订单支付
-					sales.PUT("/refund", order.OrderSalesController{}.Refund)   // 退货
+					root.GET("/where", order.OrderSalesController{}.Where) // 订单筛选
+					root.Use(middlewares.JWTMiddleware())
+					{
+						root.POST("/create", order.OrderSalesController{}.Create)  // 创建订单
+						root.POST("/list", order.OrderSalesController{}.List)      // 订单列表
+						root.POST("/info", order.OrderSalesController{}.Info)      // 订单详情
+						root.PUT("/revoked", order.OrderSalesController{}.Revoked) // 订单撤销
+						root.PUT("/pay", order.OrderSalesController{}.Pay)         // 订单支付
+						root.PUT("/refund", order.OrderSalesController{}.Refund)   // 退货
+					}
 				}
 
 				details := sales.Group("/detail")

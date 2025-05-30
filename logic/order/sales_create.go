@@ -167,10 +167,12 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 
 	// 添加订单商品
 	order_product := model.OrderSalesProduct{
-		OrderId: l.Order.Id,
-		StoreId: finished.StoreId,
-		Status:  enums.OrderSalesStatusWaitPay,
-		Type:    enums.ProductTypeFinished,
+		OrderId:  l.Order.Id,
+		StoreId:  finished.StoreId,
+		Status:   enums.OrderSalesStatusWaitPay,
+		Type:     enums.ProductTypeFinished,
+		Code:     finished.Code,
+		MemberId: l.Order.MemberId,
 		Finished: model.OrderSalesProductFinished{
 			OrderId:           l.Order.Id,
 			StoreId:           finished.StoreId,
@@ -230,10 +232,12 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 
 	// 添加订单商品
 	order_product := model.OrderSalesProduct{
-		OrderId: l.Order.Id,
-		StoreId: old.StoreId,
-		Status:  enums.OrderSalesStatusWaitPay,
-		Type:    enums.ProductTypeOld,
+		OrderId:  l.Order.Id,
+		StoreId:  old.StoreId,
+		Status:   enums.OrderSalesStatusWaitPay,
+		Type:     enums.ProductTypeOld,
+		Code:     old.Code,
+		MemberId: l.Order.MemberId,
 		Old: model.OrderSalesProductOld{
 			OrderId:                 l.Order.Id,
 			StoreId:                 old.StoreId,
@@ -289,10 +293,12 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 
 	// 添加订单商品
 	order_product := model.OrderSalesProduct{
-		OrderId: l.Order.Id,
-		StoreId: accessory.StoreId,
-		Status:  enums.OrderSalesStatusWaitPay,
-		Type:    enums.ProductTypeAccessorie,
+		OrderId:  l.Order.Id,
+		StoreId:  accessory.StoreId,
+		Status:   enums.OrderSalesStatusWaitPay,
+		Type:     enums.ProductTypeAccessorie,
+		Code:     accessory.Code,
+		MemberId: l.Order.MemberId,
 		Accessorie: model.OrderSalesProductAccessorie{
 			OrderId:   l.Order.Id,
 			StoreId:   l.Order.StoreId,

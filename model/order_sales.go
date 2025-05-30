@@ -142,13 +142,56 @@ type OrderSalesProduct struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`            // 门店ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
+	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`             // 会员ID
+	Member   Member `json:"member,omitempty" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
+
 	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
 
 	Type enums.ProductType `json:"type" gorm:"type:tinyint(1);not NULL;comment:类型;"` // 类型
+	Code string            `json:"code" gorm:"type:varchar(255);NULL;comment:条码;"`   // 条码
 
 	Finished   OrderSalesProductFinished   `json:"finished,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:成品;"`
 	Old        OrderSalesProductOld        `json:"old,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:旧料;"`
 	Accessorie OrderSalesProductAccessorie `json:"accessorie,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:配件;"`
+}
+
+func (OrderSalesProduct) WhereCondition(db *gorm.DB, req *types.OrderSalesDetailWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id = ?", req.Id)
+	}
+	if req.OrderId != "" {
+		db = db.Where("order_id = ?", req.OrderId)
+	}
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
+	}
+	if req.Type != 0 {
+		db = db.Where("type = ?", req.Type)
+	}
+	if req.Code != "" {
+		db = db.Where("code = ?", req.Code)
+	}
+	return db
+}
+
+func (OrderSalesProduct) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Order")
+	db = db.Preload("Store")
+	db = db.Preload("Member")
+
+	db = db.Preload("Finished", func(tx1 *gorm.DB) *gorm.DB {
+		return tx1.Preload("Product")
+	})
+	db = db.Preload("Old", func(tx1 *gorm.DB) *gorm.DB {
+		return tx1.Preload("Product")
+	})
+	db = db.Preload("Accessorie", func(tx1 *gorm.DB) *gorm.DB {
+		return tx1.Preload("Product", func(tx2 *gorm.DB) *gorm.DB {
+			return tx2.Preload("Category")
+		})
+	})
+
+	return db
 }
 
 // 销售单成品

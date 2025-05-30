@@ -359,6 +359,16 @@ func Api(g *gin.Engine) {
 					sales.PUT("/pay", order.OrderSalesController{}.Pay)         // 订单支付
 					sales.PUT("/refund", order.OrderSalesController{}.Refund)   // 退货
 				}
+
+				details := sales.Group("/detail")
+				{
+					details.GET("/where", order.OrderSalesDetailController{}.Where) // 订单筛选
+					details.Use(middlewares.JWTMiddleware())
+					{
+						details.POST("/list", order.OrderSalesDetailController{}.List) // 订单列表
+						details.POST("/info", order.OrderSalesDetailController{}.Info) // 订单详情
+					}
+				}
 			}
 
 			// 定金单

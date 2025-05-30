@@ -171,6 +171,13 @@ func (OrderSalesProduct) WhereCondition(db *gorm.DB, req *types.OrderSalesDetail
 	if req.Code != "" {
 		db = db.Where("code = ?", req.Code)
 	}
+	if req.StartDate != nil {
+		db = db.Where("created_at >= ?", req.StartDate)
+	}
+	if req.EndDate != nil {
+		db = db.Where("created_at <= ?", req.EndDate)
+	}
+
 	return db
 }
 

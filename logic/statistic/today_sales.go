@@ -98,15 +98,15 @@ func (l *TodaySalesLogic) getTodaySales() error {
 // 获取今日销售件数
 func (l *TodaySalesLogic) getTodaySalesCount() error {
 	var orders []model.OrderSales
-	if err := l.Db.Model(&model.OrderSalesProductFinished{}).
-		Where(&model.OrderSalesProductFinished{
-			StoreId: l.Req.StoreId,
-			Status:  enums.OrderSalesStatusComplete,
-		}).
-		Scopes(model.DurationCondition(enums.DurationToday)).
-		Find(&orders).Error; err != nil {
-		return errors.New("获取今日销售件数失败")
-	}
+	// if err := l.Db.Model(&model.OrderSalesProductFinished{}).
+	// 	Where(&model.OrderSalesProductFinished{
+	// 		StoreId: l.Req.StoreId,
+	// 		Status:  enums.OrderSalesStatusComplete,
+	// 	}).
+	// 	Scopes(model.DurationCondition(enums.DurationToday)).
+	// 	Find(&orders).Error; err != nil {
+	// 	return errors.New("获取今日销售件数失败")
+	// }
 
 	l.Res.SalesCount = int64(len(orders))
 
@@ -116,16 +116,16 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 // 获取旧货抵值
 func (l *TodaySalesLogic) getOldGoodsAmount() error {
 	var old_goods_amount sql.NullFloat64
-	if err := l.Db.Model(&model.OrderSalesProductOld{}).
-		Where(&model.OrderSalesProductOld{
-			StoreId: l.Req.StoreId,
-			Status:  enums.OrderSalesStatusComplete,
-		}).
-		Scopes(model.DurationCondition(enums.DurationToday)).
-		Select("sum(recycle_price) as sales_amount").
-		Scan(&old_goods_amount).Error; err != nil {
-		return errors.New("获取今日销售数据失败")
-	}
+	// if err := l.Db.Model(&model.OrderSalesProductOld{}).
+	// 	Where(&model.OrderSalesProductOld{
+	// 		StoreId: l.Req.StoreId,
+	// 		Status:  enums.OrderSalesStatusComplete,
+	// 	}).
+	// 	Scopes(model.DurationCondition(enums.DurationToday)).
+	// 	Select("sum(recycle_price) as sales_amount").
+	// 	Scan(&old_goods_amount).Error; err != nil {
+	// 	return errors.New("获取今日销售数据失败")
+	// }
 
 	if old_goods_amount.Valid {
 		l.Res.OldGoodsAmount = decimal.NewFromFloat(old_goods_amount.Float64)

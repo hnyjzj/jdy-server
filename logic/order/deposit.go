@@ -283,8 +283,10 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 
 		if !p.IsOur {
 			data.Name = p.ProductDemand.Name
+			data.Code = p.ProductDemand.Code
 		} else {
 			data.Name = p.ProductFinished.Name
+			data.Code = p.ProductFinished.Code
 			// 添加历史
 			log := model.ProductHistory{
 				Action:     enums.ProductActionReturn,
@@ -308,6 +310,7 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 			}
 		}
 
+		data.Type = enums.ProductTypeOld
 		data.Quantity = 1
 		data.Price = p.Price
 		data.PriceOriginal = p.Price

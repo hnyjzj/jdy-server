@@ -41,7 +41,7 @@ func (con OrderSalesDetailController) List(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
-		log.Panicf("err: %v", err.Error())
+		log.Printf("参数绑定失败: %v", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

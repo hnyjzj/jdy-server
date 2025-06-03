@@ -80,45 +80,45 @@ func (*StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq) (
 
 func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
 	var (
-		db    = model.DB
+		// db    = model.DB
 		total = decimal.NewFromFloat(0)
 	)
 
 	var finished sql.NullFloat64
-	if err := db.Model(&model.OrderSalesProductFinished{}).
-		Scopes(model.DurationCondition(l.Req.Duration)).
-		Where(&model.OrderSalesProductFinished{
-			StoreId: res.Store.Id,
-			Status:  enums.OrderSalesStatusComplete,
-		}).Select("sum(price) as total").Scan(&finished).Error; err != nil {
-		return errors.New("获取总业绩失败")
-	}
+	// if err := db.Model(&model.OrderSalesProductFinished{}).
+	// 	Scopes(model.DurationCondition(l.Req.Duration)).
+	// 	Where(&model.OrderSalesProduct{
+	// 		StoreId: res.Store.Id,
+	// 		Status:  enums.OrderSalesStatusComplete,
+	// 	}).Select("sum(price) as total").Scan(&finished).Error; err != nil {
+	// 	return errors.New("获取总业绩失败")
+	// }
 	if finished.Valid {
 		total = total.Add(decimal.NewFromFloat(finished.Float64))
 	}
 
 	var old sql.NullFloat64
-	if err := db.Model(&model.OrderSalesProductOld{}).
-		Scopes(model.DurationCondition(l.Req.Duration)).
-		Where(&model.OrderSalesProductOld{
-			StoreId: res.Store.Id,
-			Status:  enums.OrderSalesStatusComplete,
-		}).Select("sum(price) as total").Scan(&old).Error; err != nil {
-		return errors.New("获取总业绩失败")
-	}
+	// if err := db.Model(&model.OrderSalesProductOld{}).
+	// 	Scopes(model.DurationCondition(l.Req.Duration)).
+	// 	Where(&model.OrderSalesProductOld{
+	// 		StoreId: res.Store.Id,
+	// 		Status:  enums.OrderSalesStatusComplete,
+	// 	}).Select("sum(price) as total").Scan(&old).Error; err != nil {
+	// 	return errors.New("获取总业绩失败")
+	// }
 	if old.Valid {
 		total = total.Add(decimal.NewFromFloat(old.Float64))
 	}
 
 	var accessories sql.NullFloat64
-	if err := db.Model(&model.OrderSalesProductAccessorie{}).
-		Scopes(model.DurationCondition(l.Req.Duration)).
-		Where(&model.OrderSalesProductAccessorie{
-			StoreId: res.Store.Id,
-			Status:  enums.OrderSalesStatusComplete,
-		}).Select("sum(price) as total").Scan(&accessories).Error; err != nil {
-		return errors.New("获取总业绩失败")
-	}
+	// if err := db.Model(&model.OrderSalesProductAccessorie{}).
+	// 	Scopes(model.DurationCondition(l.Req.Duration)).
+	// 	Where(&model.OrderSalesProductAccessorie{
+	// 		StoreId: res.Store.Id,
+	// 		Status:  enums.OrderSalesStatusComplete,
+	// 	}).Select("sum(price) as total").Scan(&accessories).Error; err != nil {
+	// 	return errors.New("获取总业绩失败")
+	// }
 	if accessories.Valid {
 		total = total.Add(decimal.NewFromFloat(accessories.Float64))
 	}
@@ -143,12 +143,12 @@ func (l *StoreSalesTotalLogic) getSilver(res *StoreSalesTotalRes) error {
 		silver sql.NullFloat64
 	)
 
-	if err := l.getWhereDb().
-		Where("products.class = ?", enums.ProductClassFinishedSilver).
-		Select("SUM(order_products.amount)").
-		Scan(&silver).Error; err != nil {
-		return errors.New("获取银饰数量失败")
-	}
+	// if err := l.getWhereDb().
+	// 	Where("products.class = ?", enums.ProductClassFinishedSilver).
+	// 	Select("SUM(order_products.amount)").
+	// 	Scan(&silver).Error; err != nil {
+	// 	return errors.New("获取银饰数量失败")
+	// }
 
 	if silver.Valid {
 		res.Silver = decimal.NewFromFloat(silver.Float64)

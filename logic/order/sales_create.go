@@ -294,14 +294,14 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	// 添加订单商品
 	order_product := model.OrderSalesProduct{
 		OrderId:  l.Order.Id,
-		StoreId:  accessory.StoreId,
+		StoreId:  l.Req.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeAccessorie,
 		Code:     accessory.Code,
 		MemberId: l.Order.MemberId,
 		Accessorie: model.OrderSalesProductAccessorie{
 			OrderId:   l.Order.Id,
-			StoreId:   l.Order.StoreId,
+			StoreId:   l.Req.StoreId,
 			ProductId: old_product.Id,
 			Quantity:  p.Quantity,
 			Price:     p.Price,
@@ -386,6 +386,10 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 	var product model.ProductFinished
 	db := l.Tx.Model(&model.ProductFinished{})
 	db = db.Where("id = ?", product_id)
+	db = db.Where(&model.ProductFinished{
+		Status:  enums.ProductStatusNormal,
+		StoreId: l.Req.StoreId,
+	})
 	db = db.Preload("Store")
 
 	if err := db.First(&product).Error; err != nil {
@@ -422,7 +426,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		WeightOther:             p.WeightOther,
 		NumOther:                p.NumOther,
 		Remark:                  p.Remark,
-		StoreId:                 l.Order.StoreId,
+		StoreId:                 l.Req.StoreId,
 		RecycleMethod:           p.RecycleMethod,
 		RecycleType:             p.RecycleType,
 		RecyclePriceGold:        p.RecyclePriceGold,
@@ -432,7 +436,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		QualityActual:           p.QualityActual,
 		RecycleSource:           enums.ProductRecycleSourceHuiShou,
 		RecycleSourceId:         l.Order.Id,
-		RecycleStoreId:          l.Order.StoreId,
+		RecycleStoreId:          l.Req.StoreId,
 	}
 
 	if !p.IsOur {
@@ -446,7 +450,8 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		db := l.Tx.Model(&model.ProductFinished{})
 		db = db.Where("id = ?", product_id)
 		db = db.Where(&model.ProductFinished{
-			Status: enums.ProductStatusSold,
+			Status:  enums.ProductStatusSold,
+			StoreId: l.Req.StoreId,
 		})
 		db = db.Preload("Store")
 
@@ -472,6 +477,9 @@ func (l *OrderSalesCreateLogic) getProductAccessory(product_id string, quantity 
 	var product model.ProductAccessorie
 	db := l.Tx.Model(&model.ProductAccessorie{})
 	db = db.Where("id = ?", product_id)
+	db = db.Where(&model.ProductAccessorie{
+		StoreId: l.Req.StoreId,
+	})
 	db = db.Preload("Store")
 	db = db.Preload("Category")
 
@@ -554,7 +562,7 @@ func (l *OrderSalesCreateLogic) setPayment() error {
 	// 添加支付记录
 	for _, p := range l.Req.Payments {
 		payment := model.OrderPayment{
-			StoreId:       l.Order.StoreId,
+			StoreId:       l.Req.StoreId,
 			Type:          enums.FinanceTypeIncome,
 			Source:        enums.FinanceSourceSaleReceive,
 			OrderType:     enums.OrderTypeSales,

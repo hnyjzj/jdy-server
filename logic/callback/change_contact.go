@@ -103,11 +103,6 @@ func (l *EventChangeContactEvent) UpdateUser(message *models1.CallbackMessageHea
 
 	if err := model.DB.Model(&account).Updates(model.Account{
 		Username: &uid,
-		Phone:    &l.UserUpdate.Mobile,
-		Nickname: &l.UserUpdate.Name,
-		Avatar:   &l.UserUpdate.Avatar,
-		Email:    &l.UserUpdate.Email,
-		Gender:   enums.GenderUnknown.Convert(l.UserUpdate.Gender),
 		Info:     &l.UserUpdate,
 	}).Error; err != nil {
 		return err

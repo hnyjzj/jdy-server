@@ -129,22 +129,22 @@ func (l *EventChangeContactEvent) DeleteUser(message *models1.CallbackMessageHea
 		Username: &l.UserDelete.UserID,
 		Platform: enums.PlatformTypeWxWork,
 	}).Preload("Staff").First(&account).Error; err != nil {
-		return errors.New("用户不存在")
+		return errors.New(l.UserDelete.UserID + "用户不存在")
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		if account.Staff != nil {
 			if err := tx.Delete(&account.Staff).Error; err != nil {
-				return err
+				return errors.New(l.UserDelete.UserID + "删除员工失败")
 			}
 			if err := tx.Where(model.Account{
 				StaffId: account.StaffId,
 			}).Delete(&model.Account{}).Error; err != nil {
-				return err
+				return errors.New(l.UserDelete.UserID + "删除账号失败")
 			}
 		} else {
 			if err := tx.Delete(&account).Error; err != nil {
-				return err
+				return errors.New(l.UserDelete.UserID + "删除空账号失败")
 			}
 		}
 

@@ -37,8 +37,6 @@ func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
 			res = handler.ChangeExternalContactEvent()
 		case EventChangeContact:
 			res = handler.ChangeContactEvent()
-		default:
-			log.Printf("wxwork notify event: %s", event.GetEvent())
 		}
 
 		if res == nil {

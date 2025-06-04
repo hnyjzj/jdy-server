@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"errors"
 	"fmt"
 	"jdy/enums"
 	"jdy/model"
@@ -8,6 +9,7 @@ import (
 
 	models1 "github.com/ArtisanCloud/PowerWeChat/v3/src/kernel/models"
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/server/handlers/models"
+	"gorm.io/gorm"
 )
 
 // 分配
@@ -115,6 +117,39 @@ func (l *EventChangeContactEvent) UpdateUser(message *models1.CallbackMessageHea
 func (l *EventChangeContactEvent) DeleteUser(message *models1.CallbackMessageHeader) error {
 	// 解析消息体
 	if err := l.Handle.Event.ReadMessage(&l.UserDelete); err != nil {
+		return err
+	}
+
+	if l.UserDelete.UserID == "" {
+		return nil
+	}
+
+	var account model.Account
+	if err := model.DB.Where(model.Account{
+		Username: &l.UserDelete.UserID,
+		Platform: enums.PlatformTypeWxWork,
+	}).Preload("Staff").First(&account).Error; err != nil {
+		return errors.New("用户不存在")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		if account.Staff != nil {
+			if err := tx.Delete(&account.Staff).Error; err != nil {
+				return err
+			}
+			if err := tx.Where(model.Account{
+				StaffId: account.StaffId,
+			}).Delete(&model.Account{}).Error; err != nil {
+				return err
+			}
+		} else {
+			if err := tx.Delete(&account).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}); err != nil {
 		return err
 	}
 

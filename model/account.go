@@ -21,8 +21,6 @@ type Account struct {
 	Email    *string      `json:"email" gorm:"size:255;comment:邮箱"`
 	Gender   enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"` // 性别
 
-	Info any `json:"info" gorm:"type:text;serializer:json;default:null;comment:扩展信息"`
-
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"comment:最后登录时间"`
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`
 

@@ -128,18 +128,21 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 	user, err := jdy.OAuth.Provider.GetUserInfo(code)
 	if err != nil || user.UserID == "" || user.UserTicket == "" {
 		log.Printf("获取企业微信用户信息失败: %+v", err)
+		log.Printf("获取企业微信用户信息失败: %+v", user)
 		return errors.New("获取企业微信用户信息失败")
 	}
 	// 获取用户详情
 	detail, err := jdy.OAuth.Provider.GetUserDetail(user.UserTicket)
 	if err != nil || detail.Mobile == "" {
 		log.Printf("获取企业微信用户详情失败: %+v", err)
+		log.Printf("获取企业微信用户详情失败: %+v", detail)
 		return errors.New("获取企业微信用户详情失败")
 	}
 	// 读取员工信息
 	userinfo, err := jdy.User.Get(l.Ctx, user.UserID)
 	if err != nil || userinfo.UserID == "" {
 		log.Printf("读取员工信息失败: %+v", err)
+		log.Printf("读取员工信息失败: %+v", userinfo)
 		return errors.New("读取员工信息失败")
 	}
 
@@ -217,74 +220,86 @@ func (l *wxworkLoginLogic) register() error {
 		l.Account.Phone = l.UserInfo.Phone
 	}
 
+	// 手机号未授权
+	if l.UserInfo.Phone == nil {
+		return errors.New("手机号未授权")
+	}
+
 	// 手机号不一致
-	if (l.Account.Phone == nil || l.UserInfo.Phone == nil) || *l.Account.Phone != *l.UserInfo.Phone {
+	if l.Account.Phone != nil && *l.Account.Phone != *l.UserInfo.Phone {
 		return errors.New("手机号不一致")
 	}
 
-	if l.Account.StaffId == nil {
-		// 查询员工
-		var data *model.Staff
-		err := l.Db.Where(&model.Staff{Phone: l.UserInfo.Phone}).First(&data).Error
+	if l.Account.StaffId != nil {
+		return nil
+	}
+
+	// 查询员工
+	var data *model.Staff
+	err := l.Db.Where(&model.Staff{Phone: l.UserInfo.Phone}).First(&data).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		l.Db.Rollback()
+		return errors.New("注册员工失败")
+	}
+
+	// 员工不存在
+	if data.Id == "" {
+		// 创建员工
+		data = &model.Staff{
+			Phone:    l.UserInfo.Phone,
+			Nickname: *l.UserInfo.Nickname,
+			Avatar:   *l.UserInfo.Avatar,
+			Email:    *l.UserInfo.Email,
+			Gender:   l.UserInfo.Gender,
+		}
+		if err := l.Db.Create(&data).Error; err != nil {
+			l.Db.Rollback()
+			return errors.New("员工注册失败")
+		}
+
+		// 查询账号
+		var account *model.Account
+		err := l.Db.Where(&model.Account{
+			Platform: enums.PlatformTypeAccount,
+			Phone:    l.UserInfo.Phone,
+		}).First(&account).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			l.Db.Rollback()
 			return errors.New("注册员工失败")
 		}
-		// 员工不存在
-		if data.Id == "" {
-			data = &model.Staff{
-				Phone:    l.UserInfo.Phone,
-				Nickname: *l.UserInfo.Nickname,
-				Avatar:   *l.UserInfo.Avatar,
-				Email:    *l.UserInfo.Email,
-				Gender:   l.UserInfo.Gender,
-			}
-			if err := l.Db.Create(&data).Error; err != nil {
-				l.Db.Rollback()
-				return errors.New("员工注册失败")
-			}
-			// 查询账号
-			var account *model.Account
-			err := l.Db.Where(&model.Account{
+
+		// 账号不存在
+		if account.Id == "" {
+			password := utils.RandomAlphanumeric(8)
+			account = &model.Account{
 				Platform: enums.PlatformTypeAccount,
 				Phone:    l.UserInfo.Phone,
-			}).First(&account).Error
-			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				Password: &password,
+				Username: l.UserInfo.Username,
+				Nickname: l.UserInfo.Nickname,
+				Avatar:   l.UserInfo.Avatar,
+				Email:    l.UserInfo.Email,
+				Gender:   l.UserInfo.Gender,
+				StaffId:  &data.Id,
+			}
+			if err := l.Db.Create(&account).Error; err != nil {
 				l.Db.Rollback()
-				return errors.New("注册员工失败")
+				return errors.New("创建账号失败")
 			}
-			// 账号不存在
-			if account.Id == "" {
-				password := utils.RandomAlphanumeric(8)
-				account = &model.Account{
-					Platform: enums.PlatformTypeAccount,
-					Phone:    l.UserInfo.Phone,
-					Password: &password,
-					Username: l.UserInfo.Username,
-					Nickname: l.UserInfo.Nickname,
-					Avatar:   l.UserInfo.Avatar,
-					Email:    l.UserInfo.Email,
-					Gender:   l.UserInfo.Gender,
-					StaffId:  &data.Id,
-				}
-				if err := l.Db.Create(&account).Error; err != nil {
-					l.Db.Rollback()
-					return errors.New("创建账号失败")
-				}
 
-				go func(UserInfo *model.Account) {
-					m := message.NewMessage(l.Ctx)
-					m.SendRegisterMessage(&message.RegisterMessageContent{
-						Nickname: *UserInfo.Nickname,
-						Username: *UserInfo.Username,
-						Phone:    *UserInfo.Phone,
-						Password: password,
-					})
-				}(l.UserInfo)
-			}
+			go func(UserInfo *model.Account) {
+				m := message.NewMessage(l.Ctx)
+				m.SendRegisterMessage(&message.RegisterMessageContent{
+					Nickname: *UserInfo.Nickname,
+					Username: *UserInfo.Username,
+					Phone:    *UserInfo.Phone,
+					Password: password,
+				})
+			}(l.UserInfo)
 		}
-		l.Account.StaffId = &data.Id
 	}
+
+	l.Account.StaffId = &data.Id
 
 	return nil
 }

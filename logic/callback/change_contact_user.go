@@ -5,6 +5,7 @@ import (
 	"jdy/enums"
 	"jdy/model"
 	"log"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -43,7 +44,6 @@ func (l *EventChangeContactEvent) CreateUser() error {
 		Avatar:   &handler.UserCreate.Avatar,
 		Email:    &handler.UserCreate.Email,
 		Gender:   enums.GenderUnknown.Convert(handler.UserCreate.Gender),
-		Info:     &handler.UserCreate,
 	}).FirstOrCreate(&account).Error; err != nil {
 		return err
 	}
@@ -64,10 +64,13 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 	}
 
 	var account model.Account
-	if err := model.DB.Where(model.Account{
-		Username: &handler.UserUpdate.UserID,
-		Platform: enums.PlatformTypeWxWork,
-	}).First(&account).Error; err != nil {
+	if err := model.DB.
+		Where(model.Account{
+			Username: &handler.UserUpdate.UserID,
+			Platform: enums.PlatformTypeWxWork,
+		}).
+		Preload("Staff").
+		First(&account).Error; err != nil {
 		return err
 	}
 
@@ -76,10 +79,28 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 		uid = handler.UserUpdate.NewUserID
 	}
 
-	if err := model.DB.Model(&account).Updates(model.Account{
-		Username: &uid,
-		Info:     &handler.UserUpdate,
-	}).Error; err != nil {
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 更新用户名
+		if err := tx.Model(&account).Updates(model.Account{
+			Username: &uid,
+		}).Error; err != nil {
+			return err
+		}
+
+		// 查询门店
+		if account.Staff != nil {
+			var stores []model.Store
+			if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&stores).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Model(&account.Staff).Association("Stores").Replace(stores); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}); err != nil {
 		return err
 	}
 

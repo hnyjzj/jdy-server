@@ -30,7 +30,9 @@ func (l *EventChangeContactEvent) CreateParty() error {
 	}
 
 	var stroe model.Store
-	if err := model.DB.First(&stroe, "id = ?", handler.PartyCreate.ID).Error; err != nil {
+	if err := model.DB.Where(&model.Store{
+		IdWx: handler.PartyCreate.ID,
+	}).First(&stroe).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return err
 		}
@@ -52,11 +54,24 @@ func (l *EventChangeContactEvent) CreateParty() error {
 	}
 
 	store := model.Store{
+		IdWx:     fmt.Sprint(party.ID),
 		Name:     party.Name,
 		ParentId: fmt.Sprint(party.ParentID),
 		Order:    party.Order,
 	}
-	store.Id = fmt.Sprint(party.ID)
+
+	var parent model.Store
+	if err := model.DB.Where(&model.Store{
+		IdWx: fmt.Sprint(party.ParentID),
+	}).First(&parent).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+	}
+
+	if parent.Id != "" {
+		store.ParentId = parent.Id
+	}
 
 	if len(party.DepartmentLeaders) > 0 {
 		var superiors []model.Account
@@ -98,7 +113,9 @@ func (l *EventChangeContactEvent) DeleteParty() error {
 	}
 
 	var party model.Store
-	if err := model.DB.First(&party, "id = ?", msg.PartyDelete.ID).Error; err != nil {
+	if err := model.DB.Where(&model.Store{
+		IdWx: msg.PartyDelete.ID,
+	}).First(&party).Error; err != nil {
 		return err
 	}
 

@@ -24,7 +24,8 @@ type Staff struct {
 	Account  *Account  `json:"account,omitempty" gorm:"foreignKey:StaffId;references:Id;"`
 	Accounts []Account `json:"accounts,omitempty" gorm:"foreignKey:StaffId;references:Id;"`
 
-	Stores []Store `json:"stores" gorm:"many2many:stores_staffs;"`
+	Stores    []Store `json:"stores" gorm:"many2many:stores_staffs;"`
+	Superiors []Store `json:"superiors" gorm:"many2many:stores_superiors;"` // 负责人
 }
 
 func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {

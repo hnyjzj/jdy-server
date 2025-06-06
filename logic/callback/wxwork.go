@@ -2,6 +2,7 @@ package callback
 
 import (
 	"errors"
+	"jdy/config"
 	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
@@ -11,15 +12,17 @@ import (
 )
 
 type WxWork struct {
-	Ctx   *gin.Context            // 上下文
-	Event contract.EventInterface // 事件
-	Staff *types.Staff            // 员工信息
+	Ctx    *gin.Context            // 上下文
+	Event  contract.EventInterface // 事件
+	Staff  *types.Staff            // 员工信息
+	Wechat *config.WechatService   // 金斗云
 }
 
 func NewWxWork(ctx *gin.Context, event contract.EventInterface) *WxWork {
 	return &WxWork{
-		Ctx:   ctx,
-		Event: event,
+		Ctx:    ctx,
+		Event:  event,
+		Wechat: config.NewWechatService(),
 	}
 }
 

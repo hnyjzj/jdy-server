@@ -21,13 +21,9 @@ const (
 )
 
 func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
-
-	handler := callback.WxWork{
-		Ctx: c,
-	}
-
+	// 分析
 	rs, err := App.Server.Notify(c.Request, func(event contract.EventInterface) any {
-		handler.Event = event
+		handler := callback.NewWxWork(c, event)
 		var res any
 
 		switch event.GetEvent() {
@@ -37,6 +33,8 @@ func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
 			res = handler.ChangeExternalContactEvent()
 		case EventChangeContact:
 			res = handler.ChangeContactEvent()
+		default:
+			log.Printf("wxwork notify event: %s", event.GetEvent())
 		}
 
 		if res == nil {

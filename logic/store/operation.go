@@ -16,7 +16,7 @@ func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 		Address:  req.Address,
 		Contact:  req.Contact,
 		Logo:     req.Logo,
-		Sort:     req.Sort,
+		Order:    req.Sort,
 		Province: req.Province,
 		City:     req.City,
 		District: req.District,

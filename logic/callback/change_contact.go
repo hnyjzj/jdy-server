@@ -55,12 +55,12 @@ func (Handle *WxWork) ChangeContactEvent() any {
 	)
 	// 解析消息体
 	if err := l.Handle.Event.ReadMessage(&l.Message); err != nil {
-		log.Printf("TemplateCardEvent.ReadMessage.Error(): %v\n", err.Error())
+		log.Printf("ChangeContactEvent.ReadMessage.Error(): %v\n", err.Error())
 		return "error"
 	}
 	// 处理事件
 	if err := l.Distribute(); err != nil {
-		log.Printf("TemplateCardEvent.GetEventKey.Error(): %v\n", err.Error())
+		log.Printf("ChangeContactEvent.Distribute.Error(): %v\n", err.Error())
 		return "error"
 	}
 

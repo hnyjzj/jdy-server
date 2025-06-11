@@ -29,16 +29,16 @@ func (l *EventChangeContactEvent) CreateParty() error {
 		return nil
 	}
 
-	var stroe model.Store
+	var have model.Store
 	if err := model.DB.Where(&model.Store{
 		IdWx: handler.PartyCreate.ID,
-	}).First(&stroe).Error; err != nil {
+	}).First(&have).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return err
 		}
 	}
 
-	if stroe.Id != "" {
+	if have.Id != "" {
 		return errors.New(handler.PartyCreate.ID + "部门已存在")
 	}
 

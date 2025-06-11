@@ -54,10 +54,9 @@ func (l *EventChangeContactEvent) CreateParty() error {
 	}
 
 	store := model.Store{
-		IdWx:     fmt.Sprint(party.ID),
-		Name:     party.Name,
-		ParentId: fmt.Sprint(party.ParentID),
-		Order:    party.Order,
+		IdWx:  fmt.Sprint(party.ID),
+		Name:  party.Name,
+		Order: party.Order,
 	}
 
 	var parent model.Store

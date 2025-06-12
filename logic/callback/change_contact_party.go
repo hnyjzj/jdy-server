@@ -137,6 +137,9 @@ func (h *PartyHandle) getInfo(l *EventChangeContactEvent, Id string) (*models.De
 	res, err := l.Handle.Wechat.JdyWork.Department.Get(l.Handle.Ctx, id)
 	if err != nil || res.ErrCode != 0 {
 		log.Printf("获取部门失败: %+v\n", res)
+		if err == nil {
+			err = fmt.Errorf("wechat api error: %d %s", res.ErrCode, res.ErrMsg)
+		}
 		return nil, err
 	}
 

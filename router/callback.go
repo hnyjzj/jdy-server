@@ -9,6 +9,11 @@ import (
 func CallBack(g *gin.Engine) {
 	c := g.Group("/callback")
 	{
+		apis := c.Group("/api")
+		{
+			apis.GET("/sync_api_list", callback.ApiController{}.SyncApiList)
+		}
+
 		ww := c.Group("/wxwork")
 		{
 			ww.GET("/jdy", callback.WxWorkCongtroller{}.JdyVerify)

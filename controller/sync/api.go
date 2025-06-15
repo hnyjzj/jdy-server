@@ -1,4 +1,4 @@
-package callback
+package sync
 
 import (
 	"jdy/model"
@@ -9,10 +9,10 @@ import (
 )
 
 type ApiController struct {
-	CallbackController
+	SyncController
 }
 
-func (con ApiController) SyncApiList(ctx *gin.Context) {
+func (con ApiController) List(ctx *gin.Context) {
 	routes := G.Gin.Routes()
 	var apis []model.Api
 	for _, route := range routes {

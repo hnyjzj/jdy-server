@@ -6,6 +6,9 @@ type Role struct {
 	Name string `json:"name" gorm:"column:name;size:255;not null;comment:角色名称"` // 角色名称
 	Desc string `json:"desc" gorm:"column:desc;size:255;comment:角色描述"`          // 角色描述
 
+	IsRoot  bool `json:"is_root" gorm:"column:is_root;comment:是否超级管理员"` // 是否超级管理员
+	IsAdmin bool `json:"is_admin" gorm:"column:is_admin;comment:是否管理员"` // 是否管理员
+
 	OperatorId string `json:"operator_id" gorm:"size:255;not null;comment:操作员ID;"`              // 操作员ID
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
 	IP         string `json:"ip" gorm:"size:255;not null;comment:IP地址;"`                        // IP地址

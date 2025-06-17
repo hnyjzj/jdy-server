@@ -14,7 +14,7 @@ import (
 
 type ProductAccessorieLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 配件列表

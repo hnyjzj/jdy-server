@@ -9,7 +9,7 @@ import (
 
 type StaffLogic struct {
 	logic.BaseLogic
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 员工列表

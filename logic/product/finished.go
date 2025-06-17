@@ -14,7 +14,7 @@ import (
 
 type ProductFinishedLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 成品列表

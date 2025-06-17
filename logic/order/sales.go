@@ -14,7 +14,7 @@ import (
 
 type OrderSalesLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 func (l *OrderSalesLogic) List(req *types.OrderSalesListReq) (*types.PageRes[model.OrderSales], error) {

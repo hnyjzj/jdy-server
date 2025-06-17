@@ -28,6 +28,56 @@ type Staff struct {
 	Roles  []Role  `json:"roles" gorm:"many2many:staff_roles;"`   // 角色
 }
 
+func (Staff) Get(Id string) (*Staff, error) {
+	var staff Staff
+	db := DB.Model(staff).Where("id = ?", Id)
+
+	db = db.Preload("Stores")
+	db = db.Preload("Roles", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("Apis").Preload("Routers")
+	})
+
+	if err := db.First(&staff).Error; err != nil {
+		return nil, err
+	}
+
+	return &staff, nil
+}
+
+func (S *Staff) IsRoot() bool {
+	isRoot := false
+	for _, role := range S.Roles {
+		if role.IsRoot {
+			isRoot = true
+			break
+		}
+	}
+	return isRoot
+}
+func (S *Staff) IsAdmin() bool {
+	isAdmin := false
+	for _, role := range S.Roles {
+		if role.IsAdmin {
+			isAdmin = true
+			break
+		}
+	}
+	return isAdmin
+}
+
+func (S *Staff) HasPermissionApi(path string) bool {
+	has := false
+	for _, role := range S.Roles {
+		for _, api := range role.Apis {
+			if api.Path == path {
+				has = true
+				break
+			}
+		}
+	}
+	return has
+}
+
 func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
 	if query.Phone != "" {
 		db = db.Where("phone = ?", query.Phone)

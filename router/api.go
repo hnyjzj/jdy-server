@@ -456,6 +456,20 @@ func Api(g *gin.Engine) {
 					open_orders.PUT("/update", setting.OpenOrderController{}.Update) // 开单设置更新
 				}
 			}
+
+			// 打印设置
+			print_settings := settings.Group("/print")
+			{
+				print_settings.Use(middlewares.JWTMiddleware())
+				{
+					print_settings.POST("/create", setting.PrintController{}.Create)   // 创建打印设置
+					print_settings.POST("/list", setting.PrintController{}.List)       // 打印设置列表
+					print_settings.POST("/info", setting.PrintController{}.Info)       // 打印设置详情
+					print_settings.PUT("/update", setting.PrintController{}.Update)    // 打印设置更新
+					print_settings.DELETE("/delete", setting.PrintController{}.Delete) // 打印设置删除
+					print_settings.PUT("/copy", setting.PrintController{}.Copy)        // 打印设置复制
+				}
+			}
 		}
 	}
 }

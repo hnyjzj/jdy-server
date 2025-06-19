@@ -44,18 +44,15 @@ func (PrintLogic) List(req *types.PrintListReq) (*types.PageRes[model.Print], er
 		return nil, errors.New("获取总数失败")
 	}
 
-	if res.Total > 0 {
-		// 获取列表
-		db = db.Order("created_at desc")
-		db = model.PageCondition(db, req.Page, req.Limit)
-		if err := db.Find(&res.List).Error; err != nil {
-			return nil, errors.New("获取列表失败")
-		}
-
-	} else {
-		res.List = append(res.List, model.Print{}.Default(req.Where.Type))
-		res.Total++
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = model.PageCondition(db, req.Page, req.Limit)
+	if err := db.Find(&res.List).Error; err != nil {
+		return nil, errors.New("获取列表失败")
 	}
+
+	res.List = append([]model.Print{model.Print{}.Default(req.Where.Type)}, res.List...)
+	res.Total++
 
 	return &res, nil
 }
@@ -121,6 +118,14 @@ func (PrintLogic) Copy(req *types.PrintCopyReq) error {
 
 	print.Id = ""
 	print.StoreId = req.StoreId
+	if req.Name != "" {
+		print.Name = req.Name
+	}
+
+	def := model.Print{}.Default(0)
+	if print.Name == def.Name {
+		print.Name = print.Name + "副本"
+	}
 
 	if err := model.DB.Create(&print).Error; err != nil {
 		log.Printf("复制失败: %v", err)

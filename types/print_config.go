@@ -116,4 +116,5 @@ type PrintDeleteReq struct {
 type PrintCopyReq struct {
 	Id      string `json:"id" binding:"required"`
 	StoreId string `json:"store_id" binding:"required"`
+	Name    string `json:"name"`
 }

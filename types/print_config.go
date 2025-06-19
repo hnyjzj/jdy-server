@@ -106,7 +106,7 @@ type PrintInfoReq struct {
 type PrintUpdateReq struct {
 	Id string `json:"id" binding:"required"`
 
-	Data PrintReq `json:"data" binding:"required"`
+	PrintReq
 }
 
 type PrintDeleteReq struct {

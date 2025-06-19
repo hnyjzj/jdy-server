@@ -122,7 +122,7 @@ func (PrintLogic) Copy(req *types.PrintCopyReq) error {
 		print.Name = req.Name
 	}
 
-	def := model.Print{}.Default(0)
+	def := model.Print{}.Default(print.Type)
 	if print.Name == def.Name {
 		print.Name = print.Name + "副本"
 	}

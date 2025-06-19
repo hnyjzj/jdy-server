@@ -14,7 +14,13 @@ const (
 	PrintTypeOthers                       // 其他
 )
 
-var PrintTypeMap = map[PrintType]string{}
+var PrintTypeMap = map[PrintType]string{
+	PrintTypeSales:   "销售单",
+	PrintTypeReturn:  "退货单",
+	PrintTypeDeposit: "订金单",
+	PrintTypeRepair:  "维修单",
+	PrintTypeOthers:  "其他",
+}
 
 func (p PrintType) ToMap() any {
 	return PrintTypeMap

@@ -28,12 +28,12 @@ func (con GoldPriceController) List(ctx *gin.Context) {
 	// 设置上下文
 	logic.Ctx = ctx
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	logic.IP = ctx.ClientIP()
 
@@ -66,12 +66,12 @@ func (con GoldPriceController) Create(ctx *gin.Context) {
 	// 设置上下文
 	logic.Ctx = ctx
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	logic.IP = ctx.ClientIP()
 

@@ -38,12 +38,12 @@ func (con OrderRepairController) Create(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -79,12 +79,12 @@ func (con OrderRepairController) List(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -114,12 +114,12 @@ func (con OrderRepairController) Info(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -147,12 +147,12 @@ func (con OrderRepairController) Update(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -161,8 +161,7 @@ func (con OrderRepairController) Update(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Update(&req)
-	if err != nil {
+	if err := logic.Update(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
@@ -180,12 +179,12 @@ func (con OrderRepairController) Operation(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
@@ -193,7 +192,7 @@ func (con OrderRepairController) Operation(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Operation(&req)
+	err := logic.Operation(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
@@ -212,12 +211,12 @@ func (con OrderRepairController) Revoked(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -226,7 +225,7 @@ func (con OrderRepairController) Revoked(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Revoked(&req)
+	err := logic.Revoked(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
@@ -245,12 +244,12 @@ func (con OrderRepairController) Pay(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -259,7 +258,7 @@ func (con OrderRepairController) Pay(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Pay(&req)
+	err := logic.Pay(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
@@ -278,12 +277,12 @@ func (con OrderRepairController) Refund(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -292,7 +291,7 @@ func (con OrderRepairController) Refund(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Refund(&req)
+	err := logic.Refund(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return

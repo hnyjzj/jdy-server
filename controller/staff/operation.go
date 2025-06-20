@@ -47,12 +47,12 @@ func (con StaffController) Update(ctx *gin.Context) {
 	)
 
 	// 解析参数
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -66,7 +66,7 @@ func (con StaffController) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := logic.StaffUpdate(ctx, staff.Id, &req); err != nil {
+	if err := logic.StaffUpdate(ctx, logic.Staff.Id, &req); err != nil {
 		con.ErrorLogic(ctx, err)
 		return
 	}

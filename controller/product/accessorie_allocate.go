@@ -24,12 +24,12 @@ func (con ProductAccessorieAllocateController) Create(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -68,12 +68,12 @@ func (con ProductAccessorieAllocateController) List(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -107,12 +107,12 @@ func (con ProductAccessorieAllocateController) Info(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -140,12 +140,12 @@ func (con ProductAccessorieAllocateController) Add(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -177,12 +177,12 @@ func (con ProductAccessorieAllocateController) Remove(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -208,12 +208,12 @@ func (con ProductAccessorieAllocateController) Confirm(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -239,12 +239,12 @@ func (con ProductAccessorieAllocateController) Cancel(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -270,12 +270,12 @@ func (con ProductAccessorieAllocateController) Complete(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {

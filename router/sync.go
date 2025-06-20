@@ -13,6 +13,5 @@ func Sync(g *gin.Engine) {
 		{
 			api.GET("/list", sync.ApiController{}.List)
 		}
-
 	}
 }

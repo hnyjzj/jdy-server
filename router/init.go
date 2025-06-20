@@ -16,4 +16,5 @@ func Init(r *gin.Engine) {
 	Base(Router)
 	Api(Router)
 	CallBack(Router)
+	Sync(Router)
 }

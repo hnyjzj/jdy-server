@@ -14,15 +14,14 @@ type BaseController struct{}
 func (con BaseController) GetStaff(ctx *gin.Context) (*model.Staff, error) {
 	// 获取 token 中的用户信息
 	staffInfo, ok := ctx.MustGet("staff").(*types.Staff)
+	// 检查用户是否正确
+	if !ok || staffInfo == nil {
+		return nil, errors.ErrStaffNotFound
+	}
 
 	staff, err := model.Staff{}.Get(staffInfo.Id)
 	if err != nil {
 		return nil, err
-	}
-
-	// 检查用户是否正确
-	if staff == nil || !ok {
-		return nil, errors.ErrStaffNotFound
 	}
 
 	// 判断 IP

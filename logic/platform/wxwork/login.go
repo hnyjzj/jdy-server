@@ -308,8 +308,8 @@ func (l *wxworkLoginLogic) register() error {
 func (l *wxworkLoginLogic) getStaff() error {
 	// 查询账号
 	if err := l.Db.
-		Preload("Account", func(db *gorm.DB) *gorm.DB {
-			return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
+		Preload("Account", func(tx *gorm.DB) *gorm.DB {
+			return tx.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 		}).First(&l.Staff, "id = ?", l.Account.StaffId).Error; err != nil {
 		return errors.ErrStaffNotFound
 	}

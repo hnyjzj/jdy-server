@@ -14,7 +14,7 @@ import (
 
 type ProductAccessorieEnterLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 配件入库

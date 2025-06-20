@@ -10,18 +10,22 @@ import (
 type Store struct {
 	SoftDelete
 
-	Name     string `json:"name" gorm:"size:255;comment:名称"`
-	Address  string `json:"address" gorm:"size:500;comment:地址"`
-	Contact  string `json:"contact" gorm:"size:255;comment:联系方式"`
-	Logo     string `json:"logo" gorm:"size:255;comment:logo"`
-	Sort     int    `json:"sort" gorm:"size:10;comment:排序"`
-	Province string `json:"province" gorm:"size:255;comment:省份"`
-	City     string `json:"city" gorm:"size:255;comment:城市"`
-	District string `json:"district" gorm:"size:255;comment:区域"`
+	IdWx  string `json:"id_wx" gorm:"size:255;comment:微信ID"` // 微信ID
+	Name  string `json:"name" gorm:"size:255;comment:名称"`    // 名称
+	Order int    `json:"order" gorm:"comment:排序"`            // 排序
 
-	Children []*Store `json:"children,omitempty" gorm:"-"`
+	Logo     string `json:"logo" gorm:"size:255;comment:logo"`    // logo
+	Contact  string `json:"contact" gorm:"size:255;comment:联系方式"` // 联系方式
+	Province string `json:"province" gorm:"size:255;comment:省份"`  // 省份
+	City     string `json:"city" gorm:"size:255;comment:城市"`      // 城市
+	District string `json:"district" gorm:"size:255;comment:区域"`  // 区域
+	Address  string `json:"address" gorm:"size:500;comment:地址"`   // 地址
 
-	Staffs []Staff `json:"staffs" gorm:"many2many:stores_staffs;"`
+	ParentId string `json:"parent_id" gorm:"size:255;comment:父级ID"` // 父级ID
+	Parent   *Store `json:"parent" gorm:"foreignKey:ParentId;references:Id;comment:父级"`
+
+	Staffs    []Staff `json:"staffs" gorm:"many2many:stores_staffs;"`       // 员工
+	Superiors []Staff `json:"superiors" gorm:"many2many:stores_superiors;"` // 负责人
 }
 
 func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {

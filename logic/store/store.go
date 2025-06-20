@@ -10,7 +10,7 @@ import (
 
 type StoreLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 门店列表

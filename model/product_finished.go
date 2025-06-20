@@ -51,6 +51,8 @@ type ProductFinished struct {
 	EnterId   string                `json:"enter_id" gorm:"type:varchar(255);not NULL;comment:成品入库单ID;"`                    // 成品入库单ID
 	Enter     *ProductFinishedEnter `json:"product_enter,omitempty" gorm:"foreignKey:EnterId;references:Id;comment:成品入库单;"` // 成品入库单
 	EnterTime time.Time             `json:"enter_time" gorm:"comment:入库时间;"`                                                // 入库时间
+
+	All bool `json:"-" gorm:"-"`
 }
 
 func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedWhere) *gorm.DB {

@@ -14,7 +14,7 @@ import (
 type OrderSalesCreateLogic struct {
 	Ctx   *gin.Context
 	Tx    *gorm.DB
-	Staff *types.Staff
+	Staff *model.Staff
 
 	Req *types.OrderSalesCreateReq
 

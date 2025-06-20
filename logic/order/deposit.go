@@ -12,7 +12,7 @@ import (
 
 type OrderDepositLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.OrderDeposit, error) {

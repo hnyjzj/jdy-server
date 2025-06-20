@@ -10,7 +10,7 @@ import (
 
 type MemberLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 func (l *MemberLogic) List(req *types.MemberListReq) (*types.PageRes[model.Member], error) {

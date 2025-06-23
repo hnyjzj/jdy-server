@@ -131,6 +131,36 @@ func (con RoleController) Update(ctx *gin.Context) {
 	con.Success(ctx, "ok", nil)
 }
 
+func (con RoleController) Delete(ctx *gin.Context) {
+	var (
+		req   types.RoleDeleteReq
+		logic = &setting.RoleLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 设置上下文
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+		logic.Ctx = ctx
+		logic.IP = ctx.ClientIP()
+	}
+
+	if err := logic.Delete(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
 func (con RoleController) Apis(ctx *gin.Context) {
 	var (
 		logic = &setting.RoleLogic{}

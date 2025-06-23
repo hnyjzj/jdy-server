@@ -120,6 +120,21 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 	return nil
 }
 
+func (r *RoleLogic) Delete(req *types.RoleDeleteReq) error {
+	var (
+		role model.Role
+	)
+	if err := model.DB.First(&role, "id = ?", req.Id).Error; err != nil {
+		return errors.New("查询角色失败")
+	}
+
+	if err := model.DB.Delete(&role).Error; err != nil {
+		return errors.New("删除角色失败")
+	}
+
+	return nil
+}
+
 func (r *RoleLogic) Apis() (any, error) {
 	path := "/api"
 	list, err := model.Api{}.GetTree(&path, nil)

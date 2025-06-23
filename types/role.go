@@ -35,3 +35,7 @@ type RoleUpdateReq struct {
 	Stores  []string `json:"stores"`   // 角色店铺
 	Staffs  []string `json:"staffs"`   // 员工
 }
+
+type RoleDeleteReq struct {
+	Id string `json:"id" binding:"required"`
+}

@@ -5,6 +5,7 @@ import (
 	"jdy/errors"
 	"jdy/logic/setting"
 	"jdy/types"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -109,6 +110,7 @@ func (con RoleController) Update(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
+		log.Printf("err: %v", err.Error())
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
@@ -124,6 +126,37 @@ func (con RoleController) Update(ctx *gin.Context) {
 	}
 
 	if err := logic.Update(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+func (con RoleController) AddStaff(ctx *gin.Context) {
+	var (
+		req   types.RoleAddStaffReq
+		logic = &setting.RoleLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		log.Printf("err: %v", err)
+		return
+	}
+
+	// 设置上下文
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+		logic.Ctx = ctx
+		logic.IP = ctx.ClientIP()
+	}
+
+	if err := logic.AddStaff(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

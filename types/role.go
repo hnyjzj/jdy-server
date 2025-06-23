@@ -36,6 +36,11 @@ type RoleUpdateReq struct {
 	Staffs  []string `json:"staffs"`   // 员工
 }
 
+type RoleAddStaffReq struct {
+	Id     string   `json:"id" binding:"required"`
+	Staffs []string `json:"staffs" binding:"required"`
+}
+
 type RoleDeleteReq struct {
 	Id string `json:"id" binding:"required"`
 }

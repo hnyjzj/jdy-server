@@ -22,7 +22,7 @@ type Role struct {
 	Apis    []Api    `json:"apis" gorm:"many2many:role_apis;comment:角色API;"`      // 角色API
 	Routers []Router `json:"routers" gorm:"many2many:role_routers;comment:角色路由;"` // 角色路由
 	Stores  []Store  `json:"stores" gorm:"many2many:role_stores;comment:角色店铺;"`   // 角色店铺
-	Staffs  []Staff  `json:"staffs" gorm:"many2many:staff_roles;comment:员工;"`     // 员工
+	Staffs  []Staff  `json:"staffs" gorm:"many2many:role_staffs;comment:员工;"`     // 员工
 }
 
 func (Role) WhereCondition(db *gorm.DB, query *types.RoleWhere) *gorm.DB {

@@ -2,6 +2,7 @@ package setting
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/logic"
 	"jdy/model"
 	"jdy/types"
@@ -117,6 +118,28 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 	}); err != nil {
 		return errors.New("更新角色失败")
 	}
+	return nil
+}
+
+func (r *RoleLogic) AddStaff(req *types.RoleAddStaffReq) error {
+	var (
+		role   model.Role
+		staffs []model.Staff
+	)
+
+	if err := model.DB.Model(&model.Role{}).First(&role, "id = ?", req.Id).Error; err != nil {
+		return errors.New("查询角色失败")
+	}
+
+	subQuery := model.DB.Model(&model.Account{}).Where("username in (?)", req.Staffs).Where(&model.Account{Platform: enums.PlatformTypeWxWork}).Select("staff_id")
+	if err := model.DB.Model(&model.Staff{}).Where("id in (?)", subQuery).Find(&staffs).Error; err != nil {
+		return errors.New("查询员工失败")
+	}
+
+	if err := model.DB.Model(&role).Association("Staffs").Append(staffs); err != nil {
+		return errors.New("添加员工失败")
+	}
+
 	return nil
 }
 

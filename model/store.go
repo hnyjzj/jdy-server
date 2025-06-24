@@ -24,8 +24,8 @@ type Store struct {
 	ParentId string `json:"parent_id" gorm:"size:255;comment:父级ID"` // 父级ID
 	Parent   *Store `json:"parent" gorm:"foreignKey:ParentId;references:Id;comment:父级"`
 
-	Staffs    []Staff `json:"staffs" gorm:"many2many:stores_staffs;"`       // 员工
-	Superiors []Staff `json:"superiors" gorm:"many2many:stores_superiors;"` // 负责人
+	Staffs    []Staff `json:"staffs" gorm:"many2many:store_staffs;"`       // 员工
+	Superiors []Staff `json:"superiors" gorm:"many2many:store_superiors;"` // 负责人
 }
 
 func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {

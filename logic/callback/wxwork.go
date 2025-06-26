@@ -6,8 +6,10 @@ import (
 	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
+	"log"
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/kernel/contract"
+	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/user/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -48,4 +50,15 @@ func (w *WxWork) GetStaff() error {
 	}
 
 	return nil
+}
+
+func (w *WxWork) GetUser(userid string) (*response.ResponseGetUserDetail, error) {
+	userinfo, err := w.Wechat.JdyWork.User.Get(w.Ctx, userid)
+	if err != nil || userinfo.UserID == "" {
+		log.Printf("读取员工信息失败: %+v", err)
+		log.Printf("读取员工信息失败: %+v", userinfo)
+		return nil, errors.New("读取员工信息失败")
+	}
+
+	return userinfo, nil
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"jdy/enums"
 	"jdy/model"
-	"log"
 	"strings"
 
 	"gorm.io/gorm"
@@ -26,25 +25,37 @@ func (l *EventChangeContactEvent) CreateUser() error {
 		return nil
 	}
 
-	var mobile *string
-	if handler.UserCreate.Mobile == "" {
-		mobile = nil
-		log.Printf("%v,手机号为空", handler.UserCreate.UserID)
-	} else {
-		mobile = &handler.UserCreate.Mobile
+	// 获取用户信息
+	userinfo, err := l.Handle.GetUser(handler.UserCreate.UserID)
+	if err != nil {
+		return err
 	}
 
-	var account model.Account
-	if err := model.DB.Where(model.Account{
-		Username: &handler.UserCreate.UserID,
-		Platform: enums.PlatformTypeWxWork,
-	}).Attrs(model.Account{
-		Phone:    mobile,
-		Nickname: &handler.UserCreate.Name,
-		Avatar:   &handler.UserCreate.Avatar,
-		Email:    &handler.UserCreate.Email,
-		Gender:   enums.GenderUnknown.Convert(handler.UserCreate.Gender),
-	}).FirstOrCreate(&account).Error; err != nil {
+	var mobile *string
+	if userinfo.Mobile == "" {
+		mobile = nil
+	} else {
+		mobile = &userinfo.Mobile
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+
+		var account model.Account
+		if err := tx.Where(model.Account{
+			Username: &userinfo.UserID,
+			Platform: enums.PlatformTypeWxWork,
+		}).Attrs(model.Account{
+			Phone:    mobile,
+			Nickname: &userinfo.Name,
+			Avatar:   &userinfo.Avatar,
+			Email:    &userinfo.Email,
+			Gender:   enums.GenderUnknown.Convert(userinfo.Gender),
+		}).FirstOrCreate(&account).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return err
 	}
 
@@ -124,22 +135,22 @@ func (l *EventChangeContactEvent) DeleteUser() error {
 		Username: &handler.UserDelete.UserID,
 		Platform: enums.PlatformTypeWxWork,
 	}).Preload("Staff").First(&account).Error; err != nil {
-		return errors.New(handler.UserDelete.UserID + "用户不存在")
+		return errors.New("用户不存在：" + handler.UserDelete.UserID)
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		if account.Staff != nil {
 			if err := tx.Delete(&account.Staff).Error; err != nil {
-				return errors.New(handler.UserDelete.UserID + "删除员工失败")
+				return errors.New("删除员工失败：" + handler.UserDelete.UserID)
 			}
 			if err := tx.Where(model.Account{
 				StaffId: account.StaffId,
 			}).Delete(&model.Account{}).Error; err != nil {
-				return errors.New(handler.UserDelete.UserID + "删除账号失败")
+				return errors.New("删除账号失败：" + handler.UserDelete.UserID)
 			}
 		} else {
 			if err := tx.Delete(&account).Error; err != nil {
-				return errors.New(handler.UserDelete.UserID + "删除空账号失败")
+				return errors.New("删除空账号失败：" + handler.UserDelete.UserID)
 			}
 		}
 

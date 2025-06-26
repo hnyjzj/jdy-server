@@ -244,6 +244,12 @@ func (l *wxworkLoginLogic) register() error {
 
 	// 员工不存在
 	if data.Id == "" {
+		// 查询默认权限
+		role, err := model.Role{}.Default()
+		if err != nil {
+			l.Db.Rollback()
+			return errors.New("查询默认权限失败")
+		}
 		// 创建员工
 		data = &model.Staff{
 			Phone:    l.UserInfo.Phone,
@@ -251,6 +257,7 @@ func (l *wxworkLoginLogic) register() error {
 			Avatar:   *l.UserInfo.Avatar,
 			Email:    *l.UserInfo.Email,
 			Gender:   l.UserInfo.Gender,
+			Roles:    append([]model.Role{}, *role),
 		}
 		if err := l.Db.Create(&data).Error; err != nil {
 			l.Db.Rollback()
@@ -259,7 +266,7 @@ func (l *wxworkLoginLogic) register() error {
 
 		// 查询账号
 		var account *model.Account
-		err := l.Db.Where(&model.Account{
+		err = l.Db.Where(&model.Account{
 			Platform: enums.PlatformTypeAccount,
 			Phone:    l.UserInfo.Phone,
 		}).First(&account).Error

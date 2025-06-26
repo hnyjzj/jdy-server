@@ -20,7 +20,6 @@ func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 	role := model.Role{
 		Name:       req.Name,
 		Desc:       req.Desc,
-		IsAdmin:    req.IsAdmin,
 		OperatorId: r.Staff.Id,
 		IP:         r.IP,
 	}
@@ -28,7 +27,7 @@ func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 		return nil, err
 	}
 
-	return nil, nil
+	return &role, nil
 }
 
 func (r *RoleLogic) List() ([]model.Role, error) {
@@ -72,7 +71,6 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 	data := model.Role{
 		Name:       req.Name,
 		Desc:       req.Desc,
-		IsAdmin:    req.IsAdmin,
 		OperatorId: r.Staff.Id,
 		IP:         r.IP,
 	}

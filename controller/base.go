@@ -43,13 +43,10 @@ func (con BaseController) GetStaff(ctx *gin.Context) (*model.Staff, *errors.Erro
 }
 
 func (con BaseController) verify_permission(ctx *gin.Context, staff *model.Staff) error {
-	if staff.IsRoot() {
-		return nil
-	}
-
+	// 检查权限
 	if !staff.HasPermissionApi(ctx.FullPath()) {
 		log.Printf("员工[%v] 无权限访问: %v", staff.Id, ctx.FullPath())
-		return errors.ErrStaffUnauthorized
+		// return errors.ErrStaffUnauthorized
 	}
 
 	return nil

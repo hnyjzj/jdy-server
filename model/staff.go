@@ -44,27 +44,6 @@ func (Staff) Get(Id string) (*Staff, error) {
 	return &staff, nil
 }
 
-func (S *Staff) IsRoot() bool {
-	isRoot := false
-	for _, role := range S.Roles {
-		if role.IsRoot {
-			isRoot = true
-			break
-		}
-	}
-	return isRoot
-}
-func (S *Staff) IsAdmin() bool {
-	isAdmin := false
-	for _, role := range S.Roles {
-		if role.IsAdmin {
-			isAdmin = true
-			break
-		}
-	}
-	return isAdmin
-}
-
 func (S *Staff) HasPermissionApi(path string) bool {
 	has := false
 	for _, role := range S.Roles {
@@ -75,6 +54,7 @@ func (S *Staff) HasPermissionApi(path string) bool {
 			}
 		}
 	}
+
 	return has
 }
 

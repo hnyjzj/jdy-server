@@ -50,6 +50,12 @@ func Api(g *gin.Engine) {
 					uploads.POST("/order", common.UploadController{}.Order)         // 上传订单图片
 				}
 			}
+
+			// 记录
+			logs := root.Group("/log")
+			{
+				logs.POST("/on_capture_screen", common.LogController{}.OnCaptureScreen) // 截屏
+			}
 		}
 
 		// 认证

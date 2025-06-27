@@ -18,13 +18,13 @@ type GoldPriceMessage struct {
 
 // 发送黄金价格设置提醒
 func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) error {
-	url := fmt.Sprintf("%s/system/gold/price?store_id=%s", M.App.Home, req.StoreId)
+	url := fmt.Sprintf("%s/system/gold/price?store_id=%s", M.Config.Jdy.Home, req.StoreId)
 	ToUser := strings.Join(req.ToUser, "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  ToUser, // 接收消息的用户ID列表，列表不可为空，最多支持100个用户
 			MsgType: "template_card",
-			AgentID: M.App.Id,
+			AgentID: M.Config.Jdy.Id,
 		},
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",
@@ -63,13 +63,13 @@ func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) error {
 
 // 发送黄金价格更新提醒
 func (M *BaseMessage) SendGoldPriceUpdateMessage(req *GoldPriceMessage) {
-	url := fmt.Sprintf("%s/system/gold/price?store_id=%s", M.App.Home, req.StoreId)
+	url := fmt.Sprintf("%s/system/gold/price?store_id=%s", M.Config.Jdy.Home, req.StoreId)
 	ToUser := strings.Join(req.ToUser, "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  ToUser,
 			MsgType: "template_card",
-			AgentID: M.App.Id,
+			AgentID: M.Config.Jdy.Id,
 		},
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",

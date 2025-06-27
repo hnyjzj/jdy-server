@@ -11,7 +11,7 @@ import (
 
 type MemberIntegralLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 func (l *MemberIntegralLogic) List(req *types.MemberIntegralListReq) (*types.PageRes[model.MemberIntegralLog], error) {

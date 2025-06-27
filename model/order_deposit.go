@@ -79,8 +79,8 @@ func (OrderDeposit) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Store")
 	db = db.Preload("Cashier")
 	db = db.Preload("Clerk")
-	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("ProductFinished")
+	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("ProductFinished")
 	})
 	db = db.Preload("OrderSales")
 	db = db.Preload("Payments")

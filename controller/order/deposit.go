@@ -32,12 +32,12 @@ func (con OrderDepositController) Create(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -73,12 +73,12 @@ func (con OrderDepositController) List(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -106,12 +106,12 @@ func (con OrderDepositController) Info(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -139,12 +139,12 @@ func (con OrderDepositController) Revoked(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -153,8 +153,7 @@ func (con OrderDepositController) Revoked(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Revoked(&req)
-	if err != nil {
+	if err := logic.Revoked(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
@@ -172,12 +171,12 @@ func (con OrderDepositController) Pay(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -186,8 +185,7 @@ func (con OrderDepositController) Pay(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Pay(&req)
-	if err != nil {
+	if err := logic.Pay(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
@@ -204,12 +202,12 @@ func (con OrderDepositController) Refund(ctx *gin.Context) {
 		}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -218,8 +216,7 @@ func (con OrderDepositController) Refund(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	err = logic.Refund(&req)
-	if err != nil {
+	if err := logic.Refund(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

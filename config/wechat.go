@@ -17,6 +17,8 @@ type WechatWork struct {
 
 	Jdy      Agent `mapstructure:"jdy"`      // 应用
 	Contacts Agent `mapstructure:"contacts"` // 通讯录
+
+	Robot Robot `mapstructure:"robot"` // 机器人
 }
 
 type Agent struct {
@@ -29,6 +31,10 @@ type Agent struct {
 
 	CallbackURL   string `mapstructure:"callback_url" default:"https://example.cn/callback/wxwork"`         // 回调地址
 	CallbackOAuth string `mapstructure:"callback_oauth" default:"https://example.cn/callback/wxwork/oauth"` // 回调地址
+}
+
+type Robot struct {
+	Warnning string `mapstructure:"warning"` // 告警机器人
 }
 
 type WechatService struct {

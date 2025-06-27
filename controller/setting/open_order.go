@@ -34,12 +34,12 @@ func (con OpenOrderController) Info(ctx *gin.Context) {
 
 	// 设置上下文
 	logic.Ctx = ctx
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
 	res, err := logic.Info(&req)
 	if err != nil {
@@ -69,14 +69,14 @@ func (con OpenOrderController) Update(ctx *gin.Context) {
 
 	// 设置上下文
 	logic.Ctx = ctx
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
-	logic.Staff = staff
 
-	if err = logic.Update(&req); err != nil {
+	if err := logic.Update(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

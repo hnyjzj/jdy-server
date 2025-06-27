@@ -69,9 +69,9 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 	go func() {
 		var store model.Store
 		if err := model.DB.Where("id = ?", req.Options[0].StoreId).
-			Preload("Staffs", func(db *gorm.DB) *gorm.DB {
-				return db.Preload("Account", func(db *gorm.DB) *gorm.DB {
-					return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
+			Preload("Staffs", func(sdb *gorm.DB) *gorm.DB {
+				return sdb.Preload("Account", func(adb *gorm.DB) *gorm.DB {
+					return adb.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 				})
 			}).
 			First(&store).Error; err != nil {

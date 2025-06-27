@@ -21,7 +21,7 @@ func Api(g *gin.Engine) {
 	// 跨域
 	g.Use(middlewares.Cors())
 
-	r := g.Group("/")
+	r := g.Group("/api")
 	{
 		root := r.Group("/")
 		{
@@ -49,6 +49,12 @@ func Api(g *gin.Engine) {
 					uploads.POST("/product", common.UploadController{}.Product)     // 上传商品图片
 					uploads.POST("/order", common.UploadController{}.Order)         // 上传订单图片
 				}
+			}
+
+			// 记录
+			logs := root.Group("/log")
+			{
+				logs.POST("/on_capture_screen", common.LogController{}.OnCaptureScreen) // 截屏
 			}
 		}
 
@@ -454,6 +460,22 @@ func Api(g *gin.Engine) {
 				{
 					open_orders.POST("/info", setting.OpenOrderController{}.Info)    // 开单设置详情
 					open_orders.PUT("/update", setting.OpenOrderController{}.Update) // 开单设置更新
+				}
+			}
+
+			// 角色权限
+			roles := settings.Group("/role")
+			{
+				roles.Use(middlewares.JWTMiddleware())
+				{
+					roles.POST("/create", setting.RoleController{}.Create)     // 创建角色
+					roles.POST("/list", setting.RoleController{}.List)         // 角色权限列表
+					roles.POST("/info", setting.RoleController{}.Info)         // 角色权限详情
+					roles.PUT("/update", setting.RoleController{}.Update)      // 角色权限更新
+					roles.PUT("/add_staff", setting.RoleController{}.AddStaff) // 角色权限添加员工
+					roles.DELETE("/delete", setting.RoleController{}.Delete)   // 角色权限删除
+
+					roles.POST("/apis", setting.RoleController{}.Apis) // 角色权限API列表
 				}
 			}
 		}

@@ -10,7 +10,7 @@ import (
 
 type OrderSalesDetailLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 func (l *OrderSalesDetailLogic) List(req *types.OrderSalesDetailListReq) (*types.PageRes[model.OrderSalesProduct], error) {

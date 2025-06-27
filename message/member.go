@@ -15,12 +15,12 @@ type MemberCreateMessage struct {
 
 // 发送新增会员提醒
 func (M *BaseMessage) SendMemberCreateMessage(req *MemberCreateMessage) {
-	url := fmt.Sprintf("%s/member/lists/edit?external_user_id=%s", M.App.Home, req.ExternalUserID)
+	url := fmt.Sprintf("%s/member/lists/edit?external_user_id=%s", M.Config.Jdy.Home, req.ExternalUserID)
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  req.ToUser, // 接收消息的用户ID列表，列表不可为空，最多支持100个用户
 			MsgType: "template_card",
-			AgentID: M.App.Id,
+			AgentID: M.Config.Jdy.Id,
 		},
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",

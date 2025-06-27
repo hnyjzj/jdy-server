@@ -13,7 +13,7 @@ import (
 
 type ProductAccessorieAllocateLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 创建配件调拨单

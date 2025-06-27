@@ -10,7 +10,7 @@ import (
 
 type ProductHistoryLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 产品操作记录列表

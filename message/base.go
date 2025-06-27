@@ -12,15 +12,15 @@ import (
 type BaseMessage struct {
 	Ctx context.Context
 
-	WXWork *work.Work    `json:"wxwork"`
-	App    *config.Agent `json:"app"`
+	WXWork *work.Work         `json:"wxwork"`
+	Config *config.WechatWork `json:"config"`
 }
 
 func NewMessage(ctx context.Context) *BaseMessage {
 	return &BaseMessage{
 		Ctx:    ctx,
 		WXWork: config.NewWechatService().JdyWork,
-		App:    &config.Config.Wechat.Work.Jdy,
+		Config: &config.Config.Wechat.Work,
 	}
 }
 

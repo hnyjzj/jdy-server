@@ -10,7 +10,7 @@ import (
 
 type StoreLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 门店列表
@@ -52,26 +52,17 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		return nil, errors.New("获取门店列表失败")
 	}
 
-	if staff.Stores == nil {
-		staff.Stores = []model.Store{}
+	var store_ids []string
+	for _, v := range staff.Stores {
+		store_ids = append(store_ids, v.Id)
 	}
 
-	// 如果是管理员
-	// if staff.IsAdmin {
-	// admin := model.Store{
-	// 	SoftDelete: model.SoftDelete{
-	// 		Model: model.Model{
-	// 			BaseModel: model.BaseModel{
-	// 				Id: "",
-	// 			},
-	// 		},
-	// 	},
-	// 	Name: "总部",
-	// }
-	// staff.Stores = append([]model.Store{admin}, staff.Stores...)
-	// }
+	var stores []model.Store
+	if err := model.DB.Where("id in (?)", store_ids).Find(&stores).Error; err != nil {
+		return nil, errors.New("获取门店列表失败")
+	}
 
-	return &staff.Stores, nil
+	return &stores, nil
 }
 
 // 门店详情

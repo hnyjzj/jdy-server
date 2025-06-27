@@ -14,7 +14,7 @@ import (
 
 type ProductAllocateLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 创建产品调拨单

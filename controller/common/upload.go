@@ -4,6 +4,7 @@ import (
 	"jdy/controller"
 	"jdy/errors"
 	"jdy/logic/common"
+	"jdy/model"
 	"jdy/types"
 	"log"
 	"mime/multipart"
@@ -29,10 +30,13 @@ func (con UploadController) Avatar(ctx *gin.Context) {
 		s Res
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	var staff *model.Staff
+
+	if s, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		staff = s
 	}
 
 	// 验证参数

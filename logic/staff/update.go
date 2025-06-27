@@ -52,8 +52,8 @@ func (l *StaffUpdateLogic) account() error {
 
 	var staff model.Staff
 	if err := model.DB.
-		Preload("Account", func(db *gorm.DB) *gorm.DB {
-			return db.Where(&model.Account{Platform: enums.PlatformTypeAccount})
+		Preload("Account", func(dba *gorm.DB) *gorm.DB {
+			return dba.Where(&model.Account{Platform: enums.PlatformTypeAccount})
 		}).
 		Preload("Accounts").
 		First(&staff, l.uid).Error; err != nil {
@@ -132,8 +132,8 @@ func (l *StaffUpdateLogic) wxwork() error {
 	}
 
 	if err := model.DB.Model(&model.Staff{}).
-		Preload("Account", func(db *gorm.DB) *gorm.DB {
-			return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
+		Preload("Account", func(dba *gorm.DB) *gorm.DB {
+			return dba.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 		}).
 		First(&staff, l.uid).Error; err != nil {
 		return err

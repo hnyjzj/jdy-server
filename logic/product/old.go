@@ -12,7 +12,7 @@ import (
 
 type ProductOldLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 旧料列表

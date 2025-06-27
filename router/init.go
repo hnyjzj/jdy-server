@@ -6,11 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Init(r *gin.Engine) {
-	// 正则参数验证
-	r.Use(middlewares.CustomValidator())
+var Router *gin.Engine
 
-	Base(r)
-	Api(r)
-	CallBack(r)
+func Init(r *gin.Engine) {
+	Router = r
+	// 正则参数验证
+	Router.Use(middlewares.CustomValidator())
+
+	Base(Router)
+	Api(Router)
+	CallBack(Router)
+	Sync(Router)
 }

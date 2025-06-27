@@ -14,9 +14,9 @@ import (
 func SendGoldPriceSetMessage() {
 	// 查询所有门店
 	var stores []model.Store
-	if err := model.DB.Preload("Staffs", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Account", func(db *gorm.DB) *gorm.DB {
-			return db.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
+	if err := model.DB.Preload("Staffs", func(dbs *gorm.DB) *gorm.DB {
+		return dbs.Preload("Account", func(dba *gorm.DB) *gorm.DB {
+			return dba.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
 		})
 	}).Find(&stores).Error; err != nil {
 		log.Printf("SendGoldPriceSetMessage: %v\n", err.Error())

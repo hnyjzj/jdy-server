@@ -1,6 +1,7 @@
 package wxwork
 
 import (
+	"fmt"
 	"jdy/config"
 	"jdy/enums"
 	"jdy/errors"
@@ -8,6 +9,7 @@ import (
 	"jdy/model"
 	"jdy/utils"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -17,39 +19,46 @@ type wxworkLoginLogic struct {
 	Staff   *model.Staff
 	Account *model.Account
 
-	Ctx      *gin.Context
-	Db       *gorm.DB
-	UserInfo *model.Account
+	Ctx         *gin.Context
+	Db          *gorm.DB
+	UserInfo    *model.Account
+	Departments []int
 }
 
 func (w *WxWorkLogic) CodeLogin(ctx *gin.Context, code string) (*model.Staff, error) {
 	l := &wxworkLoginLogic{
 		Ctx: ctx,
-		Db:  model.DB,
 	}
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		l.Db = tx
 
-	// 获取用户信息
-	if err := l.getCodeUserInfo(code); err != nil {
-		return nil, err
-	}
+		// 获取用户信息
+		if err := l.getCodeUserInfo(code); err != nil {
+			return err
+		}
 
-	// 获取账号
-	if err := l.getAccount(false); err != nil {
-		return nil, err
-	}
+		// 获取账号
+		if err := l.getAccount(false); err != nil {
+			return err
+		}
 
-	// 判断是否已注册
-	if l.Account.StaffId == nil {
-		return nil, errors.New("首次登录需通过企业微信工作台打开并授权手机号")
-	}
+		// 判断是否已注册
+		if l.Account.StaffId == nil {
+			return errors.New("首次登录需通过企业微信工作台打开并授权手机号")
+		}
 
-	// 获取员工信息
-	if err := l.getStaff(); err != nil {
-		return nil, err
-	}
+		// 获取员工信息
+		if err := l.getStaff(); err != nil {
+			return err
+		}
 
-	// 更新登录信息
-	if err := l.updateLogin(); err != nil {
+		// 更新登录信息
+		if err := l.updateLogin(); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
@@ -59,41 +68,43 @@ func (w *WxWorkLogic) CodeLogin(ctx *gin.Context, code string) (*model.Staff, er
 func (w *WxWorkLogic) OauthLogin(ctx *gin.Context, code string, isRegister bool) (*model.Staff, error) {
 	l := &wxworkLoginLogic{
 		Ctx: ctx,
-		Db:  model.DB.Begin(),
 	}
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		l.Db = tx
 
-	if err := l.getOathUserInfo(code); err != nil {
+		// 获取用户信息
+		if err := l.getOathUserInfo(code); err != nil {
+			return err
+		}
+
+		// 获取账号
+		if err := l.getAccount(isRegister); err != nil {
+			return err
+		}
+
+		// 判断是否需要注册
+		if err := l.register(); err != nil {
+			return err
+		}
+
+		// 更新账号
+		if err := l.updateAccount(); err != nil {
+			return err
+		}
+
+		// 获取员工信息
+		if err := l.getStaff(); err != nil {
+			return err
+		}
+
+		// 更新登录信息
+		if err := l.updateLogin(); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
-	}
-
-	// 获取账号
-	if err := l.getAccount(isRegister); err != nil {
-		return nil, err
-	}
-
-	// 判断是否需要注册
-	if err := l.register(); err != nil {
-		return nil, err
-	}
-
-	// 更新账号
-	if err := l.updateAccount(); err != nil {
-		return nil, err
-	}
-
-	// 获取员工信息
-	if err := l.getStaff(); err != nil {
-		return nil, err
-	}
-
-	// 更新登录信息
-	if err := l.updateLogin(); err != nil {
-		return nil, err
-	}
-
-	// 提交事务
-	if err := l.Db.Commit().Error; err != nil {
-		return nil, errors.New("授权登录失败")
 	}
 
 	return l.Staff, nil
@@ -159,6 +170,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 		Email:    &detail.Email,
 		Gender:   gender.Convert(detail.Gender),
 	}
+	l.Departments = userinfo.Department
 
 	return nil
 }
@@ -238,75 +250,152 @@ func (l *wxworkLoginLogic) register() error {
 	var data *model.Staff
 	err := l.Db.Where(&model.Staff{Phone: l.UserInfo.Phone}).First(&data).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		l.Db.Rollback()
 		return errors.New("注册员工失败")
 	}
 
 	// 员工不存在
 	if data.Id == "" {
-		// 查询默认权限
-		role, err := model.Role{}.Default()
-		if err != nil {
-			l.Db.Rollback()
-			return errors.New("查询默认权限失败")
+		if err := l.createStaff(); err != nil {
+			return err
 		}
-		// 创建员工
-		data = &model.Staff{
-			Phone:    l.UserInfo.Phone,
-			Nickname: *l.UserInfo.Nickname,
-			Avatar:   *l.UserInfo.Avatar,
-			Email:    *l.UserInfo.Email,
-			Gender:   l.UserInfo.Gender,
-			Roles:    append([]model.Role{}, *role),
+		if err := l.createAccount(); err != nil {
+			return err
 		}
-		if err := l.Db.Create(&data).Error; err != nil {
-			l.Db.Rollback()
-			return errors.New("员工注册失败")
+		if err := l.addRoles(); err != nil {
+			return err
 		}
-
-		// 查询账号
-		var account *model.Account
-		err = l.Db.Where(&model.Account{
-			Platform: enums.PlatformTypeAccount,
-			Phone:    l.UserInfo.Phone,
-		}).First(&account).Error
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			l.Db.Rollback()
-			return errors.New("注册员工失败")
-		}
-
-		// 账号不存在
-		if account.Id == "" {
-			password := utils.RandomAlphanumeric(8)
-			account = &model.Account{
-				Platform: enums.PlatformTypeAccount,
-				Phone:    l.UserInfo.Phone,
-				Password: &password,
-				Username: l.UserInfo.Username,
-				Nickname: l.UserInfo.Nickname,
-				Avatar:   l.UserInfo.Avatar,
-				Email:    l.UserInfo.Email,
-				Gender:   l.UserInfo.Gender,
-				StaffId:  &data.Id,
-			}
-			if err := l.Db.Create(&account).Error; err != nil {
-				l.Db.Rollback()
-				return errors.New("创建账号失败")
-			}
-
-			go func(UserInfo *model.Account) {
-				m := message.NewMessage(l.Ctx)
-				m.SendRegisterMessage(&message.RegisterMessageContent{
-					Nickname: *UserInfo.Nickname,
-					Username: *UserInfo.Username,
-					Phone:    *UserInfo.Phone,
-					Password: password,
-				})
-			}(l.UserInfo)
+		if err := l.addDepartments(); err != nil {
+			return err
 		}
 	}
 
 	l.Account.StaffId = &data.Id
+
+	return nil
+}
+
+// 创建员工
+func (l *wxworkLoginLogic) createStaff() error {
+	// 创建员工
+	data := &model.Staff{
+		Phone:    l.UserInfo.Phone,
+		Nickname: *l.UserInfo.Nickname,
+		Avatar:   *l.UserInfo.Avatar,
+		Email:    *l.UserInfo.Email,
+		Gender:   l.UserInfo.Gender,
+	}
+	if err := l.Db.Create(&data).Error; err != nil {
+		return errors.New("员工注册失败")
+	}
+
+	l.Staff = data
+
+	return nil
+}
+
+// 创建账号
+func (l *wxworkLoginLogic) createAccount() error {
+	// 查询账号
+	var account *model.Account
+	if err := l.Db.Where(&model.Account{
+		Platform: enums.PlatformTypeAccount,
+		Phone:    l.UserInfo.Phone,
+	}).First(&account).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return errors.New("查询账号失败")
+		}
+	}
+
+	// 账号不存在
+	if account.Id == "" {
+		password := utils.RandomAlphanumeric(8)
+		account = &model.Account{
+			Platform: enums.PlatformTypeAccount,
+			Phone:    l.UserInfo.Phone,
+			Password: &password,
+			Username: l.UserInfo.Username,
+			Nickname: l.UserInfo.Nickname,
+			Avatar:   l.UserInfo.Avatar,
+			Email:    l.UserInfo.Email,
+			Gender:   l.UserInfo.Gender,
+			StaffId:  &l.Staff.Id,
+		}
+		if err := l.Db.Create(&account).Error; err != nil {
+			return errors.New("创建账号失败")
+		}
+
+		go func(UserInfo *model.Account) {
+			m := message.NewMessage(l.Ctx)
+			m.SendRegisterMessage(&message.RegisterMessageContent{
+				Nickname: *UserInfo.Nickname,
+				Username: *UserInfo.Username,
+				Phone:    *UserInfo.Phone,
+				Password: password,
+			})
+		}(l.UserInfo)
+	}
+
+	return nil
+}
+
+// 分配权限
+func (l *wxworkLoginLogic) addRoles() error {
+	// 查询默认权限
+	role, err := model.Role{}.Default()
+	if err != nil {
+		return errors.New("查询默认权限失败")
+	}
+
+	if err := l.Db.Model(&l.Staff).Association("Roles").Append(role); err != nil {
+		return errors.New("分配权限失败")
+	}
+
+	return nil
+}
+
+// 分配部门
+func (l *wxworkLoginLogic) addDepartments() error {
+
+	var (
+		jdy       = config.NewWechatService().JdyWork
+		storeIds  []string
+		RegionIds []string
+	)
+
+	for _, id := range l.Departments {
+		// 获取部门信息
+		party, err := jdy.Department.Get(l.Ctx, id)
+		if err != nil || party.ErrCode != 0 {
+			log.Printf("获取部门失败: %+v\n", party)
+			if err == nil {
+				err = fmt.Errorf("wechat api error: %d %s", party.ErrCode, party.ErrMsg)
+			}
+			return err
+		}
+
+		switch {
+		case strings.Contains(party.Department.Name, "店"):
+			storeIds = append(storeIds, fmt.Sprint(party.Department.ID))
+		case strings.Contains(party.Department.Name, "区域"):
+			RegionIds = append(RegionIds, fmt.Sprint(party.Department.ID))
+		}
+	}
+
+	var stores []model.Store
+	if err := l.Db.Where("id_wx in (?)", storeIds).Find(&stores).Error; err != nil {
+		return err
+	}
+	if err := l.Db.Model(&l.Staff).Association("Stores").Append(stores); err != nil {
+		return err
+	}
+
+	var regions []model.Region
+	if err := l.Db.Where("id_wx in (?)", RegionIds).Find(&regions).Error; err != nil {
+		return err
+	}
+	if err := l.Db.Model(&l.Staff).Association("Regions").Append(regions); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -336,7 +425,6 @@ func (l *wxworkLoginLogic) updateLogin() error {
 
 	// 更新员工
 	if db := l.Db.Save(&l.Account); db.Error != nil {
-		l.Db.Rollback()
 		return errors.New("登录失败")
 	}
 

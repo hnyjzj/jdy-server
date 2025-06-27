@@ -31,7 +31,7 @@ func (con StaffController) Create(ctx *gin.Context) {
 	// 创建员工
 	err := logic.StaffCreate(ctx, &req)
 	if err != nil {
-		con.ErrorLogic(ctx, err)
+		con.Exception(ctx, err.Error())
 		return
 	}
 

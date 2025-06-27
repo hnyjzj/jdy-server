@@ -14,33 +14,32 @@ import (
 )
 
 // 创建员工
-func (StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffReq) *errors.Errors {
+func (StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffReq) error {
 	l := &AccountCreateLogic{
 		Ctx: ctx,
 		Req: req,
-		Db:  model.DB.Begin(),
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			l.Db.Rollback()
-		}
-	}()
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		l.Db = tx
 
-	// 创建账号
-	switch l.Req.Platform {
-	case enums.PlatformTypeAccount:
-		if err := l.account(); err != nil {
-			l.Db.Rollback()
-			return errors.New(err.Error())
-		}
-	case enums.PlatformTypeWxWork:
+		// 创建账号
+		switch l.Req.Platform {
+		case enums.PlatformTypeAccount:
+			if err := l.account(); err != nil {
+				return err
+			}
+		case enums.PlatformTypeWxWork:
 
-		if err := l.wxwork(); err != nil {
-			l.Db.Rollback()
-			return errors.New(err.Error())
+			if err := l.wxwork(); err != nil {
+				return err
+			}
+		default:
+			return errors.New("平台类型错误")
 		}
-	default:
-		return errors.New("平台类型错误")
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	return nil

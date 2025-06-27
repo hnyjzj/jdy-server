@@ -21,9 +21,6 @@ type Store struct {
 	District string `json:"district" gorm:"size:255;comment:区域"`  // 区域
 	Address  string `json:"address" gorm:"size:500;comment:地址"`   // 地址
 
-	ParentId string `json:"parent_id" gorm:"size:255;comment:父级ID"` // 父级ID
-	Parent   *Store `json:"parent" gorm:"foreignKey:ParentId;references:Id;comment:父级"`
-
 	Staffs    []Staff `json:"staffs" gorm:"many2many:store_staffs;"`       // 员工
 	Superiors []Staff `json:"superiors" gorm:"many2many:store_superiors;"` // 负责人
 }

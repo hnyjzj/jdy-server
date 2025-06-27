@@ -108,6 +108,14 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 			if err := tx.Model(&account.Staff).Association("Stores").Replace(stores); err != nil {
 				return err
 			}
+
+			var regions []model.Region
+			if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&regions).Error; err != nil {
+				return err
+			}
+			if err := tx.Model(&account.Staff).Association("Regions").Replace(regions); err != nil {
+				return err
+			}
 		}
 
 		return nil

@@ -24,8 +24,9 @@ type Staff struct {
 	Account  *Account  `json:"account,omitempty" gorm:"foreignKey:StaffId;references:Id;"`  // 账号
 	Accounts []Account `json:"accounts,omitempty" gorm:"foreignKey:StaffId;references:Id;"` // 账号
 
-	Stores []Store `json:"stores" gorm:"many2many:store_staffs;"` // 店铺
-	Roles  []Role  `json:"roles" gorm:"many2many:role_staffs;"`   // 角色
+	Stores  []Store  `json:"stores" gorm:"many2many:store_staffs;"`   // 店铺
+	Regions []Region `json:"regions" gorm:"many2many:region_staffs;"` // 区域
+	Roles   []Role   `json:"roles" gorm:"many2many:role_staffs;"`     // 角色
 }
 
 func (Staff) Get(Id string) (*Staff, error) {

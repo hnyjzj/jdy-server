@@ -15,9 +15,9 @@ import (
 type Staff struct {
 	SoftDelete
 
-	Phone    *string `json:"phone" gorm:"uniqueIndex;size:11;comment:手机号"` // 手机号
-	Username *string `json:"username" gorm:"index;comment:用户名"`            // 用户名
-	Password *string `json:"-" gorm:"size:255;comment:密码"`                 // 密码
+	Phone    string `json:"phone" gorm:"size:11;comment:手机号"`  // 手机号
+	Username string `json:"username" gorm:"index;comment:用户名"` // 用户名
+	Password string `json:"-" gorm:"size:255;comment:密码"`      // 密码
 
 	Nickname string       `json:"nickname" gorm:"column:nickname;index;comment:昵称"`        // 昵称
 	Avatar   string       `json:"avatar" gorm:"size:255;comment:头像"`                       // 头像
@@ -48,10 +48,10 @@ func (Staff) HashPassword(password *string) (string, error) {
 
 // 校验密码
 func (u *Staff) VerifyPassword(password string) error {
-	if u.Password == nil || password == "" {
+	if u.Password == "" || password == "" {
 		return errors.New("password is nil")
 	}
-	return bcrypt.CompareHashAndPassword([]byte(*u.Password), []byte(password))
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 }
 
 // 更新登录信息

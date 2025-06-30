@@ -53,7 +53,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 
 	// 查找员工
 	var staff model.Staff
-	if err := model.DB.Where(model.Staff{Username: &l.ExternalUserAdd.UserID}).First(&staff).Error; err != nil {
+	if err := model.DB.Where(model.Staff{Username: l.ExternalUserAdd.UserID}).First(&staff).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return errors.New("查询会员失败: " + err.Error())
 		}
@@ -80,7 +80,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 	// 发送消息
 	m := message.NewMessage(l.Handle.Ctx)
 	m.SendMemberCreateMessage(&message.MemberCreateMessage{
-		ToUser:         *staff.Username,
+		ToUser:         staff.Username,
 		ExternalUserID: l.ExternalUserAdd.ExternalUserID,
 		Name:           user.ExternalContact.Name,
 	})

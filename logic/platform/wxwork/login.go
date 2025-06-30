@@ -43,7 +43,7 @@ func (w *WxWorkLogic) CodeLogin(code string) (*model.Staff, error) {
 		}
 
 		// 判断是否已注册
-		if l.Staff.Phone == nil {
+		if l.Staff.Phone == "" {
 			return errors.New("首次登录需通过企业微信工作台打开并授权手机号")
 		}
 
@@ -110,7 +110,7 @@ func (l *wxworkLoginLogic) getCodeUserInfo(code string) error {
 	}
 
 	l.UserInfo = &model.Staff{
-		Username: &user.UserID,
+		Username: user.UserID,
 	}
 
 	return nil
@@ -120,7 +120,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 	// 获取用户信息
 	user, err := l.App.OAuth.Provider.GetUserInfo(code)
 	if err != nil || user.UserID == "" || user.UserTicket == "" {
-		log.Printf("获取企业微信用户信息失败: %+v, %+v", err, user)
+		log.Printf("获取企业微信用户信息失败: %+v, %+v", err, user.ErrMSG)
 		return errors.New("获取企业微信用户信息失败")
 	}
 	// 读取员工信息
@@ -140,8 +140,8 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 	var gender enums.Gender
 
 	l.UserInfo = &model.Staff{
-		Phone:    &detail.Mobile,
-		Username: &user.UserID,
+		Phone:    detail.Mobile,
+		Username: user.UserID,
 		Nickname: userinfo.Name,
 		Avatar:   detail.Avatar,
 		Email:    detail.Email,
@@ -169,19 +169,21 @@ func (l *wxworkLoginLogic) updateAccount() error {
 }
 
 func (l *wxworkLoginLogic) register() error {
+	// 手机号不一致
+	if l.Staff.Phone != "" {
+		if l.Staff.Phone != l.UserInfo.Phone {
+			return errors.New("手机号不一致")
+		}
+	}
+
 	// 账号没有手机号
-	if l.Staff.Phone == nil {
+	if l.Staff.Phone == "" {
 		l.Staff.Phone = l.UserInfo.Phone
 	}
 
 	// 手机号未授权
-	if l.UserInfo.Phone == nil {
+	if l.UserInfo.Phone == "" {
 		return errors.New("手机号未授权")
-	}
-
-	// 手机号不一致
-	if l.Staff.Phone != nil && *l.Staff.Phone != *l.UserInfo.Phone {
-		return errors.New("手机号不一致")
 	}
 
 	return nil

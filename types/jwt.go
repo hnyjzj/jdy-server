@@ -12,9 +12,9 @@ type Claims struct {
 }
 
 type Staff struct {
-	Id       string  `json:"id"`
-	Phone    *string `json:"phone"`
-	Nickname string  `json:"nickname"`
+	Id       string `json:"id"`
+	Phone    string `json:"phone"`
+	Nickname string `json:"nickname"`
 
 	IsDisabled bool `json:"is_disabled"`
 

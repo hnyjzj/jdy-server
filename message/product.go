@@ -18,8 +18,8 @@ type ProductInventoryCreate struct {
 func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCreate) {
 	url := fmt.Sprintf("%s/product/check/info?id=%s", M.Config.Jdy.Home, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
-		*req.ProductInventory.InventoryPerson.Username,
-		*req.ProductInventory.Inspector.Username,
+		req.ProductInventory.InventoryPerson.Username,
+		req.ProductInventory.Inspector.Username,
 	}, "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
@@ -57,13 +57,13 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 					Type:    3,
 					Keyname: "盘点人",
 					Value:   req.ProductInventory.InventoryPerson.Nickname,
-					UserID:  *req.ProductInventory.InventoryPerson.Username,
+					UserID:  req.ProductInventory.InventoryPerson.Username,
 				},
 				{
 					Type:    3,
 					Keyname: "监盘人",
 					Value:   req.ProductInventory.Inspector.Nickname,
-					UserID:  *req.ProductInventory.Inspector.Username,
+					UserID:  req.ProductInventory.Inspector.Username,
 				},
 			},
 			CardAction: &request.TemplateCardAction{
@@ -93,8 +93,8 @@ type ProductInventoryUpdate struct {
 func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpdate) {
 	url := fmt.Sprintf("%s/product/check/info?id=%s", M.Config.Jdy.Home, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
-		*req.ProductInventory.InventoryPerson.Username,
-		*req.ProductInventory.Inspector.Username,
+		req.ProductInventory.InventoryPerson.Username,
+		req.ProductInventory.Inspector.Username,
 	}, "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
@@ -137,13 +137,13 @@ func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpd
 					Type:    3,
 					Keyname: "盘点人",
 					Value:   req.ProductInventory.InventoryPerson.Nickname,
-					UserID:  *req.ProductInventory.InventoryPerson.Username,
+					UserID:  req.ProductInventory.InventoryPerson.Username,
 				},
 				{
 					Type:    3,
 					Keyname: "监盘人",
 					Value:   req.ProductInventory.Inspector.Nickname,
-					UserID:  *req.ProductInventory.Inspector.Username,
+					UserID:  req.ProductInventory.Inspector.Username,
 				},
 			},
 			CardAction: &request.TemplateCardAction{

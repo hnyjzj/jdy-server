@@ -94,7 +94,7 @@ func (l *StaffUpdateLogic) update() error {
 		if err != nil {
 			return err
 		}
-		data.Password = &password
+		data.Password = password
 	}
 
 	if err := l.db.Model(&l.Staff).Updates(&data).Error; err != nil { // 更新失败
@@ -106,10 +106,10 @@ func (l *StaffUpdateLogic) update() error {
 
 func (l *StaffUpdateLogic) logout() error {
 	// 退出登录
-	if l.req.Password != "" && l.Staff.Phone != nil {
+	if l.req.Password != "" && l.Staff.Phone != "" {
 		// 退出登录
 		auth := auth.LoginLogic{}
-		if err := auth.Logout(l.ctx, *l.Staff.Phone); err != nil {
+		if err := auth.Logout(l.ctx, l.Staff.Phone); err != nil {
 			return errors.New("更新账号信息失败")
 		}
 	}

@@ -20,7 +20,7 @@ func SendGoldPriceSetMessage() {
 		if v.Staffs != nil {
 			var receiver []string
 			for _, staff := range v.Staffs {
-				receiver = append(receiver, *staff.Username)
+				receiver = append(receiver, staff.Username)
 			}
 			if len(receiver) == 0 {
 				log.Printf("门店 %s 没有有效的接收者，跳过消息发送", v.Name)

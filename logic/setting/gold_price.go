@@ -76,7 +76,7 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 		}
 		var receiver []string
 		for _, v := range store.Staffs {
-			receiver = append(receiver, *v.Username)
+			receiver = append(receiver, v.Username)
 		}
 		m := message.NewMessage(l.Ctx)
 		m.SendGoldPriceUpdateMessage(&message.GoldPriceMessage{

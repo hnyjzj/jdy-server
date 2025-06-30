@@ -61,10 +61,10 @@ func (l *StaffCreateLogic) getStaff() error {
 	// 根据手机号或用户名查询账号
 	db = db.Unscoped()
 	db = db.Where(&model.Staff{
-		Phone: &l.Req.Phone,
+		Phone: l.Req.Phone,
 	})
 	db = db.Or(&model.Staff{
-		Username: &l.Req.Username,
+		Username: l.Req.Username,
 	})
 	if err := db.First(&staff).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
@@ -85,7 +85,7 @@ func (l *StaffCreateLogic) getWechat() error {
 		Ctx: l.Ctx,
 	}
 	user, err := wxlogic.GetUser(l.Req.Username)
-	if err != nil || user.UserID == "" {
+	if err != nil || user.Username == "" {
 		return errors.New("企业微信用户不存在")
 	}
 
@@ -96,9 +96,9 @@ func (l *StaffCreateLogic) getWechat() error {
 func (l *StaffCreateLogic) createStaff() error {
 	// 创建账号
 	l.Staff = &model.Staff{
-		Username: &l.Req.Username,
-		Phone:    &l.Req.Phone,
-		Password: &l.Req.Password,
+		Username: l.Req.Username,
+		Phone:    l.Req.Phone,
+		Password: l.Req.Password,
 
 		Nickname: l.Req.Nickname,
 		Avatar:   l.Req.Avatar,

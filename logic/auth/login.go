@@ -28,7 +28,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	// 查询用户
 	var staff model.Staff
 	if err := model.DB.
-		Where(&model.Staff{Phone: &req.Phone}).
+		Where(&model.Staff{Phone: req.Phone}).
 		First(&staff).
 		Error; err != nil {
 		return nil, errors.ErrStaffUnauthorized

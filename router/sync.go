@@ -13,5 +13,10 @@ func Sync(g *gin.Engine) {
 		{
 			api.GET("/list", sync.ApiController{}.List)
 		}
+
+		wxwork := c.Group("/wxwork")
+		{
+			wxwork.GET("/contacts", sync.WxworkController{}.SyncContacts)
+		}
 	}
 }

@@ -31,7 +31,7 @@ func (w *WxWork) GetStaff() error {
 	// 查询用户信息
 	var staff model.Staff
 	if err := model.DB.Where(&model.Staff{
-		Username: &username,
+		Username: username,
 	}).First(&staff).Error; err != nil {
 		return errors.New("用户不存在")
 	}

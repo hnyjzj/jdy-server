@@ -33,20 +33,13 @@ func (l *EventChangeContactEvent) CreateUser() error {
 		return err
 	}
 
-	var mobile *string
-	if userinfo.Mobile == "" {
-		mobile = nil
-	} else {
-		mobile = &userinfo.Mobile
-	}
-
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		var staff model.Staff
 		if err := tx.Where(model.Staff{
-			Username: &userinfo.UserID,
+			Username: userinfo.Username,
 		}).Attrs(model.Staff{
-			Phone:    mobile,
-			Nickname: userinfo.Name,
+			Phone:    userinfo.Phone,
+			Nickname: userinfo.Nickname,
 			Avatar:   userinfo.Avatar,
 			Email:    userinfo.Email,
 			Gender:   enums.GenderUnknown.Convert(userinfo.Gender),
@@ -77,7 +70,7 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 	var staff model.Staff
 	if err := model.DB.
 		Where(model.Staff{
-			Username: &handler.UserUpdate.UserID,
+			Username: handler.UserUpdate.UserID,
 		}).
 		First(&staff).Error; err != nil {
 		return errors.New("用户不存在：" + handler.UserUpdate.UserID)
@@ -91,7 +84,7 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 更新用户名
 		if err := tx.Model(&staff).Updates(model.Staff{
-			Username: &uid,
+			Username: uid,
 		}).Error; err != nil {
 			return err
 		}
@@ -138,7 +131,7 @@ func (l *EventChangeContactEvent) DeleteUser() error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询员工
 		if err := tx.Where(model.Staff{
-			Username: &handler.UserDelete.UserID,
+			Username: handler.UserDelete.UserID,
 		}).First(&staff).Error; err != nil {
 			return errors.New("用户不存在：" + handler.UserDelete.UserID)
 		}

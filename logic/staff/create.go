@@ -55,13 +55,12 @@ type AccountCreateLogic struct {
 func (l *AccountCreateLogic) account() error {
 	var (
 		req = l.Req.Account
-		tx  = l.Db
 		ctx = l.Ctx
 	)
 
 	// 查询账号存不存在
 	var account model.Account
-	if err := tx.Unscoped().
+	if err := l.Db.Unscoped().
 		Where(&model.Account{
 			Platform: enums.PlatformTypeAccount,
 			Phone:    &req.Phone,
@@ -77,7 +76,7 @@ func (l *AccountCreateLogic) account() error {
 	}
 
 	// 查询手机号是否已注册
-	if err := tx.Unscoped().
+	if err := l.Db.Unscoped().
 		Where(&model.Staff{
 			Phone: &req.Phone,
 		}).
@@ -122,8 +121,7 @@ func (l *AccountCreateLogic) account() error {
 	}
 
 	// 创建账号
-	if err := tx.Save(&account).Error; err != nil {
-		tx.Rollback()
+	if err := l.Db.Save(&account).Error; err != nil {
 		return errors.New("创建账号失败")
 	}
 
@@ -136,14 +134,13 @@ func (l *AccountCreateLogic) account() error {
 		})
 	}()
 
-	return tx.Commit().Error
+	return nil
 }
 
 func (l *AccountCreateLogic) wxwork() error {
 	var (
 		ctx = l.Ctx
 		req = l.Req.WxWork
-		tx  = l.Db
 
 		jdy = config.NewWechatService().JdyWork
 	)
@@ -158,8 +155,7 @@ func (l *AccountCreateLogic) wxwork() error {
 
 		// 根据用户名检查账号是否已存在
 		var account model.Account
-		if err := tx.
-			Unscoped().
+		if err := l.Db.Unscoped().
 			Where(&model.Account{
 				Platform: enums.PlatformTypeWxWork,
 				Username: &user.UserID,
@@ -186,8 +182,7 @@ func (l *AccountCreateLogic) wxwork() error {
 		var gender enums.Gender
 		acc.Gender = gender.Convert(user.Gender)
 
-		if err := tx.Save(acc).Error; err != nil {
-			tx.Rollback()
+		if err := l.Db.Save(acc).Error; err != nil {
 			return errors.New(fmt.Sprintf("创建账号失败: %s", userid))
 		}
 
@@ -202,5 +197,5 @@ func (l *AccountCreateLogic) wxwork() error {
 		}()
 	}
 
-	return tx.Commit().Error
+	return nil
 }

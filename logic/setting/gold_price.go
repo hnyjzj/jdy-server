@@ -69,20 +69,14 @@ func (l *GoldPriceLogic) Create(req *types.GoldPriceCreateReq) error {
 	go func() {
 		var store model.Store
 		if err := model.DB.Where("id = ?", req.Options[0].StoreId).
-			Preload("Staffs", func(sdb *gorm.DB) *gorm.DB {
-				return sdb.Preload("Account", func(adb *gorm.DB) *gorm.DB {
-					return adb.Where(&model.Account{Platform: enums.PlatformTypeWxWork})
-				})
-			}).
+			Preload("Staffs").
 			First(&store).Error; err != nil {
 			log.Printf("获取店铺信息失败: %v\n", err)
 			return
 		}
 		var receiver []string
 		for _, v := range store.Staffs {
-			if v.Account != nil && v.Account.Username != nil {
-				receiver = append(receiver, *v.Account.Username)
-			}
+			receiver = append(receiver, *v.Username)
 		}
 		m := message.NewMessage(l.Ctx)
 		m.SendGoldPriceUpdateMessage(&message.GoldPriceMessage{

@@ -52,15 +52,11 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 	}
 
 	// 查找员工
-	var account model.Account
-	if err := model.DB.Where(model.Account{Username: &l.ExternalUserAdd.UserID, Platform: enums.PlatformTypeWxWork}).Preload("Staff").First(&account).Error; err != nil {
+	var staff model.Staff
+	if err := model.DB.Where(model.Staff{Username: &l.ExternalUserAdd.UserID}).First(&staff).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return errors.New("查询会员失败: " + err.Error())
 		}
-	}
-	if account.Staff == nil {
-		account.Staff = &model.Staff{}
-		account.Username = &l.ExternalUserAdd.UserID
 	}
 
 	// 查找会员
@@ -71,8 +67,8 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 		Gender:         gender.Convert(user.ExternalContact.Gender),
 		Nickname:       user.ExternalContact.Name,
 		Level:          enums.MemberLevelNone,
-		SourceId:       account.Staff.Id,
-		ConsultantId:   account.Staff.Id,
+		SourceId:       staff.Id,
+		ConsultantId:   staff.Id,
 		Status:         enums.MemberStatusPending,
 		ExternalUserId: l.ExternalUserAdd.ExternalUserID,
 	}).FirstOrCreate(&member).Error; err != nil {
@@ -84,7 +80,7 @@ func (l *EventChangeExternalContact) GetExternalContact() error {
 	// 发送消息
 	m := message.NewMessage(l.Handle.Ctx)
 	m.SendMemberCreateMessage(&message.MemberCreateMessage{
-		ToUser:         *account.Username,
+		ToUser:         *staff.Username,
 		ExternalUserID: l.ExternalUserAdd.ExternalUserID,
 		Name:           user.ExternalContact.Name,
 	})

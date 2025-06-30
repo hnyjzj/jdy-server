@@ -136,20 +136,8 @@ func CreateProductInventoryCondition(db *gorm.DB, req *types.ProductInventoryCre
 // 产品盘点关联条件
 func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, isOver bool) *gorm.DB {
 	db = db.Preload("Store")
-	db = db.Preload("InventoryPerson", func(tx *gorm.DB) *gorm.DB {
-		pdb := tx.Preload("Account", func(tx *gorm.DB) *gorm.DB {
-			pdb := tx.Where(&Account{Platform: enums.PlatformTypeWxWork})
-			return pdb
-		})
-		return pdb
-	})
-	db = db.Preload("Inspector", func(tx *gorm.DB) *gorm.DB {
-		pdb := tx.Preload("Account", func(tx *gorm.DB) *gorm.DB {
-			pdb := tx.Where(&Account{Platform: enums.PlatformTypeWxWork})
-			return pdb
-		})
-		return pdb
-	})
+	db = db.Preload("InventoryPerson")
+	db = db.Preload("Inspector")
 
 	if isOver {
 		// 应盘产品

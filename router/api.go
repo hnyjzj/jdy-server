@@ -34,8 +34,9 @@ func Api(g *gin.Engine) {
 			// 平台
 			platforms := root.Group("/platform")
 			{
-				platforms.POST("/oauth", platform.PlatformController{}.OauthUri) // 获取授权链接
-				platforms.POST("/jssdk", platform.PlatformController{}.JSSDK)    // 获取JSSDK
+				platforms.POST("/oauth", platform.PlatformController{}.OauthUri)   // 获取授权链接
+				platforms.POST("/jssdk", platform.PlatformController{}.JSSDK)      // 获取JSSDK
+				platforms.POST("/get_user", platform.PlatformController{}.GetUser) // 获取用户信息
 			}
 
 			// 上传

@@ -4,17 +4,16 @@ import (
 	"jdy/errors"
 	"jdy/logic/platform"
 	"jdy/types"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 // 三方 JSSDK
-func (con PlatformController) JSSDK(ctx *gin.Context) {
+func (con PlatformController) GetUser(ctx *gin.Context) {
 
 	// 绑定参数
 	var (
-		req   types.PlatformJSSdkReq
+		req   types.PlatformGetUserReq
 		logic = platform.PlatformLogic{
 			Ctx: ctx,
 		}
@@ -26,12 +25,11 @@ func (con PlatformController) JSSDK(ctx *gin.Context) {
 		return
 	}
 
-	res, err := logic.GetJSSDK(&req)
+	res, err := logic.GetUser(&req)
 	if err != nil {
-		con.Error(ctx, http.StatusInternalServerError, err.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
 	con.Success(ctx, "ok", res)
-
 }

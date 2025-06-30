@@ -1,28 +1,19 @@
 package platform
 
 import (
-	"errors"
-	"jdy/enums"
 	"jdy/logic/platform/wxwork"
 	"jdy/types"
-
-	"github.com/gin-gonic/gin"
 )
 
 // 获取授权链接
-func (l *PlatformLogic) GetJSSDK(ctx *gin.Context, req *types.PlatformJSSdkReq) (res any, err error) {
-	switch req.Platform {
-	case enums.PlatformTypeWxWork:
-		var (
-			wxwork wxwork.WxWorkLogic
-		)
-		res, err = wxwork.Jssdk(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+func (l *PlatformLogic) GetJSSDK(req *types.PlatformJSSdkReq) (any, error) {
+	var (
+		wxwork wxwork.WxWorkLogic
+	)
 
-	default:
-		return nil, errors.New("state error")
+	res, err := wxwork.Jssdk(l.Ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	return res, nil

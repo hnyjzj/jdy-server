@@ -1,8 +1,6 @@
 package types
 
 import (
-	"jdy/enums"
-
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -19,8 +17,6 @@ type Staff struct {
 	Nickname string  `json:"nickname"`
 
 	IsDisabled bool `json:"is_disabled"`
-
-	Platform enums.PlatformType `json:"platform"`
 
 	IP string `json:"ip"`
 }

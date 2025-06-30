@@ -3,6 +3,7 @@ package callback
 import (
 	"errors"
 	"jdy/enums"
+	"jdy/logic/platform/wxwork"
 	"jdy/model"
 	"strings"
 
@@ -26,7 +27,8 @@ func (l *EventChangeContactEvent) CreateUser() error {
 	}
 
 	// 获取用户信息
-	userinfo, err := l.Handle.GetUser(handler.UserCreate.UserID)
+	wxlogic := &wxwork.WxWorkLogic{Ctx: l.Handle.Ctx}
+	userinfo, err := wxlogic.GetUser(handler.UserCreate.UserID)
 	if err != nil {
 		return err
 	}
@@ -39,18 +41,16 @@ func (l *EventChangeContactEvent) CreateUser() error {
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-
-		var account model.Account
-		if err := tx.Where(model.Account{
+		var staff model.Staff
+		if err := tx.Where(model.Staff{
 			Username: &userinfo.UserID,
-			Platform: enums.PlatformTypeWxWork,
-		}).Attrs(model.Account{
+		}).Attrs(model.Staff{
 			Phone:    mobile,
-			Nickname: &userinfo.Name,
-			Avatar:   &userinfo.Avatar,
-			Email:    &userinfo.Email,
+			Nickname: userinfo.Name,
+			Avatar:   userinfo.Avatar,
+			Email:    userinfo.Email,
 			Gender:   enums.GenderUnknown.Convert(userinfo.Gender),
-		}).FirstOrCreate(&account).Error; err != nil {
+		}).FirstOrCreate(&staff).Error; err != nil {
 			return err
 		}
 
@@ -74,15 +74,13 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 		return nil
 	}
 
-	var account model.Account
+	var staff model.Staff
 	if err := model.DB.
-		Where(model.Account{
+		Where(model.Staff{
 			Username: &handler.UserUpdate.UserID,
-			Platform: enums.PlatformTypeWxWork,
 		}).
-		Preload("Staff").
-		First(&account).Error; err != nil {
-		return err
+		First(&staff).Error; err != nil {
+		return errors.New("用户不存在：" + handler.UserUpdate.UserID)
 	}
 
 	uid := handler.UserUpdate.UserID
@@ -92,30 +90,28 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 更新用户名
-		if err := tx.Model(&account).Updates(model.Account{
+		if err := tx.Model(&staff).Updates(model.Staff{
 			Username: &uid,
 		}).Error; err != nil {
 			return err
 		}
 
 		// 查询门店
-		if account.Staff != nil {
-			var stores []model.Store
-			if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&stores).Error; err != nil {
-				return err
-			}
+		var stores []model.Store
+		if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&stores).Error; err != nil {
+			return err
+		}
 
-			if err := tx.Model(&account.Staff).Association("Stores").Replace(stores); err != nil {
-				return err
-			}
+		if err := tx.Model(&staff).Association("Stores").Replace(stores); err != nil {
+			return err
+		}
 
-			var regions []model.Region
-			if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&regions).Error; err != nil {
-				return err
-			}
-			if err := tx.Model(&account.Staff).Association("Regions").Replace(regions); err != nil {
-				return err
-			}
+		var regions []model.Region
+		if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&regions).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("Regions").Replace(regions); err != nil {
+			return err
 		}
 
 		return nil
@@ -138,28 +134,17 @@ func (l *EventChangeContactEvent) DeleteUser() error {
 		return nil
 	}
 
-	var account model.Account
-	if err := model.DB.Where(model.Account{
-		Username: &handler.UserDelete.UserID,
-		Platform: enums.PlatformTypeWxWork,
-	}).Preload("Staff").First(&account).Error; err != nil {
-		return errors.New("用户不存在：" + handler.UserDelete.UserID)
-	}
-
+	var staff model.Staff
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		if account.Staff != nil {
-			if err := tx.Delete(&account.Staff).Error; err != nil {
-				return errors.New("删除员工失败：" + handler.UserDelete.UserID)
-			}
-			if err := tx.Where(model.Account{
-				StaffId: account.StaffId,
-			}).Delete(&model.Account{}).Error; err != nil {
-				return errors.New("删除账号失败：" + handler.UserDelete.UserID)
-			}
-		} else {
-			if err := tx.Delete(&account).Error; err != nil {
-				return errors.New("删除空账号失败：" + handler.UserDelete.UserID)
-			}
+		// 查询员工
+		if err := tx.Where(model.Staff{
+			Username: &handler.UserDelete.UserID,
+		}).First(&staff).Error; err != nil {
+			return errors.New("用户不存在：" + handler.UserDelete.UserID)
+		}
+		// 删除员工
+		if err := tx.Delete(&staff).Error; err != nil {
+			return errors.New("删除员工失败：" + handler.UserDelete.UserID)
 		}
 
 		return nil

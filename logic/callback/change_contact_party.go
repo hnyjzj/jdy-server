@@ -3,7 +3,6 @@ package callback
 import (
 	"errors"
 	"fmt"
-	"jdy/enums"
 	"jdy/model"
 	"log"
 	"strconv"
@@ -70,12 +69,12 @@ func (l *EventChangeContactEvent) DeleteParty() error {
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		if err := model.DB.Where(&model.Store{
+		if err := tx.Where(&model.Store{
 			IdWx: msg.PartyDelete.ID,
 		}).Delete(&model.Store{}).Error; err != nil {
 			return err
 		}
-		if err := model.DB.Where(&model.Region{
+		if err := tx.Where(&model.Region{
 			IdWx: msg.PartyDelete.ID,
 		}).Delete(&model.Region{}).Error; err != nil {
 			return err
@@ -112,22 +111,14 @@ func (h *PartyCreateHandle) isStore(l *EventChangeContactEvent) error {
 		}
 
 		if len(h.Party.DepartmentLeaders) > 0 {
-			var superiors []model.Account
+			var superiors []model.Staff
 			if err := tx.
 				Where("username IN (?)", h.Party.DepartmentLeaders).
-				Where(&model.Account{
-					Platform: enums.PlatformTypeWxWork,
-				}).
-				Preload("Staff").
 				Find(&superiors).Error; err != nil {
 				return err
 			}
 			if len(superiors) > 0 {
-				for _, superior := range superiors {
-					if superior.Staff != nil {
-						store.Superiors = append(store.Superiors, *superior.Staff)
-					}
-				}
+				store.Superiors = append(store.Superiors, superiors...)
 			}
 		}
 

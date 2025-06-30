@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/logic/common"
@@ -27,42 +26,35 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	}
 
 	// 查询用户
-	var account model.Account
+	var staff model.Staff
 	if err := model.DB.
-		Where(&model.Account{Phone: &req.Phone, Platform: enums.PlatformTypeAccount}).
-		Preload("Staff").
-		First(&account).
+		Where(&model.Staff{Phone: &req.Phone}).
+		First(&staff).
 		Error; err != nil {
-		return nil, errors.ErrStaffNotFound
-	}
-
-	// 员工不存在
-	if account.Staff == nil {
 		return nil, errors.ErrStaffUnauthorized
 	}
 
 	// 密码错误
-	if account.VerifyPassword(req.Password) != nil {
+	if staff.VerifyPassword(req.Password) != nil {
 		return nil, errors.ErrPasswordIncorrect
 	}
 
 	// 生成token
 	res, err := l.token.GenerateToken(ctx, &types.Staff{
-		Id:         account.Staff.Id,
-		Phone:      account.Staff.Phone,
-		Nickname:   account.Staff.Nickname,
-		IsDisabled: account.Staff.IsDisabled,
-		Platform:   enums.PlatformTypeAccount,
+		Id:         staff.Id,
+		Phone:      staff.Phone,
+		Nickname:   staff.Nickname,
+		IsDisabled: staff.IsDisabled,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	// 更新登录时间
-	account.UpdateLoginInfo(ctx.ClientIP())
+	staff.UpdateLoginInfo(ctx.ClientIP())
 
 	// 更新账号
-	if err := model.DB.Save(&account).Error; err != nil {
+	if err := model.DB.Save(&staff).Error; err != nil {
 		return nil, errors.New("更新账号信息失败")
 	}
 
@@ -72,21 +64,21 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 // 授权登录
 func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.TokenRes, error) {
 	var (
-		staff *model.Staff
-		err   error
-
-		wxwork_logic wxwork.WxWorkLogic
+		staff        *model.Staff
+		err          error
+		wxwork_logic = &wxwork.WxWorkLogic{
+			Ctx: ctx,
+		}
 	)
-
 	switch req.State {
 	case wxwork.WxWorkOauth:
-		staff, err = wxwork_logic.OauthLogin(ctx, req.Code, false)
+		staff, err = wxwork_logic.OauthLogin(req.Code, false)
 		if err != nil {
 			return nil, err
 		}
 
 	case wxwork.WxWorkCode:
-		staff, err = wxwork_logic.CodeLogin(ctx, req.Code)
+		staff, err = wxwork_logic.CodeLogin(req.Code)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +92,6 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 		Phone:      staff.Phone,
 		Nickname:   staff.Nickname,
 		IsDisabled: staff.IsDisabled,
-		Platform:   enums.PlatformTypeWxWork,
 	})
 }
 

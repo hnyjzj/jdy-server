@@ -2,7 +2,6 @@ package setting
 
 import (
 	"errors"
-	"jdy/enums"
 	"jdy/logic"
 	"jdy/model"
 	"jdy/types"
@@ -129,8 +128,7 @@ func (r *RoleLogic) AddStaff(req *types.RoleAddStaffReq) error {
 		return errors.New("查询角色失败")
 	}
 
-	subQuery := model.DB.Model(&model.Account{}).Where("username in (?)", req.Staffs).Where(&model.Account{Platform: enums.PlatformTypeWxWork}).Select("staff_id")
-	if err := model.DB.Model(&model.Staff{}).Where("id in (?)", subQuery).Find(&staffs).Error; err != nil {
+	if err := model.DB.Model(&model.Staff{}).Where("username in (?)", req.Staffs).Find(&staffs).Error; err != nil {
 		return errors.New("查询员工失败")
 	}
 

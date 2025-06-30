@@ -3,17 +3,16 @@ package wxwork
 import (
 	"fmt"
 	"jdy/config"
-	"jdy/enums"
 	"jdy/utils"
 )
 
 const (
-	WxWorkOauth enums.PlatformType = "wxwork_oauth"
-	WxWorkCode  enums.PlatformType = "wxwork_code"
+	WxWorkOauth string = "wxwork_oauth"
+	WxWorkCode  string = "wxwork_code"
 )
 
 // 获取授权链接
-func (w *WxWorkLogic) OauthUri(agent string, state string, uri string) (string, error) {
+func (w *WxWorkLogic) OauthUri(agent string, uri string) (string, error) {
 	wxwork := config.NewWechatService().JdyWork
 	// 设置跳转地址
 	wxwork.OAuth.Provider.WithRedirectURL(uri)

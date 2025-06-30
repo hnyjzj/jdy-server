@@ -22,12 +22,6 @@ func (con StaffController) Create(ctx *gin.Context) {
 		return
 	}
 
-	// 使用自定义验证器进行验证
-	if err := req.Validate(); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
-	}
-
 	// 创建员工
 	err := logic.StaffCreate(ctx, &req)
 	if err != nil {
@@ -60,14 +54,8 @@ func (con StaffController) Update(ctx *gin.Context) {
 		return
 	}
 
-	// 使用自定义验证器进行验证
-	if err := req.Validate(); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
-	}
-
 	if err := logic.StaffUpdate(ctx, logic.Staff.Id, &req); err != nil {
-		con.ErrorLogic(ctx, err)
+		con.Exception(ctx, err.Error())
 		return
 	}
 

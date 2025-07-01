@@ -35,6 +35,11 @@ func (StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffReq) error {
 			return err
 		}
 
+		// 发送消息
+		if err := l.sendMessage(); err != nil {
+			return err
+		}
+
 		return nil
 	}); err != nil {
 		return err

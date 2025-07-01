@@ -8,7 +8,7 @@ import (
 type StaffReq struct {
 	Username string `json:"username" binding:"required"`                             // 用户名
 	Phone    string `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"` // 手机号
-	Password string `json:"password" binding:"required"`                             // 密码
+	Password string `json:"password"`                                                // 密码
 
 	Nickname string       `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
 	Avatar   string       `json:"avatar"`                                                            // 头像

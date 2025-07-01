@@ -134,6 +134,16 @@ func Api(g *gin.Engine) {
 					staffs.DELETE("/del", store.StoreStaffController{}.Del) // 删除门店员工
 				}
 			}
+
+			superiors := stores.Group("/superior")
+			{
+				superiors.Use(middlewares.JWTMiddleware())
+				{
+					superiors.POST("/list", store.StoreSuperiorController{}.List) // 门店负责人列表
+					superiors.POST("/add", store.StoreSuperiorController{}.Add)   // 添加门店负责人
+					superiors.DELETE("/del", store.StoreSuperiorController{}.Del) // 删除门店负责人
+				}
+			}
 		}
 
 		// 区域

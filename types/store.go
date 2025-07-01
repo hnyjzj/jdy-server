@@ -62,3 +62,17 @@ type StoreStaffDelReq struct {
 	StoreId string   `json:"id" binding:"required"`       // 门店id
 	StaffId []string `json:"staff_id" binding:"required"` // 用户id
 }
+
+type StoreSuperiorListReq struct {
+	StoreId string `json:"id" binding:"required"` // 门店id
+}
+
+type StoreSuperiorAddReq struct {
+	StoreId    string   `json:"id" binding:"required"`          // 门店id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 用户id
+}
+
+type StoreSuperiorDelReq struct {
+	StoreId    string   `json:"id" binding:"required"`          // 门店id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 用户id
+}

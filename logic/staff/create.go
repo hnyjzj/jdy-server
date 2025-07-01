@@ -103,13 +103,18 @@ func (l *StaffCreateLogic) createStaff() error {
 	l.Staff = &model.Staff{
 		Username: l.Req.Username,
 		Phone:    l.Req.Phone,
-		Password: l.Req.Password,
 
 		Nickname: l.Req.Nickname,
 		Avatar:   l.Req.Avatar,
 		Email:    l.Req.Email,
 		Gender:   l.Req.Gender,
 	}
+
+	password, err := l.Staff.HashPassword(&l.Req.Password)
+	if err != nil {
+		return errors.New("密码加密失败")
+	}
+	l.Staff.Password = password
 
 	if err := l.Db.Create(&l.Staff).Error; err != nil {
 		return errors.New("创建账号失败")

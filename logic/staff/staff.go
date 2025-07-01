@@ -40,7 +40,9 @@ func (l *StaffLogic) List(req *types.StaffListReq) (*types.PageRes[model.Staff],
 // 员工详情
 func (l *StaffLogic) Info(req *types.StaffInfoReq) (*model.Staff, error) {
 	var staff model.Staff
-	if err := model.DB.Preload("Stores").First(&staff, "id = ?", req.Id).Error; err != nil {
+	db := model.DB.Model(&staff)
+	db = staff.Preloads(db)
+	if err := db.First(&staff, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.ErrStaffNotFound
 	}
 

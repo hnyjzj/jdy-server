@@ -118,6 +118,18 @@ func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
 	return db
 }
 
+func (Staff) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Role", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("Apis").Preload("Routers")
+	})
+	db = db.Preload("Regions")
+	db = db.Preload("RegionsSuperiors")
+	db = db.Preload("StoresSuperiors")
+	db = db.Preload("Stores")
+
+	return db
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

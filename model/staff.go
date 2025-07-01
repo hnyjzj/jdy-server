@@ -28,11 +28,14 @@ type Staff struct {
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"comment:最后登录时间"` // 最后登录时间
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`    // 最后登录IP
 
+	Identity enums.Identity `json:"identity" gorm:"type:tinyint(1);not null;comment:身份"`    // 身份
+	RoleId   string         `json:"role_id" gorm:"type:varchar(255);not NULL;comment:角色ID"` // 角色ID
+	Role     *Role          `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"` // 角色
+
 	Stores           []Store  `json:"stores" gorm:"many2many:store_staffs;"`                // 店铺
 	StoresSuperiors  []Store  `json:"stores_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
 	Regions          []Region `json:"regions" gorm:"many2many:region_staffs;"`              // 区域
 	RegionsSuperiors []Region `json:"regions_superiors" gorm:"many2many:region_superiors;"` // 负责的区域
-	Roles            []Role   `json:"roles" gorm:"many2many:role_staffs;"`                  // 角色
 }
 
 // 加密密码
@@ -63,12 +66,19 @@ func (u *Staff) UpdateLoginInfo(ip string) {
 	u.LastLoginAt = &now
 }
 
-func (Staff) Get(Id string) (*Staff, error) {
+func (Staff) Get(Id, Username *string) (*Staff, error) {
 	var staff Staff
-	db := DB.Model(staff).Where("id = ?", Id)
+	db := DB.Model(staff)
+
+	if Id != nil {
+		db = db.Where("id = ?", *Id)
+	}
+	if Username != nil {
+		db = db.Where("username = ?", *Username)
+	}
 
 	db = db.Preload("Stores")
-	db = db.Preload("Roles", func(tx *gorm.DB) *gorm.DB {
+	db = db.Preload("Role", func(tx *gorm.DB) *gorm.DB {
 		return tx.Preload("Apis").Preload("Routers")
 	})
 
@@ -81,12 +91,10 @@ func (Staff) Get(Id string) (*Staff, error) {
 
 func (S *Staff) HasPermissionApi(path string) bool {
 	has := false
-	for _, role := range S.Roles {
-		for _, api := range role.Apis {
-			if api.Path == path {
-				has = true
-				break
-			}
+	for _, api := range S.Role.Apis {
+		if api.Path == path {
+			has = true
+			break
 		}
 	}
 

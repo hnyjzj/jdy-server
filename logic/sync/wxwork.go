@@ -100,27 +100,20 @@ func (l *WxWorkLogic) Contacts() error {
 					return errors.New("更新员工失败")
 				}
 
-				// 更新员工状态
-				if user.Status == 1 {
-					staff.IsDisabled = false
-				}
-				if err := tx.Save(&staff).Error; err != nil {
-					log.Printf("更新员工状态失败: %+v", err)
-					return errors.New("更新员工状态失败")
-				}
-
 				// 关联员工与门店/区域
 				if region.IdWx != "" {
 					if err := tx.Model(&staff).Association("Regions").Append(&region); err != nil {
 						log.Printf("关联员工与区域失败: %+v", err)
 						return errors.New("关联员工与区域失败")
 					}
+					staff.Identity = enums.IdentityAreaManager
 				}
 				if store.IdWx != "" {
 					if err := tx.Model(&staff).Association("Stores").Append(&store); err != nil {
 						log.Printf("关联员工与门店失败: %+v", err)
 						return errors.New("关联员工与门店失败")
 					}
+					staff.Identity = enums.IdentityClerk
 				}
 
 				// 设置员工为门店/区域负责人
@@ -131,12 +124,30 @@ func (l *WxWorkLogic) Contacts() error {
 							log.Printf("关联负责人与门店失败: %+v", err)
 							return errors.New("关联负责人与门店失败")
 						}
+						staff.Identity = enums.IdentityShopkeeper
 					case strings.Contains(department.Department.Name, "区域"): // 如果是区域
 						if err := tx.Model(&region).Association("Superiors").Append(&staff); err != nil {
 							log.Printf("关联负责人与区域失败: %+v", err)
 							return errors.New("关联负责人与区域失败")
 						}
+						staff.Identity = enums.IdentityAreaManager
 					}
+				}
+
+				// 更新员工状态
+				if user.Status == 1 {
+					staff.IsDisabled = false
+				}
+				if err := tx.Save(&staff).Error; err != nil {
+					log.Printf("更新员工状态失败: %+v", err)
+					return errors.New("更新员工状态失败")
+				}
+
+				// 分配角色
+				var role model.Role
+				if err := role.SetDefault(tx, staff.Id, staff.Identity); err != nil {
+					log.Printf("分配角色失败: %+v", err)
+					return errors.New("分配角色失败")
 				}
 			}
 		}

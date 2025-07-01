@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
@@ -20,7 +21,7 @@ func (con BaseController) GetStaff(ctx *gin.Context) (*model.Staff, *errors.Erro
 		return nil, errors.ErrStaffNotFound
 	}
 
-	staff, err := model.Staff{}.Get(staffInfo.Id)
+	staff, err := model.Staff{}.Get(&staffInfo.Id, nil)
 	if err != nil {
 		return nil, errors.ErrStaffNotFound
 	}
@@ -43,10 +44,14 @@ func (con BaseController) GetStaff(ctx *gin.Context) (*model.Staff, *errors.Erro
 }
 
 func (con BaseController) verify_permission(ctx *gin.Context, staff *model.Staff) error {
+	if staff.Identity == enums.IdentitySuperAdmin {
+		return nil
+	}
+
 	// 检查权限
 	if !staff.HasPermissionApi(ctx.FullPath()) {
 		log.Printf("员工[%v] 无权限访问: %v", staff.Id, ctx.FullPath())
-		// return errors.ErrStaffUnauthorized
+		return errors.ErrStaffUnauthorized
 	}
 
 	return nil

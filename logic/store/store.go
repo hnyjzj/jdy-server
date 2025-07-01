@@ -72,6 +72,7 @@ func (l *StoreLogic) Info(ctx *gin.Context, req *types.StoreInfoReq) (*model.Sto
 
 	if err := model.DB.
 		Preload("Staffs").
+		Preload("Superiors").
 		First(&store, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取门店详情失败")
 	}

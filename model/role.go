@@ -25,16 +25,34 @@ type Role struct {
 	Staffs  []Staff  `json:"staffs" gorm:"many2many:role_staffs;comment:角色员工;"`   // 角色员工
 }
 
-func (Role) Default() (*Role, error) {
+func (Role) Default(Identity enums.Identity) (*Role, error) {
 	var role Role
 	if err := DB.Model(&Role{}).Where(&Role{
-		Identity:  enums.IdentityClerk,
+		Identity:  Identity,
 		IsDefault: true,
 	}).First(&role).Error; err != nil {
 		return nil, err
 	}
 
 	return &role, nil
+}
+
+func (Role) SetDefault(db *gorm.DB, staff_id string, Identity enums.Identity) error {
+	var role Role
+	if err := db.Model(&Role{}).Where(&Role{
+		Identity:  Identity,
+		IsDefault: true,
+	}).First(&role).Error; err != nil {
+		return err
+	}
+
+	if err := db.Model(&Staff{}).Where("id = ?", staff_id).Updates(Staff{
+		RoleId: role.Id,
+	}).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (Role) WhereCondition(db *gorm.DB, query *types.RoleWhere) *gorm.DB {
@@ -53,15 +71,17 @@ func (Role) Preloads(db *gorm.DB, query *types.RoleWhere) *gorm.DB {
 }
 
 func (Role) Init() error {
-	var role Role
-	if err := DB.Model(&Role{}).Where(&Role{
-		Identity:  enums.IdentityClerk,
-		IsDefault: true,
-	}).Attrs(Role{
-		Name: "默认角色",
-		Desc: "默认角色",
-	}).FirstOrCreate(&role).Error; err != nil {
-		return err
+	for identity, name := range enums.IdentityMap {
+		var role Role
+		if err := DB.Model(&Role{}).Where(&Role{
+			Identity:  identity,
+			IsDefault: true,
+		}).Attrs(Role{
+			Name: name,
+			Desc: "默认角色",
+		}).FirstOrCreate(&role).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil

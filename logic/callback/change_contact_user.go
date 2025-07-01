@@ -46,6 +46,7 @@ func (l *EventChangeContactEvent) CreateUser() error {
 			Avatar:   userinfo.Avatar,
 			Email:    userinfo.Email,
 			Gender:   enums.GenderUnknown.Convert(userinfo.Gender),
+			Identity: enums.IdentityClerk,
 		}).FirstOrCreate(&staff).Error; err != nil {
 			return err
 		}
@@ -78,12 +79,8 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 	}
 
 	// 查询员工
-	var staff model.Staff
-	if err := model.DB.
-		Where(model.Staff{
-			Username: user.UserID,
-		}).
-		First(&staff).Error; err != nil {
+	staff, err := model.Staff{}.Get(nil, &user.UserID)
+	if err != nil {
 		return errors.New("用户不存在：" + user.UserID)
 	}
 
@@ -96,6 +93,7 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 		// 更新用户名
 		if err := tx.Model(&staff).Updates(model.Staff{
 			Username: uid,
+			Identity: enums.IdentityClerk,
 		}).Error; err != nil {
 			return err
 		}

@@ -51,7 +51,7 @@ func (l *RegionSuperiorLogic) Add(req *types.RegionSuperiorAddReq) error {
 
 	// 查询负责人
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, "id = ?", req.SuperiorId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id IN (?)", req.SuperiorId).Error; err != nil {
 		return errors.New("负责人不存在")
 	}
 
@@ -73,7 +73,7 @@ func (l *RegionSuperiorLogic) Del(req *types.RegionSuperiorDelReq) error {
 
 	// 查询负责人
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, "id = ?", req.SuperiorId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id IN (?)", req.SuperiorId).Error; err != nil {
 		return errors.New("负责人不存在")
 	}
 

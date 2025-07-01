@@ -39,7 +39,7 @@ func (l *RegionStoreLogic) Add(req *types.RegionStoreAddReq) error {
 
 	// 查询门店
 	var store []model.Store
-	if err := model.DB.Find(&store, "id = ?", req.StoreId).Error; err != nil {
+	if err := model.DB.Find(&store, "id IN (?)", req.StoreId).Error; err != nil {
 		return errors.New("门店不存在")
 	}
 
@@ -61,7 +61,7 @@ func (l *RegionStoreLogic) Del(req *types.RegionStoreDelReq) error {
 
 	// 查询门店
 	var store []model.Store
-	if err := model.DB.Find(&store, "id = ?", req.StoreId).Error; err != nil {
+	if err := model.DB.Find(&store, "id IN (?)", req.StoreId).Error; err != nil {
 		return errors.New("门店不存在")
 	}
 

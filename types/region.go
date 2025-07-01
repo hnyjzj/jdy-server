@@ -1,9 +1,7 @@
 package types
 
 type RegionCreateReq struct {
-	Sort int `json:"sort" binding:"min=0"` // 排序
-
-	Name string `json:"name" binding:"required"` // 门店名称
+	Name string `json:"name" binding:"required"` // 区域名称
 }
 
 type RegionUpdateReq struct {
@@ -30,19 +28,47 @@ type RegionListMyReq struct {
 }
 
 type RegionWhere struct {
-	Name *string `json:"name" label:"门店名称" find:"true" sort:"1" type:"string" input:"text"`
+	Name *string `json:"name" label:"区域名称" find:"true" sort:"1" type:"string" input:"text"`
+}
+
+type RegionStoreListReq struct {
+	RegionId string `json:"id" binding:"required"` // 区域id
+}
+
+type RegionStoreAddReq struct {
+	RegionId string   `json:"id" binding:"required"`       // 区域id
+	StoreId  []string `json:"store_id" binding:"required"` // 店铺id
+}
+
+type RegionStoreDelReq struct {
+	RegionId string   `json:"id" binding:"required"`       // 区域id
+	StoreId  []string `json:"store_id" binding:"required"` // 店铺id
 }
 
 type RegionStaffListReq struct {
-	RegionId string `json:"id" binding:"required"` // 门店id
+	RegionId string `json:"id" binding:"required"` // 区域id
 }
 
 type RegionStaffAddReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 门店id
+	RegionId string   `json:"id" binding:"required"`       // 区域id
 	StaffId  []string `json:"staff_id" binding:"required"` // 用户id
 }
 
 type RegionStaffDelReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 门店id
+	RegionId string   `json:"id" binding:"required"`       // 区域id
 	StaffId  []string `json:"staff_id" binding:"required"` // 用户id
+}
+
+type RegionSuperiorListReq struct {
+	RegionId string `json:"id" binding:"required"` // 区域id
+}
+
+type RegionSuperiorAddReq struct {
+	RegionId   string   `json:"id" binding:"required"`          // 区域id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 上级id
+}
+
+type RegionSuperiorDelReq struct {
+	RegionId   string   `json:"id" binding:"required"`          // 区域id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 上级id
 }

@@ -154,6 +154,16 @@ func Api(g *gin.Engine) {
 
 			}
 
+			stores := regions.Group("/store")
+			{
+				stores.Use(middlewares.JWTMiddleware())
+				{
+					stores.POST("/list", region.RegionStoreController{}.List) // 区域门店列表
+					stores.POST("/add", region.RegionStoreController{}.Add)   // 添加区域门店
+					stores.DELETE("/del", region.RegionStoreController{}.Del) // 删除区域门店
+				}
+			}
+
 			staffs := regions.Group("/staff")
 			{
 				staffs.Use(middlewares.JWTMiddleware())
@@ -161,6 +171,16 @@ func Api(g *gin.Engine) {
 					staffs.POST("/list", region.RegionStaffController{}.List) // 区域员工列表
 					staffs.POST("/add", region.RegionStaffController{}.Add)   // 添加区域员工
 					staffs.DELETE("/del", region.RegionStaffController{}.Del) // 删除区域员工
+				}
+			}
+
+			superiors := regions.Group("/superior")
+			{
+				superiors.Use(middlewares.JWTMiddleware())
+				{
+					superiors.POST("/list", region.RegionSuperiorController{}.List) // 区域负责人列表
+					superiors.POST("/add", region.RegionSuperiorController{}.Add)   // 添加区域负责人
+					superiors.DELETE("/del", region.RegionSuperiorController{}.Del) // 删除区域负责人
 				}
 			}
 		}
@@ -496,14 +516,14 @@ func Api(g *gin.Engine) {
 			// 角色权限
 			roles := settings.Group("/role")
 			{
+				roles.GET("/where", setting.RoleController{}.Where) // 角色权限筛选
 				roles.Use(middlewares.JWTMiddleware())
 				{
-					roles.POST("/create", setting.RoleController{}.Create)     // 创建角色
-					roles.POST("/list", setting.RoleController{}.List)         // 角色权限列表
-					roles.POST("/info", setting.RoleController{}.Info)         // 角色权限详情
-					roles.PUT("/update", setting.RoleController{}.Update)      // 角色权限更新
-					roles.PUT("/add_staff", setting.RoleController{}.AddStaff) // 角色权限添加员工
-					roles.DELETE("/delete", setting.RoleController{}.Delete)   // 角色权限删除
+					roles.POST("/create", setting.RoleController{}.Create)   // 创建角色
+					roles.POST("/list", setting.RoleController{}.List)       // 角色权限列表
+					roles.POST("/info", setting.RoleController{}.Info)       // 角色权限详情
+					roles.PUT("/update", setting.RoleController{}.Update)    // 角色权限更新
+					roles.DELETE("/delete", setting.RoleController{}.Delete) // 角色权限删除
 
 					roles.POST("/apis", setting.RoleController{}.Apis) // 角色权限API列表
 				}

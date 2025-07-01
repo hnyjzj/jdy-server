@@ -28,9 +28,11 @@ type Staff struct {
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"comment:最后登录时间"` // 最后登录时间
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`    // 最后登录IP
 
-	Stores  []Store  `json:"stores" gorm:"many2many:store_staffs;"`   // 店铺
-	Regions []Region `json:"regions" gorm:"many2many:region_staffs;"` // 区域
-	Roles   []Role   `json:"roles" gorm:"many2many:role_staffs;"`     // 角色
+	Stores           []Store  `json:"stores" gorm:"many2many:store_staffs;"`                // 店铺
+	StoresSuperiors  []Store  `json:"stores_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
+	Regions          []Region `json:"regions" gorm:"many2many:region_staffs;"`              // 区域
+	RegionsSuperiors []Region `json:"regions_superiors" gorm:"many2many:region_superiors;"` // 负责的区域
+	Roles            []Role   `json:"roles" gorm:"many2many:role_staffs;"`                  // 角色
 }
 
 // 加密密码

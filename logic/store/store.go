@@ -27,7 +27,6 @@ func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) (*types.Pag
 		return nil, errors.New("获取门店列表数量失败")
 	}
 
-	db = db.Order("sort desc, created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 
 	if err := db.Find(&res.List).Error; err != nil {

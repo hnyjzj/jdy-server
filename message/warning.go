@@ -18,7 +18,7 @@ type CaptureScreenMessage struct {
 // 发送截屏事件消息
 func (M *BaseMessage) SendCaptureScreenMessage(req *CaptureScreenMessage) error {
 	// 消息内容
-	if res, err := M.WXWork.GroupRobot.SendTemplateCard(M.Ctx, M.Config.Robot.Warnning, &request.GroupRobotMsgTemplateCard{
+	if res, err := M.WXWork.GroupRobot.SendTemplateCard(M.Ctx, M.Config.Robot.Warning, &request.GroupRobotMsgTemplateCard{
 		CardType: "text_notice",
 		MainTitle: request.TemplateCardMainTitle{
 			Title: "截屏警告",

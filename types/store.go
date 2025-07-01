@@ -36,14 +36,14 @@ type StoreListMyReq struct {
 }
 
 type StoreWhere struct {
-	Name    *string    `json:"name" label:"门店名称" find:"true" sort:"1" type:"string" input:"text"`
-	Region  RegionInfo `json:"region" label:"区域" find:"true" sort:"2" type:"object" input:"region"`
-	Address string     `json:"address" label:"门店地址" find:"true" sort:"5" type:"string" input:"text"`
-	Contact string     `json:"contact" label:"联系方式" find:"true" sort:"6" type:"string" input:"text"`
-	Logo    string     `json:"logo" label:"门店logo" find:"false" sort:"7" type:"string" input:"upload"`
+	Name    *string `json:"name" label:"门店名称" find:"true" sort:"1" type:"string" input:"text"`
+	Field   Field   `json:"field" label:"区域" find:"true" sort:"2" type:"object" input:"region"`
+	Address string  `json:"address" label:"门店地址" find:"true" sort:"5" type:"string" input:"text"`
+	Contact string  `json:"contact" label:"联系方式" find:"true" sort:"6" type:"string" input:"text"`
+	Logo    string  `json:"logo" label:"门店logo" find:"false" sort:"7" type:"string" input:"upload"`
 }
 
-type RegionInfo struct {
+type Field struct {
 	Province *string `json:"province"`
 	City     *string `json:"city"`
 	District *string `json:"district"`

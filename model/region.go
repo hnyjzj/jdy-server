@@ -1,5 +1,12 @@
 package model
 
+import (
+	"fmt"
+	"jdy/types"
+
+	"gorm.io/gorm"
+)
+
 type Region struct {
 	SoftDelete
 
@@ -12,6 +19,13 @@ type Region struct {
 	Superiors []Staff `json:"superiors" gorm:"many2many:region_superiors;"` // 负责人
 }
 
+func (Region) WhereCondition(db *gorm.DB, query *types.RegionWhere) *gorm.DB {
+	if query.Name != nil {
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", *query.Name))
+	}
+
+	return db
+}
 func init() {
 	// 注册模型
 	RegisterModels(

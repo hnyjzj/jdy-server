@@ -7,6 +7,7 @@ import (
 	"jdy/controller/order"
 	"jdy/controller/platform"
 	"jdy/controller/product"
+	"jdy/controller/region"
 	"jdy/controller/setting"
 	"jdy/controller/staff"
 	"jdy/controller/statistic"
@@ -135,6 +136,34 @@ func Api(g *gin.Engine) {
 			}
 		}
 
+		// 区域
+		regions := r.Group("/region")
+		{
+			root := regions.Group("/")
+			{
+				root.GET("/where", region.RegionController{}.Where) // 区域筛选
+				root.Use(middlewares.JWTMiddleware())
+				{
+					root.POST("/create", region.RegionController{}.Create)   // 创建区域
+					root.PUT("/update", region.RegionController{}.Update)    // 区域更新
+					root.DELETE("/delete", region.RegionController{}.Delete) // 区域删除
+					root.POST("/list", region.RegionController{}.List)       // 区域列表
+					root.POST("/my", region.RegionController{}.My)           // 我的区域
+					root.POST("/info", region.RegionController{}.Info)       // 区域详情
+				}
+
+			}
+
+			staffs := regions.Group("/staff")
+			{
+				staffs.Use(middlewares.JWTMiddleware())
+				{
+					staffs.POST("/list", region.RegionStaffController{}.List) // 区域员工列表
+					staffs.POST("/add", region.RegionStaffController{}.Add)   // 添加区域员工
+					staffs.DELETE("/del", region.RegionStaffController{}.Del) // 删除区域员工
+				}
+			}
+		}
 		// 产品
 		products := r.Group("/product")
 		{

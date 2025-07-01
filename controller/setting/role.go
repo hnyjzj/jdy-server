@@ -5,6 +5,7 @@ import (
 	"jdy/errors"
 	"jdy/logic/setting"
 	"jdy/types"
+	"jdy/utils"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,12 @@ import (
 
 type RoleController struct {
 	controller.BaseController
+}
+
+func (con RoleController) Where(ctx *gin.Context) {
+	where := utils.StructToWhere(types.RoleWhere{})
+
+	con.Success(ctx, "ok", where)
 }
 
 func (con RoleController) List(ctx *gin.Context) {
@@ -126,37 +133,6 @@ func (con RoleController) Update(ctx *gin.Context) {
 	}
 
 	if err := logic.Update(&req); err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
-	con.Success(ctx, "ok", nil)
-}
-
-func (con RoleController) AddStaff(ctx *gin.Context) {
-	var (
-		req   types.RoleAddStaffReq
-		logic = &setting.RoleLogic{}
-	)
-
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		log.Printf("err: %v", err)
-		return
-	}
-
-	// 设置上下文
-	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
-		return
-	} else {
-		logic.Staff = staff
-		logic.Ctx = ctx
-		logic.IP = ctx.ClientIP()
-	}
-
-	if err := logic.AddStaff(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

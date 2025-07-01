@@ -17,8 +17,11 @@ type RoleLogic struct {
 
 func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 	role := model.Role{
-		Name:       req.Name,
-		Desc:       req.Desc,
+		Name:      req.Name,
+		Desc:      req.Desc,
+		Identity:  req.Identity,
+		IsDefault: req.IsDefault,
+
 		OperatorId: r.Staff.Id,
 		IP:         r.IP,
 	}
@@ -95,47 +98,10 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 			return err
 		}
 
-		var Stores []model.Store
-		if err := tx.Model(&model.Store{}).Where("id in (?)", req.Stores).Find(&Stores).Error; err != nil {
-			return err
-		}
-		if err := tx.Model(&role).Association("Stores").Replace(Stores); err != nil {
-			return err
-		}
-
-		var Staffs []model.Staff
-		if err := tx.Model(&model.Staff{}).Where("id in (?)", req.Staffs).Find(&Staffs).Error; err != nil {
-			return err
-		}
-		if err := tx.Model(&role).Association("Staffs").Replace(Staffs); err != nil {
-			return err
-		}
-
 		return nil
 	}); err != nil {
 		return errors.New("更新角色失败")
 	}
-	return nil
-}
-
-func (r *RoleLogic) AddStaff(req *types.RoleAddStaffReq) error {
-	var (
-		role   model.Role
-		staffs []model.Staff
-	)
-
-	if err := model.DB.Model(&model.Role{}).First(&role, "id = ?", req.Id).Error; err != nil {
-		return errors.New("查询角色失败")
-	}
-
-	if err := model.DB.Model(&model.Staff{}).Where("username in (?)", req.Staffs).Find(&staffs).Error; err != nil {
-		return errors.New("查询员工失败")
-	}
-
-	if err := model.DB.Model(&role).Association("Staffs").Append(staffs); err != nil {
-		return errors.New("添加员工失败")
-	}
-
 	return nil
 }
 

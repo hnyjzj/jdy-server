@@ -46,7 +46,7 @@ func (l *StoreStaffLogic) Add(req *types.StoreStaffAddReq) error {
 
 	// 查询员工
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, "id = ?", req.StaffId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id IN (?)", req.StaffId).Error; err != nil {
 		return errors.New("员工不存在")
 	}
 
@@ -68,7 +68,7 @@ func (l *StoreStaffLogic) Del(req *types.StoreStaffDelReq) error {
 
 	// 查询员工
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, "id = ?", req.StaffId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id IN (?)", req.StaffId).Error; err != nil {
 		return errors.New("员工不存在")
 	}
 

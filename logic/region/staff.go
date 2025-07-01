@@ -51,7 +51,7 @@ func (l *RegionStaffLogic) Add(req *types.RegionStaffAddReq) error {
 
 	// 查询员工
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, "id = ?", req.StaffId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id IN (?)", req.StaffId).Error; err != nil {
 		return errors.New("员工不存在")
 	}
 
@@ -73,7 +73,7 @@ func (l *RegionStaffLogic) Del(req *types.RegionStaffDelReq) error {
 
 	// 查询员工
 	var staff []model.Staff
-	if err := model.DB.Find(&staff, "id = ?", req.StaffId).Error; err != nil {
+	if err := model.DB.Find(&staff, "id IN (?)", req.StaffId).Error; err != nil {
 		return errors.New("员工不存在")
 	}
 

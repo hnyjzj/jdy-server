@@ -47,6 +47,7 @@ func (l *RegionLogic) My(req *types.RegionListMyReq) (*[]model.Region, error) {
 
 	db := model.DB.Model(&staff)
 	db = db.Where("id = ?", l.Staff.Id)
+	db = db.Preload("Regions")
 
 	if err := db.First(&staff).Error; err != nil {
 		return nil, errors.New("获取区域列表失败")

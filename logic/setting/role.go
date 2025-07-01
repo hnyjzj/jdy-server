@@ -165,5 +165,9 @@ func (r *RoleLogic) Apis() (any, error) {
 		return nil, errors.New("获取失败")
 	}
 
+	if len(list) == 0 {
+		return []any{}, nil
+	}
+
 	return list[0].Children, nil
 }

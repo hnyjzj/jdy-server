@@ -2,9 +2,12 @@ package callback
 
 import (
 	"errors"
+	"fmt"
 	"jdy/enums"
 	"jdy/logic/platform/wxwork"
 	"jdy/model"
+	"jdy/utils"
+	"log"
 	"strings"
 
 	"gorm.io/gorm"
@@ -67,13 +70,21 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 		return nil
 	}
 
+	// 获取用户信息
+	user, err := l.Handle.Wechat.JdyWork.User.Get(l.Handle.Ctx, handler.UserUpdate.UserID)
+	if err != nil || user.UserID == "" {
+		log.Printf("读取员工信息失败: %+v, %+v", err, user)
+		return errors.New("读取员工信息失败")
+	}
+
+	// 查询员工
 	var staff model.Staff
 	if err := model.DB.
 		Where(model.Staff{
-			Username: handler.UserUpdate.UserID,
+			Username: user.UserID,
 		}).
 		First(&staff).Error; err != nil {
-		return errors.New("用户不存在：" + handler.UserUpdate.UserID)
+		return errors.New("用户不存在：" + user.UserID)
 	}
 
 	uid := handler.UserUpdate.UserID
@@ -89,21 +100,44 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 			return err
 		}
 
-		// 查询门店
+		// 关联门店
 		var stores []model.Store
-		if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&stores).Error; err != nil {
+		if err := tx.Where("id_wx in (?)", strings.Split(utils.ArrayToString(user.Department, ","), ",")).Find(&stores).Error; err != nil {
 			return err
 		}
-
 		if err := tx.Model(&staff).Association("Stores").Replace(stores); err != nil {
 			return err
 		}
 
+		// 关联区域
 		var regions []model.Region
-		if err := tx.Where("id_wx in (?)", strings.Split(handler.UserUpdate.Department, ",")).Find(&regions).Error; err != nil {
+		if err := tx.Where("id_wx in (?)", strings.Split(utils.ArrayToString(user.Department, ","), ",")).Find(&regions).Error; err != nil {
 			return err
 		}
 		if err := tx.Model(&staff).Association("Regions").Replace(regions); err != nil {
+			return err
+		}
+
+		// 关联门店负责人
+		var StoresSuperiorsIds []string
+		for i := range user.Department {
+			if user.IsLeaderInDept[i] == 1 {
+				StoresSuperiorsIds = append(StoresSuperiorsIds, fmt.Sprint(user.Department[i]))
+			}
+		}
+		var StoresSuperiors []model.Store
+		if err := tx.Where("id_wx in (?)", StoresSuperiorsIds).Find(&StoresSuperiors).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("StoresSuperiors").Replace(StoresSuperiors); err != nil {
+			return err
+		}
+		// 关联区域负责人
+		var RegionsSuperiors []model.Region
+		if err := tx.Where("id_wx in (?)", StoresSuperiorsIds).Find(&RegionsSuperiors).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("RegionsSuperiors").Replace(RegionsSuperiors); err != nil {
 			return err
 		}
 

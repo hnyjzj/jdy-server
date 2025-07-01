@@ -78,8 +78,8 @@ func (l *WxWorkLogic) Contacts() error {
 
 			// 循环成员
 			for _, user := range users.UserList {
+				// 获取及创建员工
 				var staff model.Staff
-
 				var gender enums.Gender
 				data := model.Staff{
 					Phone:      user.Mobile,
@@ -94,20 +94,22 @@ func (l *WxWorkLogic) Contacts() error {
 					return errors.New("获取员工失败")
 				}
 
+				// 更新员工信息
 				if err := tx.Model(&staff).Updates(data).Error; err != nil {
 					log.Printf("更新员工失败: %+v", err)
 					return errors.New("更新员工失败")
 				}
 
+				// 更新员工状态
 				if user.Status == 1 {
 					staff.IsDisabled = false
 				}
-
 				if err := tx.Save(&staff).Error; err != nil {
-					log.Printf("更新员工失败: %+v", err)
-					return errors.New("更新员工失败")
+					log.Printf("更新员工状态失败: %+v", err)
+					return errors.New("更新员工状态失败")
 				}
 
+				// 关联员工与门店/区域
 				if region.IdWx != "" {
 					if err := tx.Model(&staff).Association("Regions").Append(&region); err != nil {
 						log.Printf("关联员工与区域失败: %+v", err)
@@ -118,6 +120,22 @@ func (l *WxWorkLogic) Contacts() error {
 					if err := tx.Model(&staff).Association("Stores").Append(&store); err != nil {
 						log.Printf("关联员工与门店失败: %+v", err)
 						return errors.New("关联员工与门店失败")
+					}
+				}
+
+				// 设置员工为门店/区域负责人
+				if strings.Contains(strings.Join(department.Department.DepartmentLeaders, " "), user.UserID) {
+					switch {
+					case strings.Contains(department.Department.Name, "店"): // 如果是门店
+						if err := tx.Model(&store).Association("Superiors").Append(&staff); err != nil {
+							log.Printf("关联负责人与门店失败: %+v", err)
+							return errors.New("关联负责人与门店失败")
+						}
+					case strings.Contains(department.Department.Name, "区域"): // 如果是区域
+						if err := tx.Model(&region).Association("Superiors").Append(&staff); err != nil {
+							log.Printf("关联负责人与区域失败: %+v", err)
+							return errors.New("关联负责人与区域失败")
+						}
 					}
 				}
 			}

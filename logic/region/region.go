@@ -28,6 +28,7 @@ func (l *RegionLogic) List(ctx *gin.Context, req *types.RegionListReq) (*types.P
 	}
 
 	db = db.Order("created_at desc")
+	db = region.Preloads(db)
 	db = model.PageCondition(db, req.Page, req.Limit)
 
 	if err := db.Find(&res.List).Error; err != nil {
@@ -70,9 +71,11 @@ func (l *RegionLogic) Info(ctx *gin.Context, req *types.RegionInfoReq) (*model.R
 		region model.Region
 	)
 
-	if err := model.DB.
-		Preload("Staffs").
-		First(&region, "id = ?", req.Id).Error; err != nil {
+	db := model.DB.Model(&model.Region{})
+
+	db = region.Preloads(db)
+
+	if err := db.First(&region, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取区域详情失败")
 	}
 

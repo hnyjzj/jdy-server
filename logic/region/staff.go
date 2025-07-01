@@ -20,15 +20,20 @@ func (l *RegionStaffLogic) List(req *types.RegionStaffListReq) (*[]model.Staff, 
 		region   model.Region
 		inRegion = false
 	)
-	if err := model.DB.Preload("Staffs").First(&region, "id = ?", req.RegionId).Error; err != nil {
+
+	db := model.DB.Model(&model.Region{})
+	db = region.Preloads(db)
+	if err := db.First(&region, "id = ?", req.RegionId).Error; err != nil {
 		return nil, errors.New("区域不存在")
 	}
+
 	for _, staff := range region.Staffs {
 		if staff.Id == l.Staff.Id {
 			inRegion = true
 			break
 		}
 	}
+
 	if !inRegion {
 		return nil, errors.New("无权限访问")
 	}

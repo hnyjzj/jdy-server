@@ -26,6 +26,15 @@ func (Region) WhereCondition(db *gorm.DB, query *types.RegionWhere) *gorm.DB {
 
 	return db
 }
+
+func (Region) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Stores")
+	db = db.Preload("Staffs")
+	db = db.Preload("Superiors")
+
+	return db
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

@@ -63,14 +63,14 @@ type StaffUpdateReq struct {
 }
 
 type StaffWhere struct {
-	Username   string       `json:"username" label:"用户名" find:"true" create:"true" required:"true" sort:"1" type:"string" input:"text"`
+	Nickname   string       `json:"nickname" label:"姓名" find:"true" create:"true" required:"true" sort:"1" type:"string" input:"text"`
 	Phone      string       `json:"phone" label:"手机号" find:"true" create:"true" required:"true" sort:"2" type:"string" input:"text"`
-	Nickname   string       `json:"nickname" label:"姓名" find:"true" create:"true" required:"true" sort:"3" type:"string" input:"text"`
-	Email      string       `json:"email" label:"邮箱" find:"true"  create:"true" sort:"3" type:"string" input:"text"`
-	Gender     enums.Gender `json:"gender" label:"性别" find:"true" create:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`
-	Avatar     string       `json:"avatar" label:"头像" create:"true" sort:"4" type:"string" input:"upload"`
-	Password   string       `json:"password" label:"密码" create:"true" sort:"4" type:"string" input:"password"`
-	IsDisabled bool         `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"5" type:"boolean" input:"switch"`
+	Username   string       `json:"username" label:"用户名" find:"true" create:"true" required:"true" sort:"3" type:"string" input:"text"`
+	Email      string       `json:"email" label:"邮箱" find:"true"  create:"true" sort:"4" type:"string" input:"text"`
+	Gender     enums.Gender `json:"gender" label:"性别" find:"true" create:"true" sort:"5" type:"number" input:"select" preset:"typeMap"`
+	Avatar     string       `json:"avatar" label:"头像" create:"true" sort:"6" type:"string" input:"upload"`
+	Password   string       `json:"password" label:"密码" create:"true" sort:"7" type:"string" input:"password"`
+	IsDisabled bool         `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"8" type:"boolean" input:"switch"`
 }
 
 type StaffListReq struct {

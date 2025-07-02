@@ -530,11 +530,12 @@ func Api(g *gin.Engine) {
 				roles.GET("/where", setting.RoleController{}.Where) // 角色权限筛选
 				roles.Use(middlewares.JWTMiddleware())
 				{
-					roles.POST("/create", setting.RoleController{}.Create)   // 创建角色
-					roles.POST("/list", setting.RoleController{}.List)       // 角色权限列表
-					roles.POST("/info", setting.RoleController{}.Info)       // 角色权限详情
-					roles.PUT("/update", setting.RoleController{}.Update)    // 角色权限更新
-					roles.DELETE("/delete", setting.RoleController{}.Delete) // 角色权限删除
+					roles.GET("/identity", setting.RoleController{}.GetIdentity) // 获取当前用户角色权限
+					roles.POST("/create", setting.RoleController{}.Create)       // 创建角色
+					roles.POST("/list", setting.RoleController{}.List)           // 角色权限列表
+					roles.POST("/info", setting.RoleController{}.Info)           // 角色权限详情
+					roles.PUT("/update", setting.RoleController{}.Update)        // 角色权限更新
+					roles.DELETE("/delete", setting.RoleController{}.Delete)     // 角色权限删除
 
 					roles.POST("/apis", setting.RoleController{}.Apis) // 角色权限API列表
 				}

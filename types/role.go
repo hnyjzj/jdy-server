@@ -10,6 +10,10 @@ type RoleWhere struct {
 	IsDefault bool           `json:"is_default" label:"是否是默认" find:"true" create:"true" update:"true" sort:"4" type:"string" input:"text" required:"false"`                  // 是否是默认角色
 }
 
+type RoleListReq struct {
+	Identity enums.Identity `json:"identity" binding:"required"`
+}
+
 type RoleCreateReq struct {
 	Name      string         `json:"name" binding:"required"`     // 角色名称
 	Desc      string         `json:"desc"`                        // 角色描述

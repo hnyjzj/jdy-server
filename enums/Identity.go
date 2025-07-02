@@ -34,3 +34,15 @@ func (p Identity) InMap() error {
 	}
 	return nil
 }
+
+// 获取比当前身份小的身份
+func (p Identity) GetMinMap() any {
+	min := make(map[Identity]string)
+	for key, value := range IdentityMap {
+		if key < p {
+			min[key] = value
+		}
+	}
+
+	return min
+}

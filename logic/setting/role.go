@@ -16,6 +16,25 @@ type RoleLogic struct {
 }
 
 func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
+	var (
+		db = model.DB.Model(&model.Role{})
+	)
+
+	if req.IsDefault {
+		var role model.Role
+		if err := db.Where(&model.Role{
+			Identity:  req.Identity,
+			IsDefault: req.IsDefault,
+		}).First(&role).Error; err == nil {
+			if err != gorm.ErrRecordNotFound {
+				return nil, errors.New("查询角色失败")
+			}
+		}
+		if role.Id != "" {
+			return nil, errors.New("角色已存在")
+		}
+	}
+
 	role := model.Role{
 		Name:      req.Name,
 		Desc:      req.Desc,
@@ -25,19 +44,23 @@ func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 		OperatorId: r.Staff.Id,
 		IP:         r.IP,
 	}
-	if err := model.DB.Create(&role).Error; err != nil {
+
+	if err := db.Create(&role).Error; err != nil {
 		return nil, err
 	}
 
 	return &role, nil
 }
 
-func (r *RoleLogic) List() ([]model.Role, error) {
+func (r *RoleLogic) List(req *types.RoleListReq) ([]model.Role, error) {
 	var (
 		roles []model.Role
 	)
 
-	if err := model.DB.Find(&roles).Error; err != nil {
+	db := model.DB.Model(&model.Role{})
+	db = model.Role{}.WhereCondition(db, &types.RoleWhere{Identity: req.Identity})
+
+	if err := db.Find(&roles).Error; err != nil {
 		return nil, err
 	}
 

@@ -21,23 +21,43 @@ func (con RoleController) Where(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
+func (con RoleController) GetIdentity(ctx *gin.Context) {
+	// 获取当前用户
+	staff, err := con.GetStaff(ctx)
+	if err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	}
+
+	data := staff.Identity.GetMinMap()
+
+	con.Success(ctx, "ok", data)
+}
+
 func (con RoleController) List(ctx *gin.Context) {
 	var (
+		req types.RoleListReq
+
 		logic = &setting.RoleLogic{}
 	)
 
-	// 设置上下文
-	logic.Ctx = ctx
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
 
+	// 设置上下文
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
+		logic.Ctx = ctx
 		logic.Staff = staff
 		logic.IP = ctx.ClientIP()
 	}
 
-	data, err := logic.List()
+	data, err := logic.List(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
@@ -65,9 +85,8 @@ func (con RoleController) Create(ctx *gin.Context) {
 	} else {
 		logic.Staff = staff
 		logic.Ctx = ctx
+		logic.IP = ctx.ClientIP()
 	}
-
-	logic.IP = ctx.ClientIP()
 
 	data, err := logic.Create(&req)
 	if err != nil {

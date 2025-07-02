@@ -59,6 +59,9 @@ func (Role) WhereCondition(db *gorm.DB, query *types.RoleWhere) *gorm.DB {
 	if query.Id != "" {
 		db = db.Where("id = ?", query.Id)
 	}
+	if query.Identity != 0 {
+		db = db.Where("identity = ?", query.Identity)
+	}
 
 	return db
 }

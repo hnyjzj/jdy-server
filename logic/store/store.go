@@ -45,7 +45,7 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 
 	db := model.DB.Model(&staff)
 	db = db.Where("id = ?", l.Staff.Id)
-	db = db.Preload("Stores")
+	db = staff.Preloads(db)
 
 	if err := db.First(&staff).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
@@ -54,6 +54,19 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 	var store_ids []string
 	for _, v := range staff.Stores {
 		store_ids = append(store_ids, v.Id)
+	}
+	for _, v := range staff.StoreSuperiors {
+		store_ids = append(store_ids, v.Id)
+	}
+	for _, v := range staff.Regions {
+		for _, store := range v.Stores {
+			store_ids = append(store_ids, store.Id)
+		}
+	}
+	for _, v := range staff.RegionSuperiors {
+		for _, store := range v.Stores {
+			store_ids = append(store_ids, store.Id)
+		}
 	}
 
 	var stores []model.Store

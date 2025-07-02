@@ -122,10 +122,14 @@ func (Staff) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Role", func(tx *gorm.DB) *gorm.DB {
 		return tx.Preload("Apis").Preload("Routers")
 	})
-	db = db.Preload("Regions")
-	db = db.Preload("RegionSuperiors")
-	db = db.Preload("StoreSuperiors")
 	db = db.Preload("Stores")
+	db = db.Preload("StoreSuperiors")
+	db = db.Preload("Regions", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("Stores")
+	})
+	db = db.Preload("RegionSuperiors", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("Stores")
+	})
 
 	return db
 }

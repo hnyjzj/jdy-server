@@ -117,25 +117,25 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 		}
 
 		// 关联门店负责人
-		var StoresSuperiorsIds []string
+		var StoreSuperiorsIds []string
 		for i := range user.Department {
 			if user.IsLeaderInDept[i] == 1 {
-				StoresSuperiorsIds = append(StoresSuperiorsIds, fmt.Sprint(user.Department[i]))
+				StoreSuperiorsIds = append(StoreSuperiorsIds, fmt.Sprint(user.Department[i]))
 			}
 		}
-		var StoresSuperiors []model.Store
-		if err := tx.Where("id_wx in (?)", StoresSuperiorsIds).Find(&StoresSuperiors).Error; err != nil {
+		var StoreSuperiors []model.Store
+		if err := tx.Where("id_wx in (?)", StoreSuperiorsIds).Find(&StoreSuperiors).Error; err != nil {
 			return err
 		}
-		if err := tx.Model(&staff).Association("StoresSuperiors").Replace(StoresSuperiors); err != nil {
+		if err := tx.Model(&staff).Association("StoreSuperiors").Replace(StoreSuperiors); err != nil {
 			return err
 		}
 		// 关联区域负责人
-		var RegionsSuperiors []model.Region
-		if err := tx.Where("id_wx in (?)", StoresSuperiorsIds).Find(&RegionsSuperiors).Error; err != nil {
+		var RegionSuperiors []model.Region
+		if err := tx.Where("id_wx in (?)", StoreSuperiorsIds).Find(&RegionSuperiors).Error; err != nil {
 			return err
 		}
-		if err := tx.Model(&staff).Association("RegionsSuperiors").Replace(RegionsSuperiors); err != nil {
+		if err := tx.Model(&staff).Association("RegionSuperiors").Replace(RegionSuperiors); err != nil {
 			return err
 		}
 

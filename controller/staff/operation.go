@@ -2,6 +2,7 @@ package staff
 
 import (
 	"jdy/errors"
+	"jdy/logic"
 	"jdy/logic/staff"
 	"jdy/types"
 
@@ -31,6 +32,40 @@ func (con StaffController) Create(ctx *gin.Context) {
 
 	// 返回结果
 	con.Success(ctx, "ok", nil)
+}
+
+func (con StaffController) Edit(ctx *gin.Context) {
+	var (
+		req types.StaffEditReq
+
+		logic = staff.StaffLogic{
+			BaseLogic: logic.BaseLogic{
+				Ctx: ctx,
+			},
+		}
+	)
+
+	// 解析参数
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.StaffEdit(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	// 返回结果
+	con.Success(ctx, "ok", logic.Staff)
 }
 
 func (con StaffController) Update(ctx *gin.Context) {

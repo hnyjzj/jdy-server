@@ -69,10 +69,10 @@ type StoreSuperiorListReq struct {
 
 type StoreSuperiorAddReq struct {
 	StoreId    string   `json:"id" binding:"required"`          // 门店id
-	SuperiorId []string `json:"superior_id" binding:"required"` // 用户id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人id
 }
 
 type StoreSuperiorDelReq struct {
 	StoreId    string   `json:"id" binding:"required"`          // 门店id
-	SuperiorId []string `json:"superior_id" binding:"required"` // 用户id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人id
 }

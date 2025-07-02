@@ -78,6 +78,7 @@ func Api(g *gin.Engine) {
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
 				staffs.POST("/info", staff.StaffController{}.Info)     // 员工详情
 				staffs.GET("/my", staff.StaffController{}.My)          // 获取我的信息
+				staffs.PUT("/edit", staff.StaffController{}.Edit)      // 编辑员工信息
 				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
 			}
 		}

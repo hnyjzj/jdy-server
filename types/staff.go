@@ -27,6 +27,30 @@ type StaffRes struct {
 	Gender   enums.Gender `json:"gender"`
 }
 
+// 编辑请求
+type StaffEditReq struct {
+	Id string `json:"id" binding:"required"`
+
+	Phone    string `json:"phone"`    // 手机号
+	Username string `json:"username"` // 用户名
+	Password string `json:"password"` // 密码
+
+	Nickname string       `json:"nickname"` // 昵称
+	Avatar   string       `json:"avatar"`   // 头像
+	Email    string       `json:"email"`    // 邮箱
+	Gender   enums.Gender `json:"gender"`   // 性别
+
+	IsDisabled bool `json:"is_disabled"` // 是否禁用
+
+	Identity enums.Identity `json:"identity"` // 身份
+	RoleId   string         `json:"role_id"`  // 角色ID
+
+	StoreIds          []string `json:"store_ids"`           // 店铺
+	StoreSuperiorIds  []string `json:"store_superior_ids"`  // 负责的店铺
+	RegionIds         []string `json:"region_ids"`          // 区域
+	RegionSuperiorIds []string `json:"region_superior_ids"` // 负责的区域
+}
+
 // 更新请求
 type StaffUpdateReq struct {
 	Code     string `json:"code"`      // 授权码

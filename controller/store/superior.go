@@ -12,7 +12,7 @@ type StoreSuperiorController struct {
 	StoreController
 }
 
-// 门店员工列表
+// 门店负责人列表
 func (con StoreSuperiorController) List(ctx *gin.Context) {
 	var (
 		req   types.StoreSuperiorListReq
@@ -34,7 +34,7 @@ func (con StoreSuperiorController) List(ctx *gin.Context) {
 		return
 	}
 
-	// 查询门店列表
+	// 查询负责人列表
 	list, err := logic.List(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
@@ -65,7 +65,7 @@ func (con StoreSuperiorController) Add(ctx *gin.Context) {
 		return
 	}
 
-	// 添加门店
+	// 添加负责人
 	if err := logic.Add(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
@@ -95,7 +95,7 @@ func (con StoreSuperiorController) Del(ctx *gin.Context) {
 		return
 	}
 
-	// 删除门店
+	// 删除负责人
 	if err := logic.Del(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return

@@ -32,10 +32,10 @@ type Staff struct {
 	RoleId   string         `json:"role_id" gorm:"type:varchar(255);not NULL;comment:角色ID"` // 角色ID
 	Role     *Role          `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"` // 角色
 
-	Stores           []Store  `json:"stores" gorm:"many2many:store_staffs;"`                // 店铺
-	StoresSuperiors  []Store  `json:"stores_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
-	Regions          []Region `json:"regions" gorm:"many2many:region_staffs;"`              // 区域
-	RegionsSuperiors []Region `json:"regions_superiors" gorm:"many2many:region_superiors;"` // 负责的区域
+	Stores          []Store  `json:"stores" gorm:"many2many:store_staffs;"`               // 店铺
+	StoreSuperiors  []Store  `json:"store_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
+	Regions         []Region `json:"regions" gorm:"many2many:region_staffs;"`             // 区域
+	RegionSuperiors []Region `json:"region_superiors" gorm:"many2many:region_superiors;"` // 负责的区域
 }
 
 // 加密密码
@@ -123,8 +123,8 @@ func (Staff) Preloads(db *gorm.DB) *gorm.DB {
 		return tx.Preload("Apis").Preload("Routers")
 	})
 	db = db.Preload("Regions")
-	db = db.Preload("RegionsSuperiors")
-	db = db.Preload("StoresSuperiors")
+	db = db.Preload("RegionSuperiors")
+	db = db.Preload("StoreSuperiors")
 	db = db.Preload("Stores")
 
 	return db

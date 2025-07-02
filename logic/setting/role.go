@@ -60,6 +60,7 @@ func (r *RoleLogic) List(req *types.RoleListReq) ([]model.Role, error) {
 	db := model.DB.Model(&model.Role{})
 	db = model.Role{}.WhereCondition(db, &types.RoleWhere{Identity: req.Identity})
 
+	db = db.Order("created_at desc").Order("is_default desc")
 	if err := db.Find(&roles).Error; err != nil {
 		return nil, err
 	}

@@ -90,6 +90,9 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 }
 
 func (S *Staff) HasPermissionApi(path string) bool {
+	if S.Role == nil {
+		return false
+	}
 	has := false
 	for _, api := range S.Role.Apis {
 		if api.Path == path {

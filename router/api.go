@@ -534,6 +534,7 @@ func Api(g *gin.Engine) {
 					roles.POST("/create", setting.RoleController{}.Create)       // 创建角色
 					roles.POST("/list", setting.RoleController{}.List)           // 角色权限列表
 					roles.POST("/info", setting.RoleController{}.Info)           // 角色权限详情
+					roles.PUT("/edit", setting.RoleController{}.Edit)            // 角色权限编辑
 					roles.PUT("/update", setting.RoleController{}.Update)        // 角色权限更新
 					roles.DELETE("/delete", setting.RoleController{}.Delete)     // 角色权限删除
 

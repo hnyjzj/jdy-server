@@ -31,7 +31,7 @@ func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 			}
 		}
 		if role.Id != "" {
-			return nil, errors.New("角色已存在")
+			return nil, errors.New("每个身份只能有一个默认角色")
 		}
 	}
 
@@ -84,7 +84,7 @@ func (r *RoleLogic) Info(req *types.RoleInfoReq) (*model.Role, error) {
 	return &role, nil
 }
 
-func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
+func (r *RoleLogic) Edit(req *types.RoleEditReq) error {
 	var (
 		role model.Role
 	)
@@ -95,8 +95,11 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 
 	// 更新角色信息
 	data := model.Role{
-		Name:       req.Name,
-		Desc:       req.Desc,
+		Name:      req.Name,
+		Desc:      req.Desc,
+		Identity:  req.Identity,
+		IsDefault: req.IsDefault,
+
 		OperatorId: r.Staff.Id,
 		IP:         r.IP,
 	}
@@ -106,6 +109,24 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 			return err
 		}
 
+		return nil
+	}); err != nil {
+		return errors.New("更新角色失败")
+	}
+	return nil
+}
+
+func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
+	var (
+		role model.Role
+	)
+	if err := model.DB.First(&role, "id = ?", req.Id).Error; err != nil {
+		log.Printf("查询角色失败: %v", err)
+		return errors.New("查询角色失败")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 更新路由
 		var routers []model.Router
 		if err := tx.Model(&model.Router{}).Where("id in (?)", req.Routers).Find(&routers).Error; err != nil {
 			return err
@@ -113,7 +134,7 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 		if err := tx.Model(&role).Association("Routers").Replace(routers); err != nil {
 			return err
 		}
-
+		// 更新接口
 		var Apis []model.Api
 		if err := tx.Model(&model.Api{}).Where("id in (?)", req.Apis).Find(&Apis).Error; err != nil {
 			return err

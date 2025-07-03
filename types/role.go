@@ -25,15 +25,18 @@ type RoleInfoReq struct {
 	Id string `json:"id" binding:"required"`
 }
 
-type RoleUpdateReq struct {
+type RoleEditReq struct {
 	Id        string         `json:"id" binding:"required"`
 	Name      string         `json:"name"`       // 角色名称
 	Desc      string         `json:"desc"`       // 角色描述
 	Identity  enums.Identity `json:"identity"`   // 角色身份
 	IsDefault bool           `json:"is_default"` // 是否是默认角色
+}
+type RoleUpdateReq struct {
+	Id string `json:"id" binding:"required"`
 
-	Apis    []string `json:"apis"`    // 角色API
-	Routers []string `json:"routers"` // 角色路由
+	Apis    []string `json:"apis" binding:"required"`    // 角色API
+	Routers []string `json:"routers" binding:"required"` // 角色路由
 }
 
 type RoleDeleteReq struct {

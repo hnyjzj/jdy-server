@@ -18,13 +18,14 @@ type StaffReq struct {
 
 // 员工响应
 type StaffRes struct {
-	Id    string `json:"id"`
-	Phone string `json:"phone"`
-
-	Nickname string       `json:"nickname"`
-	Avatar   string       `json:"avatar"`
-	Email    string       `json:"email"`
-	Gender   enums.Gender `json:"gender"`
+	Id       string         `json:"id"`
+	Phone    string         `json:"phone"`
+	Username string         `json:"username"`
+	Nickname string         `json:"nickname"`
+	Avatar   string         `json:"avatar"`
+	Email    string         `json:"email"`
+	Gender   enums.Gender   `json:"gender"`
+	Identity enums.Identity `json:"identity"`
 }
 
 // 编辑请求

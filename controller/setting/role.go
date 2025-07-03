@@ -128,6 +128,37 @@ func (con RoleController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", data)
 }
 
+func (con RoleController) Edit(ctx *gin.Context) {
+	var (
+		req   types.RoleEditReq
+		logic = &setting.RoleLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		log.Printf("err: %v", err.Error())
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 设置上下文
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+		logic.Ctx = ctx
+		logic.IP = ctx.ClientIP()
+	}
+
+	if err := logic.Edit(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
 func (con RoleController) Update(ctx *gin.Context) {
 	var (
 		req   types.RoleUpdateReq

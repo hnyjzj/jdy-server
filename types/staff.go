@@ -45,10 +45,10 @@ type StaffEditReq struct {
 	Identity enums.Identity `json:"identity"` // 身份
 	RoleId   string         `json:"role_id"`  // 角色ID
 
-	StoreIds          []string `json:"store_ids"`           // 店铺
-	StoreSuperiorIds  []string `json:"store_superior_ids"`  // 负责的店铺
-	RegionIds         []string `json:"region_ids"`          // 区域
-	RegionSuperiorIds []string `json:"region_superior_ids"` // 负责的区域
+	StoreIds          []string `json:"store_ids" binding:"required"`           // 店铺
+	StoreSuperiorIds  []string `json:"store_superior_ids" binding:"required"`  // 负责的店铺
+	RegionIds         []string `json:"region_ids" binding:"required"`          // 区域
+	RegionSuperiorIds []string `json:"region_superior_ids" binding:"required"` // 负责的区域
 }
 
 // 更新请求

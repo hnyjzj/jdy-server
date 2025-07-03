@@ -44,47 +44,39 @@ func (l *StaffLogic) StaffEdit(req *types.StaffEditReq) error {
 		}
 
 		// 关联门店
-		if len(req.StoreIds) > 0 {
-			var stores []model.Store
-			if err := tx.Where("id in (?)", req.StoreIds).Find(&stores).Error; err != nil {
-				return err
-			}
-			if err := tx.Model(&staff).Association("Stores").Replace(stores); err != nil {
-				return err
-			}
+		var stores []model.Store
+		if err := tx.Where("id in (?)", req.StoreIds).Find(&stores).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("Stores").Replace(stores); err != nil {
+			return err
 		}
 
 		// 关联负责门店
-		if len(req.StoreSuperiorIds) > 0 {
-			var stores []model.Store
-			if err := tx.Where("id in (?)", req.StoreSuperiorIds).Find(&stores).Error; err != nil {
-				return err
-			}
-			if err := tx.Model(&staff).Association("StoreSuperiors").Replace(stores); err != nil {
-				return err
-			}
+		var store_superiors []model.Store
+		if err := tx.Where("id in (?)", req.StoreSuperiorIds).Find(&store_superiors).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("StoreSuperiors").Replace(store_superiors); err != nil {
+			return err
 		}
 
 		// 关联区域
-		if len(req.RegionIds) > 0 {
-			var regions []model.Region
-			if err := tx.Where("id in (?)", req.RegionIds).Find(&regions).Error; err != nil {
-				return err
-			}
-			if err := tx.Model(&staff).Association("Regions").Replace(regions); err != nil {
-				return err
-			}
+		var regions []model.Region
+		if err := tx.Where("id in (?)", req.RegionIds).Find(&regions).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("Regions").Replace(regions); err != nil {
+			return err
 		}
 
 		// 关联负责区域
-		if len(req.RegionSuperiorIds) > 0 {
-			var regions []model.Region
-			if err := tx.Where("id in (?)", req.RegionSuperiorIds).Find(&regions).Error; err != nil {
-				return err
-			}
-			if err := tx.Model(&staff).Association("RegionSuperiors").Replace(regions); err != nil {
-				return err
-			}
+		var region_superiors []model.Region
+		if err := tx.Where("id in (?)", req.RegionSuperiorIds).Find(&region_superiors).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("RegionSuperiors").Replace(region_superiors); err != nil {
+			return err
 		}
 
 		return nil

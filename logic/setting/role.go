@@ -137,7 +137,7 @@ func (r *RoleLogic) Delete(req *types.RoleDeleteReq) error {
 		return errors.New("查询角色失败")
 	}
 
-	if role.Staffs != nil {
+	if len(role.Staffs) > 0 {
 		return errors.New("该角色下有员工，无法删除")
 	}
 

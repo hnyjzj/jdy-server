@@ -3,6 +3,7 @@ package model
 import (
 	"jdy/enums"
 	"jdy/types"
+	"jdy/utils"
 
 	"gorm.io/gorm"
 )
@@ -80,7 +81,7 @@ func (Role) Init() error {
 			Identity:  identity,
 			IsDefault: true,
 		}).Attrs(Role{
-			Name: name,
+			Name: name + utils.RandomAlphanumeric(4),
 			Desc: "默认角色",
 		}).FirstOrCreate(&role).Error; err != nil {
 			return err

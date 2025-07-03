@@ -5,7 +5,6 @@ import (
 	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -61,9 +60,7 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		store_ids = append(store_ids, v.Id)
 	}
 	for _, v := range staff.Regions {
-		log.Printf("Regions: %v", v.Id)
 		for _, store := range v.Stores {
-			log.Printf("store: %v", store.Id)
 			store_ids = append(store_ids, store.Id)
 		}
 	}

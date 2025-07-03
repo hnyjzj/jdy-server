@@ -46,7 +46,7 @@ func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 	}
 
 	if err := db.Create(&role).Error; err != nil {
-		return nil, err
+		return nil, errors.New("创建角色失败,名称可能有历史重复")
 	}
 
 	return &role, nil
@@ -97,16 +97,16 @@ func (r *RoleLogic) Edit(req *types.RoleEditReq) error {
 			var def model.Role
 			if err := tx.Where(&model.Role{
 				Identity:  role.Identity,
-				IsDefault: role.IsDefault,
-			}).First(&def).Error; err != nil {
+				IsDefault: true,
+			}).Where("id != ?", req.Id).First(&def).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
-					return errors.New("查询角色失败")
+					return errors.New("查询默认角色失败")
 				}
 			}
-			if def.Id != "" && def.Id != role.Id {
+			if def.Id != "" {
 				def.IsDefault = false
 				if err := tx.Save(&def).Error; err != nil {
-					return err
+					return errors.New("更新默认角色失败")
 				}
 			}
 		}
@@ -123,19 +123,19 @@ func (r *RoleLogic) Edit(req *types.RoleEditReq) error {
 		}
 
 		if err := tx.Model(&role).Updates(data).Error; err != nil {
-			return err
+			return errors.New("更新角色失败")
 		}
 
 		if req.IsDefault != nil {
 			role.IsDefault = *req.IsDefault
 			if err := tx.Save(&role).Error; err != nil {
-				return err
+				return errors.New("更新角色默认失败")
 			}
 		}
 
 		return nil
 	}); err != nil {
-		return errors.New("更新角色失败")
+		return errors.New(err.Error())
 	}
 	return nil
 }
@@ -184,6 +184,9 @@ func (r *RoleLogic) Delete(req *types.RoleDeleteReq) error {
 
 	if len(role.Staffs) > 0 {
 		return errors.New("该角色下有员工，无法删除")
+	}
+	if role.IsDefault {
+		return errors.New("默认角色无法删除")
 	}
 
 	if err := model.DB.Delete(&role).Error; err != nil {

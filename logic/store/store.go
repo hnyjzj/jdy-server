@@ -2,8 +2,10 @@ package store
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -59,7 +61,9 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		store_ids = append(store_ids, v.Id)
 	}
 	for _, v := range staff.Regions {
+		log.Printf("Regions: %v", v.Id)
 		for _, store := range v.Stores {
+			log.Printf("store: %v", store.Id)
 			store_ids = append(store_ids, store.Id)
 		}
 	}
@@ -72,6 +76,10 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 	var stores []model.Store
 	if err := model.DB.Where("id in (?)", store_ids).Find(&stores).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
+	}
+
+	if l.Staff.Identity >= enums.IdentityHeadquarters {
+		stores = append([]model.Store{model.StoreRoot()}, stores...)
 	}
 
 	return &stores, nil

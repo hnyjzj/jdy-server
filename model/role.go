@@ -10,9 +10,9 @@ import (
 type Role struct {
 	SoftDelete
 
-	Name     string         `json:"name" gorm:"column:name;index:unique;size:255;not null;comment:角色名称"` // 角色名称
-	Desc     string         `json:"desc" gorm:"column:desc;size:255;comment:角色描述"`                       // 角色描述
-	Identity enums.Identity `json:"identity" gorm:"column:identity;not null;comment:角色身份"`               // 角色身份
+	Name     string         `json:"name" gorm:"column:name;uniqueIndex:idx_name;size:255;not null;comment:角色名称"` // 角色名称
+	Desc     string         `json:"desc" gorm:"column:desc;size:255;comment:角色描述"`                               // 角色描述
+	Identity enums.Identity `json:"identity" gorm:"column:identity;uniqueIndex:idx_name;not null;comment:角色身份"`  // 角色身份
 
 	IsDefault bool `json:"is_default" gorm:"column:is_default;default:0;comment:是否默认"` // 是否默认
 

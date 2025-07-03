@@ -30,7 +30,7 @@ type RoleEditReq struct {
 	Name      string         `json:"name"`       // 角色名称
 	Desc      string         `json:"desc"`       // 角色描述
 	Identity  enums.Identity `json:"identity"`   // 角色身份
-	IsDefault bool           `json:"is_default"` // 是否是默认角色
+	IsDefault *bool          `json:"is_default"` // 是否是默认角色
 }
 type RoleUpdateReq struct {
 	Id string `json:"id" binding:"required"`

@@ -85,28 +85,52 @@ func (r *RoleLogic) Info(req *types.RoleInfoReq) (*model.Role, error) {
 }
 
 func (r *RoleLogic) Edit(req *types.RoleEditReq) error {
-	var (
-		role model.Role
-	)
-	if err := model.DB.First(&role, "id = ?", req.Id).Error; err != nil {
-		log.Printf("查询角色失败: %v", err)
-		return errors.New("查询角色失败")
-	}
-
-	// 更新角色信息
-	data := model.Role{
-		Name:      req.Name,
-		Desc:      req.Desc,
-		Identity:  req.Identity,
-		IsDefault: req.IsDefault,
-
-		OperatorId: r.Staff.Id,
-		IP:         r.IP,
-	}
-
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询角色信息
+		var role model.Role
+		if err := tx.First(&role, "id = ?", req.Id).Error; err != nil {
+			log.Printf("查询角色失败: %v", err)
+			return errors.New("查询角色失败")
+		}
+		// 如果是默认角色，则查询是否有其他默认角色，如果有则将其设置为非默认角色
+		if *req.IsDefault {
+			var def model.Role
+			if err := tx.Where(&model.Role{
+				Identity:  role.Identity,
+				IsDefault: role.IsDefault,
+			}).First(&def).Error; err != nil {
+				if err != gorm.ErrRecordNotFound {
+					return errors.New("查询角色失败")
+				}
+			}
+			if def.Id != "" && def.Id != role.Id {
+				def.IsDefault = false
+				if err := tx.Save(&def).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		// 更新角色信息
+		data := model.Role{
+			Name:      req.Name,
+			Desc:      req.Desc,
+			Identity:  req.Identity,
+			IsDefault: *req.IsDefault,
+
+			OperatorId: r.Staff.Id,
+			IP:         r.IP,
+		}
+
 		if err := tx.Model(&role).Updates(data).Error; err != nil {
 			return err
+		}
+
+		if req.IsDefault != nil {
+			role.IsDefault = *req.IsDefault
+			if err := tx.Save(&role).Error; err != nil {
+				return err
+			}
 		}
 
 		return nil

@@ -48,6 +48,17 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	return db
 }
 
+const StoreRootId = "headquarters"
+
+func StoreRoot() Store {
+	root := Store{
+		Name: "总部",
+	}
+	root.Id = StoreRootId
+
+	return root
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

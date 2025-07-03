@@ -25,7 +25,7 @@ func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 		if err := db.Where(&model.Role{
 			Identity:  req.Identity,
 			IsDefault: req.IsDefault,
-		}).First(&role).Error; err == nil {
+		}).First(&role).Error; err != nil {
 			if err != gorm.ErrRecordNotFound {
 				return nil, errors.New("查询角色失败")
 			}

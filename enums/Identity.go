@@ -44,5 +44,13 @@ func (p Identity) GetMinMap() any {
 		}
 	}
 
+	var last Identity
+	for key := range IdentityMap {
+		last = key
+	}
+	if p == last {
+		min[last] = IdentityMap[last]
+	}
+
 	return min
 }

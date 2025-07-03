@@ -6,9 +6,7 @@ import (
 	"jdy/enums"
 	"jdy/logic/platform/wxwork"
 	"jdy/model"
-	"jdy/utils"
 	"log"
-	"strings"
 
 	"gorm.io/gorm"
 )
@@ -100,7 +98,7 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 
 		// 关联门店
 		var stores []model.Store
-		if err := tx.Where("id_wx in (?)", strings.Split(utils.ArrayToString(user.Department, ","), ",")).Find(&stores).Error; err != nil {
+		if err := tx.Where("id_wx in (?)", user.Department).Find(&stores).Error; err != nil {
 			return err
 		}
 		if err := tx.Model(&staff).Association("Stores").Replace(stores); err != nil {
@@ -109,7 +107,7 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 
 		// 关联区域
 		var regions []model.Region
-		if err := tx.Where("id_wx in (?)", strings.Split(utils.ArrayToString(user.Department, ","), ",")).Find(&regions).Error; err != nil {
+		if err := tx.Where("id_wx in (?)", user.Department).Find(&regions).Error; err != nil {
 			return err
 		}
 		if err := tx.Model(&staff).Association("Regions").Replace(regions); err != nil {

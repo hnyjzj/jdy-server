@@ -1,7 +1,7 @@
 package types
 
 type StoreCreateReq struct {
-	Sort int `json:"sort" binding:"min=0"` // 排序
+	Order int `json:"order" binding:"min=0"` // 排序
 
 	Name     string `json:"name" binding:"required"`     // 门店名称
 	Province string `json:"province" binding:"required"` // 省份

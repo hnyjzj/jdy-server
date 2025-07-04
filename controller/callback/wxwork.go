@@ -4,6 +4,7 @@ import (
 	"io"
 	"jdy/config"
 	"jdy/logic/callback"
+	"log"
 	"net/http"
 
 	"github.com/ArtisanCloud/PowerLibs/v3/http/helper"
@@ -12,6 +13,50 @@ import (
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work"
 	"github.com/gin-gonic/gin"
 )
+
+const (
+	EventTemplateCard          = "template_card_event"     // 模板卡片事件
+	EventChangeExternalContact = "change_external_contact" // 客户变更事件
+	EventChangeContact         = "change_contact"          // 通讯录变更事件
+)
+
+func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
+	// 分析
+	rs, err := App.Server.Notify(c.Request, func(event contract.EventInterface) any {
+		handler := callback.NewWxWork(c, event)
+		var res any
+
+		switch event.GetEvent() {
+		case EventTemplateCard:
+			res = handler.TemplateCardEvent()
+		case EventChangeExternalContact:
+			res = handler.ChangeExternalContactEvent()
+		case EventChangeContact:
+			res = handler.ChangeContactEvent()
+		default:
+			log.Printf("wxwork notify event: %s", event.GetEvent())
+		}
+
+		if res == nil {
+			res = kernel.SUCCESS_EMPTY_RESPONSE
+		}
+
+		return res
+	})
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Printf("wxwork notify error: %+v", err)
+		return
+	}
+
+	err = helper.HttpResponseSend(rs, c.Writer)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Printf("wxwork notify error: %+v", err)
+		return
+	}
+}
 
 type WxWorkCongtroller struct {
 	CallbackController
@@ -56,45 +101,4 @@ func (con WxWorkCongtroller) ContactsNotify(c *gin.Context) {
 	)
 
 	con.notify(c, App)
-}
-
-const (
-	EventTemplateCard          = "template_card_event"     // 模板卡片事件
-	EventChangeExternalContact = "change_external_contact" // 客户变更事件
-)
-
-func (con WxWorkCongtroller) notify(c *gin.Context, App *work.Work) {
-
-	var (
-		logic = callback.WxWork{
-			Ctx: c,
-		}
-	)
-
-	rs, err := App.Server.Notify(c.Request, func(event contract.EventInterface) any {
-		logic.Event = event
-		var res any
-
-		switch event.GetEvent() {
-		case EventTemplateCard:
-			res = logic.TemplateCardEvent()
-		case EventChangeExternalContact:
-			res = logic.ChangeExternalContactEvent()
-		}
-
-		if res == nil {
-			res = kernel.SUCCESS_EMPTY_RESPONSE
-		}
-
-		return res
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = helper.HttpResponseSend(rs, c.Writer)
-	if err != nil {
-		panic(err)
-	}
 }

@@ -7,6 +7,7 @@ import (
 	"jdy/controller/order"
 	"jdy/controller/platform"
 	"jdy/controller/product"
+	"jdy/controller/region"
 	"jdy/controller/setting"
 	"jdy/controller/staff"
 	"jdy/controller/statistic"
@@ -21,7 +22,7 @@ func Api(g *gin.Engine) {
 	// 跨域
 	g.Use(middlewares.Cors())
 
-	r := g.Group("/")
+	r := g.Group("/api")
 	{
 		root := r.Group("/")
 		{
@@ -34,8 +35,9 @@ func Api(g *gin.Engine) {
 			// 平台
 			platforms := root.Group("/platform")
 			{
-				platforms.POST("/oauth", platform.PlatformController{}.OauthUri) // 获取授权链接
-				platforms.POST("/jssdk", platform.PlatformController{}.JSSDK)    // 获取JSSDK
+				platforms.POST("/oauth", platform.PlatformController{}.OauthUri)   // 获取授权链接
+				platforms.POST("/jssdk", platform.PlatformController{}.JSSDK)      // 获取JSSDK
+				platforms.POST("/get_user", platform.PlatformController{}.GetUser) // 获取用户信息
 			}
 
 			// 上传
@@ -49,6 +51,12 @@ func Api(g *gin.Engine) {
 					uploads.POST("/product", common.UploadController{}.Product)     // 上传商品图片
 					uploads.POST("/order", common.UploadController{}.Order)         // 上传订单图片
 				}
+			}
+
+			// 记录
+			logs := root.Group("/log")
+			{
+				logs.POST("/on_capture_screen", common.LogController{}.OnCaptureScreen) // 截屏
 			}
 		}
 
@@ -70,6 +78,7 @@ func Api(g *gin.Engine) {
 				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
 				staffs.POST("/info", staff.StaffController{}.Info)     // 员工详情
 				staffs.GET("/my", staff.StaffController{}.My)          // 获取我的信息
+				staffs.PUT("/edit", staff.StaffController{}.Edit)      // 编辑员工信息
 				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
 			}
 		}
@@ -126,8 +135,66 @@ func Api(g *gin.Engine) {
 					staffs.DELETE("/del", store.StoreStaffController{}.Del) // 删除门店员工
 				}
 			}
+
+			superiors := stores.Group("/superior")
+			{
+				superiors.Use(middlewares.JWTMiddleware())
+				{
+					superiors.POST("/list", store.StoreSuperiorController{}.List) // 门店负责人列表
+					superiors.POST("/add", store.StoreSuperiorController{}.Add)   // 添加门店负责人
+					superiors.DELETE("/del", store.StoreSuperiorController{}.Del) // 删除门店负责人
+				}
+			}
 		}
 
+		// 区域
+		regions := r.Group("/region")
+		{
+			root := regions.Group("/")
+			{
+				root.GET("/where", region.RegionController{}.Where) // 区域筛选
+				root.Use(middlewares.JWTMiddleware())
+				{
+					root.POST("/create", region.RegionController{}.Create)   // 创建区域
+					root.PUT("/update", region.RegionController{}.Update)    // 区域更新
+					root.DELETE("/delete", region.RegionController{}.Delete) // 区域删除
+					root.POST("/list", region.RegionController{}.List)       // 区域列表
+					root.POST("/my", region.RegionController{}.My)           // 我的区域
+					root.POST("/info", region.RegionController{}.Info)       // 区域详情
+				}
+
+			}
+
+			stores := regions.Group("/store")
+			{
+				stores.Use(middlewares.JWTMiddleware())
+				{
+					stores.POST("/list", region.RegionStoreController{}.List) // 区域门店列表
+					stores.POST("/add", region.RegionStoreController{}.Add)   // 添加区域门店
+					stores.DELETE("/del", region.RegionStoreController{}.Del) // 删除区域门店
+				}
+			}
+
+			staffs := regions.Group("/staff")
+			{
+				staffs.Use(middlewares.JWTMiddleware())
+				{
+					staffs.POST("/list", region.RegionStaffController{}.List) // 区域员工列表
+					staffs.POST("/add", region.RegionStaffController{}.Add)   // 添加区域员工
+					staffs.DELETE("/del", region.RegionStaffController{}.Del) // 删除区域员工
+				}
+			}
+
+			superiors := regions.Group("/superior")
+			{
+				superiors.Use(middlewares.JWTMiddleware())
+				{
+					superiors.POST("/list", region.RegionSuperiorController{}.List) // 区域负责人列表
+					superiors.POST("/add", region.RegionSuperiorController{}.Add)   // 添加区域负责人
+					superiors.DELETE("/del", region.RegionSuperiorController{}.Del) // 删除区域负责人
+				}
+			}
+		}
 		// 产品
 		products := r.Group("/product")
 		{
@@ -454,6 +521,24 @@ func Api(g *gin.Engine) {
 				{
 					open_orders.POST("/info", setting.OpenOrderController{}.Info)    // 开单设置详情
 					open_orders.PUT("/update", setting.OpenOrderController{}.Update) // 开单设置更新
+				}
+			}
+
+			// 角色权限
+			roles := settings.Group("/role")
+			{
+				roles.GET("/where", setting.RoleController{}.Where) // 角色权限筛选
+				roles.Use(middlewares.JWTMiddleware())
+				{
+					roles.GET("/identity", setting.RoleController{}.GetIdentity) // 获取当前用户角色权限
+					roles.POST("/create", setting.RoleController{}.Create)       // 创建角色
+					roles.POST("/list", setting.RoleController{}.List)           // 角色权限列表
+					roles.POST("/info", setting.RoleController{}.Info)           // 角色权限详情
+					roles.PUT("/edit", setting.RoleController{}.Edit)            // 角色权限编辑
+					roles.PUT("/update", setting.RoleController{}.Update)        // 角色权限更新
+					roles.DELETE("/delete", setting.RoleController{}.Delete)     // 角色权限删除
+
+					roles.POST("/apis", setting.RoleController{}.Apis) // 角色权限API列表
 				}
 			}
 		}

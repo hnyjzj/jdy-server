@@ -70,6 +70,10 @@ func RegisterRefreshModels(models ...any) {
 	Refresh = append(Refresh, models...)
 }
 
+type ModelInit interface {
+	Init() error
+}
+
 // 迁移数据表
 func migrator() {
 	for _, table := range Tables {
@@ -78,23 +82,23 @@ func migrator() {
 			for _, againTable := range Refresh {
 				if reflect.DeepEqual(table, againTable) {
 					log.Println("删除了", reflect.TypeOf(table).Elem().Name())
-					DB.Migrator().DropTable(table)
+					if err := DB.Migrator().DropTable(table); err != nil {
+						panic(fmt.Sprintf("删除表 %s 失败: %s", strings.Split(reflect.TypeOf(table).Elem().Name(), ""), err.Error()))
+					}
 					break
 				}
 			}
 		}
+
 		// 迁移模型
 		err := DB.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci").Migrator().AutoMigrate(table)
 		if err != nil {
 			panic(fmt.Sprintf("迁移表 %s 失败: %s", strings.Split(reflect.TypeOf(table).Elem().Name(), ""), err.Error()))
 		}
-		// log.Println("迁移了", reflect.TypeOf(table).Elem().Name())
 
-		// 如果是门店表，则插入一条默认数据
-		if reflect.TypeOf(table).Elem().Name() == "Store" {
-			var store Store
-			if err := DB.Where(&Store{Name: "公司总店"}).FirstOrCreate(&store).Error; err != nil {
-				panic(fmt.Sprintf("插入默认门店失败: %s", err.Error()))
+		if model, ok := table.(ModelInit); ok {
+			if err := model.Init(); err != nil {
+				panic(fmt.Sprintf("初始化表 %s 失败: %s", strings.Split(reflect.TypeOf(table).Elem().Name(), ""), err.Error()))
 			}
 		}
 	}

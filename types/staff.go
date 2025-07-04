@@ -1,50 +1,14 @@
 package types
 
 import (
-	"errors"
 	"jdy/enums"
-
-	"github.com/go-playground/validator/v10"
 )
 
 // 员工请求
 type StaffReq struct {
-	Platform enums.PlatformType `json:"platform" binding:"required"` // 平台
-
-	Account *StaffAccountReq `json:"account,omitempty"` // 账号信息
-	WxWork  *StaffWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
-}
-
-func (req *StaffReq) Validate() error {
-	validate := validator.New()
-	switch req.Platform {
-	case enums.PlatformTypeAccount:
-		if req.Account == nil {
-			return errors.New("账号信息是必填项")
-		}
-		// 可以在这里对Account进行进一步的验证
-		if err := validate.Struct(req.Account); err != nil {
-			return err
-		}
-	case enums.PlatformTypeWxWork:
-		if req.WxWork == nil {
-			return errors.New("企业微信信息是必填项")
-		}
-
-		// 可以在这里对WxWork进行进一步的验证
-		if err := validate.Struct(req.WxWork); err != nil {
-			return err
-		}
-	default:
-		return errors.New("invalid Platform value")
-	}
-	return nil
-}
-
-// 员工账号请求
-type StaffAccountReq struct {
+	Username string `json:"username" binding:"required"`                             // 用户名
 	Phone    string `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"` // 手机号
-	Password string `json:"password" binding:"required"`                             // 密码
+	Password string `json:"password"`                                                // 密码
 
 	Nickname string       `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
 	Avatar   string       `json:"avatar"`                                                            // 头像
@@ -52,75 +16,65 @@ type StaffAccountReq struct {
 	Gender   enums.Gender `json:"gender"`                                                            // 性别
 }
 
-// 企业微信信息
-type StaffWxWorkReq struct {
-	UserId []string `json:"user_id" binding:"required"` // 用户ID
-}
-
 // 员工响应
 type StaffRes struct {
-	Id    string `json:"id"`
-	Phone string `json:"phone"`
+	Id       string         `json:"id"`
+	Phone    string         `json:"phone"`
+	Username string         `json:"username"`
+	Nickname string         `json:"nickname"`
+	Avatar   string         `json:"avatar"`
+	Email    string         `json:"email"`
+	Gender   enums.Gender   `json:"gender"`
+	Identity enums.Identity `json:"identity"`
+}
 
-	Nickname string       `json:"nickname"`
-	Avatar   string       `json:"avatar"`
-	Email    string       `json:"email"`
-	Gender   enums.Gender `json:"gender"`
+// 编辑请求
+type StaffEditReq struct {
+	Id string `json:"id" binding:"required"`
+
+	Phone    string `json:"phone"`    // 手机号
+	Username string `json:"username"` // 用户名
+	Password string `json:"password"` // 密码
+
+	Nickname string       `json:"nickname"` // 昵称
+	Avatar   string       `json:"avatar"`   // 头像
+	Email    string       `json:"email"`    // 邮箱
+	Gender   enums.Gender `json:"gender"`   // 性别
+
+	IsDisabled bool `json:"is_disabled"` // 是否禁用
+
+	Identity enums.Identity `json:"identity"` // 身份
+	RoleId   string         `json:"role_id"`  // 角色ID
+
+	StoreIds          []string `json:"store_ids" binding:"required"`           // 店铺
+	StoreSuperiorIds  []string `json:"store_superior_ids" binding:"required"`  // 负责的店铺
+	RegionIds         []string `json:"region_ids" binding:"required"`          // 区域
+	RegionSuperiorIds []string `json:"region_superior_ids" binding:"required"` // 负责的区域
 }
 
 // 更新请求
 type StaffUpdateReq struct {
-	Platform enums.PlatformType `json:"platform" binding:"required"` // 平台
-
-	Account *StaffUpdateAccountReq `json:"account,omitempty"` // 账号信息
-	WxWork  *StaffUpdateWxWorkReq  `json:"wxwork,omitempty"`  // 企业微信信息
-}
-
-func (req *StaffUpdateReq) Validate() error {
-	validate := validator.New()
-	switch req.Platform {
-	case enums.PlatformTypeAccount:
-		if req.Account == nil {
-			return errors.New("账号信息是必填项")
-		}
-		// 可以在这里对Account进行进一步的验证
-		if err := validate.Struct(req.Account); err != nil {
-			return err
-		}
-	case enums.PlatformTypeWxWork:
-		if req.WxWork == nil {
-			return errors.New("企业微信信息是必填项")
-		}
-
-		// 可以在这里对WxWork进行进一步的验证
-		if err := validate.Struct(req.WxWork); err != nil {
-			return err
-		}
-	default:
-		return errors.New("invalid Platform value")
-	}
-	return nil
-}
-
-type StaffUpdateAccountReq struct {
+	Code     string `json:"code"`      // 授权码
 	Password string `json:"password" ` // 密码
 
-	Nickname string       `json:"nickname" binding:"min=2,max=50"` // 姓名
-	Avatar   string       `json:"avatar"`                          // 头像
-	Email    string       `json:"email" binding:"email"`           // 邮箱
-	Gender   enums.Gender `json:"gender" binding:"oneof=0 1 2"`    // 性别
-}
-
-type StaffUpdateWxWorkReq struct {
-	Code string `json:"code" binding:"required"`
+	Nickname string       `json:"nickname"`                     // 姓名
+	Avatar   string       `json:"avatar"`                       // 头像
+	Email    string       `json:"email"`                        // 邮箱
+	Gender   enums.Gender `json:"gender" binding:"oneof=0 1 2"` // 性别
 }
 
 type StaffWhere struct {
-	Phone      string       `json:"phone" label:"手机号" find:"true" sort:"1" type:"string" input:"text"`
-	StoreId    string       `json:"store_id" label:"所属门店" find:"true" sort:"2" type:"string" input:"search" binding:"required"`
-	Nickname   string       `json:"nickname" label:"姓名" find:"true" sort:"3" type:"string" input:"text"`
-	Gender     enums.Gender `json:"gender" label:"性别" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`
-	IsDisabled bool         `json:"is_disabled" label:"是否禁用" find:"true" sort:"5" type:"boolean" input:"switch"`
+	Nickname   string         `json:"nickname" label:"姓名" find:"true" create:"true" required:"true" sort:"1" type:"string" input:"text"`
+	Phone      string         `json:"phone" label:"手机号" find:"true" create:"true" required:"true" sort:"2" type:"string" input:"text"`
+	Username   string         `json:"username" label:"用户名" find:"true" create:"true" required:"true" sort:"3" type:"string" input:"text"`
+	Email      string         `json:"email" label:"邮箱" find:"true"  create:"true" sort:"4" type:"string" input:"text"`
+	Gender     enums.Gender   `json:"gender" label:"性别" find:"true" create:"true" sort:"5" type:"number" input:"select" preset:"typeMap"`
+	Avatar     string         `json:"avatar" label:"头像" create:"true" sort:"6" type:"string" input:"upload"`
+	Password   string         `json:"password" label:"密码" create:"true" sort:"7" type:"string" input:"password"`
+	IsDisabled bool           `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"8" type:"boolean" input:"switch"`
+	Identity   enums.Identity `json:"identity" label:"身份" find:"true" create:"false" sort:"9" type:"number" input:"select" preset:"typeMap"`
+
+	StoreId string `json:"store_id" label:"店铺" find:"false" create:"false" sort:"10" type:"string" input:"select"`
 }
 
 type StaffListReq struct {

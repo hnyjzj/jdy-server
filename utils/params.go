@@ -27,17 +27,17 @@ func StructToWhere[S any](s S) map[string]types.WhereForm {
 		class := field.Type
 		tag := field.Tag
 
-		var json string
+		var name string
 		if tag.Get("json") != "" {
-			json = tag.Get("json")
+			name = tag.Get("json")
 		}
 
 		whereForm, err := parseTag(class, tag)
 		if err != nil {
-			log.Printf("Error parsing tag for field %s: %v\n", json, err)
+			log.Printf("Error parsing tag for field %s: %v\n", name, err)
 			continue
 		}
-		params[json] = whereForm
+		params[name] = whereForm
 	}
 
 	return params

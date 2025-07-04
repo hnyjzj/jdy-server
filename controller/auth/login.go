@@ -67,13 +67,14 @@ func (con LoginController) Logout(ctx *gin.Context) {
 		logic = auth.LoginLogic{}
 	)
 
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
 
-	if err := logic.Logout(ctx, *staff.Phone); err != nil {
+	if err := logic.Logout(ctx, logic.Staff.Phone); err != nil {
 		con.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}

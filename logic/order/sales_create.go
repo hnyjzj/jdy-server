@@ -14,7 +14,7 @@ import (
 type OrderSalesCreateLogic struct {
 	Ctx   *gin.Context
 	Tx    *gorm.DB
-	Staff *types.Staff
+	Staff *model.Staff
 
 	Req *types.OrderSalesCreateReq
 
@@ -501,8 +501,8 @@ func (l *OrderSalesCreateLogic) getOrderDeposit(order_id string) (*model.OrderDe
 	var order model.OrderDeposit
 	db := l.Tx.Model(&model.OrderDeposit{})
 	db = db.Where("id = ?", order_id)
-	db = db.Preload("Products", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("ProductFinished")
+	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("ProductFinished")
 	})
 
 	if err := db.First(&order).Error; err != nil {

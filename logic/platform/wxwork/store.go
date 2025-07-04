@@ -17,8 +17,8 @@ func (w *WxWorkLogic) StoreCreate(ctx *gin.Context, req *types.StoreCreateReq) (
 		Order:    1,
 		ParentID: 1,
 	}
-	if req.Sort > 0 {
-		params.Order = req.Sort
+	if req.Order > 0 {
+		params.Order = req.Order
 	}
 
 	res, err := wxwork.Department.Create(ctx, params)
@@ -40,8 +40,8 @@ func (w *WxWorkLogic) StoreUpdate(ctx *gin.Context, id int, req *types.StoreUpda
 		Order:    1,
 		ParentID: 1,
 	}
-	if req.Sort > 0 {
-		params.Order = req.Sort
+	if req.Order > 0 {
+		params.Order = req.Order
 	}
 	res, err := wxwork.Department.Update(ctx, params)
 	if err != nil || res.ErrCode != 0 {

@@ -6,6 +6,12 @@ import (
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/server/handlers/models"
 )
 
+type TemplateCardEvent struct {
+	Handle  *WxWork                       // 处理器
+	Message models.EventTemplateCardEvent // 消息体
+}
+
+// 模板卡片事件
 func (Handle *WxWork) TemplateCardEvent() any {
 	var (
 		l = TemplateCardEvent{
@@ -26,9 +32,4 @@ func (Handle *WxWork) TemplateCardEvent() any {
 	}
 
 	return nil
-}
-
-type TemplateCardEvent struct {
-	Handle  *WxWork                        // 处理器
-	Message *models.EventTemplateCardEvent // 消息体
 }

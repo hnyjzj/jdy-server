@@ -19,7 +19,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types
 		conf = config.Config.JWT
 	)
 
-	if staff.Phone == nil || *staff.Phone == "" {
+	if staff.Phone == "" {
 		return nil, errors.ErrStaffNotFound
 	}
 
@@ -44,7 +44,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types
 	}
 
 	// 存入redis
-	if err := redis.Client.Set(ctx, types.GetTokenName(*staff.Phone), token, countdown_timer).Err(); err != nil {
+	if err := redis.Client.Set(ctx, types.GetTokenName(staff.Phone), token, countdown_timer).Err(); err != nil {
 		return nil, err
 	}
 

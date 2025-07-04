@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
@@ -10,7 +11,7 @@ import (
 
 type StoreLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 门店列表
@@ -27,7 +28,6 @@ func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) (*types.Pag
 		return nil, errors.New("获取门店列表数量失败")
 	}
 
-	db = db.Order("sort desc, created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 
 	if err := db.Find(&res.List).Error; err != nil {
@@ -46,32 +46,44 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 
 	db := model.DB.Model(&staff)
 	db = db.Where("id = ?", l.Staff.Id)
-	db = db.Preload("Stores")
+	db = staff.Preloads(db)
 
 	if err := db.First(&staff).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
 	}
 
-	if staff.Stores == nil {
-		staff.Stores = []model.Store{}
+	var store_ids []string
+	for _, v := range staff.Stores {
+		store_ids = append(store_ids, v.Id)
+	}
+	for _, v := range staff.StoreSuperiors {
+		store_ids = append(store_ids, v.Id)
+	}
+	for _, v := range staff.Regions {
+		for _, store := range v.Stores {
+			store_ids = append(store_ids, store.Id)
+		}
+	}
+	for _, v := range staff.RegionSuperiors {
+		for _, store := range v.Stores {
+			store_ids = append(store_ids, store.Id)
+		}
 	}
 
-	// 如果是管理员
-	// if staff.IsAdmin {
-	// admin := model.Store{
-	// 	SoftDelete: model.SoftDelete{
-	// 		Model: model.Model{
-	// 			BaseModel: model.BaseModel{
-	// 				Id: "",
-	// 			},
-	// 		},
-	// 	},
-	// 	Name: "总部",
-	// }
-	// staff.Stores = append([]model.Store{admin}, staff.Stores...)
-	// }
+	var (
+		stores []model.Store
+		sdb    = model.DB.Model(&model.Store{})
+	)
+	if l.Staff.Identity < enums.IdentityAdmin {
+		sdb = sdb.Where("id in (?)", store_ids)
+	}
 
-	return &staff.Stores, nil
+	sdb = sdb.Order("`order` asc")
+	if err := sdb.Find(&stores).Error; err != nil {
+		return nil, errors.New("获取门店列表失败")
+	}
+
+	return &stores, nil
 }
 
 // 门店详情
@@ -82,6 +94,7 @@ func (l *StoreLogic) Info(ctx *gin.Context, req *types.StoreInfoReq) (*model.Sto
 
 	if err := model.DB.
 		Preload("Staffs").
+		Preload("Superiors").
 		First(&store, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取门店详情失败")
 	}

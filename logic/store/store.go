@@ -70,13 +70,17 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		}
 	}
 
-	var stores []model.Store
-	if err := model.DB.Where("id in (?)", store_ids).Find(&stores).Error; err != nil {
-		return nil, errors.New("获取门店列表失败")
+	var (
+		stores []model.Store
+		sdb    = model.DB.Model(&model.Store{})
+	)
+	if l.Staff.Identity < enums.IdentityAdmin {
+		sdb = sdb.Where("id in (?)", store_ids)
 	}
 
-	if l.Staff.Identity >= enums.IdentityHeadquarters {
-		stores = append([]model.Store{model.StoreRoot()}, stores...)
+	sdb = sdb.Order("`order` asc")
+	if err := sdb.Find(&stores).Error; err != nil {
+		return nil, errors.New("获取门店列表失败")
 	}
 
 	return &stores, nil

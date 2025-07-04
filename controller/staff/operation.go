@@ -23,6 +23,14 @@ func (con StaffController) Create(ctx *gin.Context) {
 		return
 	}
 
+	// 获取当前用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
 	// 创建员工
 	err := logic.StaffCreate(ctx, &req)
 	if err != nil {
@@ -46,17 +54,17 @@ func (con StaffController) Edit(ctx *gin.Context) {
 	)
 
 	// 解析参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取当前用户
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	if err := logic.StaffEdit(&req); err != nil {
@@ -76,17 +84,17 @@ func (con StaffController) Update(ctx *gin.Context) {
 	)
 
 	// 解析参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取当前用户
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	if err := logic.StaffUpdate(ctx, logic.Staff.Id, &req); err != nil {

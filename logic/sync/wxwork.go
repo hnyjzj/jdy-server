@@ -68,6 +68,15 @@ func (l *WxWorkLogic) Contacts() error {
 				if err := logic.getStore(store); err != nil {
 					return err
 				}
+			case department.Department.Name == "总部": // 如果是总部
+				store := model.Store{
+					IdWx:  fmt.Sprintf("%d", department.Department.ID),
+					Name:  department.Department.Name,
+					Order: department.Department.Order,
+				}
+				if err := logic.getStore(store); err != nil {
+					return err
+				}
 			case strings.Contains(department.Department.Name, "区域"): // 如果是区域
 				region := model.Region{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
@@ -98,6 +107,7 @@ func (l *WxWorkLogic) Contacts() error {
 					Email:      user.Email,
 					Gender:     gender.Convert(user.Gender),
 					IsDisabled: true,
+					Identity:   enums.IdentityClerk,
 				}); err != nil {
 					return err
 				}
@@ -234,14 +244,7 @@ func (s *SyncWxWorkContacts) getStaff(where model.Staff) error {
 	// 获取及创建员工
 	if err := s.db.Where(model.Staff{
 		Username: where.Username,
-	}).Attrs(model.Staff{
-		Phone:      where.Phone,
-		Nickname:   where.Nickname,
-		Avatar:     where.Avatar,
-		Email:      where.Email,
-		Gender:     where.Gender,
-		IsDisabled: true,
-	}).FirstOrCreate(&staff).Error; err != nil {
+	}).Attrs(where).FirstOrCreate(&staff).Error; err != nil {
 		log.Printf("获取员工失败: %+v", err)
 		return errors.New("获取员工失败")
 	}

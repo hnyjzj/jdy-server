@@ -88,6 +88,7 @@ func (l *StaffUpdateLogic) update() error {
 		Email:    l.req.Email,
 		Gender:   l.req.Gender,
 	}
+
 	// 加密密码
 	if l.req.Password != "" {
 		password, err := model.Staff{}.HashPassword(&l.req.Password)

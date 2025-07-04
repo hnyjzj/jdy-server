@@ -48,15 +48,11 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	return db
 }
 
-const StoreRootId = "headquarters"
+func (Store) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Staffs")
+	db = db.Preload("Superiors")
 
-func StoreRoot() Store {
-	root := Store{
-		Name: "总部",
-	}
-	root.Id = StoreRootId
-
-	return root
+	return db
 }
 
 func init() {

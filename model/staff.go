@@ -68,7 +68,7 @@ func (u *Staff) UpdateLoginInfo(ip string) {
 
 func (Staff) Get(Id, Username *string) (*Staff, error) {
 	var staff Staff
-	db := DB.Model(staff)
+	db := DB.Model(&staff)
 
 	if Id != nil {
 		db = db.Where("id = ?", *Id)
@@ -77,10 +77,7 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 		db = db.Where("username = ?", *Username)
 	}
 
-	db = db.Preload("Stores")
-	db = db.Preload("Role", func(tx *gorm.DB) *gorm.DB {
-		return tx.Preload("Apis").Preload("Routers")
-	})
+	db = staff.Preloads(db)
 
 	if err := db.First(&staff).Error; err != nil {
 		return nil, err
@@ -93,15 +90,35 @@ func (S *Staff) HasPermissionApi(path string) bool {
 	if S.Role == nil {
 		return false
 	}
-	has := false
+
 	for _, api := range S.Role.Apis {
 		if api.Path == path {
-			has = true
-			break
+			return true
 		}
 	}
 
-	return has
+	return false
+}
+
+func (S *Staff) HasPermissionStore(storeId string) bool {
+	if S.Role == nil {
+		return false
+	}
+
+	for _, store := range S.StoreSuperiors {
+		if store.Id == storeId {
+			return true
+		}
+	}
+	for _, region := range S.RegionSuperiors {
+		for _, store := range region.Stores {
+			if store.Id == storeId {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
@@ -109,7 +126,7 @@ func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
 		db = db.Where("phone = ?", query.Phone)
 	}
 	if query.Nickname != "" {
-		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", strings.Replace(query.Nickname, "%", "\\%", -1)))
+		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", strings.ReplaceAll(query.Nickname, "%", "\\%")))
 	}
 	if query.Gender != 0 {
 		db = db.Where("gender = ?", query.Gender)

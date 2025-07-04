@@ -57,21 +57,24 @@ type StaffUpdateReq struct {
 	Code     string `json:"code"`      // 授权码
 	Password string `json:"password" ` // 密码
 
-	Nickname string       `json:"nickname" binding:"min=2,max=50"` // 姓名
-	Avatar   string       `json:"avatar"`                          // 头像
-	Email    string       `json:"email" binding:"email"`           // 邮箱
-	Gender   enums.Gender `json:"gender" binding:"oneof=0 1 2"`    // 性别
+	Nickname string       `json:"nickname"`                     // 姓名
+	Avatar   string       `json:"avatar"`                       // 头像
+	Email    string       `json:"email"`                        // 邮箱
+	Gender   enums.Gender `json:"gender" binding:"oneof=0 1 2"` // 性别
 }
 
 type StaffWhere struct {
-	Nickname   string       `json:"nickname" label:"姓名" find:"true" create:"true" required:"true" sort:"1" type:"string" input:"text"`
-	Phone      string       `json:"phone" label:"手机号" find:"true" create:"true" required:"true" sort:"2" type:"string" input:"text"`
-	Username   string       `json:"username" label:"用户名" find:"true" create:"true" required:"true" sort:"3" type:"string" input:"text"`
-	Email      string       `json:"email" label:"邮箱" find:"true"  create:"true" sort:"4" type:"string" input:"text"`
-	Gender     enums.Gender `json:"gender" label:"性别" find:"true" create:"true" sort:"5" type:"number" input:"select" preset:"typeMap"`
-	Avatar     string       `json:"avatar" label:"头像" create:"true" sort:"6" type:"string" input:"upload"`
-	Password   string       `json:"password" label:"密码" create:"true" sort:"7" type:"string" input:"password"`
-	IsDisabled bool         `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"8" type:"boolean" input:"switch"`
+	Nickname   string         `json:"nickname" label:"姓名" find:"true" create:"true" required:"true" sort:"1" type:"string" input:"text"`
+	Phone      string         `json:"phone" label:"手机号" find:"true" create:"true" required:"true" sort:"2" type:"string" input:"text"`
+	Username   string         `json:"username" label:"用户名" find:"true" create:"true" required:"true" sort:"3" type:"string" input:"text"`
+	Email      string         `json:"email" label:"邮箱" find:"true"  create:"true" sort:"4" type:"string" input:"text"`
+	Gender     enums.Gender   `json:"gender" label:"性别" find:"true" create:"true" sort:"5" type:"number" input:"select" preset:"typeMap"`
+	Avatar     string         `json:"avatar" label:"头像" create:"true" sort:"6" type:"string" input:"upload"`
+	Password   string         `json:"password" label:"密码" create:"true" sort:"7" type:"string" input:"password"`
+	IsDisabled bool           `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"8" type:"boolean" input:"switch"`
+	Identity   enums.Identity `json:"identity" label:"身份" find:"true" create:"false" sort:"9" type:"number" input:"select" preset:"typeMap"`
+
+	StoreId string `json:"store_id" label:"店铺" find:"false" create:"false" sort:"10" type:"string" input:"select"`
 }
 
 type StaffListReq struct {

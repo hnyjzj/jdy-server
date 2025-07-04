@@ -22,11 +22,34 @@ func (l *StaffLogic) List(req *types.StaffListReq) (*types.PageRes[model.Staff],
 
 	db := model.DB.Model(&staff)
 	db = staff.WhereCondition(db, &req.Where)
+
+	if req.Where.StoreId != "" {
+		var (
+			store model.Store
+			sdb   = model.DB.Model(&store)
+		)
+
+		sdb = store.Preloads(sdb)
+		if err := sdb.First(&store, "id = ?", req.Where.StoreId).Error; err != nil {
+			return nil, errors.New("获取门店信息失败")
+		}
+
+		var staffIds []string
+		for _, s := range store.Staffs {
+			staffIds = append(staffIds, s.Id)
+		}
+		for _, s := range store.Superiors {
+			staffIds = append(staffIds, s.Id)
+		}
+
+		db = db.Where("id in (?)", staffIds)
+	}
+
 	if err := db.Count(&res.Total).Error; err != nil {
 		return nil, errors.New("获取员工列表数量失败")
 	}
 
-	db = db.Preload("Stores")
+	db = staff.Preloads(db)
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 

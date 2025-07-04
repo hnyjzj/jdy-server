@@ -1,6 +1,7 @@
 package staff
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic/platform/wxwork"
 	"jdy/message"
@@ -108,6 +109,7 @@ func (l *StaffCreateLogic) createStaff() error {
 		Avatar:   l.Req.Avatar,
 		Email:    l.Req.Email,
 		Gender:   l.Req.Gender,
+		Identity: enums.IdentityClerk,
 	}
 
 	password, err := l.Staff.HashPassword(&l.Req.Password)

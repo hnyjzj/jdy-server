@@ -30,7 +30,7 @@ func (con PrintController) Create(ctx *gin.Context) {
 	logic.Ctx = ctx
 
 	if _, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
@@ -58,7 +58,7 @@ func (con PrintController) List(ctx *gin.Context) {
 	logic.Ctx = ctx
 
 	if _, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
@@ -87,7 +87,7 @@ func (con PrintController) Info(ctx *gin.Context) {
 	logic.Ctx = ctx
 
 	if _, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
@@ -116,7 +116,7 @@ func (con PrintController) Update(ctx *gin.Context) {
 	logic.Ctx = ctx
 
 	if _, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
@@ -144,7 +144,7 @@ func (con PrintController) Delete(ctx *gin.Context) {
 	logic.Ctx = ctx
 
 	if _, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 
@@ -172,7 +172,7 @@ func (con PrintController) Copy(ctx *gin.Context) {
 	logic.Ctx = ctx
 
 	if _, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
+		con.Exception(ctx, err.Error())
 		return
 	}
 

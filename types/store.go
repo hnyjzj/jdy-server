@@ -1,7 +1,7 @@
 package types
 
 type StoreCreateReq struct {
-	Sort int `json:"sort" binding:"min=0"` // 排序
+	Order int `json:"order" binding:"min=0"` // 排序
 
 	Name     string `json:"name" binding:"required"`     // 门店名称
 	Province string `json:"province" binding:"required"` // 省份
@@ -36,14 +36,14 @@ type StoreListMyReq struct {
 }
 
 type StoreWhere struct {
-	Name    *string    `json:"name" label:"门店名称" find:"true" sort:"1" type:"string" input:"text"`
-	Region  RegionInfo `json:"region" label:"区域" find:"true" sort:"2" type:"object" input:"region"`
-	Address string     `json:"address" label:"门店地址" find:"true" sort:"5" type:"string" input:"text"`
-	Contact string     `json:"contact" label:"联系方式" find:"true" sort:"6" type:"string" input:"text"`
-	Logo    string     `json:"logo" label:"门店logo" find:"false" sort:"7" type:"string" input:"upload"`
+	Name    *string `json:"name" label:"门店名称" find:"true" sort:"1" type:"string" input:"text"`
+	Field   Field   `json:"field" label:"区域" find:"true" sort:"2" type:"object" input:"region"`
+	Address string  `json:"address" label:"门店地址" find:"true" sort:"5" type:"string" input:"text"`
+	Contact string  `json:"contact" label:"联系方式" find:"true" sort:"6" type:"string" input:"text"`
+	Logo    string  `json:"logo" label:"门店logo" find:"false" sort:"7" type:"string" input:"upload"`
 }
 
-type RegionInfo struct {
+type Field struct {
 	Province *string `json:"province"`
 	City     *string `json:"city"`
 	District *string `json:"district"`
@@ -61,4 +61,18 @@ type StoreStaffAddReq struct {
 type StoreStaffDelReq struct {
 	StoreId string   `json:"id" binding:"required"`       // 门店id
 	StaffId []string `json:"staff_id" binding:"required"` // 用户id
+}
+
+type StoreSuperiorListReq struct {
+	StoreId string `json:"id" binding:"required"` // 门店id
+}
+
+type StoreSuperiorAddReq struct {
+	StoreId    string   `json:"id" binding:"required"`          // 门店id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人id
+}
+
+type StoreSuperiorDelReq struct {
+	StoreId    string   `json:"id" binding:"required"`          // 门店id
+	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人id
 }

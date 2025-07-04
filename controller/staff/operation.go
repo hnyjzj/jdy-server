@@ -2,6 +2,7 @@ package staff
 
 import (
 	"jdy/errors"
+	"jdy/logic"
 	"jdy/logic/staff"
 	"jdy/types"
 
@@ -22,21 +23,57 @@ func (con StaffController) Create(ctx *gin.Context) {
 		return
 	}
 
-	// 使用自定义验证器进行验证
-	if err := req.Validate(); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
+	// 获取当前用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
 
 	// 创建员工
 	err := logic.StaffCreate(ctx, &req)
 	if err != nil {
-		con.ErrorLogic(ctx, err)
+		con.Exception(ctx, err.Error())
 		return
 	}
 
 	// 返回结果
 	con.Success(ctx, "ok", nil)
+}
+
+func (con StaffController) Edit(ctx *gin.Context) {
+	var (
+		req types.StaffEditReq
+
+		logic = staff.StaffLogic{
+			BaseLogic: logic.BaseLogic{
+				Ctx: ctx,
+			},
+		}
+	)
+
+	// 解析参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取当前用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	if err := logic.StaffEdit(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	// 返回结果
+	con.Success(ctx, "ok", logic.Staff)
 }
 
 func (con StaffController) Update(ctx *gin.Context) {
@@ -47,27 +84,21 @@ func (con StaffController) Update(ctx *gin.Context) {
 	)
 
 	// 解析参数
-	staff, err := con.GetStaff(ctx)
-	if err != nil {
-		con.ExceptionWithAuth(ctx, err.Error())
-		return
-	}
-	logic.Staff = staff
-
-	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	// 使用自定义验证器进行验证
-	if err := req.Validate(); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
+	// 获取当前用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
 		return
+	} else {
+		logic.Staff = staff
 	}
 
-	if err := logic.StaffUpdate(ctx, staff.Id, &req); err != nil {
-		con.ErrorLogic(ctx, err)
+	if err := logic.StaffUpdate(ctx, logic.Staff.Id, &req); err != nil {
+		con.Exception(ctx, err.Error())
 		return
 	}
 

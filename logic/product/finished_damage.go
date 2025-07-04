@@ -13,7 +13,7 @@ import (
 
 type ProductFinishedDamageLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 // 成品报损

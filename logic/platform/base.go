@@ -1,3 +1,7 @@
 package platform
 
-type PlatformLogic struct{}
+import "github.com/gin-gonic/gin"
+
+type PlatformLogic struct {
+	Ctx *gin.Context
+}

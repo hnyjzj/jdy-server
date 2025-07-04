@@ -1,7 +1,5 @@
 package types
 
-import "jdy/enums"
-
 type LoginReq struct {
 	Phone    string `json:"phone" binding:"required,regex=^1\\d{10}$"` // 手机号
 	Password string `json:"password" binding:"required"`               // 密码
@@ -11,6 +9,6 @@ type LoginReq struct {
 }
 
 type LoginOAuthReq struct {
-	Code  string             `json:"code" binding:"required"`  // 授权码
-	State enums.PlatformType `json:"state" binding:"required"` // 状态码
+	Code  string `json:"code" binding:"required"`  // 授权码
+	State string `json:"state" binding:"required"` // 状态码
 }

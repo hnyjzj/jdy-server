@@ -14,7 +14,7 @@ import (
 
 type OrderRepairLogic struct {
 	Ctx   *gin.Context
-	Staff *types.Staff
+	Staff *model.Staff
 }
 
 func (l *OrderRepairLogic) Create(req *types.OrderRepairCreateReq) (*model.OrderRepair, error) {

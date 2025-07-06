@@ -137,7 +137,7 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 	db = db.Where(&model.OrderSalesProductFinished{
 		Status: enums.OrderSalesStatusComplete,
 	}).Scopes(model.DurationCondition(enums.DurationToday))
-	if err := db.Debug().Count(&l.Res.SalesCount).Error; err != nil {
+	if err := db.Count(&l.Res.SalesCount).Error; err != nil {
 		return errors.New("获取今日销售件数失败")
 	}
 

@@ -28,9 +28,10 @@ type Staff struct {
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"comment:最后登录时间"` // 最后登录时间
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`    // 最后登录IP
 
-	Identity enums.Identity `json:"identity" gorm:"type:tinyint(1);not null;comment:身份"`    // 身份
-	RoleId   string         `json:"role_id" gorm:"type:varchar(255);not NULL;comment:角色ID"` // 角色ID
-	Role     *Role          `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"` // 角色
+	Identity enums.Identity `json:"identity" gorm:"type:tinyint(1);not null;comment:身份"` // 身份
+
+	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID
+	Role   *Role  `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"`     // 角色
 
 	Stores          []Store  `json:"stores" gorm:"many2many:store_staffs;"`               // 店铺
 	StoreSuperiors  []Store  `json:"store_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
@@ -81,6 +82,14 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 
 	if err := db.First(&staff).Error; err != nil {
 		return nil, err
+	}
+
+	if staff.Role == nil {
+		role, err := Role{}.Default(staff.Identity)
+		if err != nil {
+			return nil, err
+		}
+		staff.Role = role
 	}
 
 	return &staff, nil

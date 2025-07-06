@@ -98,13 +98,13 @@ func Api(g *gin.Engine) {
 		// 工作台
 		workbenchs := r.Group("/workbench")
 		{
-			workbenchs.GET("/list", workbench.WorkbenchController{}.List)      // 工作台列表
-			workbenchs.POST("/search", workbench.WorkbenchController{}.Search) // 工作台搜索
 			workbenchs.Use(middlewares.JWTMiddleware())
 			{
-				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)      // 工作台添加
-				workbenchs.PUT("/update", workbench.WorkbenchController{}.Update) // 工作台更新
-				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del)    // 工作台删除
+				workbenchs.GET("/list", workbench.WorkbenchController{}.List)      // 工作台列表
+				workbenchs.POST("/search", workbench.WorkbenchController{}.Search) // 工作台搜索
+				workbenchs.POST("/add", workbench.WorkbenchController{}.Add)       // 工作台添加
+				workbenchs.PUT("/update", workbench.WorkbenchController{}.Update)  // 工作台更新
+				workbenchs.DELETE("/del", workbench.WorkbenchController{}.Del)     // 工作台删除
 			}
 		}
 

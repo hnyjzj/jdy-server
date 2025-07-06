@@ -103,7 +103,6 @@ func (l *TodayProductLogic) getOldStock() error {
 
 // 获取滞销货品件数
 func (l *TodayProductLogic) getUnsalableCount() error {
-
 	var product_count sql.NullInt64
 	if err := l.Db.Model(&model.ProductFinished{}).
 		Where(&model.ProductFinished{
@@ -116,24 +115,11 @@ func (l *TodayProductLogic) getUnsalableCount() error {
 
 		return errors.New("获取滞销货品件数失败")
 	}
+
 	if product_count.Valid {
-		l.Res.UnsalableCount += product_count.Int64
-	}
-
-	var product_old_count sql.NullInt64
-	if err := l.Db.Model(&model.ProductOld{}).
-		Where(&model.ProductOld{
-			Status:  enums.ProductStatusNormal,
-			StoreId: l.Req.StoreId,
-		}).
-		// 创建时间大于 6 个月，即为滞销货品
-		Where("created_at < DATE_SUB(NOW(), INTERVAL 6 MONTH)").
-		Select("COUNT(id) as count").Scan(&product_old_count).Error; err != nil {
-
-		return errors.New("获取滞销货品件数失败")
-	}
-	if product_old_count.Valid {
-		l.Res.UnsalableCount += product_old_count.Int64
+		l.Res.UnsalableCount = product_count.Int64
+	} else {
+		l.Res.UnsalableCount = 0
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package workbench
 
 import (
 	"fmt"
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/model"
@@ -14,9 +15,20 @@ type WorkbenchLogic struct {
 
 // 获取路由列表
 func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
-	list, err := model.Router{}.GetTree(nil)
+	var inIds []string
+	if l.Staff.Identity < enums.IdentityAdmin {
+		for _, v := range l.Staff.Role.Routers {
+			inIds = append(inIds, v.Id)
+		}
+	}
+
+	list, err := model.Router{}.GetTree(nil, inIds)
 	if err != nil {
 		return nil, errors.New("获取工作台列表失败: " + err.Error())
+	}
+
+	if l.Staff.Identity >= enums.IdentityAdmin {
+		return list, nil
 	}
 
 	return list, nil
@@ -24,8 +36,22 @@ func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
 
 // 搜索路由
 func (l WorkbenchLogic) Search(req *types.WorkbenchSearchReq) ([]*model.Router, *errors.Errors) {
-	var list []*model.Router
-	if err := model.DB.Where("title like ?", fmt.Sprintf("%%%s%%", req.Keyword)).Where("path <> ''").Find(&list).Error; err != nil {
+	var inIds []string
+	if l.Staff.Identity < enums.IdentityAdmin {
+		for _, v := range l.Staff.Role.Routers {
+			inIds = append(inIds, v.Id)
+		}
+	}
+	var (
+		list []*model.Router
+		db   = model.DB.Model(&model.Router{})
+	)
+	db = db.Where("title like ?", fmt.Sprintf("%%%s%%", req.Keyword))
+	db = db.Where("path <> ''")
+	if len(inIds) > 0 {
+		db = db.Where("id in (?)", inIds)
+	}
+	if err := db.Find(&list).Error; err != nil {
 		return nil, errors.New("搜索失败")
 	}
 

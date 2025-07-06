@@ -157,6 +157,12 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 			}
 			switch product.Type {
 			case enums.ProductTypeFinished:
+				// 更新订单成品交易状态
+				if err := tx.Model(&product.Finished).Updates(&model.OrderSalesProductFinished{
+					Status: enums.OrderSalesStatusComplete,
+				}).Error; err != nil {
+					return errors.New("更新成品状态失败")
+				}
 				// 更新成品状态
 				if err := tx.Model(&product.Finished.Product).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusSold,

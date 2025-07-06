@@ -18,6 +18,14 @@ func (con WorkbenchController) List(ctx *gin.Context) {
 	var (
 		logic = workbench.WorkbenchLogic{}
 	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
 	workbenchs, err := logic.GetList()
 	if err != nil {
 		con.ErrorLogic(ctx, err)
@@ -35,6 +43,13 @@ func (con WorkbenchController) Search(ctx *gin.Context) {
 
 		logic = workbench.WorkbenchLogic{}
 	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {

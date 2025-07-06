@@ -13,7 +13,7 @@ type Router struct {
 }
 
 // 获取树形结构
-func (Router) GetTree(Pid *string) ([]*Router, error) {
+func (Router) GetTree(Pid *string, inIds []string) ([]*Router, error) {
 	var list []*Router
 	db := DB
 	if Pid != nil {
@@ -21,12 +21,15 @@ func (Router) GetTree(Pid *string) ([]*Router, error) {
 	} else {
 		db = db.Where("parent_id IS NULL")
 	}
+	if len(inIds) > 0 {
+		db = db.Where("id IN (?)", inIds)
+	}
 	db = db.Order("sort ASC")
 	if err := db.Find(&list).Error; err != nil {
 		return nil, err
 	}
 	for _, v := range list {
-		children, err := v.GetTree(&v.Id)
+		children, err := v.GetTree(&v.Id, inIds)
 		if err != nil {
 			return nil, err
 		}
@@ -39,6 +42,27 @@ func (Router) GetTree(Pid *string) ([]*Router, error) {
 	return list, nil
 }
 
+func (Router) GetTreeReverse(id string) ([]Router, error) {
+	var (
+		router Router
+		list   []Router
+	)
+	if err := DB.First(&router, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+
+	list = append(list, router)
+
+	if router.ParentId != nil {
+		res, err := router.GetTreeReverse(*router.ParentId)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, res...)
+	}
+
+	return list, nil
+}
 func init() {
 	// 注册模型
 	RegisterModels(

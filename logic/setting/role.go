@@ -152,8 +152,12 @@ func (r *RoleLogic) Update(req *types.RoleUpdateReq) error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 更新路由
 		var routers []model.Router
-		if err := tx.Model(&model.Router{}).Where("id in (?)", req.Routers).Find(&routers).Error; err != nil {
-			return err
+		for _, id := range req.Routers {
+			list, err := model.Router{}.GetTreeReverse(id)
+			if err != nil {
+				return err
+			}
+			routers = append(routers, list...)
 		}
 		if err := tx.Model(&role).Association("Routers").Replace(routers); err != nil {
 			return err

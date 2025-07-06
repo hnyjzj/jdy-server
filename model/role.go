@@ -23,7 +23,6 @@ type Role struct {
 
 	Apis    []Api    `json:"apis" gorm:"many2many:role_apis;comment:角色API;"`      // 角色API
 	Routers []Router `json:"routers" gorm:"many2many:role_routers;comment:角色路由;"` // 角色路由
-	Staffs  []Staff  `json:"staffs" gorm:"many2many:role_staffs;comment:角色员工;"`   // 角色员工
 }
 
 func (Role) Default(Identity enums.Identity) (*Role, error) {

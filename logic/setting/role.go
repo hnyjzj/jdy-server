@@ -188,10 +188,9 @@ func (r *RoleLogic) Delete(req *types.RoleDeleteReq) error {
 
 	var staff_count int64
 	if err := model.DB.Model(&model.Staff{}).Where("role_id = ?", req.Id).Count(&staff_count).Error; err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return errors.New("查询员工失败")
-		}
-	} else if staff_count > 0 {
+		return errors.New("查询员工失败")
+	}
+	if staff_count > 0 {
 		return errors.New("该角色下有员工，无法删除")
 	}
 

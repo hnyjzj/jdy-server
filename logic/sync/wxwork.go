@@ -134,11 +134,6 @@ func (l *WxWorkLogic) Contacts() error {
 				if err := logic.saveStaff(); err != nil {
 					return err
 				}
-
-				// 分配角色
-				if err := logic.assignRole(); err != nil {
-					return err
-				}
 			}
 		}
 
@@ -316,17 +311,6 @@ func (s *SyncWxWorkContacts) saveStaff() error {
 	if err := s.db.Save(&s.staff).Error; err != nil {
 		log.Printf("更新员工状态失败: %+v", err)
 		return errors.New("更新员工状态失败")
-	}
-
-	return nil
-}
-
-// 分配角色
-func (s *SyncWxWorkContacts) assignRole() error {
-	var role model.Role
-	if err := role.SetDefault(s.db, s.staff.Id, s.staff.Identity); err != nil {
-		log.Printf("分配角色失败: %+v", err)
-		return errors.New("分配角色失败")
 	}
 
 	return nil

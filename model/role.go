@@ -27,33 +27,23 @@ type Role struct {
 }
 
 func (Role) Default(Identity enums.Identity) (*Role, error) {
-	var role Role
-	if err := DB.Model(&Role{}).Where(&Role{
+	var (
+		role Role
+		db   = DB.Model(&Role{})
+	)
+
+	db = db.Where(&Role{
 		Identity:  Identity,
 		IsDefault: true,
-	}).First(&role).Error; err != nil {
+	})
+
+	db = role.Preloads(db, nil)
+
+	if err := db.First(&role).Error; err != nil {
 		return nil, err
 	}
 
 	return &role, nil
-}
-
-func (Role) SetDefault(db *gorm.DB, staff_id string, Identity enums.Identity) error {
-	var role Role
-	if err := db.Model(&Role{}).Where(&Role{
-		Identity:  Identity,
-		IsDefault: true,
-	}).First(&role).Error; err != nil {
-		return err
-	}
-
-	if err := db.Model(&Staff{}).Where("id = ?", staff_id).Updates(Staff{
-		RoleId: role.Id,
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (Role) WhereCondition(db *gorm.DB, query *types.RoleWhere) *gorm.DB {

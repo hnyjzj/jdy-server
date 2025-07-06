@@ -11,15 +11,15 @@ import (
 func SendGoldPriceSetMessage() {
 	// 查询所有门店
 	var stores []model.Store
-	if err := model.DB.Preload("Staffs").Find(&stores).Error; err != nil {
+	if err := model.DB.Preload("Superiors").Find(&stores).Error; err != nil {
 		log.Printf("SendGoldPriceSetMessage: %v\n", err.Error())
 		return
 	}
 
 	for _, v := range stores {
-		if v.Staffs != nil {
+		if v.Superiors != nil {
 			var receiver []string
-			for _, staff := range v.Staffs {
+			for _, staff := range v.Superiors {
 				receiver = append(receiver, staff.Username)
 			}
 			if len(receiver) == 0 {

@@ -182,13 +182,19 @@ func (r *RoleLogic) Delete(req *types.RoleDeleteReq) error {
 	var (
 		role model.Role
 	)
-	if err := model.DB.Preload("Staffs").First(&role, "id = ?", req.Id).Error; err != nil {
+	if err := model.DB.First(&role, "id = ?", req.Id).Error; err != nil {
 		return errors.New("查询角色失败")
 	}
 
-	if len(role.Staffs) > 0 {
+	var staff_count int64
+	if err := model.DB.Model(&model.Staff{}).Where("role_id = ?", req.Id).Count(&staff_count).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return errors.New("查询员工失败")
+		}
+	} else if staff_count > 0 {
 		return errors.New("该角色下有员工，无法删除")
 	}
+
 	if role.IsDefault {
 		return errors.New("默认角色无法删除")
 	}

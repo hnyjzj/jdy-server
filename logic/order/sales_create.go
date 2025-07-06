@@ -50,6 +50,11 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 			return errors.New("创建订单失败")
 		}
 
+		// 添加支付记录
+		if err := l.setPayment(); err != nil {
+			return err
+		}
+
 		// 计算金额
 		if err := l.loopSales(); err != nil {
 			return err
@@ -62,11 +67,6 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 
 		// 计算业绩
 		if err := l.getPerformance(); err != nil {
-			return err
-		}
-
-		// 添加支付记录
-		if err := l.setPayment(); err != nil {
 			return err
 		}
 
@@ -144,6 +144,10 @@ func (l *OrderSalesCreateLogic) loopSales() error {
 		}).Error; err != nil {
 			return errors.New("定金单更新失败")
 		}
+	}
+
+	if l.Order.PricePay.Cmp(l.Order.Price) != 0 {
+		return errors.New("支付方式与应付金额不一致")
 	}
 
 	// 计算优惠金额
@@ -571,6 +575,7 @@ func (l *OrderSalesCreateLogic) setPayment() error {
 		}
 
 		l.Order.Payments = append(l.Order.Payments, payment)
+		l.Order.PricePay = l.Order.PricePay.Add(p.Amount)
 	}
 
 	return nil

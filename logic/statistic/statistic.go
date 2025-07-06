@@ -1,3 +1,7 @@
 package statistic
 
-type StatisticLogic struct{}
+import "jdy/model"
+
+type StatisticLogic struct {
+	Staff *model.Staff
+}

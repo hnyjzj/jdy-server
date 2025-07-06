@@ -41,6 +41,14 @@ func (con StatisticController) TodaySales(ctx *gin.Context) {
 		logic = statistic.StatisticLogic{}
 	)
 
+	// 获取当前登录用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, "参数错误")

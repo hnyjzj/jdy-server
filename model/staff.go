@@ -30,8 +30,8 @@ type Staff struct {
 
 	Identity enums.Identity `json:"identity" gorm:"type:tinyint(1);not null;comment:身份"` // 身份
 
-	RoleId string `json:"role_id" gorm:"type:varchar(255);comment:角色ID"`          // 角色ID
-	Role   *Role  `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"` // 角色
+	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID
+	Role   *Role  `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"`     // 角色
 
 	Stores          []Store  `json:"stores" gorm:"many2many:store_staffs;"`               // 店铺
 	StoreSuperiors  []Store  `json:"store_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺

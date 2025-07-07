@@ -95,18 +95,25 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 	return &staff, nil
 }
 
-func (S *Staff) HasPermissionApi(path string) bool {
+func (S *Staff) HasPermissionApi(path string) error {
 	if S.Role == nil {
-		return false
+		return nil
 	}
 
 	for _, api := range S.Role.Apis {
 		if api.Path == path {
-			return true
+			return nil
 		}
 	}
 
-	return false
+	var api Api
+	if err := DB.Model(&api).Where(&Api{
+		Path: path,
+	}).First(&api).Error; err != nil {
+		return fmt.Errorf("无权限访问: %v", path)
+	}
+
+	return fmt.Errorf("暂无权限: %v", api.Title)
 }
 
 func (S *Staff) HasPermissionStore(storeId string) bool {

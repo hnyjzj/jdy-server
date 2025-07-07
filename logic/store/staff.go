@@ -30,7 +30,7 @@ func (l *StoreStaffLogic) List(req *types.StoreStaffListReq) (*[]model.Staff, er
 		}
 	}
 	if !inStore {
-		return nil, errors.New("无权限访问")
+		return nil, errors.New("未入职该门店，无法查看员工列表")
 	}
 
 	return &store.Staffs, nil

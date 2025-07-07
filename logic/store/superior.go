@@ -30,7 +30,7 @@ func (l *StoreSuperiorLogic) List(req *types.StoreSuperiorListReq) (*[]model.Sta
 		}
 	}
 	if !inStore {
-		return nil, errors.New("无权限访问")
+		return nil, errors.New("未入职该门店，无法查看员工列表")
 	}
 
 	return &store.Superiors, nil

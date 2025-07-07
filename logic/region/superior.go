@@ -35,7 +35,7 @@ func (l *RegionSuperiorLogic) List(req *types.RegionSuperiorListReq) (*[]model.S
 	}
 
 	if !inRegion {
-		return nil, errors.New("无权限访问")
+		return nil, errors.New("未入职该区域，无法查看员工列表")
 	}
 
 	return &region.Superiors, nil

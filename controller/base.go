@@ -37,7 +37,10 @@ func (con BaseController) GetStaff(ctx *gin.Context) (*model.Staff, *errors.Erro
 	}
 
 	if err := con.Verify_permission(ctx, staff); err != nil {
-		return nil, errors.ErrStaffUnauthorized
+		return nil, &errors.Errors{
+			Message: err.Error(),
+			Code:    errors.ErrStaffUnauthorized.Code,
+		}
 	}
 
 	return staff, nil
@@ -49,9 +52,9 @@ func (con BaseController) Verify_permission(ctx *gin.Context, staff *model.Staff
 	}
 
 	// 检查权限
-	if !staff.HasPermissionApi(ctx.FullPath()) {
-		log.Printf("员工[%v] 无权限访问: %v", staff.Id, ctx.FullPath())
-		return errors.ErrStaffUnauthorized
+	if err := staff.HasPermissionApi(ctx.FullPath()); err != nil {
+		log.Printf("员工[%v] %v", staff.Id, err.Error())
+		return err
 	}
 
 	return nil

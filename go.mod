@@ -9,10 +9,14 @@ require (
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/spf13/viper v1.20.1
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.66
 )
 
 require (
+	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/mozillazg/go-httpheader v0.4.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 

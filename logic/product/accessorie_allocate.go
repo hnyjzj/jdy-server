@@ -129,7 +129,7 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 			}
 
 			// 检查配件是否已存在
-			pap, ok := products[rp.ProductId]
+			pap, ok := products[product.Id]
 			if ok { // 已存在，更新数量
 				// 检查配件库存
 				if product.Stock < (rp.Quantity + pap.Quantity) {
@@ -138,24 +138,27 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 				// 更新配件数量
 				if err := tx.Model(&model.ProductAccessorieAllocateProduct{}).
 					Where(&model.ProductAccessorieAllocateProduct{
-						AllocateId: req.Id,
-						ProductId:  rp.ProductId,
+						AllocateId: allocate.Id,
+						ProductId:  product.Id,
 					}).Update("quantity", gorm.Expr("quantity + ?", rp.Quantity)).Error; err != nil {
 					return errors.New("更新配件数量失败")
 				}
+				pap.Quantity += rp.Quantity
 			} else { // 不存在，新增
 				// 检查配件库存
 				if product.Stock < rp.Quantity {
 					return errors.New("配件库存不足")
 				}
 				data := model.ProductAccessorieAllocateProduct{
-					ProductId: rp.ProductId,
-					Quantity:  rp.Quantity,
+					ProductId:  rp.ProductId,
+					Quantity:   rp.Quantity,
+					AllocateId: allocate.Id,
 				}
 				// 添加配件
-				if err := tx.Model(&allocate).Association("Products").Append(&data); err != nil {
+				if err := tx.Create(&data).Error; err != nil {
 					return errors.New("添加配件失败")
 				}
+				products[rp.ProductId] = data
 			}
 		}
 		return nil

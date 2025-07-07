@@ -93,7 +93,7 @@ func (l *OrderSalesCreateLogic) loopSales() error {
 		// 获取商品
 		finished, err := l.getProductFinished(p.ProductId)
 		if err != nil {
-			return errors.New("成品不存在")
+			return err
 		}
 
 		if err := l.loopFinished(&p, finished); err != nil {
@@ -120,7 +120,7 @@ func (l *OrderSalesCreateLogic) loopSales() error {
 		// 获取配件
 		accessory, err := l.getProductAccessory(p.ProductId, p.Quantity)
 		if err != nil {
-			return errors.New("配件不存在")
+			return err
 		}
 
 		if err := l.loopAccessory(&p, accessory); err != nil {
@@ -391,7 +391,6 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 	db := l.Tx.Model(&model.ProductFinished{})
 	db = db.Where("id = ?", product_id)
 	db = db.Where(&model.ProductFinished{
-		Status:  enums.ProductStatusNormal,
 		StoreId: l.Req.StoreId,
 	})
 	db = db.Preload("Store")
@@ -401,7 +400,7 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 	}
 
 	// 判断商品状态
-	if product.Status != enums.ProductStatusNormal {
+	if product.Status != enums.ProductStatusNormal && product.Status != enums.ProductStatusReturn {
 		return nil, errors.New("产品当前不能销售")
 	}
 

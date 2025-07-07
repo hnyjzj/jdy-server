@@ -100,9 +100,9 @@ func (up *Upload) saveTencentCloud() error {
 		if file == nil {
 			return errors.New("file is nil")
 		}
-		contentType := up.File.Header.Get("Content-Type")
+		contentType := file.Header.Get("Content-Type")
 		if !strings.HasPrefix(contentType, up.Type.String()) { // 判断文件类型
-			log.Println(contentType, up.Type.String(), up.File)
+			log.Println(contentType, up.Type.String(), file)
 			return errors.New("file type error")
 		}
 

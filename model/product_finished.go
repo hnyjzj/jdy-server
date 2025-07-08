@@ -268,6 +268,9 @@ func (ProductFinishedEnter) WhereCondition(db *gorm.DB, query *types.ProductFini
 	if query.Id != "" {
 		db = db.Where("id = ?", query.Id)
 	}
+	if query.StoreId != "" {
+		db = db.Where("store_id = ?", query.StoreId)
+	}
 	if query.StartAt != nil && query.EndAt != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", query.StartAt, query.EndAt)
 	}

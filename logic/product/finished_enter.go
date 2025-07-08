@@ -52,7 +52,6 @@ func (l *ProductFinishedEnterLogic) EnterList(req *types.ProductFinishedEnterLis
 	}
 
 	// 获取列表
-	db = db.Preload("Products")
 	db = db.Preload("Operator")
 	db = db.Preload("Store")
 
@@ -75,7 +74,9 @@ func (l *ProductFinishedEnterLogic) EnterInfo(req *types.ProductFinishedEnterInf
 
 	// 获取产品入库单详情
 	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
-		return tx.Unscoped()
+		db = model.PageCondition(tx, req.Page, req.Limit)
+		db = db.Unscoped()
+		return db
 	})
 	db = db.Preload("Operator")
 	db = db.Preload("Store")
@@ -103,6 +104,13 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 		return nil, errors.New("请选择产品")
 	}
 
+	enter_statistics := model.ProductFinishedEnter{
+		ProductCount:            enter.ProductCount,
+		ProductTotalAccessFee:   enter.ProductTotalAccessFee,
+		ProductTotalLabelPrice:  enter.ProductTotalLabelPrice,
+		ProductTotalWeightMetal: enter.ProductTotalWeightMetal,
+	}
+
 	// 添加产品的结果
 	products := map[string]string{}
 	success := 0
@@ -122,8 +130,7 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 				}
 			}
 			if p.Id != "" {
-				products[product.Code] = "条码已存在"
-				continue
+				return errors.New("条码已存在")
 			}
 
 			// 产品信息
@@ -134,9 +141,14 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 			product.EnterTime = time.Now()
 
 			if err := tx.Create(&product).Error; err != nil {
-				products[product.Code] = "入库失败"
-				continue
+				return errors.New("[" + product.Code + "]录入失败")
 			}
+
+			// 统计入库数据
+			enter_statistics.ProductCount++
+			enter_statistics.ProductTotalAccessFee = enter_statistics.ProductTotalAccessFee.Add(product.AccessFee)
+			enter_statistics.ProductTotalLabelPrice = enter_statistics.ProductTotalLabelPrice.Add(product.LabelPrice)
+			enter_statistics.ProductTotalWeightMetal = enter_statistics.ProductTotalWeightMetal.Add(product.WeightMetal)
 
 			success++
 		}
@@ -147,6 +159,11 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 
 		if success != len(req.Products) {
 			return errors.New("部分产品录入失败")
+		}
+
+		// 更新入库单
+		if err := tx.Model(model.ProductFinishedEnter{}).Where("id = ?", req.EnterId).Updates(enter_statistics).Error; err != nil {
+			return errors.New("入库单更新失败")
 		}
 
 		return nil
@@ -242,9 +259,9 @@ func (l *ProductFinishedEnterLogic) Finish(req *types.ProductFinishedEnterFinish
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
 		var enter model.ProductFinishedEnter
-		if err := tx.Where("id = ?", req.EnterId).Preload("Products", func(tx *gorm.DB) *gorm.DB {
-			return tx.Preload("Store")
-		}).First(&enter).Error; err != nil {
+		if err := tx.
+			Preload("Products").
+			First(&enter, "id = ?", req.EnterId).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -262,9 +279,8 @@ func (l *ProductFinishedEnterLogic) Finish(req *types.ProductFinishedEnterFinish
 			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND status = ?", product.Id, enums.ProductStatusDraft).First(&product).Error; err != nil {
 				return errors.New("产品状态不正确或产品不存在")
 			}
-			product.Status = enums.ProductStatusNormal
-			if err := tx.Save(&product).Error; err != nil {
-				return errors.New("产品更新失败")
+			if err := tx.Model(model.ProductFinished{}).Where("id = ?", product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
+				return errors.New("产品状态更新失败")
 			}
 
 			// 添加记录
@@ -279,15 +295,14 @@ func (l *ProductFinishedEnterLogic) Finish(req *types.ProductFinishedEnterFinish
 				OperatorId: l.Staff.Id,
 				IP:         l.Ctx.ClientIP(),
 			}
-			if err := tx.Save(&history).Error; err != nil {
+			if err := tx.CreateInBatches(&history, 1).Error; err != nil {
 				return errors.New("产品记录添加失败")
 			}
 		}
 
 		// 更新入库单状态
-		enter.Status = enums.ProductEnterStatusCompleted
-		if err := tx.Save(&enter).Error; err != nil {
-			return errors.New("入库单更新失败")
+		if err := tx.Model(model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Update("status", enums.ProductEnterStatusCompleted).Error; err != nil {
+			return errors.New("入库单状态更新失败")
 		}
 
 		return nil

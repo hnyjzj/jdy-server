@@ -30,7 +30,7 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取成品列表失败")
+		return nil, errors.New("获取成品列表数量失败")
 	}
 
 	// 获取列表
@@ -90,6 +90,46 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 
 		if err := tx.Model(&product).Clauses(clause.Returning{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
 			return errors.New("更新成品信息失败")
+		}
+
+		// 添加记录
+		history.NewValue = product
+		if err := tx.Create(&history).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 上传成品图片
+func (p *ProductFinishedLogic) Upload(req *types.ProductFinishedUploadReq) error {
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		var product model.ProductFinished
+		if err := tx.Model(&model.ProductFinished{}).
+			Preload("Store").
+			Where("id = ?", req.Id).First(&product).Error; err != nil {
+			return errors.New("获取成品信息失败")
+		}
+
+		history := model.ProductHistory{
+			Type:       enums.ProductTypeFinished,
+			Action:     enums.ProductActionUpdate,
+			OldValue:   product,
+			ProductId:  product.Id,
+			SourceId:   product.Id,
+			StoreId:    product.StoreId,
+			OperatorId: p.Staff.Id,
+			IP:         p.Ctx.ClientIP(),
+		}
+
+		product.Images = req.Images
+		if err := tx.Select("images").Clauses(clause.Returning{}).Save(&product).Error; err != nil {
+			return errors.New("上传成品图片失败")
 		}
 
 		// 添加记录

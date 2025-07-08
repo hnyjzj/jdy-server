@@ -211,6 +211,7 @@ func Api(g *gin.Engine) {
 						finished.POST("/list", product.ProductFinishedController{}.List)    // 成品列表
 						finished.POST("/info", product.ProductFinishedController{}.Info)    // 成品详情
 						finished.PUT("/update", product.ProductFinishedController{}.Update) // 成品更新
+						finished.PUT("/upload", product.ProductFinishedController{}.Upload) // 成品图上传
 					}
 				}
 

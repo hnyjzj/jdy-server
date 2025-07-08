@@ -63,3 +63,8 @@ type ProductFinishedUpdateReq struct {
 	Id string `json:"id" binding:"required"` // ID
 	ProductFinishedWhere
 }
+
+type ProductFinishedUploadReq struct {
+	Id     string   `json:"id" binding:"required"`     // ID
+	Images []string `json:"images" binding:"required"` // 图片
+}

@@ -22,7 +22,7 @@ func (w *WxWorkLogic) StoreCreate(ctx *gin.Context, req *types.StoreCreateReq) (
 	}
 
 	res, err := wxwork.Department.Create(ctx, params)
-	if err != nil || res.ErrCode != 0 {
+	if err != nil || (res != nil && res.ErrCode != 0) {
 		return 0, errors.New(res.ErrMsg)
 	}
 
@@ -44,7 +44,7 @@ func (w *WxWorkLogic) StoreUpdate(ctx *gin.Context, id int, req *types.StoreUpda
 		params.Order = req.Order
 	}
 	res, err := wxwork.Department.Update(ctx, params)
-	if err != nil || res.ErrCode != 0 {
+	if err != nil || (res != nil && res.ErrCode != 0) {
 		return errors.New(res.ErrMsg)
 	}
 
@@ -55,7 +55,7 @@ func (w *WxWorkLogic) StoreDelete(ctx *gin.Context, id int) error {
 	wxwork := config.NewWechatService().ContactsWork
 
 	res, err := wxwork.Department.Delete(ctx, id)
-	if err != nil || res.ErrCode != 0 {
+	if err != nil || (res != nil && res.ErrCode != 0) {
 		return errors.New(res.ErrMsg)
 	}
 

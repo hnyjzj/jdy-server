@@ -226,7 +226,7 @@ func (h *PartyHandle) getInfo(l *EventChangeContactEvent, Id any) (*response.Res
 
 	// 获取部门信息
 	res, err := l.Handle.Wechat.JdyWork.Department.Get(l.Handle.Ctx, id)
-	if err != nil || res.ErrCode != 0 {
+	if err != nil || (res != nil && res.ErrCode != 0) {
 		log.Printf("获取部门失败: %+v\n", res)
 		if err == nil {
 			err = fmt.Errorf("wechat api error: %d %s", res.ErrCode, res.ErrMsg)
@@ -248,7 +248,7 @@ func (h *PartyHandle) getSimpleList(l *EventChangeContactEvent, Id string) (*res
 
 	// 获取部门信息
 	res, err := l.Handle.Wechat.JdyWork.Department.SimpleList(l.Handle.Ctx, id)
-	if err != nil || res.ErrCode != 0 {
+	if err != nil || (res != nil && res.ErrCode != 0) {
 		log.Printf("获取部门失败: %+v\n", res)
 		if err == nil {
 			err = fmt.Errorf("wechat api error: %d %s", res.ErrCode, res.ErrMsg)

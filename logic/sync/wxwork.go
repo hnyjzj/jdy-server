@@ -37,7 +37,7 @@ func (l *WxWorkLogic) Contacts() error {
 	// 获取通讯录
 	id := 0
 	list, err := l.App.Department.SimpleList(l.Ctx, id)
-	if err != nil || list.ErrCode != 0 {
+	if err != nil || (list != nil && list.ErrCode != 0) {
 		log.Printf("获取通讯录失败: %+v, %+v", err, list)
 		return errors.New("获取通讯录失败")
 	}
@@ -53,7 +53,7 @@ func (l *WxWorkLogic) Contacts() error {
 			}
 			// 获取部门详情
 			department, err := l.App.Department.Get(l.Ctx, dept.ID)
-			if err != nil || department.ErrCode != 0 {
+			if err != nil || (department != nil && department.ErrCode != 0) {
 				log.Printf("获取部门失败: %+v, %+v", err, department)
 				return errors.New("获取部门失败")
 			}
@@ -90,7 +90,7 @@ func (l *WxWorkLogic) Contacts() error {
 
 			// 获取部门成员
 			users, err := l.App.User.GetDetailedDepartmentUsers(l.Ctx, department.Department.ID, 0)
-			if err != nil || users.ErrCode != 0 {
+			if err != nil || (users != nil && users.ErrCode != 0) {
 				log.Printf("获取部门成员失败: %+v, %+v", err, users)
 				return errors.New("获取部门成员失败")
 			}
@@ -170,7 +170,7 @@ func (l *WxWorkLogic) syncRegionStore() error {
 		}
 
 		list, err := l.App.Department.List(l.Ctx, id)
-		if err != nil || list.ErrCode != 0 {
+		if err != nil || (list != nil && list.ErrCode != 0) {
 			log.Printf("获取通讯录失败: %+v, %+v", err, list)
 			return errors.New("获取通讯录失败")
 		}

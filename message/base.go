@@ -25,7 +25,7 @@ func NewMessage(ctx context.Context) *BaseMessage {
 }
 
 func (m *BaseMessage) Send(WXWork *work.Work, messages any) error {
-	if res, err := WXWork.Message.Send(m.Ctx, messages); err != nil || res.ErrCode != 0 {
+	if res, err := WXWork.Message.Send(m.Ctx, messages); err != nil || (res != nil && res.ErrCode != 0) {
 		log.Printf("res: %+v\n", res)
 		log.Printf("err: %+v\n", err)
 		log.Printf("messages: %+v\n", messages)

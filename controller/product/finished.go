@@ -84,6 +84,39 @@ func (con ProductFinishedController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 检索成品
+func (con ProductFinishedController) Retrieval(ctx *gin.Context) {
+	var (
+		req types.ProductFinishedRetrievalReq
+
+		logic = product.ProductFinishedLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	res, err := logic.Retrieval(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}
+
 // 更新商品信息
 func (con ProductFinishedController) Update(ctx *gin.Context) {
 	var (

@@ -61,6 +61,24 @@ func (p *ProductFinishedLogic) Info(req *types.ProductFinishedInfoReq) (*model.P
 	return &product, nil
 }
 
+// 成品检索
+func (p *ProductFinishedLogic) Retrieval(req *types.ProductFinishedRetrievalReq) (*model.ProductFinished, error) {
+	var (
+		product model.ProductFinished
+	)
+
+	if err := model.DB.
+		Where(model.ProductFinished{
+			Code: req.Code,
+		}).
+		Preload("Store").
+		First(&product).Error; err != nil {
+		return nil, errors.New("获取成品信息失败")
+	}
+
+	return &product, nil
+}
+
 // 更新成品信息
 func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error {
 

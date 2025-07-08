@@ -59,6 +59,10 @@ type ProductFinishedInfoReq struct {
 	Code string `json:"code" binding:"required"` // 条码
 }
 
+type ProductFinishedRetrievalReq struct {
+	Code string `json:"code" binding:"required"` // 条码
+}
+
 type ProductFinishedUpdateReq struct {
 	Id string `json:"id" binding:"required"` // ID
 	ProductFinishedWhere

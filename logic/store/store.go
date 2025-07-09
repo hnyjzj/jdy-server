@@ -83,6 +83,11 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		return nil, errors.New("获取门店列表失败")
 	}
 
+	def := model.Store{}.Default(l.Staff.Identity)
+	if def != nil {
+		stores = append([]model.Store{*def}, stores...)
+	}
+
 	return &stores, nil
 }
 

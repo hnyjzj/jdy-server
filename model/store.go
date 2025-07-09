@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"jdy/enums"
 	"jdy/types"
 
 	"gorm.io/gorm"
@@ -53,6 +54,17 @@ func (Store) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Superiors")
 
 	return db
+}
+
+func (Store) Default(identity enums.Identity) *Store {
+	if identity < enums.IdentityAdmin {
+		return nil
+	}
+	def := &Store{
+		Name: "全部",
+	}
+
+	return def
 }
 
 func init() {

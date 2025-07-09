@@ -208,9 +208,11 @@ func Api(g *gin.Engine) {
 					finished.GET("/where", product.ProductFinishedController{}.Where) // 成品筛选
 					finished.Use(middlewares.JWTMiddleware())
 					{
-						finished.POST("/list", product.ProductFinishedController{}.List)    // 成品列表
-						finished.POST("/info", product.ProductFinishedController{}.Info)    // 成品详情
-						finished.PUT("/update", product.ProductFinishedController{}.Update) // 成品更新
+						finished.POST("/list", product.ProductFinishedController{}.List)           // 成品列表
+						finished.POST("/info", product.ProductFinishedController{}.Info)           // 成品详情
+						finished.POST("/retrieval", product.ProductFinishedController{}.Retrieval) // 成品检索
+						finished.PUT("/update", product.ProductFinishedController{}.Update)        // 成品更新
+						finished.PUT("/upload", product.ProductFinishedController{}.Upload)        // 成品图上传
 					}
 				}
 

@@ -32,7 +32,7 @@ func (M *BaseMessage) SendCaptureScreenMessage(req *CaptureScreenMessage) error 
 			Type: 1,
 			Url:  req.Url,
 		},
-	}); err != nil || res.ErrCode != 0 {
+	}); err != nil || (res != nil && res.ErrCode != 0) {
 		log.Printf("发送消息失败: err=%v, response=%+v\n", err.Error(), res)
 		return errors.New("发送消息失败" + res.ErrMsg)
 	}

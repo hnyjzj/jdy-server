@@ -67,8 +67,14 @@ func (p *ProductAccessorieCategoryLogic) Create(req *types.ProductAccessorieCate
 			return errors.New("验证参数失败")
 		}
 
-		if err := tx.Create(&data).Error; err != nil {
-			return errors.New("新增配件条目失败")
+		if len(data) == 0 {
+			return errors.New("请添加配件条目")
+		}
+
+		for _, v := range data {
+			if err := tx.Create(&v).Error; err != nil {
+				return errors.New(v.Name + "新增失败")
+			}
 		}
 
 		return nil

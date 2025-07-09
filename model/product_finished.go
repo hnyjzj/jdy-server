@@ -257,7 +257,11 @@ type ProductFinishedEnter struct {
 	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`                // 备注
 	Status enums.ProductEnterStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:状态;"` // 状态
 
-	Products []ProductFinished `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:成品;"` // 成品
+	Products                []ProductFinished `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:成品;"`                 // 成品
+	ProductCount            int64             `json:"product_count" gorm:"type:int(11);not NULL;comment:成品数量;"`                     // 成品数量
+	ProductTotalWeightMetal decimal.Decimal   `json:"product_total_weight_metal" gorm:"type:decimal(10,2);not NULL;comment:成品总重;"`  // 成品总重
+	ProductTotalLabelPrice  decimal.Decimal   `json:"product_total_label_price" gorm:"type:decimal(10,2);not NULL;comment:成品总标签价;"` // 成品总标签价
+	ProductTotalAccessFee   decimal.Decimal   `json:"product_total_access_fee" gorm:"type:decimal(10,2);not NULL;comment:成品总加工费;"`  // 成品总加工费
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
@@ -267,6 +271,9 @@ type ProductFinishedEnter struct {
 func (ProductFinishedEnter) WhereCondition(db *gorm.DB, query *types.ProductFinishedEnterWhere) *gorm.DB {
 	if query.Id != "" {
 		db = db.Where("id = ?", query.Id)
+	}
+	if query.StoreId != "" {
+		db = db.Where("store_id = ?", query.StoreId)
 	}
 	if query.StartAt != nil && query.EndAt != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", query.StartAt, query.EndAt)

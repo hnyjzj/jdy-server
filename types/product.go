@@ -41,6 +41,8 @@ type ProductHistoryInfoReq struct {
 }
 
 type ProductInventoryWhere struct {
+	PageReqNon
+
 	Id      string `json:"id" label:"ID" input:"text" type:"string" find:"true" sort:"1" required:"false"`                                           // ID
 	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" create:"false" sort:"2" required:"true" binding:"required"` // 门店
 
@@ -126,6 +128,7 @@ type ProductInventoryListReq struct {
 type ProductInventoryInfoReq struct {
 	Id            string                              `json:"id" binding:"required"`
 	ProductStatus enums.ProductInventoryProductStatus `json:"product_status"` // 产品状态
+	PageReq
 }
 
 type ProductInventoryAddReq struct {

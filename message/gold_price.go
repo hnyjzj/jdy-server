@@ -53,8 +53,8 @@ func (M *BaseMessage) SendGoldPriceSetMessage(req *GoldPriceMessage) error {
 		},
 	}
 
-	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || a.ErrCode != 0 {
-		log.Printf("a: %+v\n", a)
+	if res, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || (res != nil && res.ErrCode != 0) {
+		log.Printf("res: %+v\n", res)
 		return err
 	}
 
@@ -108,8 +108,8 @@ func (M *BaseMessage) SendGoldPriceUpdateMessage(req *GoldPriceMessage) {
 		},
 	}
 
-	if a, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || a.ErrCode != 0 {
+	if res, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || (res != nil && res.ErrCode != 0) {
 		log.Println("发送消息失败:", err)
-		log.Printf("a: %+v\n", a)
+		log.Printf("res: %+v\n", res)
 	}
 }

@@ -16,7 +16,8 @@ type OrderRepairWhere struct {
 	Status        enums.OrderRepairStatus  `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`                                      // 订单状态
 	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" label:"支付方式" find:"false" create:"true" update:"true" sort:"5" type:"number" input:"select" preset:"typeMap"` // 支付方式
 
-	ReceptionistId string `json:"receptionist_id" label:"接待人" find:"true" sort:"6" type:"string" input:"search"` // 收银员
+	ReceptionistId string `json:"receptionist_id" label:"接待人" create:"true" find:"true" sort:"6" type:"string" input:"search"` // 接待人
+	CashierId      string `json:"cashier_id" label:"收银员" create:"true" find:"true" sort:"7" type:"string" input:"search"`      // 收银员
 
 	Name string `json:"name" label:"维修项目" find:"true" create:"true" update:"true" sort:"7" input:"text" type:"string"`      // 维修项目
 	Desc string `json:"desc" label:"问题描述" find:"false" create:"true" update:"true" sort:"8" input:"textarea" type:"string"` // 问题描述
@@ -58,6 +59,7 @@ type OrderRepairCreateReq struct {
 
 	ReceptionistId string `json:"receptionist_id" binding:"required"` // 接待人ID
 	MemberId       string `json:"member_id" binding:"required"`       // 会员ID
+	CashierId      string `json:"cashier_id" binding:"required"`      // 收银员ID
 
 	Name string `json:"name" binding:"required"` // 维修项目
 	Desc string `json:"desc" binding:"required"` // 问题描述

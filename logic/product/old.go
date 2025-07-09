@@ -69,7 +69,7 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询商品信息
 		var old_product model.ProductOld
-		if err := tx.Unscoped().Where("id = ?", req.Id).First(&old_product).Error; err != nil {
+		if err := tx.Unscoped().Preload("Store").Where("id = ?", req.Id).First(&old_product).Error; err != nil {
 			return errors.New("商品不存在")
 		}
 
@@ -78,9 +78,20 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 			return errors.New("非自有旧料无法转换")
 		}
 
+		log := &model.ProductHistory{
+			Action:     enums.ProductActionOldToNew,
+			Type:       enums.ProductTypeFinished,
+			OldValue:   old_product,
+			ProductId:  old_product.Id,
+			StoreId:    old_product.StoreId,
+			SourceId:   old_product.Id,
+			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
+		}
+
 		// 转换
 		var finished_product model.ProductFinished
-		if err := tx.Unscoped().Where("code = ?", old_product.Code).First(&finished_product).Error; err != nil {
+		if err := tx.Unscoped().Preload("Store").Where("code = ?", old_product.Code).First(&finished_product).Error; err != nil {
 			return errors.New("成品不在库中")
 		}
 		if finished_product.Status != enums.ProductStatusDamage && finished_product.Status != enums.ProductStatusSold { // 判断成品状态
@@ -92,9 +103,16 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 				return errors.New("恢复成品失败")
 			}
 		}
-		finished_product.Status = enums.ProductStatusNormal
-		if err := tx.Save(&finished_product).Error; err != nil {
-			return errors.New("更新成品失败")
+
+		// 更新旧料状态
+		if err := tx.Model(&model.ProductFinished{}).Where("id = ?", finished_product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
+			return errors.New("更新成品状态失败")
+		}
+
+		// 添加日志
+		log.NewValue = finished_product
+		if err := tx.Create(log).Error; err != nil {
+			return errors.New("添加日志失败")
 		}
 
 		// 删除旧料

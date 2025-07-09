@@ -43,7 +43,8 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			pdb = model.CreateProductInventoryCondition(pdb, req)
 
 			if err := pdb.Where(&model.ProductFinished{
-				Status: enums.ProductStatusNormal,
+				Status:  enums.ProductStatusNormal,
+				StoreId: req.StoreId,
 			}).Find(&products).Error; err != nil {
 				return err
 			}
@@ -87,8 +88,9 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			pdb = model.CreateProductInventoryCondition(pdb, req)
 
 			if err := pdb.Where(&model.ProductOld{
-				IsOur:  true,
-				Status: enums.ProductStatusNormal,
+				IsOur:   true,
+				Status:  enums.ProductStatusNormal,
+				StoreId: req.StoreId,
 			}).Find(&products).Error; err != nil {
 				return err
 			}
@@ -145,7 +147,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			return
 		}
 		msg := message.NewMessage(l.Ctx)
-		msg.SendProductInventoryCreateMessage(&message.ProductInventoryCreate{
+		msg.SendProductInventoryCreateMessage(&message.ProductInventoryMessage{
 			ProductInventory: &product_inventory,
 		})
 	}()
@@ -193,6 +195,10 @@ func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model
 	db = db.Where("id = ?", req.Id)
 
 	where := types.ProductInventoryWhere{
+		PageReqNon: types.PageReqNon{
+			Page:  req.Page,
+			Limit: req.Limit,
+		},
 		ProductStatus: req.ProductStatus,
 	}
 
@@ -238,18 +244,21 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 				}
 			}
 			// 添加产品
-			inventory.ActualProducts = append(inventory.ActualProducts, model.ProductInventoryProduct{
-				ProductType:   inventory.Type,
-				ProductCode:   code,
-				Status:        enums.ProductInventoryProductStatusActual,
-				InventoryTime: &now,
-			})
+			if err := tx.Create(&model.ProductInventoryProduct{
+				ProductInventoryId: req.Id,
+				ProductType:        inventory.Type,
+				ProductCode:        code,
+				Status:             enums.ProductInventoryProductStatusActual,
+				InventoryTime:      &now,
+			}).Error; err != nil {
+				return errors.New("[" + code + "]添加失败")
+			}
 			// 产品总数
-			inventory.ActualCount++
-		}
-
-		if err := tx.Save(&inventory).Error; err != nil {
-			return errors.New("添加失败")
+			if err := tx.Model(&model.ProductInventory{}).
+				Where("id = ?", req.Id).
+				Update("actual_count", gorm.Expr("actual_count + ?", 1)).Error; err != nil {
+				return errors.New("[" + code + "]添加失败")
+			}
 		}
 
 		return nil
@@ -352,7 +361,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 
 	go func() {
 		msg := message.NewMessage(l.Ctx)
-		msg.SendProductInventoryUpdateMessage(&message.ProductInventoryUpdate{
+		msg.SendProductInventoryUpdateMessage(&message.ProductInventoryMessage{
 			ProductInventory: &inventory,
 		})
 	}()

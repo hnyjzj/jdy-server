@@ -15,20 +15,30 @@ type WorkbenchLogic struct {
 
 // 获取路由列表
 func (l WorkbenchLogic) GetList() ([]*model.Router, *errors.Errors) {
-	var inIds []string
-	if l.Staff.Identity < enums.IdentityAdmin {
-		for _, v := range l.Staff.Role.Routers {
-			inIds = append(inIds, v.Id)
+	inIdsArr := make(map[string]bool)
+	if l.Staff.Identity < enums.IdentitySuperAdmin {
+		if l.Staff.Role == nil || l.Staff.Role.Routers == nil || len(l.Staff.Role.Routers) == 0 {
+			return nil, errors.New("获取工作台列表失败: 没有权限")
 		}
+		for _, v := range l.Staff.Role.Routers {
+			list, err := model.Router{}.GetTreeReverse(v.Id)
+			if err != nil {
+				return nil, errors.New("获取工作台列表失败: " + err.Error())
+			}
+			for _, v := range list {
+				inIdsArr[v.Id] = true
+			}
+		}
+	}
+
+	var inIds []string
+	for k := range inIdsArr {
+		inIds = append(inIds, k)
 	}
 
 	list, err := model.Router{}.GetTree(nil, inIds)
 	if err != nil {
 		return nil, errors.New("获取工作台列表失败: " + err.Error())
-	}
-
-	if l.Staff.Identity >= enums.IdentityAdmin {
-		return list, nil
 	}
 
 	return list, nil

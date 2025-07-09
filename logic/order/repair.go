@@ -23,6 +23,7 @@ func (l *OrderRepairLogic) Create(req *types.OrderRepairCreateReq) (*model.Order
 		StoreId:        req.StoreId,
 		Status:         enums.OrderRepairStatusWaitPay,
 		ReceptionistId: req.ReceptionistId,
+		CashierId:      req.CashierId,
 		MemberId:       req.MemberId,
 		Name:           req.Name,
 		Desc:           req.Desc,
@@ -279,6 +280,9 @@ func (l *OrderRepairLogic) Pay(req *types.OrderRepairPayReq) error {
 		return errors.New("获取订单详情失败")
 	}
 
+	if order.CashierId != l.Staff.Id {
+		return errors.New("订单不是当前收银员操作")
+	}
 	if order.Status != enums.OrderRepairStatusWaitPay {
 		return errors.New("订单状态不正确")
 	}

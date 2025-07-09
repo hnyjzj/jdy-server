@@ -9,14 +9,14 @@ import (
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/message/request"
 )
 
-// 盘点单创建通知
-type ProductInventoryCreate struct {
+// 盘点单通知
+type ProductInventoryMessage struct {
 	ProductInventory *model.ProductInventory
 }
 
 // 发送盘点单创建通知
-func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCreate) {
-	url := fmt.Sprintf("%s/product/check/info?id=%s", M.Config.Jdy.Home, req.ProductInventory.Id)
+func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryMessage) {
+	url := M.Url(ProductInventoryInfoUrl, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
 		req.ProductInventory.InventoryPerson.Username,
 		req.ProductInventory.Inspector.Username,
@@ -80,18 +80,14 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 		},
 	}
 
-	if response, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || response.ErrCode != 0 {
-		log.Printf("发送消息失败: err=%v, response=%+v\n", err, response)
+	if res, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || (res != nil && res.ErrCode != 0) {
+		log.Printf("发送消息失败: err=%v, res=%+v\n", err, res)
 	}
 }
 
-type ProductInventoryUpdate struct {
-	ProductInventory *model.ProductInventory `json:"product_inventory"`
-}
-
 // 发送盘点单更新通知
-func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpdate) {
-	url := fmt.Sprintf("%s/product/check/info?id=%s", M.Config.Jdy.Home, req.ProductInventory.Id)
+func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryMessage) {
+	url := M.Url(ProductInventoryInfoUrl, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
 		req.ProductInventory.InventoryPerson.Username,
 		req.ProductInventory.Inspector.Username,
@@ -160,7 +156,7 @@ func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpd
 		},
 	}
 
-	if response, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || response.ErrCode != 0 {
-		log.Printf("发送消息失败: err=%v, response=%+v\n", err, response)
+	if res, err := M.WXWork.Message.SendTemplateCard(M.Ctx, messages); err != nil || (res != nil && res.ErrCode != 0) {
+		log.Printf("发送消息失败: err=%v, res=%+v\n", err, res)
 	}
 }

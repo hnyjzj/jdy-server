@@ -28,6 +28,7 @@ type ProductFinishedEnterListReq struct {
 
 type ProductFinishedEnterInfoReq struct {
 	Id string `json:"id" binding:"required"`
+	PageReq
 }
 
 type ProductFinishedEnterAddProductReq struct {

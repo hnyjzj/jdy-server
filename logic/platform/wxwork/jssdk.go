@@ -24,7 +24,7 @@ func (w *WxWorkLogic) Jssdk(ctx *gin.Context, req *types.PlatformJSSdkReq) (*Pla
 	config := wxwork.GetConfig()
 
 	agent, err := wxwork.JSSDK.GetTicket(ctx)
-	if err != nil || agent.ErrCode != 0 {
+	if err != nil || (agent != nil && agent.ErrCode != 0) {
 		log.Printf("获取 ticket 失败, err: %v, agent: %+v", err, agent)
 		return nil, errors.New("获取 ticket 失败")
 	}

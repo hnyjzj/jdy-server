@@ -43,7 +43,8 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			pdb = model.CreateProductInventoryCondition(pdb, req)
 
 			if err := pdb.Where(&model.ProductFinished{
-				Status: enums.ProductStatusNormal,
+				Status:  enums.ProductStatusNormal,
+				StoreId: req.StoreId,
 			}).Find(&products).Error; err != nil {
 				return err
 			}
@@ -87,8 +88,9 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			pdb = model.CreateProductInventoryCondition(pdb, req)
 
 			if err := pdb.Where(&model.ProductOld{
-				IsOur:  true,
-				Status: enums.ProductStatusNormal,
+				IsOur:   true,
+				Status:  enums.ProductStatusNormal,
+				StoreId: req.StoreId,
 			}).Find(&products).Error; err != nil {
 				return err
 			}

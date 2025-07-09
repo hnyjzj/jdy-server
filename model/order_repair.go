@@ -19,6 +19,8 @@ type OrderRepair struct {
 
 	ReceptionistId string `json:"receptionist_id" gorm:"type:varchar(255);not NULL;comment:接待人ID;"`         // 接待人ID
 	Receptionist   Staff  `json:"receptionist" gorm:"foreignKey:ReceptionistId;references:Id;comment:接待人;"` // 接待人
+	CashierId      string `json:"cashier_id" gorm:"type:varchar(255);not NULL;comment:收银员ID;"`              // 收银员ID
+	Cashier        Staff  `json:"cashier" gorm:"foreignKey:CashierId;references:Id;comment:收银员;"`           // 收银员
 
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
 	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员

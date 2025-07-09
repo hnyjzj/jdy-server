@@ -40,18 +40,18 @@ type ProductInventory struct {
 	Remark string                       `json:"remark" gorm:"type:text;comment:备注;"`         // 备注
 	Status enums.ProductInventoryStatus `json:"status" gorm:"type:tinyint(2);comment:盘点状态;"` // 盘点状态
 
-	ShouldCount    int64                     `json:"should_count" gorm:"type:tinyint(5);comment:应盘数量;"`                                // 应盘数量
+	ShouldCount    int64                     `json:"should_count" gorm:"type:int(11);comment:应盘数量;"`                                   // 应盘数量
 	ShouldProducts []ProductInventoryProduct `json:"should_products" gorm:"foreignKey:ProductInventoryId;references:Id;comment:应盘产品;"` // 应盘产品
-	ActualCount    int64                     `json:"actual_count" gorm:"type:tinyint(5);comment:实盘数量;"`                                // 实盘数量
+	ActualCount    int64                     `json:"actual_count" gorm:"type:int(11);comment:实盘数量;"`                                   // 实盘数量
 	ActualProducts []ProductInventoryProduct `json:"actual_products" gorm:"foreignKey:ProductInventoryId;references:Id;comment:实盘产品;"` // 实盘产品
-	ExtraCount     int64                     `json:"extra_count" gorm:"type:tinyint(5);comment:盘盈数量;"`                                 // 盘盈数量
+	ExtraCount     int64                     `json:"extra_count" gorm:"type:int(11);comment:盘盈数量;"`                                    // 盘盈数量
 	ExtraProducts  []ProductInventoryProduct `json:"extra_products" gorm:"foreignKey:ProductInventoryId;references:Id;comment:盘盈产品;"`  // 盘盈产品
-	LossCount      int64                     `json:"loss_count" gorm:"type:tinyint(5);comment:盘亏数量;"`                                  // 盘亏数量
+	LossCount      int64                     `json:"loss_count" gorm:"type:int(11);comment:盘亏数量;"`                                     // 盘亏数量
 	LossProducts   []ProductInventoryProduct `json:"loss_products" gorm:"foreignKey:ProductInventoryId;references:Id;comment:盘亏产品;"`   // 盘亏产品
 
 	CountWeightMetal decimal.Decimal `json:"count_weight_metal" gorm:"type:decimal(10,2);comment:总重量;"` // 总重量
 	CountPrice       decimal.Decimal `json:"count_price" gorm:"type:decimal(10,2);comment:总价值;"`        // 总价值
-	CountQuantity    int64           `json:"count_quantity" gorm:"type:tinyint(5);comment:总件数;"`        // 总件数
+	CountQuantity    int64           `json:"count_quantity" gorm:"type:int(11);comment:总件数;"`           // 总件数
 }
 
 // 产品盘点产品
@@ -146,6 +146,9 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			pdb = pdb.Preload("ProductFinished")
 			pdb = pdb.Preload("ProductOld")
 			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusShould})
+			if req != nil && req.Page != 0 && req.Limit != 0 {
+				pdb = PageCondition(pdb, req.Page, req.Limit)
+			}
 
 			return pdb
 		})
@@ -155,6 +158,9 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			pdb = pdb.Preload("ProductFinished")
 			pdb = pdb.Preload("ProductOld")
 			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusExtra})
+			if req != nil && req.Page != 0 && req.Limit != 0 {
+				pdb = PageCondition(pdb, req.Page, req.Limit)
+			}
 
 			return pdb
 		})
@@ -164,6 +170,9 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			pdb = pdb.Preload("ProductFinished")
 			pdb = pdb.Preload("ProductOld")
 			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusLoss})
+			if req != nil && req.Page != 0 && req.Limit != 0 {
+				pdb = PageCondition(pdb, req.Page, req.Limit)
+			}
 
 			return pdb
 		})
@@ -175,6 +184,9 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 		pdb = pdb.Preload("ProductFinished")
 		pdb = pdb.Preload("ProductOld")
 		pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusActual})
+		if req != nil && req.Page != 0 && req.Limit != 0 {
+			pdb = PageCondition(pdb, req.Page, req.Limit)
+		}
 
 		return pdb
 	})

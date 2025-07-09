@@ -46,12 +46,12 @@ func (M *BaseMessage) SendOrderSalesCreateMessage(req *OrderSalesMessage) error 
 				{
 					Type:    0,
 					Keyname: "原价",
-					Value:   fmt.Sprintf("%s(g)", req.OrderSales.PriceOriginal.Round(2).String()),
+					Value:   fmt.Sprintf("%s(元)", req.OrderSales.PriceOriginal.Round(2).String()),
 				},
 				{
 					Type:    0,
 					Keyname: "应付金额",
-					Value:   fmt.Sprintf("%s(g)", req.OrderSales.Price.Round(2).String()),
+					Value:   fmt.Sprintf("%s(元)", req.OrderSales.Price.Round(2).String()),
 				},
 				{
 					Type:    0,

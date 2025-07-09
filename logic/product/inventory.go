@@ -147,7 +147,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			return
 		}
 		msg := message.NewMessage(l.Ctx)
-		msg.SendProductInventoryCreateMessage(&message.ProductInventoryCreate{
+		msg.SendProductInventoryCreateMessage(&message.ProductInventoryMessage{
 			ProductInventory: &product_inventory,
 		})
 	}()
@@ -361,7 +361,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 
 	go func() {
 		msg := message.NewMessage(l.Ctx)
-		msg.SendProductInventoryUpdateMessage(&message.ProductInventoryUpdate{
+		msg.SendProductInventoryUpdateMessage(&message.ProductInventoryMessage{
 			ProductInventory: &inventory,
 		})
 	}()

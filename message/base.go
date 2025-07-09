@@ -3,10 +3,18 @@ package message
 import (
 	"context"
 	"errors"
+	"fmt"
 	"jdy/config"
 	"log"
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work"
+)
+
+type MessageUrl string
+
+const (
+	ProductInventoryInfoUrl MessageUrl = "/product/check/info?id=%s"
+	ProductAllocateInfoUrl  MessageUrl = "/product/allocate/info?id=%s"
 )
 
 type BaseMessage struct {
@@ -34,4 +42,10 @@ func (m *BaseMessage) Send(WXWork *work.Work, messages any) error {
 	}
 
 	return nil
+}
+
+func (m *BaseMessage) Url(url MessageUrl, params ...any) string {
+	path := m.Config.Jdy.Home + fmt.Sprintf(string(url), params...)
+
+	return path
 }

@@ -199,14 +199,30 @@ func (l *ProductFinishedEnterLogic) EditProduct(req *types.ProductFinishedEnterE
 		}
 
 		// 转换数据结构
-		product, err := utils.StructToStruct[model.ProductFinished](req.Product)
+		new_product, err := utils.StructToStruct[model.ProductFinished](req.Product)
 		if err != nil {
 			return errors.New("产品录入失败: 参数错误")
 		}
 
 		// 更新产品
-		if err := tx.Model(model.ProductFinished{}).Where("id = ?", req.ProductId).Updates(product).Error; err != nil {
+		if err := tx.Model(model.ProductFinished{}).Where("id = ?", product.Id).Updates(new_product).Error; err != nil {
 			return errors.New("产品更新失败")
+		}
+
+		enter_statistics := model.ProductFinishedEnter{
+			ProductCount:            enter.ProductCount,
+			ProductTotalAccessFee:   enter.ProductTotalAccessFee,
+			ProductTotalLabelPrice:  enter.ProductTotalLabelPrice,
+			ProductTotalWeightMetal: enter.ProductTotalWeightMetal,
+		}
+
+		enter_statistics.ProductTotalAccessFee = enter_statistics.ProductTotalAccessFee.Add(new_product.AccessFee.Sub(product.AccessFee))
+		enter_statistics.ProductTotalLabelPrice = enter_statistics.ProductTotalLabelPrice.Add(new_product.LabelPrice.Sub(product.LabelPrice))
+		enter_statistics.ProductTotalWeightMetal = enter_statistics.ProductTotalWeightMetal.Add(new_product.WeightMetal.Sub(product.WeightMetal))
+
+		// 更新入库单
+		if err := tx.Model(model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(enter_statistics).Error; err != nil {
+			return errors.New("入库单更新失败")
 		}
 
 		return nil
@@ -230,6 +246,13 @@ func (l *ProductFinishedEnterLogic) DelProduct(req *types.ProductFinishedEnterDe
 			return errors.New("入库单已结束")
 		}
 
+		enter_statistics := model.ProductFinishedEnter{
+			ProductCount:            enter.ProductCount,
+			ProductTotalAccessFee:   enter.ProductTotalAccessFee,
+			ProductTotalLabelPrice:  enter.ProductTotalLabelPrice,
+			ProductTotalWeightMetal: enter.ProductTotalWeightMetal,
+		}
+
 		// 查询产品
 		for _, id := range req.ProductIds {
 			var product model.ProductFinished
@@ -245,6 +268,16 @@ func (l *ProductFinishedEnterLogic) DelProduct(req *types.ProductFinishedEnterDe
 			if err := tx.Where("id = ?", product.Id).Unscoped().Delete(&model.ProductFinished{}).Error; err != nil {
 				return errors.New("产品删除失败")
 			}
+
+			enter_statistics.ProductCount--
+			enter_statistics.ProductTotalAccessFee = enter_statistics.ProductTotalAccessFee.Sub(product.AccessFee)
+			enter_statistics.ProductTotalLabelPrice = enter_statistics.ProductTotalLabelPrice.Sub(product.LabelPrice)
+			enter_statistics.ProductTotalWeightMetal = enter_statistics.ProductTotalWeightMetal.Sub(product.WeightMetal)
+		}
+
+		// 更新入库单
+		if err := tx.Model(model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(enter_statistics).Error; err != nil {
+			return errors.New("入库单更新失败")
 		}
 
 		return nil

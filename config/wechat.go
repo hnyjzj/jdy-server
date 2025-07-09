@@ -22,9 +22,9 @@ type WechatWork struct {
 }
 
 type Agent struct {
-	Id     int    `mapstructure:"id"`     // 应用ID
-	Secret string `mapstructure:"secret"` // 应用秘钥
-	Home   string `mapstructure:"home"`   // 应用首页
+	Id     int    `mapstructure:"id"`              // 应用ID
+	Secret string `mapstructure:"secret"`          // 应用秘钥
+	Home   string `mapstructure:"home" default:""` // 应用首页
 
 	Token  string `mapstructure:"token"`  // 应用Token
 	AESKey string `mapstructure:"aeskey"` // 应用AesKey

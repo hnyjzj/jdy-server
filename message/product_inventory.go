@@ -9,14 +9,14 @@ import (
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/message/request"
 )
 
-// 盘点单创建通知
-type ProductInventoryCreate struct {
+// 盘点单通知
+type ProductInventoryMessage struct {
 	ProductInventory *model.ProductInventory
 }
 
 // 发送盘点单创建通知
-func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCreate) {
-	url := fmt.Sprintf("%s/product/check/info?id=%s", M.Config.Jdy.Home, req.ProductInventory.Id)
+func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryMessage) {
+	url := M.Url(ProductInventoryInfoUrl, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
 		req.ProductInventory.InventoryPerson.Username,
 		req.ProductInventory.Inspector.Username,
@@ -85,13 +85,9 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryCre
 	}
 }
 
-type ProductInventoryUpdate struct {
-	ProductInventory *model.ProductInventory `json:"product_inventory"`
-}
-
 // 发送盘点单更新通知
-func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryUpdate) {
-	url := fmt.Sprintf("%s/product/check/info?id=%s", M.Config.Jdy.Home, req.ProductInventory.Id)
+func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryMessage) {
+	url := M.Url(ProductInventoryInfoUrl, req.ProductInventory.Id)
 	ToUser := strings.Join([]string{
 		req.ProductInventory.InventoryPerson.Username,
 		req.ProductInventory.Inspector.Username,

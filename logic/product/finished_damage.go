@@ -120,7 +120,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询商品信息
 		var product model.ProductFinished
-		if err := tx.Where("id = ?", req.Id).First(&product).Error; err != nil {
+		if err := tx.Preload("Store").Where("id = ?", req.Id).First(&product).Error; err != nil {
 			return errors.New("商品不存在")
 		}
 
@@ -153,7 +153,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				log.Action = enums.ProductActionReturn
 			}
 			var old model.ProductOld
-			if err := tx.Unscoped().Where(&model.ProductOld{Code: product.Code}).First(&old).Error; err != nil {
+			if err := tx.Unscoped().Preload("Store").Where(&model.ProductOld{Code: product.Code}).First(&old).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("旧品不存在")
 				}
@@ -202,7 +202,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 					return errors.New("转换失败")
 				}
 			}
-
+			data.Store = product.Store
 			log.NewValue = data
 			if err := tx.Delete(&model.ProductFinished{}, "id = ?", req.Id).Error; err != nil {
 				return errors.New("删除失败")

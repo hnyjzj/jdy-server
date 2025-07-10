@@ -17,10 +17,11 @@ type ProductInventoryMessage struct {
 // 发送盘点单创建通知
 func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryMessage) {
 	url := M.Url(ProductInventoryInfoUrl, req.ProductInventory.Id)
-	ToUser := strings.Join([]string{
-		req.ProductInventory.InventoryPerson.Username,
-		req.ProductInventory.Inspector.Username,
-	}, "|")
+	var InventoryPersonIds []string
+	for _, v := range req.ProductInventory.InventoryPersons {
+		InventoryPersonIds = append(InventoryPersonIds, v.Username)
+	}
+	ToUser := strings.Join(append(InventoryPersonIds, req.ProductInventory.Inspector.Username), "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  ToUser,
@@ -55,12 +56,6 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryMes
 				},
 				{
 					Type:    3,
-					Keyname: "盘点人",
-					Value:   req.ProductInventory.InventoryPerson.Nickname,
-					UserID:  req.ProductInventory.InventoryPerson.Username,
-				},
-				{
-					Type:    3,
 					Keyname: "监盘人",
 					Value:   req.ProductInventory.Inspector.Nickname,
 					UserID:  req.ProductInventory.Inspector.Username,
@@ -88,10 +83,11 @@ func (M *BaseMessage) SendProductInventoryCreateMessage(req *ProductInventoryMes
 // 发送盘点单更新通知
 func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryMessage) {
 	url := M.Url(ProductInventoryInfoUrl, req.ProductInventory.Id)
-	ToUser := strings.Join([]string{
-		req.ProductInventory.InventoryPerson.Username,
-		req.ProductInventory.Inspector.Username,
-	}, "|")
+	var InventoryPersonIds []string
+	for _, v := range req.ProductInventory.InventoryPersons {
+		InventoryPersonIds = append(InventoryPersonIds, v.Username)
+	}
+	ToUser := strings.Join(append(InventoryPersonIds, req.ProductInventory.Inspector.Username), "|")
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  ToUser,
@@ -128,12 +124,6 @@ func (M *BaseMessage) SendProductInventoryUpdateMessage(req *ProductInventoryMes
 					Type:    0,
 					Keyname: "盘亏数量",
 					Value:   fmt.Sprintf("%d", req.ProductInventory.LossCount),
-				},
-				{
-					Type:    3,
-					Keyname: "盘点人",
-					Value:   req.ProductInventory.InventoryPerson.Nickname,
-					UserID:  req.ProductInventory.InventoryPerson.Username,
 				},
 				{
 					Type:    3,

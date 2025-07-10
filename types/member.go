@@ -30,14 +30,14 @@ type MemberWhere struct {
 
 type MemberCreateReq struct {
 	Phone       *string      `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"`
-	Name        string       `json:"name" binding:"required"`
-	Gender      enums.Gender `json:"gender" binding:"oneof=0 1 2"`
+	Name        string       `json:"name"`
+	Gender      enums.Gender `json:"gender"`
 	Birthday    string       `json:"birthday"`
 	Anniversary string       `json:"anniversary"`
 	Nickname    string       `json:"nickname"`
 	IDCard      string       `json:"id_card"`
 
-	ConsultantId   string `json:"consultant_id"`
+	ConsultantId   string `json:"consultant_id" binding:"required"`
 	StoreId        string `json:"store_id" binding:"required"`
 	ExternalUserId string `json:"external_user_id"`
 }

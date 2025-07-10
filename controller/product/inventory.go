@@ -154,6 +154,37 @@ func (con ProductInventoryController) Add(ctx *gin.Context) {
 	con.Success(ctx, "ok", nil)
 }
 
+func (con ProductInventoryController) Remove(ctx *gin.Context) {
+	var (
+		req types.ProductInventoryRemoveReq
+
+		logic = product.ProductInventoryLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	if err := logic.Remove(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
 func (con ProductInventoryController) Change(ctx *gin.Context) {
 	var (
 		req types.ProductInventoryChangeReq

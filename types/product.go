@@ -43,8 +43,8 @@ type ProductHistoryInfoReq struct {
 type ProductInventoryWhere struct {
 	PageReqNon
 
-	Id      string `json:"id" label:"ID" input:"text" type:"string" find:"true" sort:"1" required:"false"`                                           // ID
-	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" create:"false" sort:"2" required:"true" binding:"required"` // 门店
+	Id      string `json:"id" label:"ID" input:"text" type:"string" find:"true" sort:"1" required:"false"`                        // ID
+	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" create:"false" sort:"2" required:"true"` // 门店
 
 	InventoryPersonIds []string `json:"inventory_person_ids" label:"盘点人" input:"multiple" type:"string" find:"true" create:"true" sort:"3" required:"true"` // 盘点人
 	InspectorId        string   `json:"inspector_id" label:"监盘人" input:"search" type:"string" find:"true" create:"true" sort:"4" required:"true"`           // 监盘人

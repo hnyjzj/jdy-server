@@ -131,6 +131,14 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 			return errors.New("类型不正确")
 		}
 
+		var InventoryPersons []model.Staff
+		if err := tx.Where("id in (?)", req.InventoryPersonIds).Find(&InventoryPersons).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&data).Association("InventoryPersons").Append(InventoryPersons); err != nil {
+			return errors.New("添加盘点人员失败")
+		}
+
 		return nil
 	}); err != nil {
 		return nil, err
@@ -229,7 +237,12 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 		return errors.New("获取失败")
 	}
 
-	if can := inventory.Status.CanEdit(enums.ProductInventoryStatusInventorying, l.Staff.Id, inventory.InventoryPersonId, inventory.InspectorId); !can {
+	var InventoryPersonIds []string
+	for _, staff := range inventory.InventoryPersons {
+		InventoryPersonIds = append(InventoryPersonIds, staff.Id)
+	}
+
+	if can := inventory.Status.CanEdit(enums.ProductInventoryStatusInventorying, l.Staff.Id, InventoryPersonIds, inventory.InspectorId); !can {
 		return errors.New("当前状态不允许这样操作")
 	}
 
@@ -269,6 +282,53 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 	return nil
 }
 
+func (l *ProductInventoryLogic) Remove(req *types.ProductInventoryRemoveReq) error {
+	var (
+		inventory model.ProductInventory
+	)
+	db := model.DB.Model(&model.ProductInventory{})
+	db = inventory.Preloads(db, nil, false)
+	if err := db.First(&inventory, "id = ?", req.Id).Error; err != nil {
+		return errors.New("获取失败")
+	}
+
+	var InventoryPersonIds []string
+	for _, staff := range inventory.InventoryPersons {
+		InventoryPersonIds = append(InventoryPersonIds, staff.Id)
+	}
+	if can := inventory.Status.CanEdit(enums.ProductInventoryStatusInventorying, l.Staff.Id, InventoryPersonIds, inventory.InspectorId); !can {
+		return errors.New("当前状态不允许这样操作")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		var product model.ProductInventoryProduct
+		if err := tx.Where("product_inventory_id = ? and id = ?", req.Id, req.ProductId).First(&product).Error; err != nil {
+			return errors.New("获取失败")
+		}
+
+		del := tx.Delete(&product)
+		if err := del.Error; err != nil {
+			return errors.New("删除失败")
+		}
+		if del.RowsAffected == 0 {
+			return errors.New("删除失败")
+		}
+
+		// 产品总数
+		if err := tx.Model(&model.ProductInventory{}).
+			Where("id = ?", req.Id).
+			Update("actual_count", gorm.Expr("actual_count - ?", 1)).Error; err != nil {
+			return errors.New("删除失败")
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // 切换盘点单状态
 func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) error {
 	var (
@@ -285,7 +345,11 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 		return errors.New("当前状态不允许这样操作")
 	}
 
-	if can := inventory.Status.CanEdit(req.Status, l.Staff.Id, inventory.InventoryPersonId, inventory.InspectorId); !can {
+	var InventoryPersonIds []string
+	for _, staff := range inventory.InventoryPersons {
+		InventoryPersonIds = append(InventoryPersonIds, staff.Id)
+	}
+	if can := inventory.Status.CanEdit(req.Status, l.Staff.Id, InventoryPersonIds, inventory.InspectorId); !can {
 		return errors.New("处理人不一致")
 	}
 

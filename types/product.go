@@ -43,11 +43,11 @@ type ProductHistoryInfoReq struct {
 type ProductInventoryWhere struct {
 	PageReqNon
 
-	Id      string `json:"id" label:"ID" input:"text" type:"string" find:"true" sort:"1" required:"false"`                                           // ID
-	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" create:"false" sort:"2" required:"true" binding:"required"` // 门店
+	Id      string `json:"id" label:"ID" input:"text" type:"string" find:"true" sort:"1" required:"false"`                        // ID
+	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" create:"false" sort:"2" required:"true"` // 门店
 
-	InventoryPersonId string `json:"inventory_person_id" label:"盘点人" input:"search" type:"string" find:"true" create:"true" sort:"3" required:"true"` // 盘点人
-	InspectorId       string `json:"inspector_id" label:"监盘人" input:"search" type:"string" find:"true" create:"true" sort:"4" required:"true"`        // 监盘人
+	InventoryPersonIds []string `json:"inventory_person_ids" label:"盘点人" input:"multiple" type:"string" find:"true" create:"true" sort:"3" required:"true"` // 盘点人
+	InspectorId        string   `json:"inspector_id" label:"监盘人" input:"search" type:"string" find:"true" create:"true" sort:"4" required:"true"`           // 监盘人
 
 	Type  enums.ProductTypeUsed       `json:"type" label:"盘点仓库" input:"select" type:"number" find:"true" create:"true" sort:"5" required:"true" preset:"typeMap"`      // 盘点仓库
 	Brand enums.ProductBrand          `json:"brand" label:"盘点品牌" input:"multiple" type:"number" find:"false" create:"true" sort:"6" required:"false" preset:"typeMap"` // 盘点品牌
@@ -74,8 +74,8 @@ type ProductInventoryWhere struct {
 type ProductInventoryCreateReq struct {
 	StoreId string `json:"store_id" binding:"required"` // 门店ID
 
-	InventoryPersonId string `json:"inventory_person_id" binding:"required"` // 盘点人
-	InspectorId       string `json:"inspector_id" binding:"required"`        // 监盘人
+	InventoryPersonIds []string `json:"inventory_person_ids" binding:"required"` // 盘点人
+	InspectorId        string   `json:"inspector_id" binding:"required"`         // 监盘人
 
 	Type  enums.ProductTypeUsed       `json:"type" binding:"required"`  // 盘点仓库
 	Brand []enums.ProductBrand        `json:"brand"`                    // 盘点品牌
@@ -134,6 +134,11 @@ type ProductInventoryInfoReq struct {
 type ProductInventoryAddReq struct {
 	Id    string   `json:"id" binding:"required"`          // 盘点单ID
 	Codes []string `json:"codes" binding:"required,min=1"` // 产品编码
+}
+
+type ProductInventoryRemoveReq struct {
+	Id        string `json:"id" binding:"required"`         // 盘点单ID
+	ProductId string `json:"product_id" binding:"required"` // 产品ID
 }
 
 type ProductInventoryChangeReq struct {

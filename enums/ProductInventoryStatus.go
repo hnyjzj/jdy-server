@@ -87,7 +87,7 @@ func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error 
 }
 
 // 权限判断
-func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId, InventoryPersonId, InspectorId string) bool {
+func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId string, InventoryPersonId []string, InspectorId string) bool {
 	type Condition struct {
 		P, S ProductInventoryStatus
 	}
@@ -96,15 +96,15 @@ func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId, 
 
 	switch condition {
 	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusInventorying}: // 开始盘点: 草稿->盘点中 : 盘点人
-		return StaffId == InventoryPersonId
+		return slices.Contains(InventoryPersonId, StaffId)
 	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusInventorying}: // 继续盘点: 盘点中->盘点中 : 盘点人
-		return StaffId == InventoryPersonId
+		return slices.Contains(InventoryPersonId, StaffId)
 	case Condition{ProductInventoryStatusDraft, ProductInventoryStatusCancelled}: // 取消盘点: 草稿->盘点取消 : 盘点人
-		return StaffId == InventoryPersonId
+		return slices.Contains(InventoryPersonId, StaffId)
 	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusCancelled}: // 取消盘点: 盘点中->盘点取消 : 盘点人
-		return StaffId == InventoryPersonId
+		return slices.Contains(InventoryPersonId, StaffId)
 	case Condition{ProductInventoryStatusInventorying, ProductInventoryStatusToBeVerified}: // 开始盘点/结束盘点: 盘点中->待验证 : 盘点人
-		return StaffId == InventoryPersonId
+		return slices.Contains(InventoryPersonId, StaffId)
 	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusCompleted}: // 盘点完成: 待验证->盘点完成 : 监盘人
 		return StaffId == InspectorId
 	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusAbnormal}: // 盘点异常: 待验证->盘点异常 : 监盘人

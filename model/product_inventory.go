@@ -16,8 +16,8 @@ type ProductInventory struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	InventoryPersonId string `json:"inventory_person_id" gorm:"type:varchar(255);not NULL;comment:盘点人ID;"`            // 盘点人ID
-	InventoryPerson   Staff  `json:"inventory_person" gorm:"foreignKey:InventoryPersonId;references:Id;comment:盘点人;"` // 盘点人
+	InventoryPersonIds []string `json:"inventory_person_ids" gorm:"-"`                                              // 盘点人员ID
+	InventoryPersons   []Staff  `json:"inventory_persons" gorm:"many2many:product_inventory_persons;comment:盘点人员;"` // 盘点人员
 
 	InspectorId string `json:"inspector_id" gorm:"type:varchar(255);not NULL;comment:监盘人ID;"`      // 监盘人ID
 	Inspector   Staff  `json:"inspector" gorm:"foreignKey:InspectorId;references:Id;comment:监盘人;"` // 监盘人
@@ -87,9 +87,6 @@ func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryW
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
 	}
-	if req.InventoryPersonId != "" {
-		db = db.Where("inventory_person_id = ?", req.InventoryPersonId)
-	}
 	if req.InspectorId != "" {
 		db = db.Where("inspector_id = ?", req.InspectorId)
 	}
@@ -136,7 +133,7 @@ func CreateProductInventoryCondition(db *gorm.DB, req *types.ProductInventoryCre
 // 产品盘点关联条件
 func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, isOver bool) *gorm.DB {
 	db = db.Preload("Store")
-	db = db.Preload("InventoryPerson")
+	db = db.Preload("InventoryPersons")
 	db = db.Preload("Inspector")
 
 	if isOver {

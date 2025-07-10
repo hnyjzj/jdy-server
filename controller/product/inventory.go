@@ -2,6 +2,7 @@ package product
 
 import (
 	"jdy/controller"
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic/product"
 	"jdy/types"
@@ -77,6 +78,11 @@ func (con ProductInventoryController) List(ctx *gin.Context) {
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if logic.Staff.Identity < enums.IdentityAdmin && req.Where.StoreId == "" {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}

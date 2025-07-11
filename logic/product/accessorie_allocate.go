@@ -212,6 +212,7 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 	// 获取调拨单
 	if err := model.DB.
 		Preload("Products.Product.Category").
+		Preload("FromStore").Preload("ToStore").
 		First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
@@ -267,7 +268,10 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 	)
 
 	// 获取调拨单
-	if err := model.DB.Preload("Products").First(&allocate, "id = ?", req.Id).Error; err != nil {
+	db := model.DB.Model(&allocate)
+	db = db.Preload("Products")
+	db = db.Preload("FromStore").Preload("ToStore")
+	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -288,8 +292,7 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 					return fmt.Errorf("【%s】%s 不存在", product.Product.Category.Code, product.Product.Category.Name)
 				}
 				// 归还库存
-				accessorie.Stock += product.Quantity
-				if err := tx.Save(&accessorie).Error; err != nil {
+				if err := tx.Model(&accessorie).Update("stock", gorm.Expr("stock + ?", product.Quantity)).Error; err != nil {
 					return fmt.Errorf("【%s】%s 恢复库存失败", product.Product.Category.Code, product.Product.Category.Name)
 				}
 			}
@@ -334,6 +337,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 		tx = tx.Preload("Store")
 		return tx
 	})
+	db = db.Preload("FromStore").Preload("ToStore")
 	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}

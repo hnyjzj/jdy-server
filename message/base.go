@@ -13,10 +13,10 @@ import (
 type MessageUrl string
 
 const (
-	ProductInventoryInfoUrl          MessageUrl = "/product/check/info?id=%s"
-	ProductAllocateInfoUrl           MessageUrl = "/product/allocate/info?id=%s"
-	ProductAccessorieAllocateInfoUrl MessageUrl = "/product/accessorie/allocate/info?id=%s"
-	OrderSalesInfoUrl                MessageUrl = "/sale/sales/order?id=%s"
+	ProductInventoryInfoUrl          MessageUrl = "/product/check/info?id=%s"               // 货品盘点详情
+	ProductAllocateInfoUrl           MessageUrl = "/product/allocate/info?id=%s"            // 货品调拨详情
+	ProductAccessorieAllocateInfoUrl MessageUrl = "/product/accessorie/allocate/info?id=%s" // 配件调拨详情
+	OrderSalesInfoUrl                MessageUrl = "/sale/sales/order?id=%s"                 // 销售订单详情
 )
 
 type BaseMessage struct {

@@ -337,6 +337,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 
 	go func() {
 		msg := message.NewMessage(p.Ctx)
+		allocate.Operator = p.Staff
 		msg.SendProductAllocateCreateMessage(&message.ProductAllocateMessage{
 			ProductAllocate: &allocate,
 		})
@@ -401,6 +402,7 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 
 	go func() {
 		msg := message.NewMessage(p.Ctx)
+		allocate.Operator = p.Staff
 		msg.SendProductAllocateCancelMessage(&message.ProductAllocateMessage{
 			ProductAllocate: &allocate,
 		})
@@ -517,6 +519,7 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 
 	go func() {
 		msg := message.NewMessage(p.Ctx)
+		allocate.Operator = p.Staff
 		msg.SendProductAllocateCompleteMessage(&message.ProductAllocateMessage{
 			ProductAllocate: &allocate,
 		})

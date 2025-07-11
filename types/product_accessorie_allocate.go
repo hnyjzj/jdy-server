@@ -27,7 +27,7 @@ func (req *ProductAccessorieAllocateCreateReq) Validate() error {
 type ProductAccessorieAllocateWhere struct {
 	Status      enums.ProductAllocateStatus `json:"status" label:"调拨状态" input:"select" type:"number" find:"true" create:"false" sort:"1" required:"true" preset:"typeMap"`                                                       // 调拨状态
 	Method      enums.ProductAllocateMethod `json:"method" label:"调拨类型" input:"select" type:"number" find:"true" create:"true" sort:"2" required:"true" preset:"typeMap"`                                                        // 调拨类型
-	FromStoreId string                      `json:"from_store_id" label:"调出门店" input:"search" type:"string" find:"true" create:"false" sort:"3" required:"false"`                                                                // 调出门店
+	FromStoreId string                      `json:"from_store_id" label:"调出门店" input:"search" type:"string" find:"false" create:"false" sort:"3" required:"false"`                                                               // 调出门店
 	ToStoreId   string                      `json:"to_store_id" label:"调入门店" input:"search" type:"string" find:"true" create:"true" sort:"4" required:"true"  condition:"[{\"key\":\"method\",\"operator\":\"=\",\"value\":1}]"` // 调入门店
 	Remark      string                      `json:"remark" label:"调拨原因" input:"text" type:"string" find:"true" create:"true" sort:"5" required:"false"`                                                                          // 调拨原因
 

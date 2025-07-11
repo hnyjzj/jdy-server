@@ -3,8 +3,10 @@ package order
 import (
 	"jdy/enums"
 	"jdy/errors"
+	"jdy/message"
 	"jdy/model"
 	"jdy/types"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -35,6 +37,7 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 			StoreId:    req.StoreId,
 			CashierId:  req.CashierId,
 			OperatorId: c.Staff.Id,
+			Operator:   *c.Staff,
 			IP:         c.Ctx.ClientIP(),
 
 			HasIntegral: req.HasIntegral,
@@ -79,6 +82,16 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 	}); err != nil {
 		return nil, err
 	}
+
+	// 发送通知
+	go func() {
+		msg := message.NewMessage(c.Ctx)
+		if err := msg.SendOrderSalesCreateMessage(&message.OrderSalesMessage{
+			OrderSales: l.Order,
+		}); err != nil {
+			log.Printf("发送订单创建通知失败: %v", err)
+		}
+	}()
 
 	return l.Order, nil
 }

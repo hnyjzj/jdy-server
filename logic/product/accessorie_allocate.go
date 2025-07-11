@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"jdy/enums"
 	"jdy/errors"
+	"jdy/message"
 	"jdy/model"
 	"jdy/types"
 
@@ -248,6 +249,14 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 		return errors.New("调拨失败: " + err.Error())
 	}
 
+	go func() {
+		msg := message.NewMessage(p.Ctx)
+		allocate.Operator = p.Staff
+		msg.SendProductAccessorieAllocateCreateMessage(&message.ProductAccessorieAllocateMessage{
+			ProductAccessorieAllocate: &allocate,
+		})
+	}()
+
 	return nil
 }
 
@@ -266,9 +275,12 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 		return errors.New("调拨单状态异常")
 	}
 
+	sendmsg := false
+
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 判断调拨单状态
 		if allocate.Status == enums.ProductAllocateStatusOnTheWay {
+			sendmsg = true
 			for _, product := range allocate.Products {
 				var accessorie model.ProductAccessorie
 				// 获取配件
@@ -294,6 +306,18 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 	}); err != nil {
 		return errors.New("调拨失败: " + err.Error())
 	}
+
+	go func() {
+		if !sendmsg {
+			return
+		}
+		msg := message.NewMessage(p.Ctx)
+		allocate.Operator = p.Staff
+		msg.SendProductAccessorieAllocateCancelMessage(&message.ProductAccessorieAllocateMessage{
+			ProductAccessorieAllocate: &allocate,
+		})
+	}()
+
 	return nil
 }
 
@@ -405,6 +429,14 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 	}); err != nil {
 		return errors.New("调拨失败: " + err.Error())
 	}
+
+	go func() {
+		msg := message.NewMessage(p.Ctx)
+		allocate.Operator = p.Staff
+		msg.SendProductAccessorieAllocateCompleteMessage(&message.ProductAccessorieAllocateMessage{
+			ProductAccessorieAllocate: &allocate,
+		})
+	}()
 
 	return nil
 }

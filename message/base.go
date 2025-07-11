@@ -13,9 +13,10 @@ import (
 type MessageUrl string
 
 const (
-	ProductInventoryInfoUrl MessageUrl = "/product/check/info?id=%s"
-	ProductAllocateInfoUrl  MessageUrl = "/product/allocate/info?id=%s"
-	OrderSalesInfoUrl       MessageUrl = "/sale/sales/order?id=%s"
+	ProductInventoryInfoUrl          MessageUrl = "/product/check/info?id=%s"
+	ProductAllocateInfoUrl           MessageUrl = "/product/allocate/info?id=%s"
+	ProductAccessorieAllocateInfoUrl MessageUrl = "/product/accessorie/allocate/info?id=%s"
+	OrderSalesInfoUrl                MessageUrl = "/sale/sales/order?id=%s"
 )
 
 type BaseMessage struct {

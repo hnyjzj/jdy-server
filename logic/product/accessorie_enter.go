@@ -51,7 +51,6 @@ func (l *ProductAccessorieEnterLogic) EnterList(req *types.ProductAccessorieEnte
 	}
 
 	// 获取列表
-	db = db.Preload("Products.Category")
 	db = db.Preload("Operator")
 	db = db.Preload("Store")
 
@@ -103,6 +102,10 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 	// 添加配件的结果
 	products := map[string]string{}
 	success := 0
+	enterData := model.ProductAccessorieEnter{
+		ProductCount: enter.ProductCount,
+		ProductTotal: enter.ProductTotal,
+	}
 	// 添加配件入库
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		for _, p := range req.Products {
@@ -131,6 +134,9 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 					products[p.Code] = "配件更新失败"
 					continue
 				}
+
+				// 更新入库单配件数量
+				enterData.ProductTotal += p.Stock
 			} else {
 				data := model.ProductAccessorie{
 					StoreId:   enter.StoreId,
@@ -145,6 +151,10 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 					products[p.Code] = "入库失败"
 					continue
 				}
+
+				// 更新入库单配件数量
+				enterData.ProductCount++
+				enterData.ProductTotal += p.Stock
 			}
 
 			success++
@@ -156,6 +166,11 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 
 		if success != len(req.Products) {
 			return errors.New("部分配件录入失败")
+		}
+
+		// 更新入库单配件数量
+		if err := tx.Model(&enter).Updates(enterData).Error; err != nil {
+			return errors.New("入库单更新失败")
 		}
 
 		return nil
@@ -196,8 +211,17 @@ func (l *ProductAccessorieEnterLogic) EditProduct(req *types.ProductAccessorieEn
 			return errors.New("配件录入失败: 参数错误")
 		}
 
+		// 更新配件数量
+		enterData := model.ProductAccessorieEnter{
+			ProductTotal: enter.ProductTotal,
+		}
+		enterData.ProductTotal = enter.ProductTotal - product.Stock + data.Stock
+		if err := tx.Model(&enter).Updates(enterData).Error; err != nil {
+			return errors.New("入库单更新失败")
+		}
+
 		// 更新配件
-		if err := tx.Model(model.ProductAccessorie{}).Where("id = ?", req.ProductId).Updates(data).Error; err != nil {
+		if err := tx.Model(&product).Updates(data).Error; err != nil {
 			return errors.New("配件更新失败")
 		}
 
@@ -222,6 +246,12 @@ func (l *ProductAccessorieEnterLogic) DelProduct(req *types.ProductAccessorieEnt
 			return errors.New("入库单已结束")
 		}
 
+		// 更新入库单配件数量
+		enterData := model.ProductAccessorieEnter{
+			ProductCount: enter.ProductCount,
+			ProductTotal: enter.ProductTotal,
+		}
+
 		// 查询配件
 		for _, id := range req.ProductIds {
 			var product model.ProductAccessorie
@@ -237,6 +267,14 @@ func (l *ProductAccessorieEnterLogic) DelProduct(req *types.ProductAccessorieEnt
 			if err := tx.Unscoped().Where("id = ?", product.Id).Delete(&model.ProductAccessorie{}).Error; err != nil {
 				return errors.New("配件删除失败")
 			}
+
+			// 更新入库单配件数量
+			enterData.ProductCount--
+			enterData.ProductTotal -= product.Stock
+		}
+
+		if err := tx.Model(&enter).Updates(enterData).Error; err != nil {
+			return errors.New("入库单更新失败")
 		}
 
 		return nil

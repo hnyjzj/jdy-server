@@ -94,12 +94,12 @@ func (M *BaseMessage) SendProductAccessorieAllocateCancelMessage(req *ProductAcc
 		log.Printf("获取门店用户失败: err=%v\n", err)
 		return
 	}
-	form_user, err := req.getFromStoreUser()
+	from_user, err := req.getFromStoreUser()
 	if err != nil {
 		log.Printf("获取门店用户失败: err=%v\n", err)
 		return
 	}
-	ToUser := strings.Join(append(to_user, form_user...), "|")
+	ToUser := strings.Join(append(to_user, from_user...), "|")
 	// 消息内容
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{
@@ -169,12 +169,12 @@ func (M *BaseMessage) SendProductAccessorieAllocateCompleteMessage(req *ProductA
 		log.Printf("获取门店用户失败: err=%v\n", err)
 		return
 	}
-	form_user, err := req.getFromStoreUser()
+	from_user, err := req.getFromStoreUser()
 	if err != nil {
 		log.Printf("获取门店用户失败: err=%v\n", err)
 		return
 	}
-	ToUser := strings.Join(append(to_user, form_user...), "|")
+	ToUser := strings.Join(append(to_user, from_user...), "|")
 	// 消息内容
 	messages := &request.RequestMessageSendTemplateCard{
 		RequestMessageSend: request.RequestMessageSend{

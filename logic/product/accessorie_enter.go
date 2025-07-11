@@ -278,8 +278,10 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 				First(&product).Error; err != nil {
 				return errors.New("配件状态不正确或配件不存在")
 			}
-			product.Status = enums.ProductStatusNormal
-			if err := tx.Save(&product).Error; err != nil {
+
+			if err := tx.Model(&product).Updates(model.ProductAccessorie{
+				Status: enums.ProductStatusNormal,
+			}).Error; err != nil {
 				return errors.New("配件更新失败")
 			}
 
@@ -295,14 +297,16 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 				OperatorId: l.Staff.Id,
 				IP:         l.Ctx.ClientIP(),
 			}
-			if err := tx.Save(&history).Error; err != nil {
+			if err := tx.Create(&history).Error; err != nil {
 				return errors.New("配件记录添加失败")
 			}
 		}
 
 		// 更新入库单状态
 		enter.Status = enums.ProductEnterStatusCompleted
-		if err := tx.Save(&enter).Error; err != nil {
+		if err := tx.Model(&enter).Updates(model.ProductAccessorieEnter{
+			Status: enter.Status,
+		}).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -322,14 +326,61 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 		return errors.New("入库单不存在")
 	}
 
-	if enter.Status != enums.ProductEnterStatusDraft {
-		return errors.New("入库单已结束")
-	}
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		switch enter.Status {
+		case enums.ProductEnterStatusDraft:
+			// 草稿直接取消
+			if err := tx.Model(&enter).Updates(model.ProductAccessorieEnter{
+				Status: enums.ProductEnterStatusCanceled,
+			}).Error; err != nil {
+				return errors.New("入库单取消失败")
+			}
 
-	// 更新入库单状态
-	enter.Status = enums.ProductEnterStatusCanceled
-	if err := model.DB.Save(&enter).Error; err != nil {
-		return errors.New("入库单更新失败")
+		case enums.ProductEnterStatusCompleted:
+			// 已完成的入库单，需要将配件状态还原
+			for _, product := range enter.Products {
+				// 判断产品状态
+				if product.Status != enums.ProductStatusNormal {
+					return errors.New("配件状态不正确")
+				}
+
+				// 添加记录
+				history := model.ProductHistory{
+					Type:      enums.ProductTypeAccessorie,
+					OldValue:  product,
+					NewValue:  nil,
+					Action:    enums.ProductActionEntryCancel,
+					ProductId: product.Id,
+					StoreId:   enter.StoreId,
+					SourceId:  enter.Id,
+				}
+				if err := tx.Create(&history).Error; err != nil {
+					return errors.New("配件记录添加失败")
+				}
+
+				// 还原产品状态
+				if err := tx.Model(&product).Updates(model.ProductAccessorie{
+					Status: enums.ProductStatusDraft,
+				}).Error; err != nil {
+					return errors.New("配件状态还原失败")
+				}
+			}
+
+			// 更新入库单状态
+			if err := tx.Model(&enter).Updates(model.ProductAccessorieEnter{
+				Status: enums.ProductEnterStatusCanceled,
+			}).Error; err != nil {
+				return errors.New("入库单取消失败")
+			}
+
+		default:
+			return errors.New("入库单状态不支持取消")
+		}
+
+		return nil
+
+	}); err != nil {
+		return errors.New(err.Error())
 	}
 
 	return nil

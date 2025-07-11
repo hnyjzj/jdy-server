@@ -20,6 +20,7 @@ const (
 	ProductActionOrder                                    // 开单
 	ProductActionOrderCancel                              // 撒销开单
 	ProductActionReturn                                   // 退货
+	ProductActionEntryCancel                              // 入库撤销
 )
 
 var ProductActionMap = map[ProductAction]string{

@@ -30,13 +30,24 @@ func (p *ProductAccessorieLogic) List(req *types.ProductAccessorieListReq) (*typ
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取配件列表失败")
+		return nil, errors.New("获取配件数量失败")
 	}
 
 	// 获取列表
 	db = model.PageCondition(db, req.Page, req.Limit)
 	db = db.Order("created_at desc")
 	db = db.Preload("Category")
+	// db = db.Select("*,SUM(stock) as stock")
+	// group := []string{
+	// 	"id", "created_at", "updated_at", "deleted_at",
+	// 	"store_id",
+	// 	"code",
+	// 	"stock",
+	// 	"access_fee",
+	// 	"status",
+	// 	"enter_id",
+	// }
+	// db = db.Group(strings.Join(group, ","))
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取配件列表失败")
 	}

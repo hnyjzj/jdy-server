@@ -92,7 +92,7 @@ func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gor
 }
 
 func (OrderRepair) Preloads(db *gorm.DB) *gorm.DB {
-	db = db.Preload("Store")
+	db = db.Preload("Store.Superiors")
 	db = db.Preload("Receptionist")
 	db = db.Preload("Member")
 	db = db.Preload("Products")

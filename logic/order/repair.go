@@ -280,7 +280,14 @@ func (l *OrderRepairLogic) Pay(req *types.OrderRepairPayReq) error {
 		return errors.New("获取订单详情失败")
 	}
 
-	if order.CashierId != l.Staff.Id {
+	inSuperiors := false
+	for _, superior := range order.Store.Superiors {
+		if superior.Id == l.Staff.Id {
+			inSuperiors = true
+			break
+		}
+	}
+	if order.CashierId != l.Staff.Id && !inSuperiors {
 		return errors.New("订单不是当前收银员操作")
 	}
 	if order.Status != enums.OrderRepairStatusWaitPay {

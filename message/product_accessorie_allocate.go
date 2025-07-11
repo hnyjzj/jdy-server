@@ -10,14 +10,14 @@ import (
 )
 
 // 调拨单通知
-type ProductAllocateMessage struct {
-	ProductAllocate *model.ProductAllocate
+type ProductAccessorieAllocateMessage struct {
+	ProductAccessorieAllocate *model.ProductAccessorieAllocate
 }
 
 // 发送调拨单创建通知
-func (M *BaseMessage) SendProductAllocateCreateMessage(req *ProductAllocateMessage) {
+func (M *BaseMessage) SendProductAccessorieAllocateCreateMessage(req *ProductAccessorieAllocateMessage) {
 	// 跳转地址
-	url := M.Url(ProductAllocateInfoUrl, req.ProductAllocate.Id)
+	url := M.Url(ProductAccessorieAllocateInfoUrl, req.ProductAccessorieAllocate.Id)
 	// 接收消息的人
 	to_user, err := req.getToStoreUser()
 	if err != nil {
@@ -35,39 +35,34 @@ func (M *BaseMessage) SendProductAllocateCreateMessage(req *ProductAllocateMessa
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",
 			MainTitle: &request.TemplateCardMainTitle{
-				Title: "调拨单创建通知",
-				Desc:  fmt.Sprintf("新调拨单【%s】，请及时处理", req.ProductAllocate.Id),
+				Title: "配件调拨单创建通知",
+				Desc:  fmt.Sprintf("新调拨单【%s】，请及时处理", req.ProductAccessorieAllocate.Id),
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
-				Title: fmt.Sprintf("%d", req.ProductAllocate.ProductCount),
-				Desc:  "总件数",
+				Title: fmt.Sprintf("%d", req.ProductAccessorieAllocate.ProductCount),
+				Desc:  "总种类数",
 			},
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
 				{
 					Type:    0,
-					Keyname: "总重量",
-					Value:   fmt.Sprintf("%s(g)", req.ProductAllocate.ProductTotalWeightMetal.Round(2).String()),
-				},
-				{
-					Type:    0,
-					Keyname: "总标签价",
-					Value:   fmt.Sprintf("%s(元)", req.ProductAllocate.ProductTotalLabelPrice.Round(2).String()),
+					Keyname: "总件数",
+					Value:   fmt.Sprint(req.ProductAccessorieAllocate.ProductTotal),
 				},
 				{
 					Type:    0,
 					Keyname: "来源门店",
-					Value:   req.ProductAllocate.FromStore.Name,
+					Value:   req.ProductAccessorieAllocate.FromStore.Name,
 				},
 				{
 					Type:    0,
 					Keyname: "目标门店",
-					Value:   req.ProductAllocate.ToStore.Name,
+					Value:   req.ProductAccessorieAllocate.ToStore.Name,
 				},
 				{
 					Type:    3,
 					Keyname: "操作人",
-					Value:   req.ProductAllocate.Operator.Nickname,
-					UserID:  req.ProductAllocate.Operator.Username,
+					Value:   req.ProductAccessorieAllocate.Operator.Nickname,
+					UserID:  req.ProductAccessorieAllocate.Operator.Username,
 				},
 			},
 			CardAction: &request.TemplateCardAction{
@@ -90,9 +85,9 @@ func (M *BaseMessage) SendProductAllocateCreateMessage(req *ProductAllocateMessa
 }
 
 // 发送调拨单取消通知
-func (M *BaseMessage) SendProductAllocateCancelMessage(req *ProductAllocateMessage) {
+func (M *BaseMessage) SendProductAccessorieAllocateCancelMessage(req *ProductAccessorieAllocateMessage) {
 	// 跳转地址
-	url := M.Url(ProductAllocateInfoUrl, req.ProductAllocate.Id)
+	url := M.Url(ProductAccessorieAllocateInfoUrl, req.ProductAccessorieAllocate.Id)
 	// 接收消息的人
 	to_user, err := req.getToStoreUser()
 	if err != nil {
@@ -115,39 +110,34 @@ func (M *BaseMessage) SendProductAllocateCancelMessage(req *ProductAllocateMessa
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",
 			MainTitle: &request.TemplateCardMainTitle{
-				Title: "调拨单取消通知",
-				Desc:  fmt.Sprintf("调拨单【%s】，被取消，请及时处理", req.ProductAllocate.Id),
+				Title: "配件调拨单取消通知",
+				Desc:  fmt.Sprintf("调拨单【%s】，被取消，请及时处理", req.ProductAccessorieAllocate.Id),
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
-				Title: fmt.Sprintf("%d", req.ProductAllocate.ProductCount),
-				Desc:  "总件数",
+				Title: fmt.Sprintf("%d", req.ProductAccessorieAllocate.ProductCount),
+				Desc:  "总种类数",
 			},
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
 				{
 					Type:    0,
-					Keyname: "总重量",
-					Value:   fmt.Sprintf("%s(g)", req.ProductAllocate.ProductTotalWeightMetal.Round(2).String()),
-				},
-				{
-					Type:    0,
-					Keyname: "总标签价",
-					Value:   fmt.Sprintf("%s(元)", req.ProductAllocate.ProductTotalLabelPrice.Round(2).String()),
+					Keyname: "总件数",
+					Value:   fmt.Sprint(req.ProductAccessorieAllocate.ProductTotal),
 				},
 				{
 					Type:    0,
 					Keyname: "来源门店",
-					Value:   req.ProductAllocate.FromStore.Name,
+					Value:   req.ProductAccessorieAllocate.FromStore.Name,
 				},
 				{
 					Type:    0,
 					Keyname: "目标门店",
-					Value:   req.ProductAllocate.ToStore.Name,
+					Value:   req.ProductAccessorieAllocate.ToStore.Name,
 				},
 				{
 					Type:    3,
 					Keyname: "操作人",
-					Value:   req.ProductAllocate.Operator.Nickname,
-					UserID:  req.ProductAllocate.Operator.Username,
+					Value:   req.ProductAccessorieAllocate.Operator.Nickname,
+					UserID:  req.ProductAccessorieAllocate.Operator.Username,
 				},
 			},
 			CardAction: &request.TemplateCardAction{
@@ -170,9 +160,9 @@ func (M *BaseMessage) SendProductAllocateCancelMessage(req *ProductAllocateMessa
 }
 
 // 发送调拨单完成通知
-func (M *BaseMessage) SendProductAllocateCompleteMessage(req *ProductAllocateMessage) {
+func (M *BaseMessage) SendProductAccessorieAllocateCompleteMessage(req *ProductAccessorieAllocateMessage) {
 	// 跳转地址
-	url := M.Url(ProductAllocateInfoUrl, req.ProductAllocate.Id)
+	url := M.Url(ProductAccessorieAllocateInfoUrl, req.ProductAccessorieAllocate.Id)
 	// 接收消息的人
 	to_user, err := req.getToStoreUser()
 	if err != nil {
@@ -195,39 +185,34 @@ func (M *BaseMessage) SendProductAllocateCompleteMessage(req *ProductAllocateMes
 		TemplateCard: &request.RequestTemplateCard{
 			CardType: "text_notice",
 			MainTitle: &request.TemplateCardMainTitle{
-				Title: "调拨单完成通知",
-				Desc:  fmt.Sprintf("调拨单【%s】，已完成接收", req.ProductAllocate.Id),
+				Title: "配件调拨单完成通知",
+				Desc:  fmt.Sprintf("调拨单【%s】，已完成接收", req.ProductAccessorieAllocate.Id),
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
-				Title: fmt.Sprintf("%d", req.ProductAllocate.ProductCount),
-				Desc:  "总件数",
+				Title: fmt.Sprintf("%d", req.ProductAccessorieAllocate.ProductCount),
+				Desc:  "总种类数",
 			},
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
 				{
 					Type:    0,
-					Keyname: "总重量",
-					Value:   fmt.Sprintf("%s(g)", req.ProductAllocate.ProductTotalWeightMetal.Round(2).String()),
-				},
-				{
-					Type:    0,
-					Keyname: "总标签价",
-					Value:   fmt.Sprintf("%s(元)", req.ProductAllocate.ProductTotalLabelPrice.Round(2).String()),
+					Keyname: "总件数",
+					Value:   fmt.Sprint(req.ProductAccessorieAllocate.ProductTotal),
 				},
 				{
 					Type:    0,
 					Keyname: "来源门店",
-					Value:   req.ProductAllocate.FromStore.Name,
+					Value:   req.ProductAccessorieAllocate.FromStore.Name,
 				},
 				{
 					Type:    0,
 					Keyname: "目标门店",
-					Value:   req.ProductAllocate.ToStore.Name,
+					Value:   req.ProductAccessorieAllocate.ToStore.Name,
 				},
 				{
 					Type:    3,
 					Keyname: "操作人",
-					Value:   req.ProductAllocate.Operator.Nickname,
-					UserID:  req.ProductAllocate.Operator.Username,
+					Value:   req.ProductAccessorieAllocate.Operator.Nickname,
+					UserID:  req.ProductAccessorieAllocate.Operator.Username,
 				},
 			},
 			CardAction: &request.TemplateCardAction{
@@ -249,13 +234,13 @@ func (M *BaseMessage) SendProductAllocateCompleteMessage(req *ProductAllocateMes
 	}
 }
 
-func (P *ProductAllocateMessage) getToStoreUser() ([]string, error) {
+func (P *ProductAccessorieAllocateMessage) getToStoreUser() ([]string, error) {
 	var (
 		to_store model.Store
 		db       = model.DB.Model(&model.Store{})
 	)
 	db = to_store.Preloads(db)
-	if err := db.First(&to_store, "id = ?", P.ProductAllocate.ToStoreId).Error; err != nil {
+	if err := db.First(&to_store, "id = ?", P.ProductAccessorieAllocate.ToStoreId).Error; err != nil {
 		return nil, err
 	}
 
@@ -267,13 +252,13 @@ func (P *ProductAllocateMessage) getToStoreUser() ([]string, error) {
 	return to_user, nil
 }
 
-func (P *ProductAllocateMessage) getFromStoreUser() ([]string, error) {
+func (P *ProductAccessorieAllocateMessage) getFromStoreUser() ([]string, error) {
 	var (
 		from_store model.Store
 		db         = model.DB.Model(&model.Store{})
 	)
 	db = from_store.Preloads(db)
-	if err := db.First(&from_store, "id = ?", P.ProductAllocate.FromStoreId).Error; err != nil {
+	if err := db.First(&from_store, "id = ?", P.ProductAccessorieAllocate.FromStoreId).Error; err != nil {
 		return nil, err
 	}
 

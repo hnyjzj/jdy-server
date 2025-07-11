@@ -354,14 +354,63 @@ func (l *ProductFinishedEnterLogic) Cancel(req *types.ProductFinishedEnterCancel
 		return errors.New("入库单不存在")
 	}
 
-	if enter.Status != enums.ProductEnterStatusDraft {
-		return errors.New("入库单已结束")
-	}
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		switch enter.Status {
+		case enums.ProductEnterStatusDraft:
+			// 草稿直接取消
+			if err := tx.Model(&enter).Updates(model.ProductFinishedEnter{
+				Status: enums.ProductEnterStatusCanceled,
+			}).Error; err != nil {
+				return errors.New("入库单取消失败")
+			}
 
-	// 更新入库单状态
-	enter.Status = enums.ProductEnterStatusCanceled
-	if err := model.DB.Save(&enter).Error; err != nil {
-		return errors.New("入库单更新失败")
+		case enums.ProductEnterStatusCompleted:
+			// 已完成的入库单，需要将成品状态还原
+			for _, product := range enter.Products {
+				// 判断产品状态
+				if product.Status != enums.ProductStatusNormal {
+					return errors.New("成品状态不正确")
+				}
+
+				// 添加记录
+				history := model.ProductHistory{
+					Type:       enums.ProductTypeFinished,
+					OldValue:   product,
+					NewValue:   nil,
+					Action:     enums.ProductActionEntryCancel,
+					ProductId:  product.Id,
+					StoreId:    enter.StoreId,
+					SourceId:   enter.Id,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
+				}
+				if err := tx.Create(&history).Error; err != nil {
+					return errors.New("成品记录添加失败")
+				}
+
+				// 还原产品状态
+				if err := tx.Model(&product).Updates(model.ProductFinished{
+					Status: enums.ProductStatusDraft,
+				}).Error; err != nil {
+					return errors.New("成品状态还原失败")
+				}
+			}
+
+			// 更新入库单状态
+			if err := tx.Model(&enter).Updates(model.ProductFinishedEnter{
+				Status: enums.ProductEnterStatusCanceled,
+			}).Error; err != nil {
+				return errors.New("入库单取消失败")
+			}
+
+		default:
+			return errors.New("入库单状态不支持取消")
+		}
+
+		return nil
+
+	}); err != nil {
+		return errors.New(err.Error())
 	}
 
 	return nil

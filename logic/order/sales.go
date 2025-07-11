@@ -5,8 +5,10 @@ import (
 	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic/product"
+	"jdy/message"
 	"jdy/model"
 	"jdy/types"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -126,6 +128,17 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 		return errors.New("撤销订单失败")
 	}
 
+	// 发送通知
+	go func() {
+		msg := message.NewMessage(l.Ctx)
+		order.Operator = *l.Staff
+		if err := msg.SendOrderSalesCancelMessage(&message.OrderSalesMessage{
+			OrderSales: &order,
+		}); err != nil {
+			log.Printf("发送订单撤销通知失败: %v", err)
+		}
+	}()
+
 	return nil
 }
 
@@ -190,6 +203,17 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 	}); err != nil {
 		return errors.New("支付订单失败")
 	}
+
+	// 发送通知
+	go func() {
+		msg := message.NewMessage(l.Ctx)
+		order.Operator = *l.Staff
+		if err := msg.SendOrderSalesPayMessage(&message.OrderSalesMessage{
+			OrderSales: &order,
+		}); err != nil {
+			log.Printf("发送订单支付通知失败: %v", err)
+		}
+	}()
 
 	return nil
 }
@@ -401,6 +425,17 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 	}); err != nil {
 		return errors.New(err.Error())
 	}
+
+	// 发送通知
+	go func() {
+		msg := message.NewMessage(l.Ctx)
+		order.Operator = *l.Staff
+		if err := msg.SendOrderSalesRefundMessage(&message.OrderSalesMessage{
+			OrderSales: &order,
+		}); err != nil {
+			log.Printf("发送通知失败: %s", err.Error())
+		}
+	}()
 
 	return nil
 }

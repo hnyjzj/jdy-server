@@ -126,7 +126,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 				// 配件已存在，更新配件
 				if err := tx.Model(model.ProductAccessorie{}).Where("id = ?", product.Id).Updates(model.ProductAccessorie{
 					Stock:     product.Stock + p.Stock,
-					AccessFee: *p.AccessFee,
+					AccessFee: p.AccessFee,
 				}).Error; err != nil {
 					products[p.Code] = "配件更新失败"
 					continue
@@ -136,7 +136,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 					StoreId:   enter.StoreId,
 					Code:      p.Code,
 					Stock:     p.Stock,
-					AccessFee: *p.AccessFee,
+					AccessFee: p.AccessFee,
 					Status:    enums.ProductStatusDraft,
 					EnterId:   enter.Id,
 				}

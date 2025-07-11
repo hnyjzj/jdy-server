@@ -55,7 +55,7 @@ type ProductAccessorieEnterCancelReq struct {
 }
 
 type ProductAccessorieEnterReqProduct struct {
-	Code      string           `json:"code" label:"编号" input:"text" type:"string" find:"true" sort:"2" required:"true"` // 条码
-	AccessFee *decimal.Decimal `json:"access_fee" label:"入网费" input:"number" type:"number" find:"false" create:"true" sort:"3" required:"true"`
-	Stock     int64            `json:"stock" label:"库存" input:"number" type:"number" find:"false" create:"true" sort:"3" required:"true"` // 库存
+	Code      string          `json:"code" label:"编号" input:"text" type:"string" find:"true" sort:"2" required:"true"` // 条码
+	AccessFee decimal.Decimal `json:"access_fee" label:"入网费" input:"number" type:"number" find:"false" create:"true" sort:"3"`
+	Stock     int64           `json:"stock" label:"库存" input:"number" type:"number" find:"false" create:"true" sort:"3" required:"true"` // 库存
 }

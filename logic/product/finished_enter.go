@@ -374,13 +374,15 @@ func (l *ProductFinishedEnterLogic) Cancel(req *types.ProductFinishedEnterCancel
 
 				// 添加记录
 				history := model.ProductHistory{
-					Type:      enums.ProductTypeFinished,
-					OldValue:  product,
-					NewValue:  nil,
-					Action:    enums.ProductActionEntryCancel,
-					ProductId: product.Id,
-					StoreId:   enter.StoreId,
-					SourceId:  enter.Id,
+					Type:       enums.ProductTypeFinished,
+					OldValue:   product,
+					NewValue:   nil,
+					Action:     enums.ProductActionEntryCancel,
+					ProductId:  product.Id,
+					StoreId:    enter.StoreId,
+					SourceId:   enter.Id,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
 				}
 				if err := tx.Create(&history).Error; err != nil {
 					return errors.New("成品记录添加失败")

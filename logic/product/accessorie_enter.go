@@ -346,13 +346,15 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 
 				// 添加记录
 				history := model.ProductHistory{
-					Type:      enums.ProductTypeAccessorie,
-					OldValue:  product,
-					NewValue:  nil,
-					Action:    enums.ProductActionEntryCancel,
-					ProductId: product.Id,
-					StoreId:   enter.StoreId,
-					SourceId:  enter.Id,
+					Type:       enums.ProductTypeAccessorie,
+					OldValue:   product,
+					NewValue:   nil,
+					Action:     enums.ProductActionEntryCancel,
+					ProductId:  product.Id,
+					StoreId:    enter.StoreId,
+					SourceId:   enter.Id,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
 				}
 				if err := tx.Create(&history).Error; err != nil {
 					return errors.New("配件记录添加失败")

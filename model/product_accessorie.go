@@ -157,8 +157,8 @@ type ProductAccessorieEnter struct {
 	Status enums.ProductEnterStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:状态;"` // 状态
 
 	Products     []ProductAccessorie `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:产品;"` // 产品
-	ProductCount int64               `json:"product_count" gorm:"type:int(1);not NULL;comment:入库种类;"`      // 入库种类
-	ProductTotal int64               `json:"product_total" gorm:"type:int(1);not NULL;comment:入库总件数;"`     // 入库总件数
+	ProductCount int64               `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类;"`     // 入库种类
+	ProductTotal int64               `json:"product_total" gorm:"type:int(11);not NULL;comment:入库总件数;"`    // 入库总件数
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
@@ -198,8 +198,8 @@ type ProductAccessorieAllocate struct {
 	ToStore     *Store `json:"to_store" gorm:"foreignKey:ToStoreId;references:Id;comment:调入门店;"`
 
 	Products     []ProductAccessorieAllocateProduct `json:"products" gorm:"foreignKey:AllocateId;references:Id;comment:产品;"`
-	ProductCount int64                              `json:"product_count" gorm:"type:int(1);not NULL;comment:入库种类数;"` // 入库种类数
-	ProductTotal int64                              `json:"product_total" gorm:"type:int(1);not NULL;comment:入库总件数;"` // 入库总件数
+	ProductCount int64                              `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类数;"` // 入库种类数
+	ProductTotal int64                              `json:"product_total" gorm:"type:int(11);not NULL;comment:入库总件数;"` // 入库总件数
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人

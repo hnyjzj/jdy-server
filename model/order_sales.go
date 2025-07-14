@@ -47,7 +47,7 @@ type OrderSales struct {
 	PriceDiscount decimal.Decimal `json:"price_discount" gorm:"type:decimal(10,2);not NULL;comment:优惠金额;"` // 优惠金额
 	Integral      decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"`         // 积分
 
-	Remark   string         `json:"remark" gorm:"type:varchar(255);not NULL;comment:订单备注;"`         // 订单备注
+	Remarks  []string       `json:"remarks" gorm:"type:text;serializer:json;comment:订单备注;"`         // 订单备注
 	Payments []OrderPayment `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"` // 支付信息
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID

@@ -30,8 +30,8 @@ type OrderDeposit struct {
 	Price    decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`     // 应付金额
 	PricePay decimal.Decimal `json:"price_pay" gorm:"type:decimal(10,2);not NULL;comment:实付金额;"` // 实付金额
 
-	Remark   string         `json:"remark" gorm:"type:varchar(255);not NULL;comment:订单备注;"`         // 订单备注
-	Payments []OrderPayment `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"` // 支付信息
+	Remarks  []string       `json:"remarks" gorm:"type:text;not NULL;serializer:json;comment:订单备注;"` // 订单备注
+	Payments []OrderPayment `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"`  // 支付信息
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员

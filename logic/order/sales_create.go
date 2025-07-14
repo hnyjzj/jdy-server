@@ -32,7 +32,7 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 		Order: &model.OrderSales{
 			Status:     enums.OrderSalesStatusWaitPay,
 			Source:     req.Source,
-			Remark:     req.Remark,
+			Remarks:    req.Remarks,
 			MemberId:   req.MemberId,
 			StoreId:    req.StoreId,
 			CashierId:  req.CashierId,

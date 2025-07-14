@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 订单
+// 其他单
 type OrderOther struct {
 	SoftDelete
 

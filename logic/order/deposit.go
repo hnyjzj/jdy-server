@@ -23,7 +23,7 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 		MemberId:   req.MemberId,
 		CashierId:  req.CashierId,
 		ClerkId:    req.ClerkId,
-		Remark:     req.Remark,
+		Remarks:    req.Remarks,
 		OperatorId: l.Staff.Id,
 		IP:         l.Ctx.ClientIP(),
 	}

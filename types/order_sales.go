@@ -46,7 +46,7 @@ type OrderSalesCreateReq struct {
 
 	Payments []OrderPaymentMethods `json:"payments" binding:"required"` // 支付方式
 
-	Remark string `json:"remark"` // 备注
+	Remarks []string `json:"remarks"` // 备注
 }
 
 type OrderCreateReqClerks struct {

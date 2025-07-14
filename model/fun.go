@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// 分页条件
 func PageCondition(db *gorm.DB, page, limit int) *gorm.DB {
 	if page == 0 {
 		page = 1

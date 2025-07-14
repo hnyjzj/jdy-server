@@ -559,6 +559,19 @@ func Api(g *gin.Engine) {
 					print_settings.PUT("/copy", setting.PrintController{}.Copy)        // 打印设置复制
 				}
 			}
+
+			// 常用备注
+			remarks := settings.Group("/remark")
+			{
+				remarks.GET("/where", setting.RemarkController{}.Where) // 常用备注筛选
+				remarks.Use(middlewares.JWTMiddleware())
+				{
+					remarks.POST("/create", setting.RemarkController{}.Create)   // 创建备注
+					remarks.POST("/list", setting.RemarkController{}.List)       // 备注列表
+					remarks.PUT("/update", setting.RemarkController{}.Update)    // 备注更新
+					remarks.DELETE("/delete", setting.RemarkController{}.Delete) // 备注删除
+				}
+			}
 		}
 	}
 }

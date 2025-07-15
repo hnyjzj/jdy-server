@@ -68,7 +68,7 @@ func (r *RoleLogic) Copy(req *types.RoleCopyReq) (*model.Role, error) {
 	data := model.Role{
 		Name:       req.Name,
 		Desc:       req.Desc,
-		Identity:   req.Identity,
+		Identity:   role.Identity,
 		IsDefault:  req.IsDefault,
 		OperatorId: r.Staff.Id,
 		IP:         r.IP,

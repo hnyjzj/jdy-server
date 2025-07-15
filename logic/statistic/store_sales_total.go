@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"jdy/enums"
+	"jdy/logic/store"
 	"jdy/model"
 	"jdy/types"
 
@@ -29,22 +30,30 @@ type StoreSalesTotalLogic struct {
 	Req *types.StatisticStoreSalesTotalReq
 }
 
-func (*StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq) (*[]StoreSalesTotalRes, error) {
+func (l *StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq) (*[]StoreSalesTotalRes, error) {
 	var (
-		stores []model.Store
-		logic  = &StoreSalesTotalLogic{
+		logic = &StoreSalesTotalLogic{
 			Db:  model.DB,
 			Req: req,
 		}
 		res []StoreSalesTotalRes
 	)
 
-	sdb := logic.Db.Model(&model.Store{})
-	if err := sdb.Find(&stores).Error; err != nil {
+	store_logic := store.StoreLogic{
+		Staff: l.Staff,
+	}
+	stores, err := store_logic.My(&types.StoreListMyReq{})
+	if err != nil {
 		return nil, err
 	}
 
-	for _, store := range stores {
+	for _, store := range *stores {
+
+		def := store.Default(l.Staff.Identity)
+		if store.Id == def.Id && store.Name == def.Name {
+			continue
+		}
+
 		StoreSalesTotalRes := StoreSalesTotalRes{
 			Store: store,
 			Name:  store.Name,

@@ -536,6 +536,7 @@ func Api(g *gin.Engine) {
 				{
 					roles.GET("/identity", setting.RoleController{}.GetIdentity) // 获取当前用户角色权限
 					roles.POST("/create", setting.RoleController{}.Create)       // 创建角色
+					roles.POST("/copy", setting.RoleController{}.Copy)           // 角色权限复制
 					roles.POST("/list", setting.RoleController{}.List)           // 角色权限列表
 					roles.POST("/info", setting.RoleController{}.Info)           // 角色权限详情
 					roles.PUT("/edit", setting.RoleController{}.Edit)            // 角色权限编辑

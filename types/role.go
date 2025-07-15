@@ -21,6 +21,15 @@ type RoleCreateReq struct {
 	IsDefault bool           `json:"is_default"`                  // 是否是默认角色
 }
 
+type RoleCopyReq struct {
+	Id string `json:"id" binding:"required"` // 角色ID
+
+	Name      string         `json:"name" binding:"required"`     // 角色名称
+	Desc      string         `json:"desc"`                        // 角色描述
+	Identity  enums.Identity `json:"identity" binding:"required"` // 角色身份
+	IsDefault bool           `json:"is_default"`                  // 是否是默认角色
+}
+
 type RoleInfoReq struct {
 	Id string `json:"id" binding:"required"`
 }

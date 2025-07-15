@@ -52,6 +52,38 @@ func (r *RoleLogic) Create(req *types.RoleCreateReq) (*model.Role, error) {
 	return &role, nil
 }
 
+func (r *RoleLogic) Copy(req *types.RoleCopyReq) (*model.Role, error) {
+	var (
+		role model.Role
+		db   = model.DB
+	)
+
+	rdb := db.Model(&model.Role{})
+	rdb = role.Preloads(rdb)
+	if err := rdb.First(&role, "id = ?", req.Id).Error; err != nil {
+		log.Printf("查询角色失败: %v", err)
+		return nil, errors.New("查询角色失败")
+	}
+
+	data := model.Role{
+		Name:       req.Name,
+		Desc:       req.Desc,
+		Identity:   req.Identity,
+		IsDefault:  req.IsDefault,
+		OperatorId: r.Staff.Id,
+		IP:         r.IP,
+
+		Apis:    role.Apis,
+		Routers: role.Routers,
+	}
+
+	if err := db.Create(&data).Error; err != nil {
+		return nil, errors.New("复制角色失败")
+	}
+
+	return &role, nil
+}
+
 func (r *RoleLogic) List(req *types.RoleListReq) ([]model.Role, error) {
 	var (
 		roles []model.Role
@@ -74,7 +106,7 @@ func (r *RoleLogic) Info(req *types.RoleInfoReq) (*model.Role, error) {
 	)
 	db := model.DB.Model(&model.Role{})
 
-	db = role.Preloads(db, nil)
+	db = role.Preloads(db)
 
 	if err := db.First(&role, "id = ?", req.Id).Error; err != nil {
 		log.Printf("查询角色失败: %v", err)

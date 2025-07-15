@@ -7,10 +7,10 @@ import (
 )
 
 type ProductAccessorieAllocateCreateReq struct {
-	Method      enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨类型
-	FromStoreId string                      `json:"from_store_id"`             // 调出门店
-	ToStoreId   string                      `json:"to_store_id"`               // 调入门店
-	Remark      string                      `json:"remark"`                    // 备注
+	Method      enums.ProductAllocateMethod `json:"method" binding:"required"`        // 调拨类型
+	FromStoreId string                      `json:"from_store_id" binding:"required"` // 调出门店
+	ToStoreId   string                      `json:"to_store_id"`                      // 调入门店
+	Remark      string                      `json:"remark"`                           // 备注
 }
 
 func (req *ProductAccessorieAllocateCreateReq) Validate() error {

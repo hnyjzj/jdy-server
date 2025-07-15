@@ -16,7 +16,7 @@ type PrintController struct {
 
 func (con PrintController) Create(ctx *gin.Context) {
 	var (
-		req   types.PrintReq
+		req   types.PrintCreateReq
 		logic = &setting.PrintLogic{}
 	)
 

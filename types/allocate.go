@@ -7,12 +7,12 @@ import (
 )
 
 type ProductAllocateCreateReq struct {
-	Method      enums.ProductAllocateMethod `json:"method" binding:"required"` // 调拨类型
-	Type        enums.ProductType           `json:"type" binding:"required"`   // 仓库类型
-	Reason      enums.ProductAllocateReason `json:"reason" binding:"required"` // 调拨原因
-	Remark      string                      `json:"remark"`                    // 备注
-	FromStoreId string                      `json:"from_store_id"`             // 调出门店
-	ToStoreId   string                      `json:"to_store_id"`               // 调入门店
+	Method      enums.ProductAllocateMethod `json:"method" binding:"required"`        // 调拨类型
+	Type        enums.ProductType           `json:"type" binding:"required"`          // 仓库类型
+	Reason      enums.ProductAllocateReason `json:"reason" binding:"required"`        // 调拨原因
+	Remark      string                      `json:"remark"`                           // 备注
+	FromStoreId string                      `json:"from_store_id" binding:"required"` // 调出门店
+	ToStoreId   string                      `json:"to_store_id"`                      // 调入门店
 
 	EnterId string `json:"enter_id"` // 入库单号
 }

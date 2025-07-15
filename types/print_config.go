@@ -78,18 +78,19 @@ type PrintPosition struct {
 	Right  int `json:"right"`  // 右侧
 }
 
-type PrintReq struct {
+type PrintWhere struct {
+	Id      string          `json:"id"`
+	StoreId string          `json:"store_id"`
+	Name    string          `json:"name"`
+	Type    enums.PrintType `json:"type"`
+	Config  PrintConfig     `json:"config"`
+}
+
+type PrintCreateReq struct {
 	StoreId string          `json:"store_id" binding:"required"`
 	Name    string          `json:"name" binding:"required"`
 	Type    enums.PrintType `json:"type" binding:"required"`
 	Config  PrintConfig     `json:"config" binding:"required"`
-}
-
-type PrintWhere struct {
-	Id      string          `json:"id"`
-	StoreId string          `json:"store_id" binding:"required"`
-	Name    string          `json:"name"`
-	Type    enums.PrintType `json:"type"`
 }
 
 type PrintListReq struct {
@@ -106,7 +107,7 @@ type PrintInfoReq struct {
 type PrintUpdateReq struct {
 	Id string `json:"id" binding:"required"`
 
-	PrintReq
+	PrintWhere
 }
 
 type PrintDeleteReq struct {

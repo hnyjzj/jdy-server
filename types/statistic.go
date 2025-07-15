@@ -7,9 +7,9 @@ type StatisticStoreSalesTotalReq struct {
 }
 
 type StatisticTodaySalesReq struct {
-	StoreId string `json:"store_id" binding:"required"`
+	StoreId string `json:"store_id"`
 }
 
 type StatisticTodayProductReq struct {
-	StoreId string `json:"store_id" binding:"required"`
+	StoreId string `json:"store_id"`
 }

@@ -69,7 +69,7 @@ func (r *RoleLogic) Copy(req *types.RoleCopyReq) (*model.Role, error) {
 		Name:       req.Name,
 		Desc:       req.Desc,
 		Identity:   role.Identity,
-		IsDefault:  req.IsDefault,
+		IsDefault:  false,
 		OperatorId: r.Staff.Id,
 		IP:         r.IP,
 
@@ -81,7 +81,7 @@ func (r *RoleLogic) Copy(req *types.RoleCopyReq) (*model.Role, error) {
 		return nil, errors.New("复制角色失败")
 	}
 
-	return &role, nil
+	return &data, nil
 }
 
 func (r *RoleLogic) List(req *types.RoleListReq) ([]model.Role, error) {

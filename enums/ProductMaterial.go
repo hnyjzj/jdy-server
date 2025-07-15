@@ -3,7 +3,7 @@ package enums
 import "errors"
 
 /* 产品材质 */
-// 黄金、银饰、铂金、钯金、裸石类
+// 黄金、银饰、铂金、钯金、裸石类、钻石、金750
 type ProductMaterial int
 
 const (
@@ -12,6 +12,8 @@ const (
 	ProductMaterialPlatinum                             // 铂金
 	ProductMaterialPalladium                            // 钯金
 	ProductMaterialGem                                  // 裸石类
+	ProductMaterialDiamond                              // 钻石
+	ProductMaterialGold750                              // 金750
 )
 
 var ProductMaterialMap = map[ProductMaterial]string{
@@ -20,6 +22,8 @@ var ProductMaterialMap = map[ProductMaterial]string{
 	ProductMaterialPlatinum:  "铂金",
 	ProductMaterialPalladium: "钯金",
 	ProductMaterialGem:       "裸石类",
+	ProductMaterialDiamond:   "钻石",
+	ProductMaterialGold750:   "金750",
 }
 
 func (p ProductMaterial) ToMap() any {

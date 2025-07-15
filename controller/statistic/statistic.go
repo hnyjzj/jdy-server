@@ -27,7 +27,7 @@ func (con StatisticController) StoreSalesTotal(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
+		con.Exception(ctx, "无法获取")
 		return
 	} else {
 		logic.Staff = staff
@@ -57,7 +57,7 @@ func (con StatisticController) TodaySales(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
+		con.Exception(ctx, "无法获取")
 		return
 	} else {
 		logic.Staff = staff
@@ -87,7 +87,7 @@ func (con StatisticController) TodayProduct(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
+		con.Exception(ctx, "无法获取")
 		return
 	} else {
 		logic.Staff = staff

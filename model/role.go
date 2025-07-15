@@ -36,7 +36,7 @@ func (Role) Default(Identity enums.Identity) (*Role, error) {
 		IsDefault: true,
 	})
 
-	db = role.Preloads(db, nil)
+	db = role.Preloads(db)
 
 	if err := db.First(&role).Error; err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (Role) WhereCondition(db *gorm.DB, query *types.RoleWhere) *gorm.DB {
 	return db
 }
 
-func (Role) Preloads(db *gorm.DB, query *types.RoleWhere) *gorm.DB {
+func (Role) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Apis")
 	db = db.Preload("Routers")
 

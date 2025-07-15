@@ -97,6 +97,37 @@ func (con RoleController) Create(ctx *gin.Context) {
 	con.Success(ctx, "ok", data)
 }
 
+func (con RoleController) Copy(ctx *gin.Context) {
+	var (
+		req   types.RoleCopyReq
+		logic = &setting.RoleLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 设置上下文
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+		logic.Ctx = ctx
+		logic.IP = ctx.ClientIP()
+	}
+
+	data, err := logic.Copy(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", data)
+}
+
 func (con RoleController) Info(ctx *gin.Context) {
 	var (
 		req   types.RoleInfoReq

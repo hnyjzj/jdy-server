@@ -25,6 +25,14 @@ func (con StatisticController) StoreSalesTotal(ctx *gin.Context) {
 		return
 	}
 
+	// 获取当前登录用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
 	res, err := logic.StoreSalesTotal(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
@@ -75,6 +83,14 @@ func (con StatisticController) TodayProduct(ctx *gin.Context) {
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, "参数错误")
 		return
+	}
+
+	// 获取当前登录用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
 	}
 
 	res, err := logic.TodayProduct(&req)

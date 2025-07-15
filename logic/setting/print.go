@@ -13,7 +13,7 @@ type PrintLogic struct {
 	logic.BaseLogic
 }
 
-func (PrintLogic) Create(req *types.PrintReq) error {
+func (PrintLogic) Create(req *types.PrintCreateReq) error {
 	print := model.Print{
 		StoreId: req.StoreId,
 		Name:    req.Name,

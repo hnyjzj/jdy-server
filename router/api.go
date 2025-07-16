@@ -130,9 +130,10 @@ func Api(g *gin.Engine) {
 			{
 				staffs.Use(middlewares.JWTMiddleware())
 				{
-					staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
-					staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
-					staffs.DELETE("/del", store.StoreStaffController{}.Del) // 删除门店员工
+					staffs.POST("/list", store.StoreStaffController{}.List)  // 门店员工列表
+					staffs.POST("/add", store.StoreStaffController{}.Add)    // 添加门店员工
+					staffs.DELETE("/del", store.StoreStaffController{}.Del)  // 删除门店员工
+					staffs.POST("/is_in", store.StoreStaffController{}.IsIn) // 是否在门店
 				}
 			}
 
@@ -140,9 +141,10 @@ func Api(g *gin.Engine) {
 			{
 				superiors.Use(middlewares.JWTMiddleware())
 				{
-					superiors.POST("/list", store.StoreSuperiorController{}.List) // 门店负责人列表
-					superiors.POST("/add", store.StoreSuperiorController{}.Add)   // 添加门店负责人
-					superiors.DELETE("/del", store.StoreSuperiorController{}.Del) // 删除门店负责人
+					superiors.POST("/list", store.StoreSuperiorController{}.List)  // 门店负责人列表
+					superiors.POST("/add", store.StoreSuperiorController{}.Add)    // 添加门店负责人
+					superiors.DELETE("/del", store.StoreSuperiorController{}.Del)  // 删除门店负责人
+					superiors.POST("/is_in", store.StoreSuperiorController{}.IsIn) // 是否是负责人
 				}
 			}
 		}

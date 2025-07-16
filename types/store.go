@@ -50,29 +50,39 @@ type Field struct {
 }
 
 type StoreStaffListReq struct {
-	StoreId string `json:"id" binding:"required"` // 门店id
+	StoreId string `json:"id" binding:"required"` // 门店ID
 }
 
 type StoreStaffAddReq struct {
-	StoreId string   `json:"id" binding:"required"`       // 门店id
-	StaffId []string `json:"staff_id" binding:"required"` // 用户id
+	StoreId string   `json:"id" binding:"required"`       // 门店ID
+	StaffId []string `json:"staff_id" binding:"required"` // 员工ID
 }
 
 type StoreStaffDelReq struct {
-	StoreId string   `json:"id" binding:"required"`       // 门店id
-	StaffId []string `json:"staff_id" binding:"required"` // 用户id
+	StoreId string   `json:"id" binding:"required"`       // 门店ID
+	StaffId []string `json:"staff_id" binding:"required"` // 员工ID
+}
+
+type StoreStaffIsInReq struct {
+	StoreId string `json:"id" binding:"required"` // 门店ID
+	StaffId string `json:"staff_id"`              // 员工ID
 }
 
 type StoreSuperiorListReq struct {
-	StoreId string `json:"id" binding:"required"` // 门店id
+	StoreId string `json:"id" binding:"required"` // 门店ID
 }
 
 type StoreSuperiorAddReq struct {
-	StoreId    string   `json:"id" binding:"required"`          // 门店id
-	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人id
+	StoreId    string   `json:"id" binding:"required"`          // 门店ID
+	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人ID
 }
 
 type StoreSuperiorDelReq struct {
-	StoreId    string   `json:"id" binding:"required"`          // 门店id
-	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人id
+	StoreId    string   `json:"id" binding:"required"`          // 门店ID
+	SuperiorId []string `json:"superior_id" binding:"required"` // 负责人ID
+}
+
+type StoreSuperiorIsInReq struct {
+	StoreId string `json:"id" binding:"required"` // 门店ID
+	StaffId string `json:"staff_id"`              // 员工ID
 }

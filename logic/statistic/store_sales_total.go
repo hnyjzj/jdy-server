@@ -1,7 +1,6 @@
 package statistic
 
 import (
-	"database/sql"
 	"errors"
 	"jdy/enums"
 	"jdy/logic/store"
@@ -59,26 +58,18 @@ func (l *StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq)
 			Name:  store.Name,
 		}
 
-		if err := logic.getTotal(&StoreSalesTotalRes); err != nil {
+		products, err := logic.getProducts(&StoreSalesTotalRes)
+		if err != nil {
 			return nil, err
 		}
-		if err := logic.getSilver(&StoreSalesTotalRes); err != nil {
-			return nil, err
-		}
-		if err := logic.getGold(&StoreSalesTotalRes); err != nil {
-			return nil, err
-		}
-		// if err := logic.getGoldDeduction(&StoreSalesTotalRes); err != nil {
-		// 	return nil, err
-		// }
-		if err := logic.getGoldWeight(&StoreSalesTotalRes); err != nil {
-			return nil, err
-		}
-		// if err := logic.getGoldWeightDeduction(&StoreSalesTotalRes); err != nil {
-		// 	return nil, err
-		// }
-		if err := logic.getPieceAccessories(&StoreSalesTotalRes); err != nil {
-			return nil, err
+
+		for _, product := range products {
+			if err := logic.getTotal(&product, &StoreSalesTotalRes); err != nil {
+				return nil, err
+			}
+			if err := logic.getSilver(&product, &StoreSalesTotalRes); err != nil {
+				return nil, err
+			}
 		}
 
 		res = append(res, StoreSalesTotalRes)
@@ -87,145 +78,52 @@ func (l *StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq)
 	return &res, nil
 }
 
-func (l *StoreSalesTotalLogic) getTotal(res *StoreSalesTotalRes) error {
+// 获取订单产品列表
+func (l *StoreSalesTotalLogic) getProducts(res *StoreSalesTotalRes) ([]model.OrderSalesProduct, error) {
 	var (
-		// db    = model.DB
-		total = decimal.NewFromFloat(0)
+		products []model.OrderSalesProduct
 	)
 
-	var finished sql.NullFloat64
-	// if err := db.Model(&model.OrderSalesProductFinished{}).
-	// 	Scopes(model.DurationCondition(l.Req.Duration)).
-	// 	Where(&model.OrderSalesProduct{
-	// 		StoreId: res.Store.Id,
-	// 		Status:  enums.OrderSalesStatusComplete,
-	// 	}).Select("sum(price) as total").Scan(&finished).Error; err != nil {
-	// 	return errors.New("获取总业绩失败")
-	// }
-	if finished.Valid {
-		total = total.Add(decimal.NewFromFloat(finished.Float64))
+	db := model.DB.Model(&model.OrderSalesProduct{})
+	db = db.Where(&model.OrderSalesProduct{
+		Status: enums.OrderSalesStatusComplete,
+	})
+	db = db.Scopes(model.DurationCondition(l.Req.Duration))
+	db = db.Where("store_id = ?", res.Store.Id)
+	db = model.OrderSalesProduct{}.Preloads(db)
+
+	if err := db.Find(&products).Error; err != nil {
+		return nil, errors.New("获取总业绩失败")
 	}
 
-	var old sql.NullFloat64
-	// if err := db.Model(&model.OrderSalesProductOld{}).
-	// 	Scopes(model.DurationCondition(l.Req.Duration)).
-	// 	Where(&model.OrderSalesProductOld{
-	// 		StoreId: res.Store.Id,
-	// 		Status:  enums.OrderSalesStatusComplete,
-	// 	}).Select("sum(price) as total").Scan(&old).Error; err != nil {
-	// 	return errors.New("获取总业绩失败")
-	// }
-	if old.Valid {
-		total = total.Add(decimal.NewFromFloat(old.Float64))
-	}
-
-	var accessories sql.NullFloat64
-	// if err := db.Model(&model.OrderSalesProductAccessorie{}).
-	// 	Scopes(model.DurationCondition(l.Req.Duration)).
-	// 	Where(&model.OrderSalesProductAccessorie{
-	// 		StoreId: res.Store.Id,
-	// 		Status:  enums.OrderSalesStatusComplete,
-	// 	}).Select("sum(price) as total").Scan(&accessories).Error; err != nil {
-	// 	return errors.New("获取总业绩失败")
-	// }
-	if accessories.Valid {
-		total = total.Add(decimal.NewFromFloat(accessories.Float64))
-	}
-
-	res.Total = total
-
-	return nil
+	return products, nil
 }
 
-func (l *StoreSalesTotalLogic) getWhereDb() *gorm.DB {
-	db := model.DB.Model(&model.OrderSalesProductAccessorie{})
-	db = db.
-		Joins("JOIN product_finisheds as products ON order_products.product_id = products.id").
-		Where("order_products.status = ?", enums.OrderSalesStatusComplete).
-		Scopes(model.DurationCondition(l.Req.Duration, "order_products.created_at"))
-
-	return db
-}
-
-func (l *StoreSalesTotalLogic) getSilver(res *StoreSalesTotalRes) error {
-	var (
-		silver sql.NullFloat64
-	)
-
-	// if err := l.getWhereDb().
-	// 	Where("products.class = ?", enums.ProductClassFinishedSilver).
-	// 	Select("SUM(order_products.amount)").
-	// 	Scan(&silver).Error; err != nil {
-	// 	return errors.New("获取银饰数量失败")
-	// }
-
-	if silver.Valid {
-		res.Silver = decimal.NewFromFloat(silver.Float64)
-	} else {
-		res.Silver = decimal.NewFromFloat(0)
+// 获取总业绩
+func (l *StoreSalesTotalLogic) getTotal(product *model.OrderSalesProduct, res *StoreSalesTotalRes) error {
+	switch product.Type {
+	case enums.ProductTypeFinished:
+		res.Total = res.Total.Add(product.Finished.Price.Round(2))
+	case enums.ProductTypeOld:
+		res.Total = res.Total.Add(product.Old.RecyclePrice.Round(2))
+	case enums.ProductTypeAccessorie:
+		res.Total = res.Total.Add(product.Accessorie.Price.Round(2))
 	}
 
 	return nil
 }
 
-func (l *StoreSalesTotalLogic) getGold(res *StoreSalesTotalRes) error {
-	var (
-		gold sql.NullFloat64
-	)
-
-	if err := l.getWhereDb().
-		Where("products.class = ?", enums.ProductClassFinishedGoldPiece).
-		Select("SUM(order_products.amount)").
-		Scan(&gold).Error; err != nil {
-		return errors.New("获取足金数量失败")
-	}
-
-	if gold.Valid {
-		res.Gold = decimal.NewFromFloat(gold.Float64)
-	} else {
-		res.Gold = decimal.NewFromFloat(0)
-	}
-
-	return nil
-}
-func (l *StoreSalesTotalLogic) getGoldWeight(res *StoreSalesTotalRes) error {
-	var (
-		goldWeight sql.NullFloat64
-	)
-
-	if err := l.getWhereDb().
-		Where("products.class = ?", enums.ProductClassFinishedGoldKg).
-		Select("SUM(order_products.amount)").
-		Scan(&goldWeight).Error; err != nil {
-		return errors.New("获取金重数量失败")
-	}
-
-	if goldWeight.Valid {
-		res.GoldWeight = decimal.NewFromFloat(goldWeight.Float64)
-	} else {
-		res.GoldWeight = decimal.NewFromFloat(0)
-	}
-
-	return nil
-}
-
-func (l *StoreSalesTotalLogic) getPieceAccessories(res *StoreSalesTotalRes) error {
-	var (
-		pieceAccessories sql.NullFloat64
-	)
-
-	if err := l.getWhereDb().
-		// Where("products.type = ?", enums.ProductTypeAccessorie).
-		// Where("products.class =?", enums.ProductClassPieceAccessories).
-		Select("SUM(order_products.amount)").
-		Scan(&pieceAccessories).Error; err != nil {
-		return errors.New("获取配件数量失败")
-	}
-
-	if pieceAccessories.Valid {
-		res.PieceAccessories = decimal.NewFromFloat(pieceAccessories.Float64)
-	} else {
-		res.PieceAccessories = decimal.NewFromFloat(0)
+// 获取银饰数量
+func (l *StoreSalesTotalLogic) getSilver(product *model.OrderSalesProduct, res *StoreSalesTotalRes) error {
+	switch product.Type {
+	case enums.ProductTypeFinished:
+		if product.Finished.Product.Class == enums.ProductClassFinishedSilver {
+			res.Silver = res.Silver.Add(product.Finished.Price.Round(2))
+		}
+	case enums.ProductTypeOld:
+		if product.Old.Product.Class == enums.ProductClassOldSilver {
+			res.Silver = res.Silver.Add(product.Old.RecyclePrice.Round(2))
+		}
 	}
 
 	return nil

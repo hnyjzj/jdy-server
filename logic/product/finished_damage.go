@@ -5,6 +5,7 @@ import (
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -143,6 +144,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 		case enums.ProductTypeUsedFinished:
 			log.Action = enums.ProductActionDamageToNew
 			product.Status = enums.ProductStatusNormal
+			product.EnterTime = time.Now()
 			if err := tx.Save(&product).Error; err != nil {
 				return errors.New("转换失败")
 			}

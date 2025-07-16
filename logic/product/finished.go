@@ -18,11 +18,11 @@ type ProductFinishedLogic struct {
 }
 
 // 成品列表
-func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.PageRes[model.ProductFinished], error) {
+func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.ProductFinishedListRes[model.ProductFinished], error) {
 	var (
 		product model.ProductFinished
 
-		res types.PageRes[model.ProductFinished]
+		res types.ProductFinishedListRes[model.ProductFinished]
 	)
 
 	db := model.DB.Model(&product)
@@ -31,6 +31,24 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
 		return nil, errors.New("获取成品列表数量失败")
+	}
+	if res.Total == 0 {
+		return &res, nil
+	}
+
+	// 获取入网费
+	if err := db.Select("SUM(access_fee) as access_fee").Scan(&res.AccessFee).Error; err != nil {
+		return nil, errors.New("获取成品列表入网费失败")
+	}
+
+	// 获取标签价
+	if err := db.Select("SUM(label_price) as label_price").Scan(&res.LabelPrice).Error; err != nil {
+		return nil, errors.New("获取成品列表标签价失败")
+	}
+
+	// 获取金重
+	if err := db.Select("SUM(weight_metal) as weight_metal").Scan(&res.WeightMetal).Error; err != nil {
+		return nil, errors.New("获取成品列表金重失败")
 	}
 
 	// 获取列表

@@ -39,14 +39,14 @@ func (M *BaseMessage) SendProductAccessorieAllocateCreateMessage(req *ProductAcc
 				Desc:  fmt.Sprintf("新调拨单【%s】，请及时处理", req.ProductAccessorieAllocate.Id),
 			},
 			EmphasisContent: &request.TemplateCardEmphasisContent{
-				Title: fmt.Sprintf("%d", req.ProductAccessorieAllocate.ProductCount),
-				Desc:  "总种类数",
+				Title: fmt.Sprint(req.ProductAccessorieAllocate.ProductTotal),
+				Desc:  "总件数",
 			},
 			HorizontalContentList: []*request.TemplateCardHorizontalContentListItem{
 				{
 					Type:    0,
-					Keyname: "总件数",
-					Value:   fmt.Sprint(req.ProductAccessorieAllocate.ProductTotal),
+					Keyname: "总种类数",
+					Value:   fmt.Sprint(req.ProductAccessorieAllocate.ProductCount),
 				},
 				{
 					Type:    0,

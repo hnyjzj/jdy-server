@@ -53,6 +53,7 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 
 	// 获取列表
 	db = db.Order("created_at desc")
+	db = db.Select("*")
 	db = model.PageCondition(db, req.Page, req.Limit)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取成品列表失败")

@@ -58,9 +58,9 @@ type ProductFinishedListReq struct {
 type ProductFinishedListRes[T any] struct {
 	PageRes[T]
 
-	AccessFee   float64 `json:"access_fee"`   // 入网费
-	LabelPrice  float64 `json:"label_price"`  // 标签价
-	WeightMetal float64 `json:"weight_metal"` // 金重
+	AccessFee   decimal.Decimal `json:"access_fee"`   // 入网费
+	LabelPrice  decimal.Decimal `json:"label_price"`  // 标签价
+	WeightMetal decimal.Decimal `json:"weight_metal"` // 金重
 }
 
 type ProductFinishedInfoReq struct {

@@ -33,6 +33,8 @@ type ProductAccessorieAllocateWhere struct {
 
 	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"6" required:"false"` // 开始时间
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间
+
+	StoreId string `json:"store_id" label:"门店ID" input:"search" type:"string" find:"true" sort:"7" required:"false"` // 门店ID
 }
 
 func (req *ProductAccessorieAllocateWhere) Validate() error {

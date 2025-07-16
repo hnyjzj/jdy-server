@@ -137,6 +137,12 @@ func (ProductAccessorieCategory) WhereCondition(db *gorm.DB, query *types.Produc
 		db = db.Where("remark LIKE ?", fmt.Sprintf("%%%s%%", query.Remark))
 	}
 
+	if query.StoreId != "" {
+		db = db.Preload("Product", func(tx *gorm.DB) *gorm.DB {
+			return tx.Where("store_id = ?", query.StoreId)
+		})
+	}
+
 	return db
 }
 
@@ -216,6 +222,11 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	if query.StartTime != nil && query.EndTime != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
 	}
+
+	if query.StoreId != "" {
+		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
+	}
+
 	return db
 }
 

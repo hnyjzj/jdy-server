@@ -25,6 +25,8 @@ type ProductAccessorieCategoryWhere struct {
 	Series        string                            `json:"series" label:"系列" input:"text" type:"string" find:"true" create:"true" sort:"14" required:"false"`
 	Supplier      string                            `json:"supplier" label:"供应商" input:"text" type:"string" find:"true" create:"true" sort:"15" required:"false"`
 	Remark        string                            `json:"remark" label:"备注" input:"text" type:"string" find:"true" create:"true" sort:"16" required:"false"`
+
+	StoreId string `json:"store_id" label:"店铺" input:"text" type:"string" find:"true" create:"false" sort:"17" required:"false"`
 }
 
 // 配件条目列表

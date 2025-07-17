@@ -57,6 +57,10 @@ type MemberInfoReq struct {
 	ExternalUserId string `json:"external_user_id" binding:"-"`
 }
 
+type MemberConsumptionsReq struct {
+	Id string `json:"id" binding:"-"`
+}
+
 func (req *MemberInfoReq) Validate() error {
 	if req.Id == "" && req.ExternalUserId == "" {
 		return errors.New("用户标识不能同时为空")

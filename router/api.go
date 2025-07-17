@@ -402,10 +402,11 @@ func Api(g *gin.Engine) {
 				root.GET("/where", member.MemberController{}.Where) // 会员筛选
 				root.Use(middlewares.JWTMiddleware())
 				{
-					root.POST("/create", member.MemberController{}.Create) // 创建会员
-					root.POST("/list", member.MemberController{}.List)     // 会员列表
-					root.POST("/info", member.MemberController{}.Info)     // 会员详情
-					root.PUT("/update", member.MemberController{}.Update)  // 会员更新
+					root.POST("/create", member.MemberController{}.Create)             // 创建会员
+					root.POST("/list", member.MemberController{}.List)                 // 会员列表
+					root.POST("/info", member.MemberController{}.Info)                 // 会员详情
+					root.PUT("/update", member.MemberController{}.Update)              // 会员更新
+					root.POST("/consumptions", member.MemberController{}.Consumptions) // 会员消费记录
 				}
 			}
 

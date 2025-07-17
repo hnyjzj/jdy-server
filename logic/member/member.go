@@ -62,3 +62,8 @@ func (l *MemberLogic) Info(req *types.MemberInfoReq) (*model.Member, error) {
 
 	return &member, nil
 }
+
+func (l *MemberLogic) Consumptions(req *types.MemberConsumptionsReq) (*types.PageRes[model.Member], error) {
+
+	return nil, nil
+}

@@ -7,6 +7,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -194,7 +195,7 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 		StoreId:  finished.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeFinished,
-		Code:     finished.Code,
+		Code:     strings.ToUpper(finished.Code),
 		MemberId: l.Order.MemberId,
 		Finished: model.OrderSalesProductFinished{
 			OrderId:           l.Order.Id,
@@ -259,7 +260,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 		StoreId:  old.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeOld,
-		Code:     old.Code,
+		Code:     strings.ToUpper(old.Code),
 		MemberId: l.Order.MemberId,
 		Old: model.OrderSalesProductOld{
 			OrderId:                 l.Order.Id,
@@ -321,7 +322,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		StoreId:  l.Req.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeAccessorie,
-		Code:     accessory.Code,
+		Code:     strings.ToUpper(accessory.Code),
 		MemberId: l.Order.MemberId,
 		Accessorie: model.OrderSalesProductAccessorie{
 			OrderId:   l.Order.Id,
@@ -429,7 +430,7 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
 	old := &model.ProductOld{
-		Code:                    p.Code,
+		Code:                    strings.ToUpper(p.Code),
 		Name:                    p.Name,
 		Status:                  enums.ProductStatusNormal,
 		LabelPrice:              p.LabelPrice,

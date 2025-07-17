@@ -6,6 +6,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -25,10 +26,9 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 		res types.ProductFinishedListRes[model.ProductFinished]
 	)
 
-	db := model.DB.Model(&product)
-	db = product.WhereCondition(db, &req.Where)
-
 	// 获取总数
+	db := model.DB.Model(&model.ProductFinished{})
+	db = product.WhereCondition(db, &req.Where)
 	if err := db.Count(&res.Total).Error; err != nil {
 		return nil, errors.New("获取成品列表数量失败")
 	}
@@ -36,27 +36,32 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 		return &res, nil
 	}
 
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = model.PageCondition(db, req.Page, req.Limit)
+	if err := db.Find(&res.List).Error; err != nil {
+		return nil, errors.New("获取成品列表失败")
+	}
+
 	// 获取入网费
-	if err := db.Select("SUM(access_fee) as access_fee").Scan(&res.AccessFee).Error; err != nil {
+	adb := model.DB.Model(&model.ProductFinished{})
+	adb = product.WhereCondition(adb, &req.Where)
+	if err := adb.Select("SUM(access_fee) as access_fee").Scan(&res.AccessFee).Error; err != nil {
 		return nil, errors.New("获取成品列表入网费失败")
 	}
 
 	// 获取标签价
-	if err := db.Select("SUM(label_price) as label_price").Scan(&res.LabelPrice).Error; err != nil {
+	ldb := model.DB.Model(&model.ProductFinished{})
+	ldb = product.WhereCondition(ldb, &req.Where)
+	if err := ldb.Select("SUM(label_price) as label_price").Scan(&res.LabelPrice).Error; err != nil {
 		return nil, errors.New("获取成品列表标签价失败")
 	}
 
 	// 获取金重
-	if err := db.Select("SUM(weight_metal) as weight_metal").Scan(&res.WeightMetal).Error; err != nil {
+	wdb := model.DB.Model(&model.ProductFinished{})
+	wdb = product.WhereCondition(wdb, &req.Where)
+	if err := wdb.Select("SUM(weight_metal) as weight_metal").Scan(&res.WeightMetal).Error; err != nil {
 		return nil, errors.New("获取成品列表金重失败")
-	}
-
-	// 获取列表
-	db = db.Order("created_at desc")
-	db = db.Select("*")
-	db = model.PageCondition(db, req.Page, req.Limit)
-	if err := db.Find(&res.List).Error; err != nil {
-		return nil, errors.New("获取成品列表失败")
 	}
 
 	return &res, nil
@@ -70,7 +75,7 @@ func (p *ProductFinishedLogic) Info(req *types.ProductFinishedInfoReq) (*model.P
 
 	if err := model.DB.
 		Where(model.ProductFinished{
-			Code: req.Code,
+			Code: strings.ToUpper(req.Code),
 		}).
 		Preload("Store").
 		First(&product).Error; err != nil {
@@ -88,7 +93,7 @@ func (p *ProductFinishedLogic) Retrieval(req *types.ProductFinishedRetrievalReq)
 
 	if err := model.DB.
 		Where(model.ProductFinished{
-			Code: req.Code,
+			Code: strings.ToUpper(req.Code),
 		}).
 		Preload("Store").
 		First(&product).Error; err != nil {

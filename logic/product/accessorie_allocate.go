@@ -7,6 +7,7 @@ import (
 	"jdy/message"
 	"jdy/model"
 	"jdy/types"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -413,7 +414,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 				var accessorie model.ProductAccessorie
 				if err := tx.Where(&model.ProductAccessorie{
 					StoreId: allocate.ToStoreId,
-					Code:    product.Product.Code,
+					Code:    strings.ToUpper(product.Product.Code),
 				}).First(&accessorie).Error; err != nil {
 					if err != gorm.ErrRecordNotFound {
 						return fmt.Errorf("【%s】%s 不存在", product.Product.Category.Code, product.Product.Category.Name)
@@ -424,7 +425,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 					// 新增配件
 					data := model.ProductAccessorie{
 						StoreId:   allocate.ToStoreId,
-						Code:      product.Product.Code,
+						Code:      strings.ToUpper(product.Product.Code),
 						Stock:     product.Quantity,
 						AccessFee: product.Product.AccessFee,
 						Status:    enums.ProductStatusNormal,
@@ -436,7 +437,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 					// 更新配件
 					if err := tx.Model(&accessorie).Where(&model.ProductAccessorie{
 						StoreId: allocate.ToStoreId,
-						Code:    product.Product.Code,
+						Code:    strings.ToUpper(product.Product.Code),
 					}).Updates(&model.ProductAccessorie{
 						Stock:     accessorie.Stock + product.Quantity,
 						AccessFee: product.Product.AccessFee,

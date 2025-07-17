@@ -9,6 +9,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -312,7 +313,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			data.Type = enums.ProductTypeFinished
-			data.Code = p.Finished.Product.Code
+			data.Code = strings.ToUpper(p.Finished.Product.Code)
 			data.Name = p.Finished.Product.Name
 			data.Quantity = 1
 			data.Price = req.Price
@@ -357,7 +358,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			data.Type = enums.ProductTypeOld
-			data.Code = p.Old.Product.Code
+			data.Code = strings.ToUpper(p.Old.Product.Code)
 			data.Name = p.Old.Product.Name
 			data.Quantity = 1
 			data.Price = req.Price
@@ -404,7 +405,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			data.Type = enums.ProductTypeAccessorie
-			data.Code = p.Accessorie.Product.Code
+			data.Code = strings.ToUpper(p.Accessorie.Product.Code)
 			data.Name = p.Accessorie.Product.Category.Name
 			data.Quantity = p.Accessorie.Quantity
 			data.Price = req.Price

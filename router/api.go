@@ -228,10 +228,10 @@ func Api(g *gin.Engine) {
 						enters.POST("/list", product.ProductFinishedEnterController{}.List)     // 成品入库单列表
 						enters.POST("/info", product.ProductFinishedEnterController{}.Info)     // 成品入库单详情
 
-						enters.POST("/add_product", product.ProductFinishedEnterController{}.AddProduct)   // 添加产品
-						enters.PUT("/edit_product", product.ProductFinishedEnterController{}.EditProduct)  // 编辑产品
-						enters.DELETE("/del_product", product.ProductFinishedEnterController{}.DelProduct) // 删除产品
-						enters.DELETE("/clear", product.ProductFinishedEnterController{}.ClearProduct)     // 清空产品
+						enters.POST("/add_product", product.ProductFinishedEnterController{}.AddProduct)       // 添加产品
+						enters.PUT("/edit_product", product.ProductFinishedEnterController{}.EditProduct)      // 编辑产品
+						enters.DELETE("/del_product", product.ProductFinishedEnterController{}.DelProduct)     // 删除产品
+						enters.DELETE("/clear_product", product.ProductFinishedEnterController{}.ClearProduct) // 清空产品
 
 						enters.PUT("/finish", product.ProductFinishedEnterController{}.Finish) // 完成入库
 						enters.PUT("/cancel", product.ProductFinishedEnterController{}.Cancel) // 取消入库

@@ -301,6 +301,10 @@ func (l *ProductFinishedEnterLogic) ClearProduct(req *types.ProductFinishedEnter
 			return errors.New("入库单已结束")
 		}
 
+		if enter.OperatorId != l.Staff.Id {
+			return errors.New("入库单不属于当前操作员")
+		}
+
 		// 删除产品(真实删除)
 		if err := tx.Where(&model.ProductFinished{
 			EnterId: enter.Id,

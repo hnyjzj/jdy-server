@@ -63,7 +63,21 @@ func (l *MemberLogic) Info(req *types.MemberInfoReq) (*model.Member, error) {
 	return &member, nil
 }
 
-func (l *MemberLogic) Consumptions(req *types.MemberConsumptionsReq) (*types.PageRes[model.Member], error) {
+func (l *MemberLogic) Consumptions(req *types.MemberConsumptionsReq) (*[]model.OrderSalesProduct, error) {
+	var (
+		product  model.OrderSalesProduct
+		products []model.OrderSalesProduct
+		db       = model.DB
+	)
 
-	return nil, nil
+	db = db.Model(&model.OrderSalesProduct{})
+	db = db.Where(&model.OrderSalesProduct{MemberId: req.Id})
+	db = product.Preloads(db)
+	db = db.Order("created_at desc")
+
+	if err := db.Find(&products).Error; err != nil {
+		return nil, errors.New("获取消费记录失败")
+	}
+
+	return &products, nil
 }

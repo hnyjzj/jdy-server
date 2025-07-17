@@ -89,6 +89,7 @@ func (con MemberController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 会员消费记录
 func (con MemberController) Consumptions(ctx *gin.Context) {
 	var (
 		req types.MemberConsumptionsReq
@@ -108,10 +109,6 @@ func (con MemberController) Consumptions(ctx *gin.Context) {
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	if req.Id == "" {
-		req.Id = logic.Staff.Id
 	}
 
 	res, err := logic.Consumptions(&req)

@@ -58,7 +58,7 @@ type MemberInfoReq struct {
 }
 
 type MemberConsumptionsReq struct {
-	Id string `json:"id" binding:"-"`
+	Id string `json:"id" binding:"required"`
 }
 
 func (req *MemberInfoReq) Validate() error {

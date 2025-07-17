@@ -176,17 +176,18 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 	}
 
 	// 实盘产品
-	db = db.Preload("ActualProducts", func(tx *gorm.DB) *gorm.DB {
-		pdb := tx
-		pdb = pdb.Preload("ProductFinished")
-		pdb = pdb.Preload("ProductOld")
-		pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusActual})
-		if req != nil && req.Page != 0 && req.Limit != 0 {
+	if req != nil && req.Page != 0 && req.Limit != 0 {
+		db = db.Preload("ActualProducts", func(tx *gorm.DB) *gorm.DB {
+			pdb := tx
+			pdb = pdb.Preload("ProductFinished")
+			pdb = pdb.Preload("ProductOld")
+			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusActual})
 			pdb = PageCondition(pdb, req.Page, req.Limit)
-		}
 
-		return pdb
-	})
+			return pdb
+		})
+	}
+
 	return db
 }
 

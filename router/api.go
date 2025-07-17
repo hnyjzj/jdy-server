@@ -92,6 +92,20 @@ func Api(g *gin.Engine) {
 
 				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales)     // 今日销售
 				statistics.POST("/today_product", statistic.StatisticController{}.TodayProduct) // 今日货品
+
+				product_inventory_finished := statistics.Group("/product_inventory_finished") // 成品库存
+				{
+					product_inventory_finished.GET("/where", statistic.StatisticController{}.ProductInventoryFinishedWhere)  // 成品库存筛选
+					product_inventory_finished.GET("/title", statistic.StatisticController{}.ProductInventoryFinishedTitles) // 成品库存标题
+					product_inventory_finished.POST("/data", statistic.StatisticController{}.ProductInventoryFinishedData)   // 成品库存列表
+				}
+
+				product_inventory_old := statistics.Group("/product_inventory_old") // 旧料库存
+				{
+					product_inventory_old.GET("/where", statistic.StatisticController{}.ProductInventoryOldWhere)  // 老料库存筛选
+					product_inventory_old.GET("/title", statistic.StatisticController{}.ProductInventoryOldTitles) // 老料库存标题
+					product_inventory_old.POST("/data", statistic.StatisticController{}.ProductInventoryOldData)   // 老料库存列表
+				}
 			}
 		}
 

@@ -6,9 +6,11 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -124,7 +126,7 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 			}
 
 			var p model.ProductFinished
-			if err := tx.Where("code = ?", product.Code).First(&p).Error; err != nil {
+			if err := tx.Where("code = ?", strings.ToUpper(product.Code)).First(&p).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("产品不存在")
 				}
@@ -139,6 +141,7 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 			product.Class = product.GetClass()
 			product.Status = enums.ProductStatusDraft
 			product.EnterTime = time.Now()
+			product.Code = strings.ToUpper(product.Code)
 
 			if err := tx.Create(&product).Error; err != nil {
 				return errors.New("[" + product.Code + "]录入失败")
@@ -209,19 +212,12 @@ func (l *ProductFinishedEnterLogic) EditProduct(req *types.ProductFinishedEnterE
 			return errors.New("产品更新失败")
 		}
 
-		enter_statistics := model.ProductFinishedEnter{
-			ProductCount:            enter.ProductCount,
-			ProductTotalAccessFee:   enter.ProductTotalAccessFee,
-			ProductTotalLabelPrice:  enter.ProductTotalLabelPrice,
-			ProductTotalWeightMetal: enter.ProductTotalWeightMetal,
-		}
-
-		enter_statistics.ProductTotalAccessFee = enter_statistics.ProductTotalAccessFee.Add(new_product.AccessFee.Sub(product.AccessFee))
-		enter_statistics.ProductTotalLabelPrice = enter_statistics.ProductTotalLabelPrice.Add(new_product.LabelPrice.Sub(product.LabelPrice))
-		enter_statistics.ProductTotalWeightMetal = enter_statistics.ProductTotalWeightMetal.Add(new_product.WeightMetal.Sub(product.WeightMetal))
+		enter.ProductTotalAccessFee = enter.ProductTotalAccessFee.Add(new_product.AccessFee.Sub(product.AccessFee))
+		enter.ProductTotalLabelPrice = enter.ProductTotalLabelPrice.Add(new_product.LabelPrice.Sub(product.LabelPrice))
+		enter.ProductTotalWeightMetal = enter.ProductTotalWeightMetal.Add(new_product.WeightMetal.Sub(product.WeightMetal))
 
 		// 更新入库单
-		if err := tx.Model(model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(enter_statistics).Error; err != nil {
+		if err := tx.Save(&enter).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -246,13 +242,6 @@ func (l *ProductFinishedEnterLogic) DelProduct(req *types.ProductFinishedEnterDe
 			return errors.New("入库单已结束")
 		}
 
-		enter_statistics := model.ProductFinishedEnter{
-			ProductCount:            enter.ProductCount,
-			ProductTotalAccessFee:   enter.ProductTotalAccessFee,
-			ProductTotalLabelPrice:  enter.ProductTotalLabelPrice,
-			ProductTotalWeightMetal: enter.ProductTotalWeightMetal,
-		}
-
 		// 查询产品
 		for _, id := range req.ProductIds {
 			var product model.ProductFinished
@@ -269,14 +258,14 @@ func (l *ProductFinishedEnterLogic) DelProduct(req *types.ProductFinishedEnterDe
 				return errors.New("产品删除失败")
 			}
 
-			enter_statistics.ProductCount--
-			enter_statistics.ProductTotalAccessFee = enter_statistics.ProductTotalAccessFee.Sub(product.AccessFee)
-			enter_statistics.ProductTotalLabelPrice = enter_statistics.ProductTotalLabelPrice.Sub(product.LabelPrice)
-			enter_statistics.ProductTotalWeightMetal = enter_statistics.ProductTotalWeightMetal.Sub(product.WeightMetal)
+			enter.ProductCount--
+			enter.ProductTotalAccessFee = enter.ProductTotalAccessFee.Sub(product.AccessFee)
+			enter.ProductTotalLabelPrice = enter.ProductTotalLabelPrice.Sub(product.LabelPrice)
+			enter.ProductTotalWeightMetal = enter.ProductTotalWeightMetal.Sub(product.WeightMetal)
 		}
 
 		// 更新入库单
-		if err := tx.Model(model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(enter_statistics).Error; err != nil {
+		if err := tx.Save(&enter).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -284,6 +273,49 @@ func (l *ProductFinishedEnterLogic) DelProduct(req *types.ProductFinishedEnterDe
 	}); err != nil {
 		return errors.New("产品删除失败：" + err.Error())
 	}
+
+	return nil
+}
+
+// 入库单清空产品
+func (l *ProductFinishedEnterLogic) ClearProduct(req *types.ProductFinishedEnterClearProductReq) error {
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询入库单
+		var enter model.ProductFinishedEnter
+		if err := tx.Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
+			return errors.New("入库单不存在")
+		}
+
+		if enter.Status != enums.ProductEnterStatusDraft {
+			return errors.New("入库单已结束")
+		}
+
+		if enter.OperatorId != l.Staff.Id {
+			return errors.New("入库单不属于当前操作员")
+		}
+
+		// 删除产品(真实删除)
+		if err := tx.Where(&model.ProductFinished{
+			EnterId: enter.Id,
+		}).Unscoped().Delete(&model.ProductFinished{}).Error; err != nil {
+			return errors.New("产品删除失败")
+		}
+
+		// 清空入库统计
+		enter.ProductCount = 0
+		enter.ProductTotalAccessFee = decimal.Zero
+		enter.ProductTotalLabelPrice = decimal.Zero
+		enter.ProductTotalWeightMetal = decimal.Zero
+		// 更新入库单
+		if err := tx.Save(&enter).Error; err != nil {
+			return errors.New("入库单更新失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("产品删除失败：" + err.Error())
+	}
+
 	return nil
 }
 

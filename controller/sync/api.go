@@ -34,8 +34,6 @@ func (con ApiController) List(ctx *gin.Context) {
 			if err != nil {
 				log.Println(err)
 			}
-
-			log.Println(parentPaths, route.Path)
 		}
 
 		var api model.Api

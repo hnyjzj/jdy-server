@@ -5,6 +5,8 @@ import (
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -20,7 +22,7 @@ type ProductFinishedDamageLogic struct {
 func (l *ProductFinishedDamageLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 	// 查询商品信息
 	var product model.ProductFinished
-	if err := model.DB.Where(&model.ProductFinished{Code: req.Code}).
+	if err := model.DB.Where(&model.ProductFinished{Code: strings.ToUpper(req.Code)}).
 		Preload("Store").
 		First(&product).Error; err != nil {
 		return errors.New("商品不存在")
@@ -104,7 +106,7 @@ func (p *ProductFinishedDamageLogic) Info(req *types.ProductFinishedInfoReq) (*m
 
 	if err := model.DB.
 		Where(model.ProductFinished{
-			Code: req.Code,
+			Code: strings.ToUpper(req.Code),
 		}).
 		Preload("Store").
 		First(&product).Error; err != nil {
@@ -143,6 +145,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 		case enums.ProductTypeUsedFinished:
 			log.Action = enums.ProductActionDamageToNew
 			product.Status = enums.ProductStatusNormal
+			product.EnterTime = time.Now()
 			if err := tx.Save(&product).Error; err != nil {
 				return errors.New("转换失败")
 			}
@@ -153,14 +156,14 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				log.Action = enums.ProductActionReturn
 			}
 			var old model.ProductOld
-			if err := tx.Unscoped().Preload("Store").Where(&model.ProductOld{Code: product.Code}).First(&old).Error; err != nil {
+			if err := tx.Unscoped().Preload("Store").Where(&model.ProductOld{Code: strings.ToUpper(product.Code)}).First(&old).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("旧品不存在")
 				}
 			}
 
 			data := model.ProductOld{
-				Code:            product.Code,
+				Code:            strings.ToUpper(product.Code),
 				Name:            product.Name,
 				Status:          enums.ProductStatusNormal,
 				LabelPrice:      product.LabelPrice,

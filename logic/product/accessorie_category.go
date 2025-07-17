@@ -5,6 +5,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -72,6 +73,7 @@ func (p *ProductAccessorieCategoryLogic) Create(req *types.ProductAccessorieCate
 		}
 
 		for _, v := range data {
+			v.Code = strings.ToUpper(v.Code)
 			if err := tx.Create(&v).Error; err != nil {
 				return errors.New(v.Name + "新增失败")
 			}

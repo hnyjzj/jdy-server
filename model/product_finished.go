@@ -144,107 +144,101 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 }
 
 func (p *ProductFinished) GetClass() enums.ProductClassFinished {
-	// 足金（克
-	// 计重工费按克/件 + 黄金 + 99999/9999/999 + 素金类
-	if (p.RetailType == enums.ProductRetailTypeGoldKg || p.RetailType == enums.ProductRetailTypeGoldPiece) &&
+	switch {
+	case p.RetailType == enums.ProductRetailTypeGoldKg &&
 		p.Material == enums.ProductMaterialGold &&
 		(p.Quality == enums.ProductQuality99999 || p.Quality == enums.ProductQuality9999 || p.Quality == enums.ProductQuality999) &&
-		p.Gem == enums.ProductGemGold {
-		return enums.ProductClassFinishedGoldKg
-	}
-
-	// 足金（件）
-	// 计件 + 黄金 + 999 + 素金类
-	if p.RetailType == enums.ProductRetailTypePiece &&
+		p.Gem == enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedGoldKg
+		}
+	case p.RetailType == enums.ProductRetailTypeGoldPiece &&
+		p.Material == enums.ProductMaterialGold &&
+		(p.Quality == enums.ProductQuality99999 || p.Quality == enums.ProductQuality9999 || p.Quality == enums.ProductQuality999) &&
+		p.Gem == enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedGoldKg
+		}
+	case p.RetailType == enums.ProductRetailTypePiece &&
 		p.Material == enums.ProductMaterialGold &&
 		p.Quality == enums.ProductQuality999 &&
-		p.Gem == enums.ProductGemGold {
-		return enums.ProductClassFinishedGoldPiece
-	}
-
-	// 金 750
-	// 黄金 + 750 + 素金类
-	if p.Material == enums.ProductMaterialGold &&
+		p.Gem == enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedGoldPiece
+		}
+	case p.Material == enums.ProductMaterialGold &&
 		p.Quality == enums.ProductQuality750 &&
-		p.Gem == enums.ProductGemGold {
-		return enums.ProductClassFinishedGold750
-	}
-
-	// 金 916
-	// 黄金 + 916 + 素金类
-	if p.Material == enums.ProductMaterialGold &&
+		p.Gem == enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedGold750
+		}
+	case p.Material == enums.ProductMaterialGold &&
 		p.Quality == enums.ProductQuality916 &&
-		p.Gem == enums.ProductGemGold {
-		return enums.ProductClassFinishedGold916
-	}
-
-	// 铂金
-	// 铂金 + 990/950 + 素金类
-	if p.Material == enums.ProductMaterialPlatinum &&
-		(p.Quality == enums.ProductQuality990 || p.Quality == enums.ProductQuality950) &&
-		p.Gem == enums.ProductGemGold {
-		return enums.ProductClassFinishedPlatinum
-	}
-
-	// 银饰
-	// 银饰 + 990/925 + 素金类
-	if p.Material == enums.ProductMaterialSilver &&
+		p.Gem == enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedGold916
+		}
+	case p.Material == enums.ProductMaterialPlatinum &&
+		(p.Quality == enums.ProductQuality999 || p.Quality == enums.ProductQuality990 || p.Quality == enums.ProductQuality950) &&
+		p.Gem == enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedPlatinum
+		}
+	case p.Material == enums.ProductMaterialSilver &&
 		(p.Quality == enums.ProductQuality990 || p.Quality == enums.ProductQuality925) &&
-		p.Gem == enums.ProductGemGold {
-		return enums.ProductClassFinishedSilver
-	}
-
-	// 足金镶嵌
-	// 黄金 + 999 + 非素金类
-	if p.Material == enums.ProductMaterialGold &&
+		p.Gem == enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedSilver
+		}
+	case p.Material == enums.ProductMaterialGold &&
 		p.Quality == enums.ProductQuality999 &&
-		p.Gem != enums.ProductGemGold {
-		return enums.ProductClassFinishedGoldInlay
-	}
-
-	// 裸钻
-	// 裸石类 + 裸石类 + 钻石
-	if p.Material == enums.ProductMaterialGem &&
+		p.Gem != enums.ProductGemGold:
+		{
+			return enums.ProductClassFinishedGoldInlay
+		}
+	case p.Material == enums.ProductMaterialGem &&
 		p.Quality == enums.ProductQualityGem &&
-		p.Gem == enums.ProductGemDiamond {
-		return enums.ProductClassFinishedDiamondNaked
-	}
-
-	// 钻石
-	// 黄金/铂金 + 750/990 + 钻石
-	if (p.Material == enums.ProductMaterialGold || p.Material == enums.ProductMaterialPlatinum) &&
-		(p.Quality == enums.ProductQuality750 || p.Quality == enums.ProductQuality990) &&
-		p.Gem == enums.ProductGemDiamond {
-		return enums.ProductClassFinishedDiamond
-	}
-
-	// 彩宝
-	// 黄金 +  750 + 非素金类/非珍珠/非钻石/非贝母/非翡翠/非和田玉
-	if p.Material == enums.ProductMaterialGold &&
+		p.Gem == enums.ProductGemDiamond:
+		{
+			return enums.ProductClassFinishedDiamondNaked
+		}
+	case p.Material == enums.ProductMaterialGold &&
+		p.Quality == enums.ProductQuality750 &&
+		p.Gem == enums.ProductGemDiamond:
+		{
+			return enums.ProductClassFinishedDiamond
+		}
+	case p.Material == enums.ProductMaterialPlatinum &&
+		p.Quality == enums.ProductQuality950 &&
+		p.Gem == enums.ProductGemDiamond:
+		{
+			return enums.ProductClassFinishedDiamond
+		}
+	case p.Material == enums.ProductMaterialGold &&
 		p.Quality == enums.ProductQuality750 &&
 		(p.Gem != enums.ProductGemGold && p.Gem != enums.ProductGemPearl &&
 			p.Gem != enums.ProductGemDiamond && p.Gem != enums.ProductGemPearlMother &&
-			p.Gem != enums.ProductGemJade && p.Gem != enums.ProductGemJadeite) {
-		return enums.ProductClassFinishedCoral
-	}
-
-	// 珍珠
-	// 裸石类 + 无 + 珍珠/贝母
-	if p.Material == enums.ProductMaterialGem &&
-		(p.Gem == enums.ProductGemPearl || p.Gem == enums.ProductGemPearlMother) {
-		return enums.ProductClassFinishedPearl
-	}
-
-	// 玉石
-	// 裸石类 + 无 + 翡翠/和田玉/玉髓/玛瑙/祖母绿/石榴石
-	if p.Material == enums.ProductMaterialGem &&
+			p.Gem != enums.ProductGemJade && p.Gem != enums.ProductGemJadeite):
+		{
+			return enums.ProductClassFinishedCoral
+		}
+	case p.Material == enums.ProductMaterialGem &&
+		(p.Gem == enums.ProductGemPearl || p.Gem == enums.ProductGemPearlMother):
+		{
+			return enums.ProductClassFinishedPearl
+		}
+	case p.Material == enums.ProductMaterialGem &&
 		(p.Gem == enums.ProductGemJade || p.Gem == enums.ProductGemJadeite ||
 			p.Gem == enums.ProductGemOpal || p.Gem == enums.ProductGemJasper ||
-			p.Gem == enums.ProductGemEmerald || p.Gem == enums.ProductGemGarnet) {
-		return enums.ProductClassFinishedJade
+			p.Gem == enums.ProductGemEmerald || p.Gem == enums.ProductGemGarnet):
+		{
+			return enums.ProductClassFinishedJade
+		}
+	default:
+		{
+			return enums.ProductClassFinishedOther
+		}
 	}
-
-	return enums.ProductClassFinishedOther
 }
 
 // 成品入库单

@@ -92,6 +92,20 @@ func Api(g *gin.Engine) {
 
 				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales)     // 今日销售
 				statistics.POST("/today_product", statistic.StatisticController{}.TodayProduct) // 今日货品
+
+				product_inventory_finished := statistics.Group("/product_inventory_finished") // 成品库存
+				{
+					product_inventory_finished.GET("/where", statistic.StatisticController{}.ProductInventoryFinishedWhere)  // 成品库存筛选
+					product_inventory_finished.GET("/title", statistic.StatisticController{}.ProductInventoryFinishedTitles) // 成品库存标题
+					product_inventory_finished.POST("/data", statistic.StatisticController{}.ProductInventoryFinishedData)   // 成品库存列表
+				}
+
+				product_inventory_old := statistics.Group("/product_inventory_old") // 旧料库存
+				{
+					product_inventory_old.GET("/where", statistic.StatisticController{}.ProductInventoryOldWhere)  // 旧料库存筛选
+					product_inventory_old.GET("/title", statistic.StatisticController{}.ProductInventoryOldTitles) // 旧料库存标题
+					product_inventory_old.POST("/data", statistic.StatisticController{}.ProductInventoryOldData)   // 旧料库存列表
+				}
 			}
 		}
 
@@ -130,9 +144,10 @@ func Api(g *gin.Engine) {
 			{
 				staffs.Use(middlewares.JWTMiddleware())
 				{
-					staffs.POST("/list", store.StoreStaffController{}.List) // 门店员工列表
-					staffs.POST("/add", store.StoreStaffController{}.Add)   // 添加门店员工
-					staffs.DELETE("/del", store.StoreStaffController{}.Del) // 删除门店员工
+					staffs.POST("/list", store.StoreStaffController{}.List)  // 门店员工列表
+					staffs.POST("/add", store.StoreStaffController{}.Add)    // 添加门店员工
+					staffs.DELETE("/del", store.StoreStaffController{}.Del)  // 删除门店员工
+					staffs.POST("/is_in", store.StoreStaffController{}.IsIn) // 是否在门店
 				}
 			}
 
@@ -140,9 +155,10 @@ func Api(g *gin.Engine) {
 			{
 				superiors.Use(middlewares.JWTMiddleware())
 				{
-					superiors.POST("/list", store.StoreSuperiorController{}.List) // 门店负责人列表
-					superiors.POST("/add", store.StoreSuperiorController{}.Add)   // 添加门店负责人
-					superiors.DELETE("/del", store.StoreSuperiorController{}.Del) // 删除门店负责人
+					superiors.POST("/list", store.StoreSuperiorController{}.List)  // 门店负责人列表
+					superiors.POST("/add", store.StoreSuperiorController{}.Add)    // 添加门店负责人
+					superiors.DELETE("/del", store.StoreSuperiorController{}.Del)  // 删除门店负责人
+					superiors.POST("/is_in", store.StoreSuperiorController{}.IsIn) // 是否是负责人
 				}
 			}
 		}
@@ -226,9 +242,10 @@ func Api(g *gin.Engine) {
 						enters.POST("/list", product.ProductFinishedEnterController{}.List)     // 成品入库单列表
 						enters.POST("/info", product.ProductFinishedEnterController{}.Info)     // 成品入库单详情
 
-						enters.POST("/add_product", product.ProductFinishedEnterController{}.AddProduct)   // 添加产品
-						enters.DELETE("/del_product", product.ProductFinishedEnterController{}.DelProduct) // 删除产品
-						enters.PUT("/edit_product", product.ProductFinishedEnterController{}.EditProduct)  // 编辑产品
+						enters.POST("/add_product", product.ProductFinishedEnterController{}.AddProduct)       // 添加产品
+						enters.PUT("/edit_product", product.ProductFinishedEnterController{}.EditProduct)      // 编辑产品
+						enters.DELETE("/del_product", product.ProductFinishedEnterController{}.DelProduct)     // 删除产品
+						enters.DELETE("/clear_product", product.ProductFinishedEnterController{}.ClearProduct) // 清空产品
 
 						enters.PUT("/finish", product.ProductFinishedEnterController{}.Finish) // 完成入库
 						enters.PUT("/cancel", product.ProductFinishedEnterController{}.Cancel) // 取消入库
@@ -385,10 +402,11 @@ func Api(g *gin.Engine) {
 				root.GET("/where", member.MemberController{}.Where) // 会员筛选
 				root.Use(middlewares.JWTMiddleware())
 				{
-					root.POST("/create", member.MemberController{}.Create) // 创建会员
-					root.POST("/list", member.MemberController{}.List)     // 会员列表
-					root.POST("/info", member.MemberController{}.Info)     // 会员详情
-					root.PUT("/update", member.MemberController{}.Update)  // 会员更新
+					root.POST("/create", member.MemberController{}.Create)             // 创建会员
+					root.POST("/list", member.MemberController{}.List)                 // 会员列表
+					root.POST("/info", member.MemberController{}.Info)                 // 会员详情
+					root.PUT("/update", member.MemberController{}.Update)              // 会员更新
+					root.POST("/consumptions", member.MemberController{}.Consumptions) // 会员消费记录
 				}
 			}
 

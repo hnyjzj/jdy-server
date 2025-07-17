@@ -7,6 +7,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -17,6 +18,7 @@ type OrderSalesCreateLogic struct {
 	Ctx   *gin.Context
 	Tx    *gorm.DB
 	Staff *model.Staff
+	Store *model.Store
 
 	Req *types.OrderSalesCreateReq
 
@@ -47,6 +49,11 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 	// 开启事务
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		l.Tx = tx
+
+		// 获取门店
+		if err := l.getStore(); err != nil {
+			return err
+		}
 
 		// 创建订单
 		if err := tx.Create(&l.Order).Error; err != nil {
@@ -188,7 +195,7 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 		StoreId:  finished.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeFinished,
-		Code:     finished.Code,
+		Code:     strings.ToUpper(finished.Code),
 		MemberId: l.Order.MemberId,
 		Finished: model.OrderSalesProductFinished{
 			OrderId:           l.Order.Id,
@@ -253,7 +260,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 		StoreId:  old.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeOld,
-		Code:     old.Code,
+		Code:     strings.ToUpper(old.Code),
 		MemberId: l.Order.MemberId,
 		Old: model.OrderSalesProductOld{
 			OrderId:                 l.Order.Id,
@@ -284,6 +291,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 	}
 
 	// 添加记录
+	log.NewValue = old
 	if err := l.Tx.Create(&log).Error; err != nil {
 		return errors.New("旧料记录添加失败")
 	}
@@ -314,7 +322,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		StoreId:  l.Req.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeAccessorie,
-		Code:     accessory.Code,
+		Code:     strings.ToUpper(accessory.Code),
 		MemberId: l.Order.MemberId,
 		Accessorie: model.OrderSalesProductAccessorie{
 			OrderId:   l.Order.Id,
@@ -422,7 +430,7 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
 	old := &model.ProductOld{
-		Code:                    p.Code,
+		Code:                    strings.ToUpper(p.Code),
 		Name:                    p.Name,
 		Status:                  enums.ProductStatusNormal,
 		LabelPrice:              p.LabelPrice,
@@ -443,6 +451,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		NumOther:                p.NumOther,
 		Remark:                  p.Remark,
 		StoreId:                 l.Req.StoreId,
+		Store:                   *l.Store,
 		RecycleMethod:           p.RecycleMethod,
 		RecycleType:             p.RecycleType,
 		RecyclePriceGold:        p.RecyclePriceGold,
@@ -453,6 +462,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		RecycleSource:           enums.ProductRecycleSourceHuiShou,
 		RecycleSourceId:         l.Order.Id,
 		RecycleStoreId:          l.Req.StoreId,
+		RecycleStore:            *l.Store,
 	}
 
 	if !p.IsOur {
@@ -589,6 +599,20 @@ func (l *OrderSalesCreateLogic) setPayment() error {
 		l.Order.Payments = append(l.Order.Payments, payment)
 		l.Order.PricePay = l.Order.PricePay.Add(p.Amount)
 	}
+
+	return nil
+}
+
+// 查询门店
+func (l *OrderSalesCreateLogic) getStore() error {
+	var store model.Store
+	db := l.Tx.Model(&model.Store{})
+	if err := db.First(&store, "id = ?", l.Req.StoreId).Error; err != nil {
+		return errors.New("门店不存在")
+	}
+
+	l.Store = &store
+	l.Order.Store = store
 
 	return nil
 }

@@ -55,6 +55,14 @@ type ProductFinishedListReq struct {
 	Where ProductFinishedWhere `json:"where" binding:"required"`
 }
 
+type ProductFinishedListRes[T any] struct {
+	PageRes[T]
+
+	AccessFee   decimal.Decimal `json:"access_fee"`   // 入网费
+	LabelPrice  decimal.Decimal `json:"label_price"`  // 标签价
+	WeightMetal decimal.Decimal `json:"weight_metal"` // 金重
+}
+
 type ProductFinishedInfoReq struct {
 	Code string `json:"code" binding:"required"` // 条码
 }

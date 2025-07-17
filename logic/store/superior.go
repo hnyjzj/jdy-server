@@ -78,3 +78,33 @@ func (l *StoreSuperiorLogic) Del(req *types.StoreSuperiorDelReq) error {
 	}
 	return nil
 }
+
+// 是否在门店
+func (l *StoreSuperiorLogic) IsIn(req *types.StoreSuperiorIsInReq) (bool, error) {
+	var (
+		store model.Store
+		db    = model.DB
+
+		staff_id string
+		res      = false
+	)
+
+	db = store.Preloads(db)
+	if err := db.First(&store, "id = ?", req.StoreId).Error; err != nil {
+		return false, errors.New("门店不存在")
+	}
+
+	if req.StaffId != "" {
+		staff_id = req.StaffId
+	} else {
+		staff_id = l.Staff.Id
+	}
+	for _, staff := range store.Superiors {
+		if staff.Id == staff_id {
+			res = true
+			break
+		}
+	}
+
+	return res, nil
+}

@@ -8,6 +8,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -311,6 +312,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
 			product.Status = enums.ProductStatusAllocate
+			product.EnterTime = time.Now()
 			if err := tx.Save(&product).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}

@@ -6,6 +6,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -45,7 +46,7 @@ func (l *OrderRepairLogic) Create(req *types.OrderRepairCreateReq) (*model.Order
 			data := model.OrderRepairProduct{
 				Status:      enums.OrderRepairStatusWaitPay,
 				IsOur:       p.IsOur,
-				Code:        p.Code,
+				Code:        strings.ToUpper(p.Code),
 				Name:        p.Name,
 				LabelPrice:  p.LabelPrice,
 				Brand:       p.Brand,

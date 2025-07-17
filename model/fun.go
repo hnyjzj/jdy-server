@@ -15,8 +15,6 @@ func PageCondition(db *gorm.DB, page, limit int) *gorm.DB {
 	}
 
 	switch {
-	case limit > 100:
-		limit = 100
 	case limit <= 0:
 		limit = 10
 	}

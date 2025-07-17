@@ -8,6 +8,7 @@ import (
 	"jdy/types"
 	"jdy/utils"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -57,7 +58,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 				// 添加产品
 				data.ShouldProducts = append(data.ShouldProducts, model.ProductInventoryProduct{
 					ProductType: enums.ProductTypeUsedFinished,
-					ProductCode: product.Code,
+					ProductCode: strings.ToUpper(product.Code),
 					Status:      enums.ProductInventoryProductStatusShould,
 				})
 				// 产品总数
@@ -102,7 +103,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 				// 添加产品
 				data.ShouldProducts = append(data.ShouldProducts, model.ProductInventoryProduct{
 					ProductType: enums.ProductTypeUsedOld,
-					ProductCode: product.Code,
+					ProductCode: strings.ToUpper(product.Code),
 					Status:      enums.ProductInventoryProductStatusShould,
 				})
 				// 产品总数
@@ -252,7 +253,7 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 		// 计算并添加产品
 		for _, code := range req.Codes {
 			for _, product := range inventory.ActualProducts {
-				if product.ProductCode == code {
+				if product.ProductCode == strings.ToUpper(code) {
 					return errors.New(code + "产品已存在")
 				}
 			}
@@ -260,7 +261,7 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 			if err := tx.Create(&model.ProductInventoryProduct{
 				ProductInventoryId: req.Id,
 				ProductType:        inventory.Type,
-				ProductCode:        code,
+				ProductCode:        strings.ToUpper(code),
 				Status:             enums.ProductInventoryProductStatusActual,
 				InventoryTime:      &now,
 			}).Error; err != nil {
@@ -374,10 +375,10 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 			for _, product := range products {
 				switch product.Status {
 				case enums.ProductInventoryProductStatusShould:
-					ShouldCodes = append(ShouldCodes, product.ProductCode)
+					ShouldCodes = append(ShouldCodes, strings.ToUpper(product.ProductCode))
 					ShouldProducts = append(ShouldProducts, product)
 				case enums.ProductInventoryProductStatusActual:
-					ActualCodes = append(ActualCodes, product.ProductCode)
+					ActualCodes = append(ActualCodes, strings.ToUpper(product.ProductCode))
 					ActualProducts = append(ActualProducts, product)
 				}
 			}
@@ -387,7 +388,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 					loss := model.ProductInventoryProduct{
 						ProductInventoryId: req.Id,
 						ProductType:        inventory.Type,
-						ProductCode:        actual.ProductCode,
+						ProductCode:        strings.ToUpper(actual.ProductCode),
 						Status:             enums.ProductInventoryProductStatusLoss,
 					}
 					data = append(data, loss)
@@ -399,7 +400,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 					extra := model.ProductInventoryProduct{
 						ProductInventoryId: req.Id,
 						ProductType:        inventory.Type,
-						ProductCode:        actual.ProductCode,
+						ProductCode:        strings.ToUpper(actual.ProductCode),
 						Status:             enums.ProductInventoryProductStatusExtra,
 					}
 					data = append(data, extra)

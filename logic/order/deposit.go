@@ -5,6 +5,7 @@ import (
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -283,10 +284,10 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 
 		if !p.IsOur {
 			data.Name = p.ProductDemand.Name
-			data.Code = p.ProductDemand.Code
+			data.Code = strings.ToUpper(p.ProductDemand.Code)
 		} else {
 			data.Name = p.ProductFinished.Name
-			data.Code = p.ProductFinished.Code
+			data.Code = strings.ToUpper(p.ProductFinished.Code)
 			// 添加历史
 			log := model.ProductHistory{
 				Action:     enums.ProductActionReturn,

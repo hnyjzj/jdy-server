@@ -216,6 +216,11 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	if query.StartTime != nil && query.EndTime != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
 	}
+
+	if query.StoreId != "" {
+		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
+	}
+
 	return db
 }
 

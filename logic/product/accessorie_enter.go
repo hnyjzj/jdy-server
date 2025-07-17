@@ -6,6 +6,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -110,7 +111,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		for _, p := range req.Products {
 			var category model.ProductAccessorieCategory
-			if err := tx.Where("id = ?", p.Code).First(&category).Error; err != nil {
+			if err := tx.Where("id = ?", strings.ToUpper(p.Code)).First(&category).Error; err != nil {
 				products[p.Code] = "配件条目不存在"
 				continue
 			}
@@ -118,7 +119,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 			var product model.ProductAccessorie
 			if err := tx.Where(&model.ProductAccessorie{
 				EnterId: enter.Id,
-				Code:    p.Code,
+				Code:    strings.ToUpper(p.Code),
 			}).First(&product).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("配件条目错误")
@@ -140,7 +141,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 			} else {
 				data := model.ProductAccessorie{
 					StoreId:   enter.StoreId,
-					Code:      p.Code,
+					Code:      strings.ToUpper(p.Code),
 					Stock:     p.Stock,
 					AccessFee: p.AccessFee,
 					Status:    enums.ProductStatusDraft,

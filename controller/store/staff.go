@@ -103,3 +103,33 @@ func (con StoreStaffController) Del(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+func (con StoreStaffController) IsIn(ctx *gin.Context) {
+	var (
+		req   types.StoreStaffIsInReq
+		logic = store.StoreStaffLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	res, err := logic.IsIn(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}

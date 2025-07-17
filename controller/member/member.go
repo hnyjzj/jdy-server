@@ -88,3 +88,34 @@ func (con MemberController) Info(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", res)
 }
+
+// 会员消费记录
+func (con MemberController) Consumptions(ctx *gin.Context) {
+	var (
+		req types.MemberConsumptionsReq
+
+		logic = member.MemberLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	res, err := logic.Consumptions(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}

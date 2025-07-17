@@ -56,7 +56,7 @@ const (
 	ProductInventoryFinishedTypeCount       ProductInventoryFinishedType = iota + 1 // 件数
 	ProductInventoryFinishedTypeWeightMetal                                         // 金重
 	ProductInventoryFinishedTypeLabelPrice                                          // 标价
-	ProductInventoryFinishedTypeCost                                                // 成本
+	// ProductInventoryFinishedTypeCost                                                // 成本
 )
 
 type ProductInventoryFinishedReq struct {
@@ -92,8 +92,8 @@ func (l *StatisticLogic) ProductInventoryFinishedData(req *ProductInventoryFinis
 		return logic.ProductInventoryFinishedWeightMetalData(req)
 	case ProductInventoryFinishedTypeLabelPrice:
 		return logic.ProductInventoryFinishedLabelPriceData(req)
-	case ProductInventoryFinishedTypeCost:
-		return logic.ProductInventoryFinishedCostData(req)
+		// case ProductInventoryFinishedTypeCost:
+		// 	return logic.ProductInventoryFinishedCostData(req)
 	}
 
 	return nil, nil
@@ -265,7 +265,7 @@ var ProductInventoryFinishedTypeMap = map[ProductInventoryFinishedType]string{
 	ProductInventoryFinishedTypeCount:       "件数",
 	ProductInventoryFinishedTypeWeightMetal: "金重",
 	ProductInventoryFinishedTypeLabelPrice:  "标价",
-	ProductInventoryFinishedTypeCost:        "成本",
+	// ProductInventoryFinishedTypeCost:        "成本",
 }
 
 func (p ProductInventoryFinishedType) ToMap() any {

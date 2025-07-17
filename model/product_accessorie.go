@@ -137,12 +137,6 @@ func (ProductAccessorieCategory) WhereCondition(db *gorm.DB, query *types.Produc
 		db = db.Where("remark LIKE ?", fmt.Sprintf("%%%s%%", query.Remark))
 	}
 
-	if query.StoreId != "" {
-		db = db.Preload("Product", func(tx *gorm.DB) *gorm.DB {
-			return tx.Where("store_id = ?", query.StoreId)
-		})
-	}
-
 	return db
 }
 

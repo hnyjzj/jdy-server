@@ -102,9 +102,9 @@ func Api(g *gin.Engine) {
 
 				product_inventory_old := statistics.Group("/product_inventory_old") // 旧料库存
 				{
-					product_inventory_old.GET("/where", statistic.StatisticController{}.ProductInventoryOldWhere)  // 老料库存筛选
-					product_inventory_old.GET("/title", statistic.StatisticController{}.ProductInventoryOldTitles) // 老料库存标题
-					product_inventory_old.POST("/data", statistic.StatisticController{}.ProductInventoryOldData)   // 老料库存列表
+					product_inventory_old.GET("/where", statistic.StatisticController{}.ProductInventoryOldWhere)  // 旧料库存筛选
+					product_inventory_old.GET("/title", statistic.StatisticController{}.ProductInventoryOldTitles) // 旧料库存标题
+					product_inventory_old.POST("/data", statistic.StatisticController{}.ProductInventoryOldData)   // 旧料库存列表
 				}
 			}
 		}

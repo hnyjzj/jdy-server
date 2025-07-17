@@ -24,7 +24,7 @@ func (con StatisticController) ProductInventoryOldTitles(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
-// 成品库存统计
+// 旧料库存统计
 func (con StatisticController) ProductInventoryOldData(ctx *gin.Context) {
 	var (
 		req   statistic.ProductInventoryOldReq

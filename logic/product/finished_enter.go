@@ -284,6 +284,35 @@ func (l *ProductFinishedEnterLogic) DelProduct(req *types.ProductFinishedEnterDe
 	}); err != nil {
 		return errors.New("产品删除失败：" + err.Error())
 	}
+
+	return nil
+}
+
+// 入库单清空产品
+func (l *ProductFinishedEnterLogic) ClearProduct(req *types.ProductFinishedEnterClearProductReq) error {
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询入库单
+		var enter model.ProductFinishedEnter
+		if err := tx.Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
+			return errors.New("入库单不存在")
+		}
+
+		if enter.Status != enums.ProductEnterStatusDraft {
+			return errors.New("入库单已结束")
+		}
+
+		// 删除产品(真实删除)
+		if err := tx.Where(&model.ProductFinished{
+			EnterId: enter.Id,
+		}).Unscoped().Delete(&model.ProductFinished{}).Error; err != nil {
+			return errors.New("产品删除失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("产品删除失败：" + err.Error())
+	}
+
 	return nil
 }
 

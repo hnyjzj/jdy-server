@@ -47,6 +47,10 @@ type ProductFinishedEnterDelProductReq struct {
 	ProductIds []string `json:"product_ids" binding:"required"` // 商品ID列表
 }
 
+type ProductFinishedEnterClearProductReq struct {
+	EnterId string `json:"enter_id" binding:"required"` // 入库单ID
+}
+
 type ProductFinishedEnterFinishReq struct {
 	EnterId string `json:"enter_id" binding:"required"` // 入库单ID
 }

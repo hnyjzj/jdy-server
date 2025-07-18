@@ -160,6 +160,9 @@ type ProductAccessorieEnter struct {
 }
 
 func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, query *types.ProductAccessorieEnterWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)
 	}

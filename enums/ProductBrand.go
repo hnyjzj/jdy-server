@@ -3,7 +3,7 @@ package enums
 import "errors"
 
 /* 产品品牌 */
-// 金美福、周大生、老庙、周六福、金大福、中国珠宝、老庙推广价、金大福推广价、金六福推广价、金美福推广价、中国珠宝推广价、潮宏基
+// 金美福、周大生、老庙、周六福、金大福、中国珠宝、老庙推广价、金大福推广价、金六福推广价、金美福推广价、中国珠宝推广价、潮宏基、谢瑞麟
 type ProductBrand int
 
 const (
@@ -19,6 +19,7 @@ const (
 	ProductBrandJMFTP                         // 金美福推广价
 	ProductBrandZJTP                          // 中国珠宝推广价
 	ProductBrandCHJ                           // 潮宏基
+	ProductBrandXSL                           // 谢瑞麟
 )
 
 var ProductBrandMap = map[ProductBrand]string{
@@ -34,6 +35,7 @@ var ProductBrandMap = map[ProductBrand]string{
 	ProductBrandJMFTP: "金美福推广价",
 	ProductBrandZJTP:  "中国珠宝推广价",
 	ProductBrandCHJ:   "潮宏基",
+	ProductBrandXSL:   "谢瑞麟",
 }
 
 func (p ProductBrand) ToMap() any {

@@ -9,9 +9,9 @@ import (
 )
 
 type OrderSalesWhere struct {
-	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                        // 订单编号
-	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
-	MemberId string `json:"member_id" label:"会员" find:"true" create:"true" sort:"3" type:"string" input:"search"`   // 会员
+	Id      string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                        // 订单编号
+	StoreId string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
+	Phone   string `json:"phone" label:"会员(手机号)" find:"true" create:"true" sort:"3" type:"string" input:"text"`    // 会员
 
 	Status        enums.OrderSalesStatus   `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`                                      // 订单状态
 	Source        enums.OrderSource        `json:"source" label:"订单来源" find:"true" create:"true" update:"true" sort:"6" type:"number" input:"select" preset:"typeMap"`          // 订单来源
@@ -19,7 +19,7 @@ type OrderSalesWhere struct {
 
 	CashierId  string `json:"cashier_id" label:"收银员" find:"true" sort:"7" type:"string" input:"search"`  // 收银员
 	SalesmanId string `json:"salesman_id" label:"导购员" find:"true" sort:"8" type:"string" input:"search"` // 导购员
-	ProductId  string `json:"product_id" label:"商品" find:"true" sort:"9" type:"string" input:"search"`   // 商品
+	Code       string `json:"code" label:"商品(条码)" find:"true" sort:"9" type:"string" input:"text"`       // 商品
 
 	StartDate *time.Time `json:"start_date" label:"开始日期" find:"true" sort:"10" type:"string" input:"date"` // 开始日期
 	EndDate   *time.Time `json:"end_date" label:"结束日期" find:"true" sort:"11" type:"string" input:"date"`   // 结束日期

@@ -160,7 +160,7 @@ func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
 		db = db.Where("identity = ?", query.Identity)
 	}
 	if query.StoreId != "" {
-		db = db.Where("store_id = ?", query.StoreId)
+		db = db.Where("id IN (SELECT staff_id FROM store_staffs WHERE store_id = ?)", query.StoreId)
 	}
 
 	return db

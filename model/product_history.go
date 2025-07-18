@@ -31,12 +31,12 @@ type ProductHistory struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"`                 // IP
 }
 
-func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhereReq) *gorm.DB {
-	if len(query.Type) > 0 {
-		db = db.Where("type in (?)", query.Type)
+func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhere) *gorm.DB {
+	if query.Type != 0 {
+		db = db.Where("type = ?", query.Type)
 	}
-	if query.ProductId != "" {
-		db = db.Where("product_id = ?", query.ProductId)
+	if query.Code != "" {
+		db = db.Where("new_value LIKE ? OR old_value LIKE ?", "%\"code\":\""+query.Code+"\"%", "%\"code\":\""+query.Code+"\"%")
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)

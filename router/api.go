@@ -382,7 +382,7 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			// 货品操作记录
+			// 货品记录
 			historys := products.Group("/history")
 			{
 				historys.GET("/where", product.ProductHistoryController{}.Where) // 货品操作记录筛选

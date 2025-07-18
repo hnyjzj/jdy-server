@@ -138,17 +138,29 @@ func (S *Staff) HasPermissionStore(storeId string) bool {
 }
 
 func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {
+	if query.Nickname != "" {
+		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", strings.ReplaceAll(query.Nickname, "%", "\\%")))
+	}
 	if query.Phone != "" {
 		db = db.Where("phone = ?", query.Phone)
 	}
-	if query.Nickname != "" {
-		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", strings.ReplaceAll(query.Nickname, "%", "\\%")))
+	if query.Username != "" {
+		db = db.Where("username = ?", query.Username)
+	}
+	if query.Email != "" {
+		db = db.Where("email LIKE ?", fmt.Sprintf("%%%s%%", strings.ReplaceAll(query.Email, "%", "\\%")))
 	}
 	if query.Gender != 0 {
 		db = db.Where("gender = ?", query.Gender)
 	}
 	if query.IsDisabled {
 		db = db.Where("is_disabled = ?", query.IsDisabled)
+	}
+	if query.Identity != 0 {
+		db = db.Where("identity = ?", query.Identity)
+	}
+	if query.StoreId != "" {
+		db = db.Where("id IN (SELECT staff_id FROM store_staffs WHERE store_id = ?)", query.StoreId)
 	}
 
 	return db

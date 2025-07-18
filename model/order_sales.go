@@ -65,8 +65,8 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 	if req.Source != 0 {
 		db = db.Where("source = ?", req.Source)
 	}
-	if req.MemberId != "" {
-		db = db.Where("member_id = ?", req.MemberId)
+	if req.Phone != "" {
+		db = db.Where("member_id IN (SELECT id FROM members WHERE phone = ?)", req.Phone)
 	}
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
@@ -77,16 +77,8 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 	if req.SalesmanId != "" {
 		db = db.Where("id IN (SELECT order_id FROM order_sales_clerks WHERE salesman_id = ?)", req.SalesmanId)
 	}
-	if req.ProductId != "" {
-		db = db.Where(`
-			id IN (
-				SELECT order_id FROM order_sales_product_finisheds WHERE product_id = ?
-				UNION
-				SELECT order_id FROM order_sales_product_olds WHERE product_id = ?
-				UNION
-				SELECT order_id FROM order_sales_product_accessories WHERE product_id = ?
-			)
-		`, req.ProductId, req.ProductId, req.ProductId)
+	if req.Code != "" {
+		db = db.Where("id IN (SELECT order_id FROM order_sales_products WHERE code = ?)", req.Code)
 	}
 	if req.StartDate != nil && req.EndDate == nil {
 		db = db.Where("created_at >= ?", req.StartDate)

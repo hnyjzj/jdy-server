@@ -37,6 +37,9 @@ type ProductAllocate struct {
 }
 
 func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
 	if query.Method != 0 {
 		db = db.Where("method = ?", query.Method)
 	}

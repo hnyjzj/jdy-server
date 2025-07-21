@@ -32,6 +32,8 @@ type ProductHistory struct {
 }
 
 func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhere) *gorm.DB {
+	db = db.Where("type <> ?", enums.ProductTypeAccessorie)
+
 	if query.Type != 0 {
 		db = db.Where("type = ?", query.Type)
 	}

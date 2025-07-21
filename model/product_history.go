@@ -51,6 +51,9 @@ func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhe
 func (ProductHistory) WhereAccessorieCondition(db *gorm.DB, query *types.ProductAccessorieHistoryWhere) *gorm.DB {
 	db = db.Where("type = ?", enums.ProductTypeAccessorie)
 
+	if query.Name != "" {
+		db = db.Where("new_value LIKE ? OR old_value LIKE ?", "%\"name\":\""+query.Name+"\"%", "%\"name\":\""+query.Name+"\"%")
+	}
 	if query.Code != "" {
 		db = db.Where("new_value LIKE ? OR old_value LIKE ?", "%\"code\":\""+query.Code+"\"%", "%\"code\":\""+query.Code+"\"%")
 	}

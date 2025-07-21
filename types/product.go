@@ -18,16 +18,17 @@ type ProductConversionReq struct {
 }
 
 type ProductHistoryWhere struct {
-	Code    string                `json:"code" label:"条码" input:"text" type:"string" find:"true" sort:"1" required:"true"`                       // 产品
+	Code    string                `json:"code" label:"条码" input:"text" type:"string" find:"true" sort:"1" required:"false"`                      // 产品
 	Type    enums.ProductTypeUsed `json:"type" label:"产品类型" input:"select" type:"number" find:"true" sort:"2" required:"false" preset:"typeMap"` // 产品类型
-	StoreId string                `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"true"`                  // 门店
-	Action  enums.ProductAction   `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"true" preset:"typeMap"`  // 操作
+	StoreId string                `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"false"`                 // 门店
+	Action  enums.ProductAction   `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"false" preset:"typeMap"` // 操作
 }
 
 type ProductAccessorieHistoryWhere struct {
-	Code    string              `json:"code" label:"条码" input:"text" type:"string" find:"true" sort:"1" required:"true"`                      // 产品
-	StoreId string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"true"`                 // 门店
-	Action  enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"true" preset:"typeMap"` // 操作
+	Name    string              `json:"name" label:"配件名称" input:"text" type:"string" find:"true" sort:"1" required:"false"`                    // 产品
+	Code    string              `json:"code" label:"条码" input:"text" type:"string" find:"true" sort:"2" required:"false"`                      // 产品
+	StoreId string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"false"`                 // 门店
+	Action  enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"false" preset:"typeMap"` // 操作
 }
 
 type ProductHistoryListReq struct {

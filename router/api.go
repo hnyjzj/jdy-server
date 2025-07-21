@@ -106,6 +106,13 @@ func Api(g *gin.Engine) {
 					product_inventory_old.GET("/title", statistic.StatisticController{}.ProductInventoryOldTitles) // 旧料库存标题
 					product_inventory_old.POST("/data", statistic.StatisticController{}.ProductInventoryOldData)   // 旧料库存列表
 				}
+
+				order_payment := statistics.Group("/order_payment") // 订单收支统计
+				{
+					order_payment.GET("/where", statistic.StatisticController{}.OrderPaymentWhere)  // 订单收支统计筛选
+					order_payment.GET("/title", statistic.StatisticController{}.OrderPaymentTitles) // 订单收支统计标题
+					order_payment.POST("/data", statistic.StatisticController{}.OrderPaymentData)   // 订单收支统计列表
+				}
 			}
 		}
 

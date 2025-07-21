@@ -57,9 +57,6 @@ type OrderRefund struct {
 }
 
 func (OrderRefund) WhereCondition(db *gorm.DB, req *types.OrderSalesRefundWhere) *gorm.DB {
-	if req.Id != "" {
-		db = db.Where("id = ?", req.Id)
-	}
 	if req.OrderId != "" {
 		db = db.Where("order_id = ?", req.OrderId)
 	}

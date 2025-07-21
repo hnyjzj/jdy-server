@@ -24,7 +24,7 @@ func (con StatisticController) OrderPaymentTitles(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
-// 成品库存统计
+// 订单收支统计
 func (con StatisticController) OrderPaymentData(ctx *gin.Context) {
 	var (
 		req   statistic.OrderPaymentReq

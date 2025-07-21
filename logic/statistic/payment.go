@@ -53,9 +53,9 @@ func (l *StatisticLogic) OrderPaymentTitles() *[]OrderPaymentTitle {
 type OrderPaymentType int
 
 const (
-	FinanceTypeIncome  OrderPaymentType = iota + 1 // 收入
-	FinanceTypeExpense                             // 支出
-	FinanceTypeSurplus                             // 结余
+	OrderPaymentTypeIncome  OrderPaymentType = iota + 1 // 收入
+	OrderPaymentTypeExpense                             // 支出
+	OrderPaymentTypeSurplus                             // 结余
 )
 
 type OrderPaymentReq struct {
@@ -85,19 +85,19 @@ func (l *StatisticLogic) OrderPaymentData(req *OrderPaymentReq) (any, error) {
 
 	// 查询数据
 	switch req.Type {
-	case FinanceTypeIncome:
-		return logic.FinanceTypeIncomeData(req)
-	case FinanceTypeExpense:
-		return logic.FinanceTypeExpenseData(req)
-	case FinanceTypeSurplus:
-		return logic.FinanceTypeSurplusData(req)
+	case OrderPaymentTypeIncome:
+		return logic.OrderPaymentTypeIncomeData(req)
+	case OrderPaymentTypeExpense:
+		return logic.OrderPaymentTypeExpenseData(req)
+	case OrderPaymentTypeSurplus:
+		return logic.OrderPaymentTypeSurplusData(req)
 	}
 
 	return nil, nil
 }
 
 // 收入
-func (r *OrderPaymentLogic) FinanceTypeIncomeData(req *OrderPaymentReq) (any, error) {
+func (r *OrderPaymentLogic) OrderPaymentTypeIncomeData(req *OrderPaymentReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -112,7 +112,7 @@ func (r *OrderPaymentLogic) FinanceTypeIncomeData(req *OrderPaymentReq) (any, er
 			Type:    enums.FinanceTypeIncome,
 		})
 		var total decimal.Decimal
-		if err := db_total.Select("SUM(amount) as total").Having("total > 0").Scan(&total).Error; err != nil {
+		if err := db_total.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 			return nil, err
 		}
 		item["total"] = total
@@ -126,7 +126,7 @@ func (r *OrderPaymentLogic) FinanceTypeIncomeData(req *OrderPaymentReq) (any, er
 				PaymentMethod: k,
 			})
 			var total decimal.Decimal
-			if err := db.Select("SUM(amount) as total").Having("total > 0").Scan(&total).Error; err != nil {
+			if err := db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 				return nil, err
 			}
 			item[fmt.Sprint(k)] = total
@@ -139,7 +139,7 @@ func (r *OrderPaymentLogic) FinanceTypeIncomeData(req *OrderPaymentReq) (any, er
 }
 
 // 支出
-func (r *OrderPaymentLogic) FinanceTypeExpenseData(req *OrderPaymentReq) (any, error) {
+func (r *OrderPaymentLogic) OrderPaymentTypeExpenseData(req *OrderPaymentReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -154,7 +154,7 @@ func (r *OrderPaymentLogic) FinanceTypeExpenseData(req *OrderPaymentReq) (any, e
 			Type:    enums.FinanceTypeExpense,
 		})
 		var total decimal.Decimal
-		if err := db_total.Select("SUM(amount) as total").Having("total > 0").Scan(&total).Error; err != nil {
+		if err := db_total.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 			return nil, err
 		}
 		item["total"] = total
@@ -168,7 +168,7 @@ func (r *OrderPaymentLogic) FinanceTypeExpenseData(req *OrderPaymentReq) (any, e
 				PaymentMethod: k,
 			})
 			var total decimal.Decimal
-			if err := db.Select("SUM(amount) as total").Having("total > 0").Scan(&total).Error; err != nil {
+			if err := db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 				return nil, err
 			}
 			item[fmt.Sprint(k)] = total
@@ -181,7 +181,7 @@ func (r *OrderPaymentLogic) FinanceTypeExpenseData(req *OrderPaymentReq) (any, e
 }
 
 // 结余
-func (r *OrderPaymentLogic) FinanceTypeSurplusData(req *OrderPaymentReq) (any, error) {
+func (r *OrderPaymentLogic) OrderPaymentTypeSurplusData(req *OrderPaymentReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -196,7 +196,7 @@ func (r *OrderPaymentLogic) FinanceTypeSurplusData(req *OrderPaymentReq) (any, e
 			Type:    enums.FinanceTypeIncome,
 		})
 		var total_income decimal.Decimal
-		if err := total_income_db.Select("SUM(amount) as total").Having("total > 0").Scan(&total_income).Error; err != nil {
+		if err := total_income_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total_income).Error; err != nil {
 			return nil, err
 		}
 
@@ -206,7 +206,7 @@ func (r *OrderPaymentLogic) FinanceTypeSurplusData(req *OrderPaymentReq) (any, e
 			Type:    enums.FinanceTypeExpense,
 		})
 		var total_expense decimal.Decimal
-		if err := total_expense_db.Select("SUM(amount) as total").Having("total > 0").Scan(&total_expense).Error; err != nil {
+		if err := total_expense_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total_expense).Error; err != nil {
 			return nil, err
 		}
 
@@ -220,7 +220,7 @@ func (r *OrderPaymentLogic) FinanceTypeSurplusData(req *OrderPaymentReq) (any, e
 				PaymentMethod: k,
 			})
 			var income decimal.Decimal
-			if err := income_db.Select("SUM(amount) as total").Having("total > 0").Scan(&income).Error; err != nil {
+			if err := income_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&income).Error; err != nil {
 				return nil, err
 			}
 
@@ -231,22 +231,23 @@ func (r *OrderPaymentLogic) FinanceTypeSurplusData(req *OrderPaymentReq) (any, e
 				PaymentMethod: k,
 			})
 			var expense decimal.Decimal
-			if err := expense_db.Select("SUM(amount) as total").Having("total > 0").Scan(&expense).Error; err != nil {
+			if err := expense_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&expense).Error; err != nil {
 				return nil, err
 			}
 
 			item[fmt.Sprint(k)] = income.Sub(expense)
 		}
 
+		data = append(data, item)
 	}
 
 	return &data, nil
 }
 
 var OrderPaymentTypeMap = map[OrderPaymentType]string{
-	FinanceTypeIncome:  "收入",
-	FinanceTypeExpense: "支出",
-	FinanceTypeSurplus: "结余",
+	OrderPaymentTypeIncome:  "收入",
+	OrderPaymentTypeExpense: "支出",
+	OrderPaymentTypeSurplus: "结余",
 }
 
 func (p OrderPaymentType) ToMap() any {

@@ -54,6 +54,7 @@ type ProductAllocateListReq struct {
 }
 
 type ProductAllocateInfoReq struct {
+	PageReq
 	Id string `json:"id" binding:"required"`
 }
 

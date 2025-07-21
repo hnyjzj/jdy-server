@@ -105,15 +105,15 @@ func (ProductAccessorieCategory) WhereCondition(db *gorm.DB, query *types.Produc
 		db = db.Where("retail_type = ?", query.RetailType)
 	}
 
-	if query.Weight != &decimal.Zero {
+	if query.Weight != nil {
 		db = db.Where("weight = ?", query.Weight)
 	}
 
-	if query.AccessFee != &decimal.Zero {
+	if query.AccessFee != nil {
 		db = db.Where("access_fee = ?", query.AccessFee)
 	}
 
-	if query.LabelPrice != &decimal.Zero {
+	if query.LabelPrice != nil {
 		db = db.Where("label_price = ?", query.LabelPrice)
 	}
 

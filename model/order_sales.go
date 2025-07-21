@@ -148,9 +148,6 @@ type OrderSalesProduct struct {
 }
 
 func (OrderSalesProduct) WhereCondition(db *gorm.DB, req *types.OrderSalesDetailWhere) *gorm.DB {
-	if req.Id != "" {
-		db = db.Where("id = ?", req.Id)
-	}
 	if req.OrderId != "" {
 		db = db.Where("order_id = ?", req.OrderId)
 	}

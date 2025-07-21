@@ -40,6 +40,32 @@ func (l *ProductHistoryLogic) List(req *types.ProductHistoryListReq) (*types.Pag
 
 	return &res, nil
 }
+func (l *ProductHistoryLogic) ListAccessorie(req *types.ProductAccessorieHistoryListReq) (*types.PageRes[model.ProductHistory], error) {
+	var (
+		logs model.ProductHistory
+
+		res types.PageRes[model.ProductHistory]
+	)
+
+	db := model.DB.Model(&logs)
+	db = logs.WhereAccessorieCondition(db, &req.Where)
+
+	// 获取总数
+	if err := db.Count(&res.Total).Error; err != nil {
+		return nil, errors.New("获取总数失败")
+	}
+
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = model.PageCondition(db, req.Page, req.Limit)
+	db = db.Preload("Operator")
+
+	if err := db.Find(&res.List).Error; err != nil {
+		return nil, errors.New("获取列表失败")
+	}
+
+	return &res, nil
+}
 
 // 产品操作记录详情
 func (l *ProductHistoryLogic) Info(req *types.ProductHistoryInfoReq) (*model.ProductHistory, error) {

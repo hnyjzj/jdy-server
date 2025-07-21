@@ -24,9 +24,19 @@ type ProductHistoryWhere struct {
 	Action  enums.ProductAction   `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"true" preset:"typeMap"`  // 操作
 }
 
+type ProductAccessorieHistoryWhere struct {
+	Code    string              `json:"code" label:"条码" input:"text" type:"string" find:"true" sort:"1" required:"true"`                      // 产品
+	StoreId string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"true"`                 // 门店
+	Action  enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"true" preset:"typeMap"` // 操作
+}
+
 type ProductHistoryListReq struct {
 	PageReq
 	Where ProductHistoryWhere `json:"where" binding:"required"`
+}
+type ProductAccessorieHistoryListReq struct {
+	PageReq
+	Where ProductAccessorieHistoryWhere `json:"where" binding:"required"`
 }
 
 type ProductHistoryInfoReq struct {

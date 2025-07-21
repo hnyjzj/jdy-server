@@ -38,7 +38,12 @@ func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhe
 		db = db.Where("type = ?", query.Type)
 	}
 	if query.Code != "" {
-		db = db.Where("new_value LIKE ? OR old_value LIKE ?", "%\"code\":\""+query.Code+"\"%", "%\"code\":\""+query.Code+"\"%")
+		// 使用 JSON 函数更安全和高效
+		db = db.Where(
+			"JSON_EXTRACT(new_value, '$.code') = ? OR JSON_EXTRACT(old_value, '$.code') = ?",
+			query.Code,
+			query.Code,
+		).Debug()
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)

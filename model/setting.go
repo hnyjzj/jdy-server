@@ -13,8 +13,8 @@ type GoldPrice struct {
 
 	StoreId         string                 `json:"store_id" gorm:"type:varchar(255);comment:店铺ID;"`                // 店铺ID
 	Price           decimal.Decimal        `json:"price" gorm:"type:decimal(10,2);comment:金价;"`                    // 金价
-	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"type:tinyint(1);comment:产品材质;"`          // 产品材质
-	ProductType     enums.ProductType      `json:"product_type" gorm:"type:tinyint(1);comment:产品类型;"`              // 产品类型
+	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"type:int(11);comment:产品材质;"`             // 产品材质
+	ProductType     enums.ProductType      `json:"product_type" gorm:"type:int(11);comment:产品类型;"`                 // 产品类型
 	ProductBrand    []enums.ProductBrand   `json:"product_brand" gorm:"type:text;serializer:json;comment:产品品牌;"`   // 产品品牌
 	ProductQuality  []enums.ProductQuality `json:"product_quality" gorm:"type:text;serializer:json;comment:产品成色;"` // 产品成色
 }
@@ -60,7 +60,7 @@ type OpenOrder struct {
 	DiscountRate decimal.Decimal    `json:"discount_rate" gorm:"type:decimal(10,2);comment:积分抵扣比例;"` // 积分抵扣比例
 	DecimalPoint enums.DecimalPoint `json:"decimal_point" gorm:"type:int(11);comment:金额小数点控制;"`      // 金额小数点控制
 	Rounding     enums.Rounding     `json:"rounding" gorm:"type:int(11);comment:金额进位控制;"`            // 金额进位控制
-	UseConfirm   bool               `json:"use_confirm" gorm:"type:tinyint(1);comment:积分使用二次确认;"`    // 积分使用二次确认
+	UseConfirm   bool               `json:"use_confirm" gorm:"type:int(11);comment:积分使用二次确认;"`       // 积分使用二次确认
 }
 
 func (OpenOrder) Default() *OpenOrder {

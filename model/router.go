@@ -7,7 +7,7 @@ type Router struct {
 	Icon     string  `json:"icon" gorm:"size:255;comment:图标"`
 	Path     string  `json:"path" gorm:"size:255;comment:路径"`
 	ParentId *string `json:"parent_id" gorm:"size:255;comment:父级ID"`
-	Sort     int     `json:"sort" gorm:"type:tinyint(3);default:0;comment:排序"`
+	Sort     int     `json:"sort" gorm:"type:int(11);default:0;comment:排序"`
 
 	Children []*Router `json:"children,omitempty" gorm:"-"`
 }

@@ -15,7 +15,7 @@ type OrderRepair struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Status enums.OrderRepairStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
+	Status enums.OrderRepairStatus `json:"status" gorm:"type:int(11);not NULL;comment:订单状态;"` // 订单状态
 
 	ReceptionistId string `json:"receptionist_id" gorm:"type:varchar(255);not NULL;comment:接待人ID;"`         // 接待人ID
 	Receptionist   Staff  `json:"receptionist" gorm:"foreignKey:ReceptionistId;references:Id;comment:接待人;"` // 接待人
@@ -28,11 +28,11 @@ type OrderRepair struct {
 	Name string `json:"name" gorm:"type:varchar(255);not NULL;comment:维修项目;"` // 维修项目
 	Desc string `json:"desc" gorm:"type:text;not NULL;comment:描述;"`           // 问题描述
 
-	DeliveryMethod enums.DeliveryMethod `json:"delivery_method" gorm:"type:tinyint(2);not NULL;comment:取货方式;"` // 取货方式
-	Province       string               `json:"province" gorm:"type:varchar(255);not NULL;comment:省;"`         // 省
-	City           string               `json:"city" gorm:"type:varchar(255);not NULL;comment:市;"`             // 市
-	Area           string               `json:"area" gorm:"type:varchar(255);not NULL;comment:区;"`             // 区
-	Address        string               `json:"address" gorm:"type:varchar(255);not NULL;comment:地址;"`         // 地址
+	DeliveryMethod enums.DeliveryMethod `json:"delivery_method" gorm:"type:int(11);not NULL;comment:取货方式;"` // 取货方式
+	Province       string               `json:"province" gorm:"type:varchar(255);not NULL;comment:省;"`      // 省
+	City           string               `json:"city" gorm:"type:varchar(255);not NULL;comment:市;"`          // 市
+	Area           string               `json:"area" gorm:"type:varchar(255);not NULL;comment:区;"`          // 区
+	Address        string               `json:"address" gorm:"type:varchar(255);not NULL;comment:地址;"`      // 地址
 
 	Products []OrderRepairProduct `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:维修单商品;"` // 维修单商品
 
@@ -107,30 +107,30 @@ func (OrderRepair) Preloads(db *gorm.DB) *gorm.DB {
 type OrderRepairProduct struct {
 	SoftDelete
 
-	Status enums.OrderRepairStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderRepairStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
 
 	OrderId string      `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`  // 订单ID
 	Order   OrderRepair `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
 
-	IsOur     bool            `json:"is_our" gorm:"type:tinyint(1);not NULL;comment:是否本店商品;"`        // 是否本店商品
+	IsOur     bool            `json:"is_our" gorm:"type:int(11);not NULL;comment:是否本店商品;"`           // 是否本店商品
 	ProductId string          `json:"product_id" gorm:"type:varchar(255);not NULL;comment:商品ID;"`    // 商品ID
 	Product   ProductFinished `json:"product" gorm:"foreignKey:ProductId;references:Id;comment:商品;"` // 商品
 
 	Code        string                `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
 	Name        string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
 	LabelPrice  decimal.Decimal       `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
-	Brand       enums.ProductBrand    `json:"brand" gorm:"type:tinyint(2);comment:品牌;"`                    // 品牌
-	Material    enums.ProductMaterial `json:"material" gorm:"type:tinyint(2);not NULL;comment:材质;"`        // 材质
-	Quality     enums.ProductQuality  `json:"quality" gorm:"type:tinyint(2);not NULL;comment:成色;"`         // 成色
-	Gem         enums.ProductGem      `json:"gem" gorm:"type:tinyint(2);not NULL;comment:主石;"`             // 主石
-	Category    enums.ProductCategory `json:"category" gorm:"type:tinyint(2);not NULL;comment:品类;"`        // 品类
-	Craft       enums.ProductCraft    `json:"craft" gorm:"type:tinyint(2);comment:工艺;"`                    // 工艺
+	Brand       enums.ProductBrand    `json:"brand" gorm:"type:int(11);comment:品牌;"`                       // 品牌
+	Material    enums.ProductMaterial `json:"material" gorm:"type:int(11);not NULL;comment:材质;"`           // 材质
+	Quality     enums.ProductQuality  `json:"quality" gorm:"type:int(11);not NULL;comment:成色;"`            // 成色
+	Gem         enums.ProductGem      `json:"gem" gorm:"type:int(11);not NULL;comment:主石;"`                // 主石
+	Category    enums.ProductCategory `json:"category" gorm:"type:int(11);not NULL;comment:品类;"`           // 品类
+	Craft       enums.ProductCraft    `json:"craft" gorm:"type:int(11);comment:工艺;"`                       // 工艺
 	WeightMetal decimal.Decimal       `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`          // 金重
 	WeightTotal decimal.Decimal       `json:"weight_total" gorm:"type:decimal(10,2);comment:总重;"`          // 总重
-	ColorGem    enums.ProductColor    `json:"color_gem" gorm:"type:tinyint(2);comment:颜色;"`                // 颜色
+	ColorGem    enums.ProductColor    `json:"color_gem" gorm:"type:int(11);comment:颜色;"`                   // 颜色
 	WeightGem   decimal.Decimal       `json:"weight_gem" gorm:"type:decimal(10,2);comment:主石重;"`           // 主石重
-	Clarity     enums.ProductClarity  `json:"clarity" gorm:"type:tinyint(2);comment:主石净度;"`                // 主石净度
-	Cut         enums.ProductCut      `json:"cut" gorm:"type:tinyint(2);comment:主石切工;"`                    // 主石切工
+	Clarity     enums.ProductClarity  `json:"clarity" gorm:"type:int(11);comment:主石净度;"`                   // 主石净度
+	Cut         enums.ProductCut      `json:"cut" gorm:"type:int(11);comment:主石切工;"`                       // 主石切工
 	Remark      string                `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注
 }
 

@@ -25,8 +25,8 @@ type ProductInventory struct {
 	CreatorId string `json:"creator_id" gorm:"type:varchar(255);not NULL;comment:创建人ID;"`    // 创建人ID
 	Creator   Staff  `json:"creator" gorm:"foreignKey:CreatorId;references:Id;comment:创建人;"` // 创建人
 
-	Type  enums.ProductTypeUsed       `json:"type" gorm:"type:tinyint(2);comment:产品类型;"`  // 仓库类型
-	Range enums.ProductInventoryRange `json:"range" gorm:"type:tinyint(2);comment:盘点范围;"` // 盘点范围
+	Type  enums.ProductTypeUsed       `json:"type" gorm:"type:int(11);comment:产品类型;"`  // 仓库类型
+	Range enums.ProductInventoryRange `json:"range" gorm:"type:int(11);comment:盘点范围;"` // 盘点范围
 
 	Brand         []enums.ProductBrand         `json:"brand" gorm:"type:text;serializer:json;comment:产品品牌;"`          // 产品品牌
 	ClassFinished []enums.ProductClassFinished `json:"class_finished" gorm:"type:text;serializer:json;comment:成品大类;"` // 成品大类
@@ -37,8 +37,8 @@ type ProductInventory struct {
 	Quality       []enums.ProductQuality       `json:"quality" gorm:"type:text;serializer:json;comment:产品成色;"`        // 产品成色
 	Gem           []enums.ProductGem           `json:"gem" gorm:"type:text;serializer:json;comment:宝石种类;"`            // 宝石种类
 
-	Remark string                       `json:"remark" gorm:"type:text;comment:备注;"`         // 备注
-	Status enums.ProductInventoryStatus `json:"status" gorm:"type:tinyint(2);comment:盘点状态;"` // 盘点状态
+	Remark string                       `json:"remark" gorm:"type:text;comment:备注;"`      // 备注
+	Status enums.ProductInventoryStatus `json:"status" gorm:"type:int(11);comment:盘点状态;"` // 盘点状态
 
 	ShouldCount    int64                     `json:"should_count" gorm:"type:int(11);comment:应盘数量;"`                                   // 应盘数量
 	ShouldProducts []ProductInventoryProduct `json:"should_products" gorm:"foreignKey:ProductInventoryId;references:Id;comment:应盘产品;"` // 应盘产品
@@ -61,12 +61,12 @@ type ProductInventoryProduct struct {
 	ProductInventoryId string           `json:"product_inventory_id" gorm:"uniqueIndex:unique_product;type:varchar(255);not NULL;comment:盘点ID;"` // 盘点ID
 	ProductInventory   ProductInventory `json:"-" gorm:"foreignKey:ProductInventoryId;references:Id;comment:盘点;"`
 
-	ProductType     enums.ProductTypeUsed `json:"product_type" gorm:"type:tinyint(2);not NULL;comment:产品类型;"`                              // 产品类型
+	ProductType     enums.ProductTypeUsed `json:"product_type" gorm:"type:int(11);not NULL;comment:产品类型;"`                                 // 产品类型
 	ProductCode     string                `json:"product_code" gorm:"uniqueIndex:unique_product;type:varchar(255);not NULL;comment:产品编码;"` // 产品编码
 	ProductFinished ProductFinished       `json:"product_finished" gorm:"foreignKey:ProductCode;references:Code;comment:成品"`               // 成品
 	ProductOld      ProductOld            `json:"product_old"  gorm:"foreignKey:ProductCode;references:Code;comment:旧料"`                   // 旧料
 
-	Status enums.ProductInventoryProductStatus `json:"status" gorm:"uniqueIndex:unique_product;type:tinyint(2);comment:盘点状态;"` // 盘点状态
+	Status enums.ProductInventoryProductStatus `json:"status" gorm:"uniqueIndex:unique_product;type:int(11);comment:盘点状态;"` // 盘点状态
 
 	InventoryTime *time.Time `json:"inventory_time" gorm:"type:datetime;comment:盘点时间;"` // 盘点时间
 }

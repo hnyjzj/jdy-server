@@ -13,10 +13,10 @@ type Print struct {
 	StoreId string `json:"store_id" gorm:"column:store_id;type:varchar(255);not null;comment:店铺id"` // 店铺id
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id"`
 
-	Name      string            `json:"name" gorm:"column:name;type:varchar(255);not null;comment:模板名称"`             // 模板名称
-	Type      enums.PrintType   `json:"type" gorm:"column:type;type:tinyint(1);not null;comment:模板类型"`               // 模板类型
-	Config    types.PrintConfig `json:"config" gorm:"column:config;type:json;serializer:json;comment:模板配置"`          // 模板配置
-	IsDefault bool              `json:"is_default" gorm:"column:is_default;type:tinyint(1);not null;comment:是否默认模板"` // 是否默认模板
+	Name      string            `json:"name" gorm:"column:name;type:varchar(255);not null;comment:模板名称"`          // 模板名称
+	Type      enums.PrintType   `json:"type" gorm:"column:type;type:int(11);not null;comment:模板类型"`               // 模板类型
+	Config    types.PrintConfig `json:"config" gorm:"column:config;type:json;serializer:json;comment:模板配置"`       // 模板配置
+	IsDefault bool              `json:"is_default" gorm:"column:is_default;type:int(11);not null;comment:是否默认模板"` // 是否默认模板
 }
 
 func (Print) Default(t enums.PrintType) Print {

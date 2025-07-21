@@ -15,18 +15,18 @@ type OrderPayment struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:店铺ID;"`  // 店铺ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:店铺;"` // 店铺
 
-	Type   enums.FinanceType   `json:"type" gorm:"type:tinyint(1);not NULL;comment:支付类型;"`   // 支付类型
-	Source enums.FinanceSource `json:"source" gorm:"type:tinyint(1);not NULL;comment:支付来源;"` // 支付来源
+	Type   enums.FinanceType   `json:"type" gorm:"type:int(11);not NULL;comment:支付类型;"`   // 支付类型
+	Source enums.FinanceSource `json:"source" gorm:"type:int(11);not NULL;comment:支付来源;"` // 支付来源
 
 	OrderId      string          `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`                     // 订单ID
-	OrderType    enums.OrderType `json:"order_type" gorm:"type:tinyint(1);not NULL;comment:订单类型;"`                     // 订单类型
+	OrderType    enums.OrderType `json:"order_type" gorm:"type:int(11);not NULL;comment:订单类型;"`                        // 订单类型
 	OrderSales   OrderSales      `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"`         // 销售单
 	OrderRepair  OrderRepair     `json:"order_repair,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:维修单;"`  // 维修单
 	OrderDeposit OrderDeposit    `json:"order_deposit,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:定金单;"` // 定金单
 	OrderOther   OrderOther      `json:"order_other,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:其他单;"`   // 其他单
 
-	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" gorm:"type:tinyint(1);not NULL;comment:支付方式;"` // 支付方式
-	Amount        decimal.Decimal          `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:金额;"`        // 金额
+	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" gorm:"type:int(11);not NULL;comment:支付方式;"` // 支付方式
+	Amount        decimal.Decimal          `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:金额;"`     // 金额
 }
 
 // 退单
@@ -37,12 +37,12 @@ type OrderRefund struct {
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:店铺;"` // 店铺
 
 	OrderId   string          `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"` // 订单ID
-	OrderType enums.OrderType `json:"order_type" gorm:"type:tinyint(1);not NULL;comment:订单类型;"` // 订单类型
+	OrderType enums.OrderType `json:"order_type" gorm:"type:int(11);not NULL;comment:订单类型;"`    // 订单类型
 
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`             // 会员ID
 	Member   Member `json:"member,omitempty" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
 
-	Type   enums.ProductType `json:"type" gorm:"type:tinyint(1);not NULL;comment:产品类型;"`   // 产品类型
+	Type   enums.ProductType `json:"type" gorm:"type:int(11);not NULL;comment:产品类型;"`      // 产品类型
 	Code   string            `json:"code" gorm:"type:varchar(255);not NULL;comment:条码;"`   // 条码
 	Name   string            `json:"name" gorm:"type:varchar(255);not NULL;comment:名称;"`   // 名称
 	Remark string            `json:"remark" gorm:"type:varchar(255);not NULL;comment:备注;"` // 备注

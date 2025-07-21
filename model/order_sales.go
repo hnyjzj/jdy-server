@@ -15,18 +15,18 @@ type OrderSales struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:int(11);not NULL;comment:订单状态;"` // 订单状态
 
 	CashierId string            `json:"cashier_id" gorm:"type:varchar(255);not NULL;comment:收银员ID;"`    // 收银员ID
 	Cashier   Staff             `json:"cashier" gorm:"foreignKey:CashierId;references:Id;comment:收银员;"` // 收银员
 	Clerks    []OrderSalesClerk `json:"clerks" gorm:"foreignKey:OrderId;references:Id;comment:导购员列表;"`  // 导购员列表
 
-	Source enums.OrderSource `json:"source" gorm:"type:tinyint(2);not NULL;comment:订单来源;"` // 订单来源
+	Source enums.OrderSource `json:"source" gorm:"type:int(11);not NULL;comment:订单来源;"` // 订单来源
 
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
 	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
 
-	HasIntegral       bool            `json:"has_integral" gorm:"type:tinyint(1);not NULL;comment:是否积分;"`          // 是否积分
+	HasIntegral       bool            `json:"has_integral" gorm:"type:int(11);not NULL;comment:是否积分;"`             // 是否积分
 	DiscountRate      decimal.Decimal `json:"discount_rate" gorm:"type:decimal(10,2);not NULL;comment:整单折扣;"`      // 整单折扣
 	IntegralDeduction decimal.Decimal `json:"integral_deduction" gorm:"type:decimal(10,2);not NULL;comment:积分抵扣;"` // 积分抵扣
 	RoundOff          decimal.Decimal `json:"round_off" gorm:"type:decimal(10,2);not NULL;comment:抹零;"`            // 抹零
@@ -137,10 +137,10 @@ type OrderSalesProduct struct {
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`             // 会员ID
 	Member   Member `json:"member,omitempty" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
 
-	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
 
-	Type enums.ProductType `json:"type" gorm:"type:tinyint(1);not NULL;comment:类型;"` // 类型
-	Code string            `json:"code" gorm:"type:varchar(255);NULL;comment:条码;"`   // 条码
+	Type enums.ProductType `json:"type" gorm:"type:int(11);not NULL;comment:类型;"`  // 类型
+	Code string            `json:"code" gorm:"type:varchar(255);NULL;comment:条码;"` // 条码
 
 	Finished   OrderSalesProductFinished   `json:"finished,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:成品;"`
 	Old        OrderSalesProductOld        `json:"old,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:旧料;"`
@@ -198,7 +198,7 @@ func (OrderSalesProduct) Preloads(db *gorm.DB) *gorm.DB {
 type OrderSalesProductFinished struct {
 	SoftDelete
 
-	Status enums.OrderSalesStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderSalesStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
 
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
@@ -239,12 +239,12 @@ type OrderSalesProductOld struct {
 	ProductId string     `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`              // 产品ID
 	Product   ProductOld `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
-	WeightMetal             decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`                          // 金重
-	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                  // 回收金价
-	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                 // 回收工费
-	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:tinyint(2);comment:回收工费方式;"` // 回收工费方式
-	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                       // 实际成色
-	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收金额;"`                       // 回收金额
+	WeightMetal             decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`                       // 金重
+	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`               // 回收金价
+	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`              // 回收工费
+	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:int(11);comment:回收工费方式;"` // 回收工费方式
+	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                    // 实际成色
+	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收金额;"`                    // 回收金额
 
 	Integral decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"` // 积分
 }
@@ -282,7 +282,7 @@ type OrderSalesClerk struct {
 	PerformanceAmount decimal.Decimal `json:"performance_amount" gorm:"type:decimal(10,2);not NULL;comment:业绩金额;"` // 业绩金额
 	PerformanceRate   decimal.Decimal `json:"performance_rate" gorm:"type:decimal(5,2);not NULL;comment:业绩比例;"`    // 业绩比例
 
-	IsMain bool `json:"is_main" gorm:"type:tinyint(1);not NULL;comment:是否主导购员;"` // 是否主导购员
+	IsMain bool `json:"is_main" gorm:"type:int(11);not NULL;comment:是否主导购员;"` // 是否主导购员
 }
 
 func init() {

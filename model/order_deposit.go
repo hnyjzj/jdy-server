@@ -15,7 +15,7 @@ type OrderDeposit struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Status enums.OrderDepositStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:订单状态;"` // 订单状态
+	Status enums.OrderDepositStatus `json:"status" gorm:"type:int(11);not NULL;comment:订单状态;"` // 订单状态
 
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
 	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
@@ -92,12 +92,12 @@ func (OrderDeposit) Preloads(db *gorm.DB) *gorm.DB {
 type OrderDepositProduct struct {
 	Model
 
-	Status enums.OrderDepositStatus `json:"status" gorm:"type:tinyint(1);not NULL;comment:状态;"` // 状态
+	Status enums.OrderDepositStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
 
 	OrderId string       `json:"order_id" gorm:"type:varchar(255);not NULL;comment:定金单ID;"`            // 定金单ID
 	Order   OrderDeposit `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:定金单;"` // 定金单
 
-	IsOur           bool            `json:"is_our" gorm:"type:tinyint(1);not NULL;default:0;comment:是否我司;"`                     // 是否我司
+	IsOur           bool            `json:"is_our" gorm:"type:int(11);not NULL;default:0;comment:是否我司;"`                        // 是否我司
 	ProductId       string          `json:"product_id" gorm:"type:varchar(255);not NULL;comment:成品ID;"`                         // 成品ID
 	ProductFinished ProductFinished `json:"product_finished,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:系统货品;"` // 系统货品
 	ProductDemand   ProductFinished `json:"product_demand,omitempty" gorm:"type:text;serializer:json;comment:手动添加;"`            // 手动添加

@@ -13,38 +13,38 @@ type ProductOld struct {
 
 	Code        string                `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
 	Name        string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
-	Status      enums.ProductStatus   `json:"status" gorm:"type:tinyint(2);comment:状态;"`                   // 状态
-	Class       enums.ProductClassOld `json:"class" gorm:"type:tinyint(2);not NULL;comment:旧料大类;"`         // 旧料大类
+	Status      enums.ProductStatus   `json:"status" gorm:"type:int(11);comment:状态;"`                      // 状态
+	Class       enums.ProductClassOld `json:"class" gorm:"type:int(11);not NULL;comment:旧料大类;"`            // 旧料大类
 	LabelPrice  decimal.Decimal       `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
-	Brand       enums.ProductBrand    `json:"brand" gorm:"type:tinyint(2);comment:品牌;"`                    // 品牌
-	Material    enums.ProductMaterial `json:"material" gorm:"type:tinyint(2);not NULL;comment:材质;"`        // 材质
-	Quality     enums.ProductQuality  `json:"quality" gorm:"type:tinyint(2);not NULL;comment:成色;"`         // 成色
-	Gem         enums.ProductGem      `json:"gem" gorm:"type:tinyint(2);not NULL;comment:主石;"`             // 主石
-	Category    enums.ProductCategory `json:"category" gorm:"type:tinyint(2);not NULL;comment:品类;"`        // 品类
-	Craft       enums.ProductCraft    `json:"craft" gorm:"type:tinyint(2);comment:工艺;"`                    // 工艺
+	Brand       enums.ProductBrand    `json:"brand" gorm:"type:int(11);comment:品牌;"`                       // 品牌
+	Material    enums.ProductMaterial `json:"material" gorm:"type:int(11);not NULL;comment:材质;"`           // 材质
+	Quality     enums.ProductQuality  `json:"quality" gorm:"type:int(11);not NULL;comment:成色;"`            // 成色
+	Gem         enums.ProductGem      `json:"gem" gorm:"type:int(11);not NULL;comment:主石;"`                // 主石
+	Category    enums.ProductCategory `json:"category" gorm:"type:int(11);not NULL;comment:品类;"`           // 品类
+	Craft       enums.ProductCraft    `json:"craft" gorm:"type:int(11);comment:工艺;"`                       // 工艺
 	WeightMetal decimal.Decimal       `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`          // 金重
 	WeightTotal decimal.Decimal       `json:"weight_total" gorm:"type:decimal(10,2);comment:总重;"`          // 总重
-	ColorGem    enums.ProductColor    `json:"color_gem" gorm:"type:tinyint(2);comment:颜色;"`                // 颜色
+	ColorGem    enums.ProductColor    `json:"color_gem" gorm:"type:int(11);comment:颜色;"`                   // 颜色
 	WeightGem   decimal.Decimal       `json:"weight_gem" gorm:"type:decimal(10,2);comment:主石重;"`           // 主石重
-	NumGem      int                   `json:"num_gem" gorm:"type:tinyint(3);comment:主石数;"`                 // 主石数
-	Clarity     enums.ProductClarity  `json:"clarity" gorm:"type:tinyint(2);comment:主石净度;"`                // 主石净度
-	Cut         enums.ProductCut      `json:"cut" gorm:"type:tinyint(2);comment:主石切工;"`                    // 主石切工
+	NumGem      int                   `json:"num_gem" gorm:"type:int(11);comment:主石数;"`                    // 主石数
+	Clarity     enums.ProductClarity  `json:"clarity" gorm:"type:int(11);comment:主石净度;"`                   // 主石净度
+	Cut         enums.ProductCut      `json:"cut" gorm:"type:int(11);comment:主石切工;"`                       // 主石切工
 	WeightOther decimal.Decimal       `json:"weight_other" gorm:"type:decimal(10,2);comment:杂料重;"`         // 杂料重
-	NumOther    int                   `json:"num_other" gorm:"type:tinyint(2);comment:杂料数;"`               // 杂料数
+	NumOther    int                   `json:"num_other" gorm:"type:int(11);comment:杂料数;"`                  // 杂料数
 	Remark      string                `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注
 
 	StoreId string `json:"store_id" gorm:"type:varchar(255);comment:门店ID;"`                     // 门店ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
 	IsOur                   bool                       `json:"is_our" gorm:"comment:是否本司货品;"`                                                        // 是否本司货品
-	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:tinyint(2);comment:回收方式;"`                        // 回收方式
-	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:tinyint(2);comment:回收类型;"`                          // 回收类型
+	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:int(11);comment:回收方式;"`                           // 回收方式
+	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:int(11);comment:回收类型;"`                             // 回收类型
 	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                           // 回收金价
 	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                          // 回收工费
-	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:tinyint(2);comment:回收工费方式;"`          // 回收工费方式
+	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:int(11);comment:回收工费方式;"`             // 回收工费方式
 	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收金额;"`                                // 回收金额
 	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                                // 实际成色
-	RecycleSource           enums.ProductRecycleSource `json:"recycle_source,omitempty" gorm:"type:tinyint(2);comment:回收来源;"`                        // 回收来源
+	RecycleSource           enums.ProductRecycleSource `json:"recycle_source,omitempty" gorm:"type:int(11);comment:回收来源;"`                           // 回收来源
 	RecycleSourceId         string                     `json:"recycle_source_id" gorm:"type:varchar(255);comment:回收来源ID;"`                           // 回收来源ID
 	RecycleStoreId          string                     `json:"recycle_store_id" gorm:"type:varchar(255);comment:回收门店ID;"`                            // 回收门店ID
 	RecycleStore            Store                      `json:"recycle_store,omitempty" gorm:"foreignKey:RecycleStoreId;references:Id;comment:回收门店;"` // 回收门店

@@ -59,7 +59,10 @@ const (
 )
 
 type OrderPaymentReq struct {
-	Type OrderPaymentType `json:"type" label:"类型" find:"true" required:"true" sort:"1" type:"number" input:"radio" preset:"typeMap"` // 类型
+	Type      OrderPaymentType `json:"type" label:"类型" find:"true" required:"true" sort:"1" type:"number" input:"radio" preset:"typeMap"`           // 类型
+	Duration  enums.Duration   `json:"duration" label:"时间范围" find:"true" required:"true" sort:"2" type:"number" input:"radio" preset:"durationMap"` // 时间范围
+	StartTime string           `json:"startTime" label:"开始时间" find:"true" required:"false" sort:"3" type:"string" input:"date"`                     // 开始时间
+	EndTime   string           `json:"endTime" label:"结束时间" find:"true" required:"false" sort:"4" type:"string" input:"date"`                       // 结束时间
 }
 
 type OrderPaymentLogic struct {
@@ -111,6 +114,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeIncomeData(req *OrderPaymentReq) (an
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeIncome,
 		})
+		db_total = db_total.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 		var total decimal.Decimal
 		if err := db_total.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 			return nil, err
@@ -125,6 +129,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeIncomeData(req *OrderPaymentReq) (an
 				Type:          enums.FinanceTypeIncome,
 				PaymentMethod: k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 			var total decimal.Decimal
 			if err := db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 				return nil, err
@@ -153,6 +158,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeExpenseData(req *OrderPaymentReq) (a
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeExpense,
 		})
+		db_total = db_total.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 		var total decimal.Decimal
 		if err := db_total.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 			return nil, err
@@ -167,6 +173,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeExpenseData(req *OrderPaymentReq) (a
 				Type:          enums.FinanceTypeExpense,
 				PaymentMethod: k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 			var total decimal.Decimal
 			if err := db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 				return nil, err
@@ -195,6 +202,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeSurplusData(req *OrderPaymentReq) (a
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeIncome,
 		})
+		total_income_db = total_income_db.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 		var total_income decimal.Decimal
 		if err := total_income_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total_income).Error; err != nil {
 			return nil, err
@@ -205,6 +213,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeSurplusData(req *OrderPaymentReq) (a
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeExpense,
 		})
+		total_expense_db = total_expense_db.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 		var total_expense decimal.Decimal
 		if err := total_expense_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total_expense).Error; err != nil {
 			return nil, err
@@ -219,6 +228,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeSurplusData(req *OrderPaymentReq) (a
 				Type:          enums.FinanceTypeIncome,
 				PaymentMethod: k,
 			})
+			income_db = income_db.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 			var income decimal.Decimal
 			if err := income_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&income).Error; err != nil {
 				return nil, err
@@ -230,6 +240,7 @@ func (r *OrderPaymentLogic) OrderPaymentTypeSurplusData(req *OrderPaymentReq) (a
 				Type:          enums.FinanceTypeExpense,
 				PaymentMethod: k,
 			})
+			expense_db = expense_db.Scopes(model.DurationCondition(req.Duration, req.StartTime, req.EndTime))
 			var expense decimal.Decimal
 			if err := expense_db.Select("SUM(amount) as total").Having("total <> 0").Scan(&expense).Error; err != nil {
 				return nil, err

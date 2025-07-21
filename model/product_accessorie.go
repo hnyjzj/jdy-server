@@ -204,6 +204,12 @@ type ProductAccessorieAllocate struct {
 }
 
 func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.ProductAccessorieAllocateWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
+	if query.Status != 0 {
+		db = db.Where("status = ?", query.Status)
+	}
 	if query.Method != 0 {
 		db = db.Where("method = ?", query.Method)
 	}
@@ -219,7 +225,6 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	if query.StartTime != nil && query.EndTime != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
 	}
-
 	if query.StoreId != "" {
 		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
 	}

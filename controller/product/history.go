@@ -31,16 +31,16 @@ func (con ProductHistoryController) List(ctx *gin.Context) {
 		}
 	)
 
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	res, err := logic.List(&req)
@@ -62,16 +62,16 @@ func (con ProductHistoryController) Info(ctx *gin.Context) {
 		}
 	)
 
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	res, err := logic.Info(&req)

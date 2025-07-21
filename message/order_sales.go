@@ -23,6 +23,13 @@ func (M *BaseMessage) SendOrderSalesCreateMessage(req *OrderSalesMessage) error 
 		log.Printf("获取门店用户失败: err=%v\n", err)
 		return err
 	}
+
+	// 获取收银员
+	if err := req.getOrderSalesCashier(); err != nil {
+		log.Printf("获取收银员失败: err=%v\n", err)
+		return err
+	}
+
 	// 添加收银员
 	to_user = append(to_user, req.OrderSales.Cashier.Username)
 
@@ -326,4 +333,19 @@ func (req *OrderSalesMessage) getStoreSuperiors() ([]string, error) {
 	}
 
 	return user, nil
+}
+
+func (req *OrderSalesMessage) getOrderSalesCashier() error {
+	if req.OrderSales.Cashier.Username != "" {
+		return nil
+	}
+
+	var staff model.Staff
+	if err := model.DB.First(&staff, "id = ?", req.OrderSales.CashierId).Error; err != nil {
+		return err
+	}
+
+	req.OrderSales.Cashier = staff
+
+	return nil
 }

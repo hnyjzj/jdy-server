@@ -13,20 +13,20 @@ type Member struct {
 
 	Phone       *string      `json:"phone" gorm:"column:phone;uniqueIndex;size:255;comment:手机号;"` // 手机号
 	Name        string       `json:"name" gorm:"column:name;size:255;not NULL;comment:姓名;"`       // 姓名
-	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"`     // 性别
+	Gender      enums.Gender `json:"gender" gorm:"column:gender;type:int(11);comment:性别;"`        // 性别
 	Avatar      string       `json:"avatar" gorm:"column:avatar;type:text;comment:头像;"`           // 头像
 	Birthday    string       `json:"birthday" gorm:"column:birthday;size:255;comment:生日;"`        // 生日
 	Anniversary string       `json:"anniversary" gorm:"column:anniversary;size:255;comment:纪念日;"` // 纪念日
 	Nickname    string       `json:"nickname" gorm:"column:nickname;size:255;comment:昵称;"`        // 昵称
 	IDCard      string       `json:"id_card" gorm:"column:id_card;size:255;comment:身份证号;"`        // 身份证号
 
-	Level      enums.MemberLevel `json:"level" gorm:"column:level;type:tinyint(1);not NULL;default:0;comment:会员等级;"`          // 会员等级
+	Level      enums.MemberLevel `json:"level" gorm:"column:level;type:int(11);not NULL;default:0;comment:会员等级;"`             // 会员等级
 	Integral   decimal.Decimal   `json:"integral" gorm:"column:integral;type:decimal(10,2);not NULL;default:0;comment:积分;"`   // 积分
 	BuyCount   int               `json:"buy_count" gorm:"column:buy_count;type:int(11);not NULL;default:0;comment:购买次数;"`     // 购买次数
 	EventCount int               `json:"event_count" gorm:"column:event_count;type:int(11);not NULL;default:0;comment:活动次数;"` // 活动次数
 
-	Source   enums.MemberSource `json:"source" gorm:"column:source;type:tinyint(1);not NULL;default:0;comment:来源;"` // 来源
-	SourceId string             `json:"source_id" gorm:"column:source_id;size:255;not NULL;comment:来源id;"`          // 来源id
+	Source   enums.MemberSource `json:"source" gorm:"column:source;type:int(11);not NULL;default:0;comment:来源;"` // 来源
+	SourceId string             `json:"source_id" gorm:"column:source_id;size:255;not NULL;comment:来源id;"`       // 来源id
 
 	ConsultantId string `json:"consultant_id" gorm:"column:consultant_id;size:255;not NULL;comment:顾问id;"` // 顾问id
 	Consultant   Staff  `json:"consultant,omitempty" gorm:"foreignKey:ConsultantId;references:Id;"`        // 顾问
@@ -34,7 +34,7 @@ type Member struct {
 	StoreId string `json:"store_id" gorm:"column:store_id;size:255;not NULL;comment:入会门店id;"` // 入会门店id
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;"`          // 门店
 
-	Status enums.MemberStatus `json:"status" gorm:"column:status;type:tinyint(1);not NULL;default:0;comment:状态;"` // 状态
+	Status enums.MemberStatus `json:"status" gorm:"column:status;type:int(11);not NULL;default:0;comment:状态;"` // 状态
 
 	ExternalUserId string `json:"external_user_id" gorm:"column:external_user_id;size:255;not NULL;comment:外部用户id;"` // 外部用户id
 }
@@ -130,11 +130,11 @@ type MemberIntegralLog struct {
 	MemberId string `json:"member_id" gorm:"column:member_id;size:255;not NULL;comment:会员id;"` // 会员id
 	Member   Member `json:"member,omitempty" gorm:"foreignKey:MemberId;references:Id;"`        // 会员
 
-	Change     decimal.Decimal                `json:"change" gorm:"column:change;type:decimal(10,2);not NULL;default:0;comment:变动积分;"`        // 变动积分
-	ChangeType enums.MemberIntegralChangeType `json:"change_type" gorm:"column:change_type;type:tinyint(1);not NULL;default:0;comment:变动类型;"` // 变动类型
-	Before     decimal.Decimal                `json:"before" gorm:"column:before;type:decimal(10,2);not NULL;default:0;comment:变动前积分;"`       // 变动前积分
-	After      decimal.Decimal                `json:"after" gorm:"column:after;type:decimal(10,2);not NULL;default:0;comment:变动后积分;"`         // 变动后积分
-	Remark     string                         `json:"remark" gorm:"column:remark;size:255;comment:备注;"`                                       // 备注
+	Change     decimal.Decimal                `json:"change" gorm:"column:change;type:decimal(10,2);not NULL;default:0;comment:变动积分;"`     // 变动积分
+	ChangeType enums.MemberIntegralChangeType `json:"change_type" gorm:"column:change_type;type:int(11);not NULL;default:0;comment:变动类型;"` // 变动类型
+	Before     decimal.Decimal                `json:"before" gorm:"column:before;type:decimal(10,2);not NULL;default:0;comment:变动前积分;"`    // 变动前积分
+	After      decimal.Decimal                `json:"after" gorm:"column:after;type:decimal(10,2);not NULL;default:0;comment:变动后积分;"`      // 变动后积分
+	Remark     string                         `json:"remark" gorm:"column:remark;size:255;comment:备注;"`                                    // 备注
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
@@ -154,9 +154,9 @@ func (MemberIntegralLog) WhereCondition(db *gorm.DB, query *types.MemberIntegral
 type MemberIntegralRule struct {
 	SoftDelete
 
-	Type enums.MemberIntegralRuleType `json:"type" gorm:"column:type;type:tinyint(1);not NULL;default:0;comment:类型;"` // 类型
+	Type enums.MemberIntegralRuleType `json:"type" gorm:"column:type;type:int(11);not NULL;default:0;comment:类型;"` // 类型
 
-	Class int             `json:"class" gorm:"column:class;type:tinyint(1);NULL;comment:大类;"`            // 大类
+	Class int             `json:"class" gorm:"column:class;type:int(11);NULL;comment:大类;"`               // 大类
 	Rate  decimal.Decimal `json:"rate" gorm:"column:rate;type:decimal(10,2);NULL;default:0;comment:比例;"` // 比例
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID

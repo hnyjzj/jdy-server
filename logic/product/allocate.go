@@ -8,6 +8,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"jdy/utils"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,15 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 		// 如果是调拨到门店，则添加门店ID
 		if req.Method == enums.ProductAllocateMethodStore {
 			data.ToStoreId = req.ToStoreId
+		}
+		if req.Method == enums.ProductAllocateMethodOut {
+			var store model.Store
+			if err := tx.Where(&model.Store{
+				Name: "总部",
+			}).First(&store).Error; err != nil {
+				return err
+			}
+			data.ToStoreId = store.Id
 		}
 
 		// 创建调拨单
@@ -75,13 +85,19 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			}
 
 			// 添加产品
-			if err := tx.Model(&data).Association("ProductFinisheds").Append(enter.Products); err != nil {
-				return err
+			for _, p := range enter.Products {
+				if err := tx.Table("product_allocate_finished_products").Create(map[string]any{
+					"product_allocate_id": data.Id,
+					"product_finished_id": p.Id,
+				}).Error; err != nil {
+					return err
+				}
 			}
 		}
 
 		return nil
 	}); err != nil {
+		log.Printf("创建调拨单失败: %v", err)
 		return errors.New("创建调拨单失败")
 	}
 
@@ -124,8 +140,15 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 	db := model.DB.Model(&allocate)
 
 	db = allocate.Preloads(db)
-	db = db.Preload("ProductFinisheds")
-	db = db.Preload("ProductOlds")
+
+	db = db.Preload("ProductFinisheds", func(tx *gorm.DB) *gorm.DB {
+		tx = model.PageCondition(tx, req.Page, req.Limit)
+		return tx
+	})
+	db = db.Preload("ProductOlds", func(tx *gorm.DB) *gorm.DB {
+		tx = model.PageCondition(tx, req.Page, req.Limit)
+		return tx
+	})
 
 	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取调拨单详情失败")
@@ -177,8 +200,13 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				data.ProductTotalAccessFee = data.ProductTotalAccessFee.Add(p.AccessFee)
 			}
 			// 添加产品
-			if err := tx.Model(&allocate).Association("ProductFinisheds").Append(product); err != nil {
-				return errors.New("添加产品失败")
+			for _, p := range product {
+				if err := tx.Table("product_allocate_finished_products").Create(map[string]any{
+					"product_allocate_id": data.Id,
+					"product_finished_id": p.Id,
+				}).Error; err != nil {
+					return err
+				}
 			}
 		case enums.ProductTypeOld:
 			var product []model.ProductOld
@@ -198,8 +226,13 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			}
 
 			// 添加产品
-			if err := tx.Model(&allocate).Association("ProductOlds").Append(product); err != nil {
-				return errors.New("添加产品失败")
+			for _, p := range product {
+				if err := tx.Table("product_allocate_old_products").Create(map[string]any{
+					"product_allocate_id": data.Id,
+					"product_old_id":      p.Id,
+				}).Error; err != nil {
+					return err
+				}
 			}
 		}
 

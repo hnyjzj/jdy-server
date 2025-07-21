@@ -13,6 +13,7 @@ type ProductAccessorieEnterCreateReq struct {
 }
 
 type ProductAccessorieEnterWhere struct {
+	Id      string                   `json:"id" label:"入库单号" input:"text" type:"string" find:"true" create:"false" sort:"1" required:"false"`                      // ID
 	StoreId string                   `json:"store_id" label:"门店" input:"text" type:"string" find:"false" create:"true" sort:"2" required:"true"`                   // 门店ID
 	Status  enums.ProductEnterStatus `json:"status" label:"状态" input:"select" type:"number" find:"false" create:"true" sort:"3" required:"false" preset:"typeMap"` // 状态
 	Remark  string                   `json:"remark" label:"备注" input:"text" type:"string" find:"false" create:"true" sort:"4" required:"false"`                    // 类型

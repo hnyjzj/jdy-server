@@ -48,7 +48,7 @@ func (l *ProductAccessorieEnterLogic) EnterList(req *types.ProductAccessorieEnte
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
-		return nil, errors.New("获取配件列表失败: " + err.Error())
+		return nil, errors.New("获取配件总数失败")
 	}
 
 	// 获取列表
@@ -58,7 +58,7 @@ func (l *ProductAccessorieEnterLogic) EnterList(req *types.ProductAccessorieEnte
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, req.Page, req.Limit)
 	if err := db.Find(&res.List).Error; err != nil {
-		return nil, errors.New("获取配件列表失败: " + err.Error())
+		return nil, errors.New("获取配件列表失败")
 	}
 
 	return &res, nil

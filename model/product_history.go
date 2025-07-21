@@ -11,8 +11,8 @@ import (
 type ProductHistory struct {
 	Model
 
-	Type   enums.ProductType   `json:"type" gorm:"type:tinyint(2);comment:产品类型;"` // 产品类型
-	Action enums.ProductAction `json:"action" gorm:"type:tinyint(2);comment:操作;"` // 操作
+	Type   enums.ProductType   `json:"type" gorm:"type:int(11);comment:产品类型;"` // 产品类型
+	Action enums.ProductAction `json:"action" gorm:"type:int(11);comment:操作;"` // 操作
 
 	NewValue any `json:"new_value" gorm:"type:text;serializer:json;comment:值;"`  // 值
 	OldValue any `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
@@ -31,12 +31,38 @@ type ProductHistory struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"`                 // IP
 }
 
-func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhereReq) *gorm.DB {
-	if len(query.Type) > 0 {
-		db = db.Where("type in (?)", query.Type)
+func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhere) *gorm.DB {
+	db = db.Where("type <> ?", enums.ProductTypeAccessorie)
+
+	if query.Type != 0 {
+		db = db.Where("type = ?", query.Type)
 	}
-	if query.ProductId != "" {
-		db = db.Where("product_id = ?", query.ProductId)
+	if query.Code != "" {
+		// 使用 JSON 函数更安全和高效
+		db = db.Where(
+			"JSON_EXTRACT(new_value, '$.code') = ? OR JSON_EXTRACT(old_value, '$.code') = ?",
+			query.Code,
+			query.Code,
+		).Debug()
+	}
+	if query.StoreId != "" {
+		db = db.Where("store_id = ?", query.StoreId)
+	}
+	if query.Action != 0 {
+		db = db.Where("action = ?", query.Action)
+	}
+
+	return db
+}
+
+func (ProductHistory) WhereAccessorieCondition(db *gorm.DB, query *types.ProductAccessorieHistoryWhere) *gorm.DB {
+	db = db.Where("type = ?", enums.ProductTypeAccessorie)
+
+	if query.Name != "" {
+		db = db.Where("new_value LIKE ? OR old_value LIKE ?", "%\"name\":\""+query.Name+"\"%", "%\"name\":\""+query.Name+"\"%")
+	}
+	if query.Code != "" {
+		db = db.Where("new_value LIKE ? OR old_value LIKE ?", "%\"code\":\""+query.Code+"\"%", "%\"code\":\""+query.Code+"\"%")
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)

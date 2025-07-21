@@ -382,14 +382,16 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			// 货品操作记录
+			// 货品记录
 			historys := products.Group("/history")
 			{
-				historys.GET("/where", product.ProductHistoryController{}.Where) // 货品操作记录筛选
+				historys.GET("/where", product.ProductHistoryController{}.Where)                      // 货品操作记录筛选
+				historys.GET("/where_accessorie", product.ProductHistoryController{}.WhereAccessorie) // 配件操作记录筛选
 				historys.Use(middlewares.JWTMiddleware())
 				{
-					historys.POST("/list", product.ProductHistoryController{}.List) // 货品操作记录列表
-					historys.POST("/info", product.ProductHistoryController{}.Info) // 货品操作记录详情
+					historys.POST("/list", product.ProductHistoryController{}.List)                      // 货品操作记录列表
+					historys.POST("/list_accessorie", product.ProductHistoryController{}.ListAccessorie) // 配件操作记录列表
+					historys.POST("/info", product.ProductHistoryController{}.Info)                      // 货品操作记录详情
 				}
 			}
 		}

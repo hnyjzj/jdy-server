@@ -22,7 +22,7 @@ type ProductAccessorie struct {
 	Stock     int64           `json:"stock" gorm:"type:int(9);default:1;comment:库存;"`             // 库存
 	AccessFee decimal.Decimal `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"` // 入网费
 
-	Status enums.ProductStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:状态;"` // 状态
+	Status enums.ProductStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
 
 	EnterId string                  `json:"enter_id,omitempty" gorm:"type:varchar(255);comment:产品入库单ID;"`           // 产品入库单ID
 	Enter   *ProductAccessorieEnter `json:"enter,omitempty" gorm:"foreignKey:EnterId;references:Id;comment:产品入库单;"` // 产品入库单
@@ -58,18 +58,18 @@ func (ProductAccessorie) WhereCondition(db *gorm.DB, query *types.ProductAccesso
 type ProductAccessorieCategory struct {
 	SoftDelete
 
-	TypePart enums.ProductTypePart `json:"type_part" gorm:"type:tinyint(2);comment:配件类型;"` // 配件类型
+	TypePart enums.ProductTypePart `json:"type_part" gorm:"type:int(11);comment:配件类型;"` // 配件类型
 
 	Name          string                            `json:"name" gorm:"type:varchar(255);uniqueIndex;comment:名称;"`       // 名称
 	Code          string                            `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
-	RetailType    enums.ProductAccessorieRetailType `json:"retail_type" gorm:"type:tinyint(2);not NULL;comment:零售方式;"`   // 零售方式
+	RetailType    enums.ProductAccessorieRetailType `json:"retail_type" gorm:"type:int(11);not NULL;comment:零售方式;"`      // 零售方式
 	Weight        decimal.Decimal                   `json:"weight" gorm:"type:decimal(10,2);comment:重量;"`                // 重量
 	AccessFee     decimal.Decimal                   `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"`  // 入网费
 	LabelPrice    decimal.Decimal                   `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
-	Material      enums.ProductAccessorieMaterial   `json:"material" gorm:"type:tinyint(2);not NULL;comment:材质;"`        // 材质
-	Quality       enums.ProductQuality              `json:"quality" gorm:"type:tinyint(2);not NULL;comment:成色;"`         // 成色
-	Gem           enums.ProductGem                  `json:"gem" gorm:"type:tinyint(2);not NULL;comment:主石;"`             // 主石
-	Category      enums.ProductCategory             `json:"category" gorm:"type:tinyint(2);not NULL;comment:品类;"`        // 品类
+	Material      enums.ProductAccessorieMaterial   `json:"material" gorm:"type:int(11);not NULL;comment:材质;"`           // 材质
+	Quality       enums.ProductQuality              `json:"quality" gorm:"type:int(11);not NULL;comment:成色;"`            // 成色
+	Gem           enums.ProductGem                  `json:"gem" gorm:"type:int(11);not NULL;comment:主石;"`                // 主石
+	Category      enums.ProductCategory             `json:"category" gorm:"type:int(11);not NULL;comment:品类;"`           // 品类
 	Specification string                            `json:"specification" gorm:"type:varchar(255);comment:规格;"`          // 规格
 	Color         string                            `json:"color" gorm:"type:varchar(255);comment:颜色;"`                  // 颜色
 	Series        string                            `json:"series" gorm:"type:varchar(255);comment:系列;"`                 // 系列
@@ -105,8 +105,24 @@ func (ProductAccessorieCategory) WhereCondition(db *gorm.DB, query *types.Produc
 		db = db.Where("retail_type = ?", query.RetailType)
 	}
 
+	if query.Weight != &decimal.Zero {
+		db = db.Where("weight = ?", query.Weight)
+	}
+
+	if query.AccessFee != &decimal.Zero {
+		db = db.Where("access_fee = ?", query.AccessFee)
+	}
+
+	if query.LabelPrice != &decimal.Zero {
+		db = db.Where("label_price = ?", query.LabelPrice)
+	}
+
 	if query.Material != 0 {
 		db = db.Where("material = ?", query.Material)
+	}
+
+	if query.Quality != 0 {
+		db = db.Where("quality = ?", query.Quality)
 	}
 
 	if query.Gem != 0 {
@@ -147,8 +163,8 @@ type ProductAccessorieEnter struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`                // 备注
-	Status enums.ProductEnterStatus `json:"status" gorm:"type:tinyint(2);not NULL;comment:状态;"` // 状态
+	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`             // 备注
+	Status enums.ProductEnterStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
 
 	Products     []ProductAccessorie `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:产品;"` // 产品
 	ProductCount int64               `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类;"`     // 入库种类
@@ -160,6 +176,9 @@ type ProductAccessorieEnter struct {
 }
 
 func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, query *types.ProductAccessorieEnterWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)
 	}
@@ -182,9 +201,9 @@ func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, query *types.ProductAc
 type ProductAccessorieAllocate struct {
 	SoftDelete
 
-	Method enums.ProductAllocateMethod `json:"method" gorm:"type:tinyint(2);not NULL;comment:调拨类型;"` // 调拨类型
-	Status enums.ProductAllocateStatus `json:"status" gorm:"type:tinyint(2);comment:状态;"`            // 状态
-	Remark string                      `json:"remark" gorm:"type:text;comment:备注;"`                  // 备注
+	Method enums.ProductAllocateMethod `json:"method" gorm:"type:int(11);not NULL;comment:调拨类型;"` // 调拨类型
+	Status enums.ProductAllocateStatus `json:"status" gorm:"type:int(11);comment:状态;"`            // 状态
+	Remark string                      `json:"remark" gorm:"type:text;comment:备注;"`               // 备注
 
 	FromStoreId string `json:"from_store_id" gorm:"type:varchar(255);comment:调出门店;"` // 调出门店
 	FromStore   *Store `json:"from_store" gorm:"foreignKey:FromStoreId;references:Id;comment:调出门店;"`
@@ -201,6 +220,12 @@ type ProductAccessorieAllocate struct {
 }
 
 func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.ProductAccessorieAllocateWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id = ?", query.Id)
+	}
+	if query.Status != 0 {
+		db = db.Where("status = ?", query.Status)
+	}
 	if query.Method != 0 {
 		db = db.Where("method = ?", query.Method)
 	}
@@ -216,7 +241,6 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	if query.StartTime != nil && query.EndTime != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", query.StartTime, query.EndTime)
 	}
-
 	if query.StoreId != "" {
 		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
 	}
@@ -230,7 +254,7 @@ type ProductAccessorieAllocateProduct struct {
 
 	AllocateId string                     `json:"allocate_id" gorm:"type:varchar(255);not NULL;comment:调拨单ID;"`     // 调拨单ID
 	Allocate   *ProductAccessorieAllocate `json:"allocate" gorm:"foreignKey:AllocateId;references:Id;comment:调拨单;"` // 调拨单
-	Quantity   int64                      `json:"quantity" gorm:"type:int(8);not NULL;comment:数量;"`                 // 数量
+	Quantity   int64                      `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`                // 数量
 }
 
 func init() {

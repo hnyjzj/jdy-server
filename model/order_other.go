@@ -15,9 +15,9 @@ type OrderOther struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	Type    enums.FinanceType        `json:"type" gorm:"type:tinyint(2);not NULL;comment:订单类型;"`      // 订单类型
+	Type    enums.FinanceType        `json:"type" gorm:"type:int(11);not NULL;comment:订单类型;"`         // 订单类型
 	Content string                   `json:"content" gorm:"type:varchar(500);not NULL;comment:订单内容;"` // 订单内容
-	Source  enums.FinanceSourceOther `json:"source" gorm:"type:tinyint(2);not NULL;comment:订单来源;"`    // 订单来源
+	Source  enums.FinanceSourceOther `json:"source" gorm:"type:int(11);not NULL;comment:订单来源;"`       // 订单来源
 
 	ClerkId string `json:"clerk_id" gorm:"type:varchar(255);not NULL;comment:导购员ID;"`  // 导购员ID
 	Clerk   Staff  `json:"clerk" gorm:"foreignKey:ClerkId;references:Id;comment:导购员;"` // 导购员

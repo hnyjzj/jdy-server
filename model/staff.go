@@ -19,16 +19,16 @@ type Staff struct {
 	Username string `json:"username" gorm:"index;comment:用户名"` // 用户名
 	Password string `json:"-" gorm:"size:255;comment:密码"`      // 密码
 
-	Nickname string       `json:"nickname" gorm:"column:nickname;index;comment:昵称"`        // 昵称
-	Avatar   string       `json:"avatar" gorm:"size:255;comment:头像"`                       // 头像
-	Email    string       `json:"email" gorm:"index;comment:邮箱"`                           // 邮箱
-	Gender   enums.Gender `json:"gender" gorm:"column:gender;type:tinyint(1);comment:性别;"` // 性别
+	Nickname string       `json:"nickname" gorm:"column:nickname;index;comment:昵称"`     // 昵称
+	Avatar   string       `json:"avatar" gorm:"size:255;comment:头像"`                    // 头像
+	Email    string       `json:"email" gorm:"index;comment:邮箱"`                        // 邮箱
+	Gender   enums.Gender `json:"gender" gorm:"column:gender;type:int(11);comment:性别;"` // 性别
 
 	IsDisabled  bool       `json:"is_disabled" gorm:"comment:是否禁用"`     // 是否禁用
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"comment:最后登录时间"` // 最后登录时间
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`    // 最后登录IP
 
-	Identity enums.Identity `json:"identity" gorm:"type:tinyint(1);not null;comment:身份"` // 身份
+	Identity enums.Identity `json:"identity" gorm:"type:int(11);not null;comment:身份"` // 身份
 
 	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID
 	Role   *Role  `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"`     // 角色

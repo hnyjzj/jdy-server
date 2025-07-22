@@ -27,8 +27,8 @@ type Store struct {
 }
 
 func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
-	if query.Name != nil {
-		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", *query.Name))
+	if query.Name != "" {
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
 	if query.Address != "" {
 		db = db.Where("address LIKE ?", fmt.Sprintf("%%%s%%", query.Address))
@@ -44,6 +44,9 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	}
 	if query.Field.District != nil {
 		db = db.Where("district LIKE ?", fmt.Sprintf("%%%s%%", *query.Field.District))
+	}
+	if query.RegionId != "" {
+		db = db.Where("id IN (SELECT store_id FROM region_stores WHERE region_id = ?)", query.RegionId)
 	}
 
 	return db

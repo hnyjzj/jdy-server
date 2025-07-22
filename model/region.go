@@ -20,8 +20,8 @@ type Region struct {
 }
 
 func (Region) WhereCondition(db *gorm.DB, query *types.RegionWhere) *gorm.DB {
-	if query.Name != nil {
-		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", *query.Name))
+	if query.Name != "" {
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
 
 	return db

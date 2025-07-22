@@ -28,7 +28,7 @@ type RegionListMyReq struct {
 }
 
 type RegionWhere struct {
-	Name *string `json:"name" label:"区域名称" find:"true" sort:"1" type:"string" input:"text"`
+	Name string `json:"name" label:"区域名称" find:"true" sort:"1" type:"string" input:"text"`
 }
 
 type RegionStoreListReq struct {

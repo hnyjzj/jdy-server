@@ -8,7 +8,7 @@ import (
 )
 
 type MemberWhere struct {
-	Phone       *string      `json:"phone" label:"手机号" find:"true" sort:"1" type:"string" input:"text"`
+	Phone       string       `json:"phone" label:"手机号" find:"true" sort:"1" type:"string" input:"text"`
 	Name        string       `json:"name" label:"姓名" find:"true" sort:"2" type:"string" input:"text"`
 	Gender      enums.Gender `json:"gender" label:"性别" find:"true" sort:"3" type:"number" input:"select" preset:"typeMap"`
 	Birthday    string       `json:"birthday" label:"生日" find:"true" sort:"4" type:"date" input:"date"`

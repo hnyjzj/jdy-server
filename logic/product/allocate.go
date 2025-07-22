@@ -77,6 +77,13 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 				allocate.ProductTotalWeightMetal = allocate.ProductTotalWeightMetal.Add(p.WeightMetal)
 				allocate.ProductTotalLabelPrice = allocate.ProductTotalLabelPrice.Add(p.LabelPrice)
 				allocate.ProductTotalAccessFee = allocate.ProductTotalAccessFee.Add(p.AccessFee)
+
+				// 更新产品状态
+				if err := tx.Model(&p).Where("id = ?", p.Id).Updates(&model.ProductFinished{
+					Status: enums.ProductStatusAllocate,
+				}).Error; err != nil {
+					return err
+				}
 			}
 
 			// 更新调拨单
@@ -198,6 +205,13 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
 				data.ProductTotalAccessFee = data.ProductTotalAccessFee.Add(p.AccessFee)
+
+				// 更新产品状态
+				if err := tx.Model(&p).Where("id = ?", p.Id).Updates(&model.ProductFinished{
+					Status: enums.ProductStatusAllocate,
+				}).Error; err != nil {
+					return err
+				}
 			}
 			// 添加产品
 			for _, p := range product {
@@ -223,6 +237,13 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				data.ProductCount++
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
+
+				// 更新产品状态
+				if err := tx.Model(&p).Where("id = ?", p.Id).Updates(&model.ProductOld{
+					Status: enums.ProductStatusAllocate,
+				}).Error; err != nil {
+					return err
+				}
 			}
 
 			// 添加产品
@@ -243,7 +264,8 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 
 		return nil
 	}); err != nil {
-		return errors.New("创建调拨单失败")
+		log.Printf("添加产品失败: %v", err.Error())
+		return errors.New("添加产品失败")
 	}
 
 	return nil
@@ -289,6 +311,14 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 			if err := tx.Model(&allocate).Association("ProductFinisheds").Delete(&product); err != nil {
 				return errors.New("移除产品失败")
 			}
+
+			// 更新产品状态
+			if err := tx.Model(&product).Where("id = ?", product.Id).Updates(&model.ProductFinished{
+				Status: enums.ProductStatusNormal,
+			}).Error; err != nil {
+				return err
+			}
+
 		case enums.ProductTypeOld:
 			var product model.ProductOld
 			// 获取产品
@@ -304,6 +334,13 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 			if err := tx.Model(&allocate).Association("ProductOlds").Delete(&product); err != nil {
 				return errors.New("移除产品失败")
 			}
+
+			// 更新产品状态
+			if err := tx.Model(&product).Where("id = ?", product.Id).Updates(&model.ProductOld{
+				Status: enums.ProductStatusNormal,
+			}).Error; err != nil {
+				return err
+			}
 		}
 
 		// 更新调拨单
@@ -313,7 +350,8 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 
 		return nil
 	}); err != nil {
-		return errors.New("创建调拨单失败")
+		log.Printf("移除产品失败: %v", err.Error())
+		return errors.New("移除产品失败")
 	}
 
 	return nil
@@ -341,21 +379,13 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 锁定产品
 		for _, product := range allocate.ProductFinisheds {
-			if product.Status != enums.ProductStatusNormal {
+			if product.Status != enums.ProductStatusAllocate {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
-			}
-			product.Status = enums.ProductStatusAllocate
-			if err := tx.Save(&product).Error; err != nil {
-				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}
 		}
 		for _, product := range allocate.ProductOlds {
 			if product.Status != enums.ProductStatusNormal {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
-			}
-			product.Status = enums.ProductStatusAllocate
-			if err := tx.Save(&product).Error; err != nil {
-				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}
 		}
 		// 确认调拨
@@ -366,7 +396,8 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 
 		return nil
 	}); err != nil {
-		return errors.New("调拨失败: " + err.Error())
+		log.Printf("调拨失败: %v", err.Error())
+		return errors.New("调拨失败")
 	}
 
 	go func() {
@@ -431,7 +462,8 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 		}
 		return nil
 	}); err != nil {
-		return errors.New("调拨失败: " + err.Error())
+		log.Printf("调拨失败: %v", err.Error())
+		return errors.New("调拨失败")
 	}
 
 	go func() {
@@ -549,7 +581,8 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 
 		return nil
 	}); err != nil {
-		return errors.New("调拨失败: " + err.Error())
+		log.Printf("调拨失败: %v", err.Error())
+		return errors.New("调拨失败")
 	}
 
 	go func() {

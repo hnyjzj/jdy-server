@@ -379,21 +379,13 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 锁定产品
 		for _, product := range allocate.ProductFinisheds {
-			if product.Status != enums.ProductStatusNormal {
+			if product.Status != enums.ProductStatusAllocate {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
-			}
-			product.Status = enums.ProductStatusAllocate
-			if err := tx.Save(&product).Error; err != nil {
-				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}
 		}
 		for _, product := range allocate.ProductOlds {
 			if product.Status != enums.ProductStatusNormal {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
-			}
-			product.Status = enums.ProductStatusAllocate
-			if err := tx.Save(&product).Error; err != nil {
-				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}
 		}
 		// 确认调拨

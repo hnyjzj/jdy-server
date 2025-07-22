@@ -92,4 +92,6 @@ type ProductFinishedEnterReqProduct struct {
 
 	IsSpecialOffer bool     `json:"is_special_offer"` // 是否特价
 	Certificate    []string `json:"certificate"`      // 证书
+
+	EnterTime *time.Time `json:"enter_time"` // 入库时间
 }

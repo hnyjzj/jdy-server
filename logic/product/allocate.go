@@ -345,7 +345,6 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
 			product.Status = enums.ProductStatusAllocate
-			product.EnterTime = time.Now()
 			if err := tx.Save(&product).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 锁定失败", product.Code, product.Name))
 			}
@@ -485,8 +484,9 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 			}
 
 			data := model.ProductFinished{
-				Status:  enums.ProductStatusNormal,
-				StoreId: allocate.ToStoreId,
+				Status:    enums.ProductStatusNormal,
+				StoreId:   allocate.ToStoreId,
+				EnterTime: time.Now(),
 			}
 
 			// 解锁产品

@@ -25,7 +25,7 @@ func (req *ProductAccessorieAllocateCreateReq) Validate() error {
 }
 
 type ProductAccessorieAllocateWhere struct {
-	Id          string                      `json:"id" label:"调拨单号" input:"search" type:"string" find:"true" create:"false" sort:"1" required:"false"`                                                                           // 调拨ID
+	Id          string                      `json:"id" label:"调拨单号" input:"text" type:"string" find:"true" create:"false" sort:"1" required:"false"`                                                                             // 调拨ID
 	Status      enums.ProductAllocateStatus `json:"status" label:"调拨状态" input:"select" type:"number" find:"true" create:"false" sort:"1" required:"true" preset:"typeMap"`                                                       // 调拨状态
 	Method      enums.ProductAllocateMethod `json:"method" label:"调拨类型" input:"select" type:"number" find:"true" create:"true" sort:"2" required:"true" preset:"typeMap"`                                                        // 调拨类型
 	FromStoreId string                      `json:"from_store_id" label:"调出门店" input:"search" type:"string" find:"false" create:"false" sort:"3" required:"false"`                                                               // 调出门店
@@ -35,7 +35,7 @@ type ProductAccessorieAllocateWhere struct {
 	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"6" required:"false"` // 开始时间
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间
 
-	StoreId string `json:"store_id" label:"门店ID" input:"search" type:"string" find:"true" sort:"7" required:"false"` // 门店ID
+	StoreId string `json:"store_id" label:"门店ID" input:"search" type:"string" find:"false" sort:"7" required:"false"` // 门店ID
 }
 
 func (req *ProductAccessorieAllocateWhere) Validate() error {

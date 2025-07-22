@@ -132,7 +132,7 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 				}
 			}
 			if p.Id != "" {
-				return errors.New("条码已存在")
+				return errors.New("条码" + product.Code + "已存在")
 			}
 
 			// 产品信息
@@ -140,9 +140,10 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 			product.StoreId = enter.StoreId
 			product.Class = product.GetClass()
 			product.Status = enums.ProductStatusDraft
-			product.EnterTime = time.Now()
 			product.Code = strings.ToUpper(product.Code)
-
+			if product.EnterTime.IsZero() {
+				product.EnterTime = time.Now()
+			}
 			if err := tx.Create(&product).Error; err != nil {
 				return errors.New("[" + product.Code + "]录入失败")
 			}

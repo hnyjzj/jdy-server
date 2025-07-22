@@ -41,7 +41,7 @@ type StoreWhere struct {
 	Address  string `json:"address" label:"门店地址" find:"true" sort:"5" type:"string" input:"text"`
 	Contact  string `json:"contact" label:"联系方式" find:"true" sort:"6" type:"string" input:"text"`
 	Logo     string `json:"logo" label:"门店logo" find:"false" sort:"7" type:"string" input:"upload"`
-	RegionId string `json:"region_id" label:"区域" find:"true" sort:"3" type:"string" input:"text"`
+	RegionId string `json:"region_id" label:"区域" find:"false" sort:"3" type:"string" input:"text"`
 }
 
 type Field struct {

@@ -202,7 +202,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			// 添加产品
 			for _, p := range product {
 				if err := tx.Table("product_allocate_finished_products").Create(map[string]any{
-					"product_allocate_id": data.Id,
+					"product_allocate_id": allocate.Id,
 					"product_finished_id": p.Id,
 				}).Error; err != nil {
 					return err
@@ -228,7 +228,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			// 添加产品
 			for _, p := range product {
 				if err := tx.Table("product_allocate_old_products").Create(map[string]any{
-					"product_allocate_id": data.Id,
+					"product_allocate_id": allocate.Id,
 					"product_old_id":      p.Id,
 				}).Error; err != nil {
 					return err

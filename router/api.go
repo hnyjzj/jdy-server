@@ -357,7 +357,7 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			// 成品调拨
+			// 货品调拨
 			allocate := products.Group("/allocate")
 			{
 				allocate.GET("/where", product.ProductAllocateController{}.Where) // 调拨单筛选

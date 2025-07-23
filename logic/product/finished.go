@@ -170,7 +170,9 @@ func (p *ProductFinishedLogic) Upload(req *types.ProductFinishedUploadReq) error
 		}
 
 		product.Images = req.Images
-		if err := tx.Select("images").Clauses(clause.Returning{}).Save(&product).Error; err != nil {
+		if err := tx.Model(&product).Clauses(clause.Returning{}).Select("images").Updates(&model.ProductFinished{
+			Images: req.Images,
+		}).Error; err != nil {
 			return errors.New("上传成品图片失败")
 		}
 

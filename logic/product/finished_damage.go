@@ -53,7 +53,9 @@ func (l *ProductFinishedDamageLogic) Damage(req *types.ProductDamageReq) *errors
 
 		// 更新商品状态
 		product.Status = enums.ProductStatusDamage
-		if err := tx.Save(&product).Error; err != nil {
+		if err := tx.Model(&product).Updates(model.ProductFinished{
+			Status: enums.ProductStatusDamage,
+		}).Error; err != nil {
 			return err
 		}
 
@@ -146,8 +148,11 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 			log.Action = enums.ProductActionDamageToNew
 			product.Status = enums.ProductStatusNormal
 			product.EnterTime = time.Now()
-			if err := tx.Save(&product).Error; err != nil {
-				return errors.New("转换失败")
+			if err := tx.Model(&product).Updates(model.ProductFinished{
+				Status:    enums.ProductStatusNormal,
+				EnterTime: time.Now(),
+			}).Error; err != nil {
+				return err
 			}
 			log.NewValue = product
 		case enums.ProductTypeUsedOld:

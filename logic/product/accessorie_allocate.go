@@ -271,7 +271,9 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 			if product.Stock < 0 {
 				return fmt.Errorf("【%s】%s 库存不足", p.Product.Category.Code, p.Product.Category.Name)
 			}
-			if err := tx.Save(&product).Error; err != nil {
+			if err := tx.Model(&product).Select("stock").Updates(&model.ProductAccessorie{
+				Stock: product.Stock,
+			}).Error; err != nil {
 				return fmt.Errorf("【%s】%s 扣除库存失败", p.Product.Category.Code, p.Product.Category.Name)
 			}
 		}

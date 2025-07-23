@@ -390,8 +390,10 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		}
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusOnTheWay
-		if err := tx.Save(&allocate).Error; err != nil {
-			return errors.New("更新调拨单失败")
+		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
+			Status: enums.ProductAllocateStatusOnTheWay,
+		}).Error; err != nil {
+			return err
 		}
 
 		return nil
@@ -433,10 +435,11 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 取消调拨
 		allocate.Status = enums.ProductAllocateStatusCancelled
-		if err := tx.Save(&allocate).Error; err != nil {
-			return errors.New("更新调拨单失败")
+		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
+			Status: enums.ProductAllocateStatusCancelled,
+		}).Error; err != nil {
+			return err
 		}
-
 		// 解锁产品
 		for _, product := range allocate.ProductFinisheds {
 			if product.Status == enums.ProductStatusNormal {
@@ -575,8 +578,10 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusCompleted
-		if err := tx.Save(&allocate).Error; err != nil {
-			return errors.New("更新调拨单失败")
+		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
+			Status: enums.ProductAllocateStatusCompleted,
+		}).Error; err != nil {
+			return err
 		}
 
 		return nil

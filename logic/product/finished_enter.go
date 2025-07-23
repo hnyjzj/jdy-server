@@ -213,12 +213,17 @@ func (l *ProductFinishedEnterLogic) EditProduct(req *types.ProductFinishedEnterE
 			return errors.New("产品更新失败")
 		}
 
-		enter.ProductTotalAccessFee = enter.ProductTotalAccessFee.Add(new_product.AccessFee.Sub(product.AccessFee))
-		enter.ProductTotalLabelPrice = enter.ProductTotalLabelPrice.Add(new_product.LabelPrice.Sub(product.LabelPrice))
-		enter.ProductTotalWeightMetal = enter.ProductTotalWeightMetal.Add(new_product.WeightMetal.Sub(product.WeightMetal))
-
+		data := model.ProductFinishedEnter{
+			ProductTotalAccessFee:   enter.ProductTotalAccessFee.Add(new_product.AccessFee.Sub(product.AccessFee)),
+			ProductTotalLabelPrice:  enter.ProductTotalLabelPrice.Add(new_product.LabelPrice.Sub(product.LabelPrice)),
+			ProductTotalWeightMetal: enter.ProductTotalWeightMetal.Add(new_product.WeightMetal.Sub(product.WeightMetal)),
+		}
 		// 更新入库单
-		if err := tx.Save(&enter).Error; err != nil {
+		if err := tx.Model(&enter).Select([]string{
+			"product_total_access_fee",
+			"product_total_label_price",
+			"product_total_weight_metal",
+		}).Updates(&data).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 

@@ -59,10 +59,10 @@ const (
 )
 
 type OrderPaymentReq struct {
-	Type      OrderPaymentType `json:"type" label:"类型" find:"true" required:"true" sort:"1" type:"number" input:"radio" preset:"typeMap"`       // 类型
-	Duration  enums.Duration   `json:"duration" label:"时间范围" find:"true" required:"true" sort:"2" type:"number" input:"radio" preset:"typeMap"` // 时间范围
-	StartTime string           `json:"startTime" label:"开始时间" find:"true" required:"false" sort:"3" type:"string" input:"date"`                 // 开始时间
-	EndTime   string           `json:"endTime" label:"结束时间" find:"true" required:"false" sort:"4" type:"string" input:"date"`                   // 结束时间
+	Type      OrderPaymentType `json:"type" label:"类型" find:"true" required:"true" sort:"1" type:"number" input:"radio" preset:"typeMap" binding:"required"`       // 类型
+	Duration  enums.Duration   `json:"duration" label:"时间范围" find:"true" required:"true" sort:"2" type:"number" input:"radio" preset:"typeMap" binding:"required"` // 时间范围
+	StartTime string           `json:"startTime" label:"开始时间" find:"true" required:"false" sort:"3" type:"string" input:"date"`                                    // 开始时间
+	EndTime   string           `json:"endTime" label:"结束时间" find:"true" required:"false" sort:"4" type:"string" input:"date"`                                      // 结束时间
 }
 
 type OrderPaymentLogic struct {

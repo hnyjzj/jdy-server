@@ -228,6 +228,7 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 
 		// 更新调拨单产品数量
 		allocateData.ProductCount--
+		allocateData.ProductTotal -= product.Quantity
 
 		// 更新调拨单
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Select([]string{

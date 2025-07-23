@@ -435,9 +435,7 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 取消调拨
 		allocate.Status = enums.ProductAllocateStatusCancelled
-		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
-			Status: enums.ProductAllocateStatusCancelled,
-		}).Error; err != nil {
+		if err := tx.Model(&allocate).Select("status").Update("status", enums.ProductAllocateStatusCancelled).Error; err != nil {
 			return err
 		}
 		// 解锁产品

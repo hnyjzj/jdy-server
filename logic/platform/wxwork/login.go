@@ -155,7 +155,7 @@ func (l *wxworkLoginLogic) getOathUserInfo(code string) error {
 // 更新账号
 func (l *wxworkLoginLogic) updateAccount() error {
 	// 更新账号信息
-	if err := l.Db.Model(&l.Staff).Updates(&model.Staff{
+	if err := l.Db.Model(&model.Staff{}).Where("id = ?", l.Staff.Id).Updates(&model.Staff{
 		Phone:    l.UserInfo.Phone,
 		Nickname: l.UserInfo.Nickname,
 		Avatar:   l.UserInfo.Avatar,

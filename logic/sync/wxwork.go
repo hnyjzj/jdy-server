@@ -245,7 +245,7 @@ func (s *SyncWxWorkContacts) getStaff(where model.Staff) error {
 	}
 
 	// 更新员工信息
-	if err := s.db.Model(&staff).Updates(where).Error; err != nil {
+	if err := s.db.Model(&model.Staff{}).Where("id = ?", staff.Id).Updates(where).Error; err != nil {
 		log.Printf("更新员工信息失败: %+v", err)
 		return errors.New("更新员工信息失败")
 	}

@@ -49,7 +49,7 @@ func (l *StatisticLogic) StoreSalesTotal(req *types.StatisticStoreSalesTotalReq)
 	for _, store := range *stores {
 
 		def := store.Default(l.Staff.Identity)
-		if store.Id == def.Id && store.Name == def.Name {
+		if def != nil && store.Id == def.Id && store.Name == def.Name {
 			continue
 		}
 

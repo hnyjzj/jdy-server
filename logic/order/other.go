@@ -120,7 +120,7 @@ func (l *OrderOtherLogic) Update(req *types.OrderOtherUpdateReq) (*model.OrderOt
 			return errors.New("转换数据失败")
 		}
 
-		if err := tx.Model(&order).Updates(data).Error; err != nil {
+		if err := tx.Model(&model.OrderOther{}).Where("id = ?", order.Id).Updates(data).Error; err != nil {
 			return errors.New("更新订单失败")
 		}
 

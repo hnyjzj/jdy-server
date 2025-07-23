@@ -54,7 +54,7 @@ func (OpenOrderLogic) Update(req *types.OpenOrderUpdateReq) error {
 			return errors.New("创建失败")
 		}
 	} else {
-		if err := model.DB.Model(&open_order).Select("*").Updates(req).Error; err != nil {
+		if err := model.DB.Model(&model.OpenOrder{}).Where("id = ?", open_order.Id).Select("*").Updates(req).Error; err != nil {
 			return errors.New("更新失败")
 		}
 	}

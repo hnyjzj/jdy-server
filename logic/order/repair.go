@@ -206,14 +206,14 @@ func (l *OrderRepairLogic) Operation(req *types.OrderRepairOperationReq) error {
 		// 支付产品
 		for _, product := range order.Products {
 			// 更新订单状态
-			if err := tx.Model(&product).Updates(&model.OrderRepairProduct{
+			if err := tx.Model(&model.OrderRepairProduct{}).Where("id = ?", product.Id).Updates(&model.OrderRepairProduct{
 				Status: req.Operation,
 			}).Error; err != nil {
 				return errors.New("更新订单产品状态失败")
 			}
 		}
 		// 更新订单状态
-		if err := tx.Model(&order).Updates(&model.OrderRepair{
+		if err := tx.Model(&model.OrderRepair{}).Where("id = ?", order.Id).Updates(&model.OrderRepair{
 			Status: req.Operation,
 		}).Error; err != nil {
 			return errors.New("更新订单状态失败")
@@ -248,7 +248,7 @@ func (l *OrderRepairLogic) Revoked(req *types.OrderRepairRevokedReq) error {
 		// 撤销产品
 		for _, product := range order.Products {
 			// 更新订单状态
-			if err := tx.Model(&product).Updates(&model.OrderRepairProduct{
+			if err := tx.Model(&model.OrderRepairProduct{}).Where("id = ?", product.Id).Updates(&model.OrderRepairProduct{
 				Status: enums.OrderRepairStatusCancel,
 			}).Error; err != nil {
 				return errors.New("更新订单产品状态失败")
@@ -256,7 +256,7 @@ func (l *OrderRepairLogic) Revoked(req *types.OrderRepairRevokedReq) error {
 		}
 
 		// 更新订单状态
-		if err := tx.Model(&order).Updates(&model.OrderRepair{
+		if err := tx.Model(&model.OrderRepair{}).Where("id = ?", order.Id).Updates(&model.OrderRepair{
 			Status: enums.OrderRepairStatusCancel,
 		}).Error; err != nil {
 			return errors.New("撤销订单失败")
@@ -299,7 +299,7 @@ func (l *OrderRepairLogic) Pay(req *types.OrderRepairPayReq) error {
 		// 支付产品
 		for _, product := range order.Products {
 			// 更新订单状态
-			if err := tx.Model(&product).Updates(&model.OrderRepairProduct{
+			if err := tx.Model(&model.OrderRepairProduct{}).Where("id = ?", product.Id).Updates(&model.OrderRepairProduct{
 				Status: enums.OrderRepairStatusStoreReceived,
 			}).Error; err != nil {
 				return errors.New("更新订单产品状态失败")
@@ -307,7 +307,7 @@ func (l *OrderRepairLogic) Pay(req *types.OrderRepairPayReq) error {
 		}
 
 		// 更新订单状态
-		if err := tx.Model(&order).Updates(&model.OrderRepair{
+		if err := tx.Model(&model.OrderRepair{}).Where("id = ?", order.Id).Updates(&model.OrderRepair{
 			Status: enums.OrderRepairStatusStoreReceived,
 		}).Error; err != nil {
 			return errors.New("支付订单失败")
@@ -352,14 +352,14 @@ func (l *OrderRepairLogic) Refund(req *types.OrderRepairRefundReq) error {
 
 		for _, product := range order.Products {
 			// 更新订单状态
-			if err := tx.Model(&product).Updates(&model.OrderRepairProduct{
+			if err := tx.Model(&model.OrderRepairProduct{}).Where("id = ?", product.Id).Updates(&model.OrderRepairProduct{
 				Status: enums.OrderRepairStatusRefund,
 			}).Error; err != nil {
 				return errors.New("更新订单产品状态失败")
 			}
 		}
 
-		if err := tx.Model(&order).Updates(&model.OrderRepair{
+		if err := tx.Model(&model.OrderRepair{}).Where("id = ?", order.Id).Updates(&model.OrderRepair{
 			Status: enums.OrderRepairStatusRefund,
 		}).Error; err != nil {
 			return errors.New("更新订单状态失败")

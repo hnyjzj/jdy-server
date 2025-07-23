@@ -6,20 +6,20 @@ import (
 
 /* 时间区间 */
 // 今天、昨天、本周、上周、本月、上月、本季度、上季度、今年、去年、自定义
-type Duration string
+type Duration int
 
 const (
-	DurationToday       Duration = "today"        // 今天
-	DurationYesterday   Duration = "yesterday"    // 昨天
-	DurationWeek        Duration = "week"         // 本周
-	DurationLastWeek    Duration = "last_week"    // 上周
-	DurationMonth       Duration = "month"        // 本月
-	DurationLastMonth   Duration = "last_month"   // 上月
-	DurationQuarter     Duration = "quarter"      // 本季度
-	DurationLastQuarter Duration = "last_quarter" // 上季度
-	DurationYear        Duration = "year"         // 今年
-	DurationLastYear    Duration = "last_year"    // 去年
-	DurationCustom      Duration = "custom"       // 自定义
+	DurationToday       Duration = iota + 1 // 今天
+	DurationYesterday                       // 昨天
+	DurationWeek                            // 本周
+	DurationLastWeek                        // 上周
+	DurationMonth                           // 本月
+	DurationLastMonth                       // 上月
+	DurationQuarter                         // 本季度
+	DurationLastQuarter                     // 上季度
+	DurationYear                            // 今年
+	DurationLastYear                        // 去年
+	DurationCustom                          // 自定义
 )
 
 var DurationMap = map[Duration]string{

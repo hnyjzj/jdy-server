@@ -103,7 +103,7 @@ func (p *ProductAccessorieCategoryLogic) Update(req *types.ProductAccessorieCate
 			return errors.New("获取配件条目信息失败")
 		}
 
-		if err := tx.Model(&product).Clauses(clause.Returning{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieCategory{}).Clauses(clause.Returning{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
 			return errors.New("更新配件条目信息失败")
 		}
 

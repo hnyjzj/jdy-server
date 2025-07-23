@@ -59,7 +59,7 @@ const (
 )
 
 type ProductInventoryOldReq struct {
-	Type ProductInventoryOldType `json:"type" label:"类型" find:"true" required:"true" sort:"1" type:"number" input:"radio" preset:"typeMap"` // 类型
+	Type ProductInventoryOldType `json:"type" label:"类型" find:"true" required:"true" sort:"1" type:"number" input:"radio" preset:"typeMap" binding:"required"` // 类型
 }
 
 type ProductInventoryOldLogic struct {

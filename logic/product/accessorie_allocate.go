@@ -177,7 +177,7 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 		}
 
 		// 更新调拨单
-		if err := tx.Model(&allocate).Updates(allocateData).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(allocateData).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
 
@@ -206,6 +206,7 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 
 	allocateData := model.ProductAccessorieAllocate{
 		ProductCount: allocate.ProductCount,
+		ProductTotal: allocate.ProductTotal,
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
@@ -227,9 +228,13 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 
 		// 更新调拨单产品数量
 		allocateData.ProductCount--
+		allocateData.ProductTotal -= product.Quantity
 
 		// 更新调拨单
-		if err := tx.Model(&allocate).Updates(allocateData).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			"product_count",
+			"product_total",
+		}).Updates(allocateData).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
 
@@ -271,7 +276,9 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 			if product.Stock < 0 {
 				return fmt.Errorf("【%s】%s 库存不足", p.Product.Category.Code, p.Product.Category.Name)
 			}
-			if err := tx.Save(&product).Error; err != nil {
+			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Id).Updates(&model.ProductAccessorie{
+				Stock: product.Stock,
+			}).Error; err != nil {
 				return fmt.Errorf("【%s】%s 扣除库存失败", p.Product.Category.Code, p.Product.Category.Name)
 			}
 		}
@@ -330,7 +337,7 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 					return fmt.Errorf("【%s】%s 不存在", product.Product.Category.Code, product.Product.Category.Name)
 				}
 				// 归还库存
-				if err := tx.Model(&accessorie).Update("stock", gorm.Expr("stock + ?", product.Quantity)).Error; err != nil {
+				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.ProductId).Update("stock", gorm.Expr("stock + ?", product.Quantity)).Error; err != nil {
 					return fmt.Errorf("【%s】%s 恢复库存失败", product.Product.Category.Code, product.Product.Category.Name)
 				}
 			}
@@ -435,7 +442,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 					}
 				} else {
 					// 更新配件
-					if err := tx.Model(&accessorie).Where(&model.ProductAccessorie{
+					if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
 						StoreId: allocate.ToStoreId,
 						Code:    strings.ToUpper(product.Product.Code),
 					}).Updates(&model.ProductAccessorie{

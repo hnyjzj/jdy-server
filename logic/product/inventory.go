@@ -415,7 +415,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 			}
 		}
 
-		if err := tx.Where("id = ?", req.Id).Updates(&res).Error; err != nil {
+		if err := tx.Model(&model.ProductInventory{}).Where("id = ?", inventory.Id).Updates(&res).Error; err != nil {
 			return errors.New("更新失败")
 		}
 

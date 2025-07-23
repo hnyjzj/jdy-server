@@ -43,7 +43,7 @@ func (l *RegionLogic) Update(ctx *gin.Context, req *types.RegionUpdateReq) error
 			return errors.New("验证信息失败")
 		}
 
-		if err := tx.Model(&region).Where("id = ?", req.Id).Updates(data).Error; err != nil {
+		if err := tx.Model(&model.Region{}).Where("id = ?", region.Id).Updates(data).Error; err != nil {
 			return errors.New("更新失败")
 		}
 

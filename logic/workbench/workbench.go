@@ -112,7 +112,7 @@ func (l WorkbenchLogic) UpdateRoute(req *types.WorkbenchUpdateReq) *errors.Error
 		return errors.New("更新失败，不存在或已被删除")
 	}
 
-	if err := model.DB.Model(&route).Updates(&req).Error; err != nil {
+	if err := model.DB.Model(&model.Router{}).Where("id = ?", route.Id).Updates(&req).Error; err != nil {
 		return errors.New("更新失败: " + err.Error())
 	}
 

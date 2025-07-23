@@ -86,7 +86,7 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 		// 撤销成品
 		for _, product := range order.Products {
 			// 更新订单状态
-			if err := tx.Model(&product).Updates(&model.OrderSalesProduct{
+			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", product.Id).Updates(&model.OrderSalesProduct{
 				Status: enums.OrderSalesStatusCancel,
 			}).Error; err != nil {
 				return errors.New("更新订单成品状态失败")
@@ -94,21 +94,21 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 			switch product.Type {
 			case enums.ProductTypeFinished:
 				// 更新成品状态
-				if err := tx.Model(&product.Finished.Product).Updates(&model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Finished.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusNormal,
 				}).Error; err != nil {
 					return errors.New("更新成品状态失败")
 				}
 			case enums.ProductTypeOld:
 				// 更新旧料状态
-				if err := tx.Model(&product.Old.Product).Updates(&model.ProductOld{
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Id).Updates(&model.ProductOld{
 					Status: enums.ProductStatusNormal,
 				}).Error; err != nil {
 					return errors.New("更新旧料状态失败")
 				}
 			case enums.ProductTypeAccessorie:
 				// 更新配件状态
-				if err := tx.Model(&product.Accessorie.Product).Updates(&model.ProductAccessorie{
+				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Accessorie.Id).Updates(&model.ProductAccessorie{
 					Status: enums.ProductStatusNormal,
 					Stock:  product.Accessorie.Product.Stock + product.Accessorie.Quantity,
 				}).Error; err != nil {
@@ -118,7 +118,7 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 		}
 
 		// 更新订单状态
-		if err := tx.Model(&order).Updates(&model.OrderSales{
+		if err := tx.Model(&model.OrderSales{}).Where("id = ?", order.Id).Updates(&model.OrderSales{
 			Status: enums.OrderSalesStatusCancel,
 		}).Error; err != nil {
 			return errors.New("撤销订单失败")
@@ -164,7 +164,7 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 		// 支付成品
 		for _, product := range order.Products {
 			// 更新订单状态
-			if err := tx.Model(&product).Updates(&model.OrderSalesProduct{
+			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", product.Id).Updates(&model.OrderSalesProduct{
 				Status: enums.OrderSalesStatusComplete,
 			}).Error; err != nil {
 				return errors.New("更新订单成品状态失败")
@@ -172,20 +172,20 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 			switch product.Type {
 			case enums.ProductTypeFinished:
 				// 更新订单成品交易状态
-				if err := tx.Model(&product.Finished).Updates(&model.OrderSalesProductFinished{
+				if err := tx.Model(&model.OrderSalesProductFinished{}).Where("id = ?", product.Finished.Id).Updates(&model.OrderSalesProductFinished{
 					Status: enums.OrderSalesStatusComplete,
 				}).Error; err != nil {
 					return errors.New("更新成品状态失败")
 				}
 				// 更新成品状态
-				if err := tx.Model(&product.Finished.Product).Updates(&model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Finished.Product.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusSold,
 				}).Error; err != nil {
 					return errors.New("更新成品状态失败")
 				}
 			case enums.ProductTypeOld:
 				// 更新旧料状态
-				if err := tx.Model(&product.Old.Product).Updates(&model.ProductOld{
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Id).Updates(&model.ProductOld{
 					Status: enums.ProductStatusSold,
 				}).Error; err != nil {
 					return errors.New("更新旧料状态失败")
@@ -194,7 +194,7 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 		}
 
 		// 更新订单状态
-		if err := tx.Model(&order).Updates(&model.OrderSales{
+		if err := tx.Model(&model.OrderSales{}).Where("id = ?", order.Id).Updates(&model.OrderSales{
 			Status: enums.OrderSalesStatusComplete,
 		}).Error; err != nil {
 			return errors.New("支付订单失败")
@@ -260,7 +260,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			// 更新订单成品状态
-			if err := tx.Model(&p).Updates(&model.OrderSalesProduct{
+			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
 				Status: enums.OrderSalesStatusReturn,
 			}).Error; err != nil {
 				return errors.New("更新订单成品状态失败")
@@ -280,7 +280,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 					OperatorId: l.Staff.Id,
 					IP:         l.Ctx.ClientIP(),
 				}
-				if err := tx.Model(&p.Finished.Product).Updates(&model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Finished.Product.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusNormal,
 				}).Error; err != nil {
 					return errors.New("更新成品状态失败")
@@ -292,7 +292,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				}
 
 			case enums.ProductTypeUsedOld:
-				if err := tx.Model(&p.Finished.Product).Updates(&model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Finished.Product.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusDamage,
 				}).Error; err != nil {
 					return errors.New("更新成品状态失败")
@@ -330,7 +330,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			// 更新订单旧料状态
-			if err := tx.Model(&p).Updates(&model.OrderSalesProduct{
+			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
 				Status: enums.OrderSalesStatusReturn}).Error; err != nil {
 				return errors.New("更新订单旧料状态失败")
 			}
@@ -346,7 +346,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				IP:         l.Ctx.ClientIP(),
 			}
 			// 更新旧料状态
-			if err := tx.Model(&p.Old.Product).Updates(&model.ProductOld{
+			if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Old.Product.Id).Updates(&model.ProductOld{
 				Status: enums.ProductStatusNormal,
 			}).Error; err != nil {
 				return errors.New("更新旧料状态失败")
@@ -375,7 +375,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			// 更新订单配件状态
-			if err := tx.Model(&p).Updates(&model.OrderSalesProduct{
+			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
 				Status: enums.OrderSalesStatusReturn,
 			}).Error; err != nil {
 				return errors.New("更新订单配件状态失败")
@@ -393,7 +393,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			// 更新配件状态
-			if err := tx.Model(&p.Accessorie.Product).Updates(&model.ProductAccessorie{
+			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", p.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
 				Status: enums.ProductStatusNormal,
 				Stock:  p.Accessorie.Product.Stock + p.Accessorie.Quantity,
 			}).Error; err != nil {
@@ -412,7 +412,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			data.PriceOriginal = p.Accessorie.Price
 		}
 
-		if err := tx.Model(&order).Updates(&model.OrderSales{
+		if err := tx.Model(&model.OrderSales{}).Where("id = ?", order.Id).Updates(&model.OrderSales{
 			Status: enums.OrderSalesStatusRefund,
 		}).Error; err != nil {
 			return errors.New("更新订单状态失败")

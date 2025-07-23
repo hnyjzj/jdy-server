@@ -393,13 +393,13 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
 			Status: enums.ProductAllocateStatusOnTheWay,
 		}).Error; err != nil {
-			return err
+			return errors.New("确认调拨失败")
 		}
 
 		return nil
 	}); err != nil {
 		log.Printf("调拨失败: %v", err.Error())
-		return errors.New("调拨失败")
+		return errors.New("调拨失败:" + err.Error())
 	}
 
 	go func() {
@@ -436,7 +436,7 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 		// 取消调拨
 		allocate.Status = enums.ProductAllocateStatusCancelled
 		if err := tx.Model(&allocate).Select("status").Update("status", enums.ProductAllocateStatusCancelled).Error; err != nil {
-			return err
+			return errors.New("取消调拨失败")
 		}
 		// 解锁产品
 		for _, product := range allocate.ProductFinisheds {
@@ -461,10 +461,11 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 				return fmt.Errorf("【%s】%s 解锁失败", product.Code, product.Name)
 			}
 		}
+
 		return nil
 	}); err != nil {
 		log.Printf("调拨失败: %v", err.Error())
-		return errors.New("调拨失败")
+		return errors.New("调拨失败:" + err.Error())
 	}
 
 	go func() {
@@ -533,7 +534,7 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 			}
 			log.NewValue = product
 			if err := tx.Create(&log).Error; err != nil {
-				return err
+				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
 			}
 		}
 
@@ -570,7 +571,7 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 			}
 			log.NewValue = product
 			if err := tx.Create(&log).Error; err != nil {
-				return err
+				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
 			}
 		}
 
@@ -579,13 +580,13 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
 			Status: enums.ProductAllocateStatusCompleted,
 		}).Error; err != nil {
-			return err
+			return errors.New("调拨失败")
 		}
 
 		return nil
 	}); err != nil {
 		log.Printf("调拨失败: %v", err.Error())
-		return errors.New("调拨失败")
+		return errors.New("调拨失败:" + err.Error())
 	}
 
 	go func() {

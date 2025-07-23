@@ -344,7 +344,12 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 		}
 
 		// 更新调拨单
-		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Updates(&data).Error; err != nil {
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			"product_count",
+			"product_total_weight_metal",
+			"product_total_label_price",
+			"product_total_access_fee",
+		}).Updates(data).Error; err != nil {
 			return err
 		}
 

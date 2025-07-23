@@ -274,7 +274,10 @@ func (l *ProductAccessorieEnterLogic) DelProduct(req *types.ProductAccessorieEnt
 			enterData.ProductTotal -= product.Stock
 		}
 
-		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Updates(enterData).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Select([]string{
+			"product_count",
+			"product_total",
+		}).Updates(enterData).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 

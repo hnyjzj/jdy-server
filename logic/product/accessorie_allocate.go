@@ -206,6 +206,7 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 
 	allocateData := model.ProductAccessorieAllocate{
 		ProductCount: allocate.ProductCount,
+		ProductTotal: allocate.ProductTotal,
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
@@ -229,7 +230,10 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 		allocateData.ProductCount--
 
 		// 更新调拨单
-		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(allocateData).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			"product_count",
+			"product_total",
+		}).Updates(allocateData).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
 

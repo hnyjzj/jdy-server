@@ -89,7 +89,7 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 更新用户名
-		if err := tx.Model(&staff).Updates(model.Staff{
+		if err := tx.Model(&model.Staff{}).Where("id = ?", staff.Id).Updates(model.Staff{
 			Username: uid,
 			Identity: enums.IdentityClerk,
 		}).Error; err != nil {

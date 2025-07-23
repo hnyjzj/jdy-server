@@ -62,7 +62,7 @@ func (l *RemarkLogic) Update(req *types.RemarkUpdateReq) error {
 		return errors.New("获取备注失败")
 	}
 
-	if err := model.DB.Model(&remark).Updates(model.Remark{
+	if err := model.DB.Model(&model.Remark{}).Where("id = ?", remark.Id).Updates(model.Remark{
 		Content:    req.Content,
 		OperatorId: l.Staff.Id,
 		IP:         l.Ctx.ClientIP(),

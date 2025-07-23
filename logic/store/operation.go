@@ -50,7 +50,7 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 			return errors.New("验证信息失败")
 		}
 
-		if err := tx.Model(&store).Where("id = ?", req.Id).Updates(data).Error; err != nil {
+		if err := tx.Model(&model.Store{}).Where("id = ?", store.Id).Updates(data).Error; err != nil {
 			return errors.New("更新失败")
 		}
 

@@ -98,7 +98,7 @@ func (l *StaffUpdateLogic) update() error {
 		data.Password = password
 	}
 
-	if err := l.db.Model(&l.Staff).Updates(&data).Error; err != nil { // 更新失败
+	if err := l.db.Model(&model.Staff{}).Where("id = ?", l.Staff.Id).Updates(&data).Error; err != nil { // 更新失败
 		return err
 	}
 

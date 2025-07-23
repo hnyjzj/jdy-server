@@ -39,7 +39,7 @@ func (l *StaffLogic) StaffEdit(req *types.StaffEditReq) error {
 		}
 
 		// 修改员工信息
-		if err := tx.Model(&staff).Updates(data).Error; err != nil {
+		if err := tx.Model(&model.Staff{}).Where("id = ?", staff.Id).Updates(data).Error; err != nil {
 			return err
 		}
 

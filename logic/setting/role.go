@@ -154,7 +154,7 @@ func (r *RoleLogic) Edit(req *types.RoleEditReq) error {
 			IP:         r.IP,
 		}
 
-		if err := tx.Model(&role).Updates(data).Error; err != nil {
+		if err := tx.Model(&model.Role{}).Where("id = ?", role.Id).Updates(data).Error; err != nil {
 			return errors.New("更新角色失败")
 		}
 

@@ -170,7 +170,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 		}
 
 		// 更新入库单配件数量
-		if err := tx.Model(&enter).Updates(enterData).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Updates(enterData).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -217,12 +217,12 @@ func (l *ProductAccessorieEnterLogic) EditProduct(req *types.ProductAccessorieEn
 			ProductTotal: enter.ProductTotal,
 		}
 		enterData.ProductTotal = enter.ProductTotal - product.Stock + data.Stock
-		if err := tx.Model(&enter).Updates(enterData).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Updates(enterData).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
 		// 更新配件
-		if err := tx.Model(&product).Updates(data).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Id).Updates(data).Error; err != nil {
 			return errors.New("配件更新失败")
 		}
 
@@ -274,7 +274,7 @@ func (l *ProductAccessorieEnterLogic) DelProduct(req *types.ProductAccessorieEnt
 			enterData.ProductTotal -= product.Stock
 		}
 
-		if err := tx.Model(&enter).Updates(enterData).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Updates(enterData).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -318,7 +318,7 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 				return errors.New("配件状态不正确或配件不存在")
 			}
 
-			if err := tx.Model(&product).Updates(model.ProductAccessorie{
+			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Id).Updates(model.ProductAccessorie{
 				Status: enums.ProductStatusNormal,
 			}).Error; err != nil {
 				return errors.New("配件更新失败")
@@ -343,7 +343,7 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 
 		// 更新入库单状态
 		enter.Status = enums.ProductEnterStatusCompleted
-		if err := tx.Model(&enter).Updates(model.ProductAccessorieEnter{
+		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Updates(model.ProductAccessorieEnter{
 			Status: enter.Status,
 		}).Error; err != nil {
 			return errors.New("入库单更新失败")
@@ -369,7 +369,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 		switch enter.Status {
 		case enums.ProductEnterStatusDraft:
 			// 草稿直接取消
-			if err := tx.Model(&enter).Updates(model.ProductAccessorieEnter{
+			if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Updates(model.ProductAccessorieEnter{
 				Status: enums.ProductEnterStatusCanceled,
 			}).Error; err != nil {
 				return errors.New("入库单取消失败")
@@ -400,7 +400,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 				}
 
 				// 还原产品状态
-				if err := tx.Model(&product).Updates(model.ProductAccessorie{
+				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Id).Updates(model.ProductAccessorie{
 					Status: enums.ProductStatusDraft,
 				}).Error; err != nil {
 					return errors.New("配件状态还原失败")
@@ -408,7 +408,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 			}
 
 			// 更新入库单状态
-			if err := tx.Model(&enter).Updates(model.ProductAccessorieEnter{
+			if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Updates(model.ProductAccessorieEnter{
 				Status: enums.ProductEnterStatusCanceled,
 			}).Error; err != nil {
 				return errors.New("入库单取消失败")

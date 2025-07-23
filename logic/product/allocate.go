@@ -79,7 +79,7 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 				allocate.ProductTotalAccessFee = allocate.ProductTotalAccessFee.Add(p.AccessFee)
 
 				// 更新产品状态
-				if err := tx.Model(&p).Where("id = ?", p.Id).Updates(&model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusAllocate,
 				}).Error; err != nil {
 					return err
@@ -207,7 +207,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				data.ProductTotalAccessFee = data.ProductTotalAccessFee.Add(p.AccessFee)
 
 				// 更新产品状态
-				if err := tx.Model(&p).Where("id = ?", p.Id).Updates(&model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusAllocate,
 				}).Error; err != nil {
 					return err
@@ -239,7 +239,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
 
 				// 更新产品状态
-				if err := tx.Model(&p).Where("id = ?", p.Id).Updates(&model.ProductOld{
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Id).Updates(&model.ProductOld{
 					Status: enums.ProductStatusAllocate,
 				}).Error; err != nil {
 					return err
@@ -313,7 +313,7 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 			}
 
 			// 更新产品状态
-			if err := tx.Model(&product).Where("id = ?", product.Id).Updates(&model.ProductFinished{
+			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(&model.ProductFinished{
 				Status: enums.ProductStatusNormal,
 			}).Error; err != nil {
 				return err
@@ -336,7 +336,7 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 			}
 
 			// 更新产品状态
-			if err := tx.Model(&product).Where("id = ?", product.Id).Updates(&model.ProductOld{
+			if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Id).Updates(&model.ProductOld{
 				Status: enums.ProductStatusNormal,
 			}).Error; err != nil {
 				return err
@@ -390,7 +390,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		}
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusOnTheWay
-		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAllocate{
 			Status: enums.ProductAllocateStatusOnTheWay,
 		}).Error; err != nil {
 			return errors.New("确认调拨失败")
@@ -435,7 +435,7 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 取消调拨
 		allocate.Status = enums.ProductAllocateStatusCancelled
-		if err := tx.Model(&allocate).Select("status").Update("status", enums.ProductAllocateStatusCancelled).Error; err != nil {
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Update("status", enums.ProductAllocateStatusCancelled).Error; err != nil {
 			return errors.New("取消调拨失败")
 		}
 		// 解锁产品
@@ -446,7 +446,7 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 			if product.Status != enums.ProductStatusAllocate {
 				return fmt.Errorf("【%s】%s 状态异常", product.Code, product.Name)
 			}
-			if err := tx.Model(&product).Where("id = ?", product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
+			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
 				return fmt.Errorf("【%s】%s 解锁失败", product.Code, product.Name)
 			}
 		}
@@ -457,7 +457,7 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 			if product.Status != enums.ProductStatusAllocate {
 				return fmt.Errorf("【%s】%s 状态异常", product.Code, product.Name)
 			}
-			if err := tx.Model(&product).Where("id = ?", product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
+			if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Id).Update("status", enums.ProductStatusNormal).Error; err != nil {
 				return fmt.Errorf("【%s】%s 解锁失败", product.Code, product.Name)
 			}
 		}
@@ -577,7 +577,7 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusCompleted
-		if err := tx.Model(&allocate).Updates(&model.ProductAllocate{
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAllocate{
 			Status: enums.ProductAllocateStatusCompleted,
 		}).Error; err != nil {
 			return errors.New("调拨失败")

@@ -159,7 +159,7 @@ func (l *OrderSalesCreateLogic) loopSales() error {
 			return err
 		}
 
-		if err := l.Tx.Model(&order).Updates(model.OrderDeposit{
+		if err := l.Tx.Model(&model.OrderDeposit{}).Where("id = ?", order.Id).Updates(model.OrderDeposit{
 			Status: enums.OrderDepositStatusComplete,
 		}).Error; err != nil {
 			return errors.New("定金单更新失败")
@@ -221,7 +221,7 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 	l.Order.ProductFinishedPrice = l.Order.ProductFinishedPrice.Add(order_product.Finished.Price)
 
 	// 更新商品状态
-	if err := l.Tx.Model(&finished).Updates(model.ProductFinished{
+	if err := l.Tx.Model(&model.ProductFinished{}).Where("id = ?", finished.Id).Updates(model.ProductFinished{
 		Status: enums.ProductStatusSold,
 	}).Error; err != nil {
 		return errors.New("成品状态更新失败")
@@ -284,7 +284,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 	l.Order.ProductOldPrice = l.Order.ProductOldPrice.Add(order_product.Old.RecyclePrice)
 
 	// 更新商品状态
-	if err := l.Tx.Model(&old).Updates(model.ProductOld{
+	if err := l.Tx.Model(&model.ProductOld{}).Where("id = ?", old.Id).Updates(model.ProductOld{
 		Status: enums.ProductStatusNormal,
 	}).Error; err != nil {
 		return errors.New("旧料状态更新失败")
@@ -347,7 +347,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	}
 
 	// 更新商品状态
-	if err := l.Tx.Model(&accessory).Updates(model.ProductAccessorie{
+	if err := l.Tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessory.Id).Updates(model.ProductAccessorie{
 		Stock:  accessory.Stock - p.Quantity,
 		Status: status,
 	}).Error; err != nil {
@@ -382,7 +382,7 @@ func (l *OrderSalesCreateLogic) loopOrderDeposit(order *model.OrderDeposit) erro
 				IP:         l.Ctx.ClientIP(),
 			}
 			// 更新商品状态
-			if err := l.Tx.Model(&old_product.ProductFinished).Updates(model.ProductFinished{
+			if err := l.Tx.Model(&model.ProductFinished{}).Where("id = ?", old_product.ProductFinished.Id).Updates(model.ProductFinished{
 				Status: enums.ProductStatusSold,
 			}).Error; err != nil {
 				return errors.New("配件状态更新失败")

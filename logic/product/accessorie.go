@@ -100,7 +100,7 @@ func (p *ProductAccessorieLogic) Update(req *types.ProductAccessorieUpdateReq) e
 			IP:         p.Ctx.ClientIP(),
 		}
 
-		if err := tx.Model(&product).Clauses(clause.Returning{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
+		if err := tx.Model(&model.ProductAccessorie{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Updates(&data).Error; err != nil {
 			return errors.New("更新配件信息失败")
 		}
 

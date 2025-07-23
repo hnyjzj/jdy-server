@@ -100,7 +100,7 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 		}
 		// 更新成品状态,如果被删除了，则恢复
 		if finished_product.DeletedAt.Valid {
-			if err := tx.Model(&finished_product).Unscoped().Where("id = ?", finished_product.Id).Update("deleted_at", nil).Error; err != nil {
+			if err := tx.Model(&model.ProductFinished{}).Unscoped().Where("id = ?", finished_product.Id).Update("deleted_at", nil).Error; err != nil {
 				return errors.New("恢复成品失败")
 			}
 		}

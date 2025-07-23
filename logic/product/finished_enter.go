@@ -219,11 +219,7 @@ func (l *ProductFinishedEnterLogic) EditProduct(req *types.ProductFinishedEnterE
 			ProductTotalWeightMetal: enter.ProductTotalWeightMetal.Add(new_product.WeightMetal.Sub(product.WeightMetal)),
 		}
 		// 更新入库单
-		if err := tx.Model(&enter).Select([]string{
-			"product_total_access_fee",
-			"product_total_label_price",
-			"product_total_weight_metal",
-		}).Updates(&data).Error; err != nil {
+		if err := tx.Model(&model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(&data).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -396,7 +392,7 @@ func (l *ProductFinishedEnterLogic) Cancel(req *types.ProductFinishedEnterCancel
 		switch enter.Status {
 		case enums.ProductEnterStatusDraft:
 			// 草稿直接取消
-			if err := tx.Model(&enter).Updates(model.ProductFinishedEnter{
+			if err := tx.Model(&model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(model.ProductFinishedEnter{
 				Status: enums.ProductEnterStatusCanceled,
 			}).Error; err != nil {
 				return errors.New("入库单取消失败")
@@ -427,7 +423,7 @@ func (l *ProductFinishedEnterLogic) Cancel(req *types.ProductFinishedEnterCancel
 				}
 
 				// 还原产品状态
-				if err := tx.Model(&product).Updates(model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(model.ProductFinished{
 					Status: enums.ProductStatusDraft,
 				}).Error; err != nil {
 					return errors.New("成品状态还原失败")
@@ -435,7 +431,7 @@ func (l *ProductFinishedEnterLogic) Cancel(req *types.ProductFinishedEnterCancel
 			}
 
 			// 更新入库单状态
-			if err := tx.Model(&enter).Updates(model.ProductFinishedEnter{
+			if err := tx.Model(&model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(model.ProductFinishedEnter{
 				Status: enums.ProductEnterStatusCanceled,
 			}).Error; err != nil {
 				return errors.New("入库单取消失败")

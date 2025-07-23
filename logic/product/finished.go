@@ -130,7 +130,7 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 			IP:         p.Ctx.ClientIP(),
 		}
 
-		if err := tx.Model(&product).Clauses(clause.Returning{}).Where("id = ?", req.Id).Updates(&data).Error; err != nil {
+		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Updates(&data).Error; err != nil {
 			return errors.New("更新成品信息失败")
 		}
 
@@ -170,7 +170,7 @@ func (p *ProductFinishedLogic) Upload(req *types.ProductFinishedUploadReq) error
 		}
 
 		product.Images = req.Images
-		if err := tx.Model(&product).Clauses(clause.Returning{}).Select("images").Updates(&model.ProductFinished{
+		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Updates(&model.ProductFinished{
 			Images: req.Images,
 		}).Error; err != nil {
 			return errors.New("上传成品图片失败")

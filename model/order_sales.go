@@ -61,6 +61,11 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
+	} else {
+		db = db.Where("status IN (?)", []enums.OrderSalesStatus{
+			enums.OrderSalesStatusWaitPay,
+			enums.OrderSalesStatusRefund,
+		})
 	}
 	if req.Source != 0 {
 		db = db.Where("source = ?", req.Source)

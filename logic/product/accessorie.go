@@ -36,6 +36,7 @@ func (p *ProductAccessorieLogic) List(req *types.ProductAccessorieListReq) (*typ
 	// 获取列表
 	db = model.PageCondition(db, &req.PageReq)
 	db = db.Order("created_at desc")
+	db = db.Order("stock desc")
 	db = db.Preload("Category")
 	// db = db.Select("*,SUM(stock) as stock")
 	// group := []string{

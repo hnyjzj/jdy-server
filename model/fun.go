@@ -24,6 +24,8 @@ func PageCondition(db *gorm.DB, req *types.PageReq) *gorm.DB {
 		case req.Limit <= 0:
 			req.Limit = 10
 		}
+	} else {
+		return db
 	}
 
 	offset := (req.Page - 1) * req.Limit

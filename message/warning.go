@@ -17,6 +17,9 @@ type CaptureScreenMessage struct {
 
 // 发送截屏事件消息
 func (M *BaseMessage) SendCaptureScreenMessage(req *CaptureScreenMessage) error {
+	if M.Config.Robot.Warning == "" {
+		return errors.New("请先配置机器人")
+	}
 	// 消息内容
 	if res, err := M.WXWork.GroupRobot.SendTemplateCard(M.Ctx, M.Config.Robot.Warning, &request.GroupRobotMsgTemplateCard{
 		CardType: "text_notice",

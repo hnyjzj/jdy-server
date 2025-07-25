@@ -57,6 +57,11 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
+	} else {
+		db = db.Where("status IN (?)", []enums.ProductAllocateStatus{
+			enums.ProductAllocateStatusDraft,
+			enums.ProductAllocateStatusOnTheWay,
+		})
 	}
 	if query.StartTime != nil {
 		db = db.Where("created_at >= ?", query.StartTime)

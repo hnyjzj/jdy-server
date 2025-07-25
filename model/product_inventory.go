@@ -86,6 +86,12 @@ func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryW
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
+	} else {
+		db = db.Where("status in (?)", []enums.ProductInventoryStatus{
+			enums.ProductInventoryStatusInventorying,
+			enums.ProductInventoryStatusToBeVerified,
+			enums.ProductInventoryStatusAbnormal,
+		})
 	}
 	if req.InspectorId != "" {
 		db = db.Where("inspector_id = ?", req.InspectorId)
@@ -95,6 +101,9 @@ func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryW
 	}
 	if req.EndTime != nil {
 		db = db.Where("created_at <= ?", req.EndTime)
+	}
+	if req.InventoryPersonIds != nil {
+		db = db.Where("id IN (SELECT product_inventory_id FROM product_inventory_persons WHERE staff_id IN (?))", req.InventoryPersonIds)
 	}
 
 	return db

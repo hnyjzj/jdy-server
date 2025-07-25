@@ -198,8 +198,6 @@ func (OrderSalesProduct) Preloads(db *gorm.DB) *gorm.DB {
 type OrderSalesProductFinished struct {
 	SoftDelete
 
-	Status enums.OrderSalesStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
-
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单
 

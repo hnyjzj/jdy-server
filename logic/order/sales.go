@@ -93,26 +93,73 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 			}
 			switch product.Type {
 			case enums.ProductTypeFinished:
+				log := model.ProductHistory{
+					Action:     enums.ProductActionOrderCancel,
+					Type:       enums.ProductTypeFinished,
+					OldValue:   product.Finished.Product,
+					ProductId:  product.Finished.Product.Id,
+					StoreId:    product.Finished.Product.StoreId,
+					SourceId:   product.Finished.Product.Id,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
+				}
 				// 更新成品状态
-				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Finished.Id).Updates(&model.ProductFinished{
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Finished.Product.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusNormal,
 				}).Error; err != nil {
 					return errors.New("更新成品状态失败")
 				}
+				// 添加成品历史记录
+				product.Finished.Product.Status = enums.ProductStatusNormal
+				log.NewValue = product.Finished
+				if err := tx.Create(&log).Error; err != nil {
+					return errors.New("添加成品历史记录失败")
+				}
 			case enums.ProductTypeOld:
+				log := model.ProductHistory{
+					Action:     enums.ProductActionOrderCancel,
+					Type:       enums.ProductTypeOld,
+					OldValue:   product.Old.Product,
+					ProductId:  product.Old.Product.Id,
+					StoreId:    product.Old.Product.StoreId,
+					SourceId:   product.Old.Product.Id,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
+				}
 				// 更新旧料状态
-				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Id).Updates(&model.ProductOld{
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Product.Id).Updates(&model.ProductOld{
 					Status: enums.ProductStatusNormal,
 				}).Error; err != nil {
 					return errors.New("更新旧料状态失败")
 				}
+				// 添加旧料历史记录
+				product.Finished.Product.Status = enums.ProductStatusNormal
+				log.NewValue = product.Finished
+				if err := tx.Create(&log).Error; err != nil {
+					return errors.New("添加旧料历史记录失败")
+				}
 			case enums.ProductTypeAccessorie:
+				log := model.ProductHistory{
+					Action:     enums.ProductActionOrderCancel,
+					Type:       enums.ProductTypeAccessorie,
+					OldValue:   product.Accessorie.Product,
+					ProductId:  product.Accessorie.Product.Id,
+					StoreId:    product.Accessorie.Product.StoreId,
+					SourceId:   product.Accessorie.Product.Id,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
+				}
 				// 更新配件状态
-				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Accessorie.Id).Updates(&model.ProductAccessorie{
-					Status: enums.ProductStatusNormal,
-					Stock:  product.Accessorie.Product.Stock + product.Accessorie.Quantity,
+				stock := product.Accessorie.Product.Stock + product.Accessorie.Quantity
+				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
+					Stock: stock,
 				}).Error; err != nil {
 					return errors.New("更新配件状态失败")
+				}
+				// 添加配件历史记录
+				log.NewValue = product.Accessorie.Product
+				if err := tx.Create(&log).Error; err != nil {
+					return errors.New("添加配件历史记录失败")
 				}
 			}
 		}
@@ -171,12 +218,6 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 			}
 			switch product.Type {
 			case enums.ProductTypeFinished:
-				// 更新订单成品交易状态
-				if err := tx.Model(&model.OrderSalesProductFinished{}).Where("id = ?", product.Finished.Id).Updates(&model.OrderSalesProductFinished{
-					Status: enums.OrderSalesStatusComplete,
-				}).Error; err != nil {
-					return errors.New("更新成品状态失败")
-				}
 				// 更新成品状态
 				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Finished.Product.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusSold,
@@ -185,7 +226,7 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 				}
 			case enums.ProductTypeOld:
 				// 更新旧料状态
-				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Id).Updates(&model.ProductOld{
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Product.Id).Updates(&model.ProductOld{
 					Status: enums.ProductStatusSold,
 				}).Error; err != nil {
 					return errors.New("更新旧料状态失败")

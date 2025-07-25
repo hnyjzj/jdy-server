@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -357,6 +358,59 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 	}); err != nil {
 		log.Printf("移除产品失败: %v", err.Error())
 		return errors.New("移除产品失败")
+	}
+
+	return nil
+}
+
+// 清空产品调拨单产品
+func (p *ProductAllocateLogic) Clear(req *types.ProductAllocateClearReq) *errors.Errors {
+	var (
+		allocate model.ProductAllocate
+	)
+
+	// 获取调拨单
+	if err := model.DB.First(&allocate, "id = ?", req.Id).Error; err != nil {
+		return errors.New("调拨单不存在")
+	}
+
+	if allocate.Status != enums.ProductAllocateStatusDraft {
+		return errors.New("调拨单状态异常")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		switch allocate.Type {
+		case enums.ProductTypeFinished:
+			// 清空产品
+			if err := tx.Model(&allocate).Association("ProductFinisheds").Clear(); err != nil {
+				return errors.New("清空产品失败")
+			}
+
+		case enums.ProductTypeOld:
+			if err := tx.Model(&allocate).Association("ProductOlds").Clear(); err != nil {
+				return errors.New("清空产品失败")
+			}
+		}
+		// 更新调拨单
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			"product_count",
+			"product_total_weight_metal",
+			"product_total_label_price",
+			"product_total_access_fee",
+		}).Updates(&model.ProductAllocate{
+			ProductCount:            0,
+			ProductTotalWeightMetal: decimal.Zero,
+			ProductTotalLabelPrice:  decimal.Zero,
+			ProductTotalAccessFee:   decimal.Zero,
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+
+	}); err != nil {
+		log.Printf("清空产品失败: %v", err.Error())
+		return errors.New("清空产品失败")
 	}
 
 	return nil

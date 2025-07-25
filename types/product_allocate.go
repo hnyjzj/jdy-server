@@ -68,6 +68,10 @@ type ProductAllocateRemoveReq struct {
 	ProductId string `json:"product_id" binding:"required"`
 }
 
+type ProductAllocateClearReq struct {
+	Id string `json:"id" binding:"required"` // 调拨单ID
+}
+
 type ProductAllocateConfirmReq struct {
 	Id string `json:"id" binding:"required"` // 调拨单ID
 }

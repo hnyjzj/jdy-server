@@ -192,6 +192,37 @@ func (con ProductAllocateController) Remove(ctx *gin.Context) {
 	con.Success(ctx, "ok", nil)
 }
 
+// 清空调拨单产品
+func (con ProductAllocateController) Clear(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateClearReq
+
+		logic = product.ProductAllocateLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Clear(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
 // 确认调拨
 func (con ProductAllocateController) Confirm(ctx *gin.Context) {
 	var (

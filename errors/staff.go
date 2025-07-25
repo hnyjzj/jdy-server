@@ -9,4 +9,6 @@ var (
 	ErrStaffDisabled = New("员工已被禁用", C403)
 	// 密码错误
 	ErrPasswordIncorrect = New("密码错误", C403)
+	// 未分配门店
+	ErrStaffNoStore = New("未分配门店", C403)
 )

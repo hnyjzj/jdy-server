@@ -72,11 +72,23 @@ func (p *ProductAccessorieCategoryLogic) Create(req *types.ProductAccessorieCate
 			return errors.New("请添加配件条目")
 		}
 
+		res := make([]string, 0)
 		for _, v := range data {
 			v.Code = strings.ToUpper(v.Code)
-			if err := tx.Create(&v).Error; err != nil {
-				return errors.New(v.Name + "新增失败")
+			var category model.ProductAccessorieCategory
+			if err := tx.Model(&model.ProductAccessorieCategory{}).Where(&model.ProductAccessorieCategory{
+				Name: v.Name,
+			}).First(&category).Error; err != gorm.ErrRecordNotFound || category.Id != "" {
+				res = append(res, "新增【"+v.Name+"】失败，请检查错误或已存在")
+				continue
 			}
+			if err := tx.Create(&v).Error; err != nil {
+				res = append(res, "新增【"+v.Name+"】失败，请检查错误或已存在")
+				continue
+			}
+		}
+		if len(res) > 0 {
+			return errors.New(strings.Join(res, "\n"))
 		}
 
 		return nil

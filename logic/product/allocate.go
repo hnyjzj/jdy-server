@@ -193,15 +193,22 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		case enums.ProductTypeFinished:
 			var product []model.ProductFinished
 			// 获取产品
-			if err := tx.Where("id in (?)", req.ProductIds).Or("code in (?)", req.Codes).Find(&product).Error; err != nil {
+			db := tx.Model(&model.ProductFinished{})
+			if len(req.ProductIds) > 0 {
+				db = db.Where("id in (?)", req.ProductIds)
+			}
+			if len(req.Codes) > 0 {
+				db = db.Where("code in (?)", req.Codes)
+			}
+			db = db.Where(&model.ProductFinished{
+				StoreId: allocate.FromStoreId,
+				Status:  enums.ProductStatusNormal,
+			})
+			if err := db.Find(&product).Error; err != nil {
 				return errors.New("产品不存在")
 			}
 
 			for _, p := range product {
-				if p.Status != enums.ProductStatusNormal {
-					return errors.New("产品状态不正确")
-				}
-
 				data.ProductCount++
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
@@ -226,15 +233,22 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		case enums.ProductTypeOld:
 			var product []model.ProductOld
 			// 获取产品
-			if err := tx.Where("id in (?)", req.ProductIds).Or("code in (?)", req.Codes).Find(&product).Error; err != nil {
+			db := tx.Model(&model.ProductOld{})
+			if len(req.ProductIds) > 0 {
+				db = db.Where("id in (?)", req.ProductIds)
+			}
+			if len(req.Codes) > 0 {
+				db = db.Where("code in (?)", req.Codes)
+			}
+			db = db.Where(&model.ProductOld{
+				StoreId: allocate.FromStoreId,
+				Status:  enums.ProductStatusNormal,
+			})
+			if err := db.Find(&product).Error; err != nil {
 				return errors.New("产品不存在")
 			}
 
 			for _, p := range product {
-				if p.Status != enums.ProductStatusNormal {
-					return errors.New("产品状态不正确")
-				}
-
 				data.ProductCount++
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)

@@ -370,7 +370,7 @@ func (p *ProductAllocateLogic) Clear(req *types.ProductAllocateClearReq) *errors
 	)
 
 	// 获取调拨单
-	if err := model.DB.First(&allocate, "id = ?", req.Id).Error; err != nil {
+	if err := model.DB.Preload("ProductFinisheds").Preload("ProductOlds").First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return errors.New("调拨单不存在")
 	}
 
@@ -381,12 +381,28 @@ func (p *ProductAllocateLogic) Clear(req *types.ProductAllocateClearReq) *errors
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		switch allocate.Type {
 		case enums.ProductTypeFinished:
+			for _, product := range allocate.ProductFinisheds {
+				// 更新产品状态
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(&model.ProductFinished{
+					Status: enums.ProductStatusNormal,
+				}).Error; err != nil {
+					return err
+				}
+			}
 			// 清空产品
 			if err := tx.Model(&allocate).Association("ProductFinisheds").Clear(); err != nil {
 				return errors.New("清空产品失败")
 			}
 
 		case enums.ProductTypeOld:
+			for _, product := range allocate.ProductOlds {
+				// 更新产品状态
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Id).Updates(&model.ProductOld{
+					Status: enums.ProductStatusNormal,
+				}).Error; err != nil {
+					return err
+				}
+			}
 			if err := tx.Model(&allocate).Association("ProductOlds").Clear(); err != nil {
 				return errors.New("清空产品失败")
 			}

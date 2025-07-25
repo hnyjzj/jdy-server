@@ -2,6 +2,7 @@ package auth
 
 import (
 	"jdy/config"
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/service/redis"
 	"jdy/types"
@@ -14,7 +15,7 @@ import (
 type TokenLogic struct{}
 
 // 生成token
-func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types.TokenRes, error) {
+func (t *TokenLogic) GenerateToken(ctx *gin.Context, ltype enums.LoginType, staff *types.Staff) (*types.TokenRes, error) {
 	var (
 		conf = config.Config.JWT
 	)
@@ -35,6 +36,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types
 			ExpiresAt: jwt.NewNumericDate(expires),
 			Issuer:    "jdy",
 		},
+		Type:  ltype,
 		Staff: staff,
 	}
 
@@ -44,7 +46,7 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types
 	}
 
 	// 存入redis
-	if err := redis.Client.Set(ctx, types.GetTokenName(staff.Phone), token, countdown_timer).Err(); err != nil {
+	if err := redis.Client.Set(ctx, types.GetTokenName(ltype, staff.Phone), token, countdown_timer).Err(); err != nil {
 		return nil, err
 	}
 
@@ -57,6 +59,6 @@ func (t *TokenLogic) GenerateToken(ctx *gin.Context, staff *types.Staff) (*types
 }
 
 // 删除token
-func (t *TokenLogic) RevokeToken(ctx *gin.Context, phone string) error {
-	return redis.Client.Del(ctx, types.GetTokenName(phone)).Err()
+func (t *TokenLogic) RevokeToken(ctx *gin.Context, ltype enums.LoginType, phone string) error {
+	return redis.Client.Del(ctx, types.GetTokenName(ltype, phone)).Err()
 }

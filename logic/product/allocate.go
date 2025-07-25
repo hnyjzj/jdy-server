@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -130,7 +131,7 @@ func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.P
 	// 获取列表
 	db = allocate.Preloads(db)
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取调拨单列表失败")
 	}
@@ -149,11 +150,11 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 	db = allocate.Preloads(db)
 
 	db = db.Preload("ProductFinisheds", func(tx *gorm.DB) *gorm.DB {
-		tx = model.PageCondition(tx, req.Page, req.Limit)
+		tx = model.PageCondition(tx, &req.PageReq)
 		return tx
 	})
 	db = db.Preload("ProductOlds", func(tx *gorm.DB) *gorm.DB {
-		tx = model.PageCondition(tx, req.Page, req.Limit)
+		tx = model.PageCondition(tx, &req.PageReq)
 		return tx
 	})
 
@@ -192,15 +193,22 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		case enums.ProductTypeFinished:
 			var product []model.ProductFinished
 			// 获取产品
-			if err := tx.Where("id in (?)", req.ProductId).Find(&product).Error; err != nil {
+			db := tx.Model(&model.ProductFinished{})
+			if len(req.ProductIds) > 0 {
+				db = db.Where("id in (?)", req.ProductIds)
+			}
+			if len(req.Codes) > 0 {
+				db = db.Where("code in (?)", req.Codes)
+			}
+			db = db.Where(&model.ProductFinished{
+				StoreId: allocate.FromStoreId,
+				Status:  enums.ProductStatusNormal,
+			})
+			if err := db.Find(&product).Error; err != nil {
 				return errors.New("产品不存在")
 			}
 
 			for _, p := range product {
-				if p.Status != enums.ProductStatusNormal {
-					return errors.New("产品状态不正确")
-				}
-
 				data.ProductCount++
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
@@ -225,15 +233,22 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		case enums.ProductTypeOld:
 			var product []model.ProductOld
 			// 获取产品
-			if err := tx.Where("id in (?)", req.ProductId).Find(&product).Error; err != nil {
+			db := tx.Model(&model.ProductOld{})
+			if len(req.ProductIds) > 0 {
+				db = db.Where("id in (?)", req.ProductIds)
+			}
+			if len(req.Codes) > 0 {
+				db = db.Where("code in (?)", req.Codes)
+			}
+			db = db.Where(&model.ProductOld{
+				StoreId: allocate.FromStoreId,
+				Status:  enums.ProductStatusNormal,
+			})
+			if err := db.Find(&product).Error; err != nil {
 				return errors.New("产品不存在")
 			}
 
 			for _, p := range product {
-				if p.Status != enums.ProductStatusNormal {
-					return errors.New("产品状态不正确")
-				}
-
 				data.ProductCount++
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
@@ -357,6 +372,75 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 	}); err != nil {
 		log.Printf("移除产品失败: %v", err.Error())
 		return errors.New("移除产品失败")
+	}
+
+	return nil
+}
+
+// 清空产品调拨单产品
+func (p *ProductAllocateLogic) Clear(req *types.ProductAllocateClearReq) *errors.Errors {
+	var (
+		allocate model.ProductAllocate
+	)
+
+	// 获取调拨单
+	if err := model.DB.Preload("ProductFinisheds").Preload("ProductOlds").First(&allocate, "id = ?", req.Id).Error; err != nil {
+		return errors.New("调拨单不存在")
+	}
+
+	if allocate.Status != enums.ProductAllocateStatusDraft {
+		return errors.New("调拨单状态异常")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		switch allocate.Type {
+		case enums.ProductTypeFinished:
+			for _, product := range allocate.ProductFinisheds {
+				// 更新产品状态
+				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(&model.ProductFinished{
+					Status: enums.ProductStatusNormal,
+				}).Error; err != nil {
+					return err
+				}
+			}
+			// 清空产品
+			if err := tx.Model(&allocate).Association("ProductFinisheds").Clear(); err != nil {
+				return errors.New("清空产品失败")
+			}
+
+		case enums.ProductTypeOld:
+			for _, product := range allocate.ProductOlds {
+				// 更新产品状态
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Id).Updates(&model.ProductOld{
+					Status: enums.ProductStatusNormal,
+				}).Error; err != nil {
+					return err
+				}
+			}
+			if err := tx.Model(&allocate).Association("ProductOlds").Clear(); err != nil {
+				return errors.New("清空产品失败")
+			}
+		}
+		// 更新调拨单
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			"product_count",
+			"product_total_weight_metal",
+			"product_total_label_price",
+			"product_total_access_fee",
+		}).Updates(&model.ProductAllocate{
+			ProductCount:            0,
+			ProductTotalWeightMetal: decimal.Zero,
+			ProductTotalLabelPrice:  decimal.Zero,
+			ProductTotalAccessFee:   decimal.Zero,
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+
+	}); err != nil {
+		log.Printf("清空产品失败: %v", err.Error())
+		return errors.New("清空产品失败")
 	}
 
 	return nil

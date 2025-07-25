@@ -24,17 +24,17 @@ func (con ProductAllocateController) Create(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 绑定请求参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	// 校验参数
@@ -68,17 +68,17 @@ func (con ProductAllocateController) List(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 绑定请求参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	// 校验参数
@@ -107,17 +107,17 @@ func (con ProductAllocateController) Info(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 绑定请求参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	// 获取产品调拨单详情
@@ -140,17 +140,17 @@ func (con ProductAllocateController) Add(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 绑定请求参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	if err := logic.Add(&req); err != nil {
@@ -171,6 +171,12 @@ func (con ProductAllocateController) Remove(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
@@ -178,13 +184,38 @@ func (con ProductAllocateController) Remove(ctx *gin.Context) {
 		logic.Staff = staff
 	}
 
+	if err := logic.Remove(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+// 清空调拨单产品
+func (con ProductAllocateController) Clear(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateClearReq
+
+		logic = product.ProductAllocateLogic{
+			Ctx: ctx,
+		}
+	)
+
 	// 绑定请求参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
 	}
 
-	if err := logic.Remove(&req); err != nil {
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	if err := logic.Clear(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
@@ -202,17 +233,17 @@ func (con ProductAllocateController) Confirm(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 绑定请求参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	if err := logic.Confirm(&req); err != nil {
@@ -233,17 +264,17 @@ func (con ProductAllocateController) Cancel(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 绑定请求参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	if err := logic.Cancel(&req); err != nil {
@@ -264,17 +295,17 @@ func (con ProductAllocateController) Complete(ctx *gin.Context) {
 		}
 	)
 
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 绑定请求参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	if err := logic.Complete(&req); err != nil {

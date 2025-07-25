@@ -186,7 +186,7 @@ func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, query *types.ProductAc
 		db = db.Where("status = ?", query.Status)
 	}
 	if query.Remark != "" {
-		db = db.Where("remark = ?", query.Remark)
+		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")
 	}
 	if query.Code != "" {
 		db = db.Where("id IN (SELECT enter_id FROM product_accessories WHERE code = ?)", query.Code)

@@ -1,6 +1,8 @@
 package types
 
 import (
+	"jdy/enums"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -8,7 +10,8 @@ import (
 type Claims struct {
 	jwt.RegisteredClaims
 
-	Staff *Staff `json:"staff"`
+	Staff *Staff          `json:"staff"`
+	Type  enums.LoginType `json:"type"`
 }
 
 type Staff struct {

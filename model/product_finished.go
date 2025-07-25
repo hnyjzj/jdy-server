@@ -264,6 +264,16 @@ func (ProductFinishedEnter) WhereCondition(db *gorm.DB, query *types.ProductFini
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)
 	}
+	if query.Status != 0 {
+		db = db.Where("status = ?", query.Status)
+	} else {
+		db = db.Where("status in (?)", []enums.ProductEnterStatus{
+			enums.ProductEnterStatusDraft,
+		})
+	}
+	if query.Remark != "" {
+		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")
+	}
 	if query.StartAt != nil && query.EndAt != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", query.StartAt, query.EndAt)
 	}

@@ -184,7 +184,7 @@ func (l *ProductInventoryLogic) List(req *types.ProductInventoryListReq) (*types
 	// 获取列表
 	db = inventory.Preloads(db, &req.Where, false)
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取列表失败")
 	}
@@ -233,6 +233,7 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 		inventory model.ProductInventory
 	)
 	db := model.DB.Model(&model.ProductInventory{})
+	db = db.Preload("ActualProducts")
 	db = inventory.Preloads(db, nil, false)
 	if err := db.First(&inventory, "id = ?", req.Id).Error; err != nil {
 		return errors.New("获取失败")
@@ -257,6 +258,38 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 					return errors.New(code + "产品已存在")
 				}
 			}
+
+			switch inventory.Type {
+			case enums.ProductTypeUsedFinished:
+				var finished model.ProductFinished
+				if err := tx.Unscoped().Where(&model.ProductFinished{
+					Code:    code,
+					StoreId: inventory.StoreId,
+				}).First(&finished).Error; err != nil {
+					if err == gorm.ErrRecordNotFound {
+						return errors.New("[" + code + "] 不存在")
+					}
+
+					return errors.New("[" + code + "] 查询失败")
+				}
+
+			case enums.ProductTypeUsedOld:
+				var old model.ProductOld
+				if err := tx.Unscoped().Where(&model.ProductOld{
+					Code:    code,
+					StoreId: inventory.StoreId,
+				}).First(&old).Error; err != nil {
+					if err == gorm.ErrRecordNotFound {
+						return errors.New("[" + code + "] 不存在")
+					}
+
+					return errors.New("[" + code + "] 查询失败")
+				}
+
+			default:
+				return errors.New("[" + code + "]不存在")
+			}
+
 			// 添加产品
 			if err := tx.Create(&model.ProductInventoryProduct{
 				ProductInventoryId: req.Id,

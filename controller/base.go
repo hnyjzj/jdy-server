@@ -46,6 +46,20 @@ func (con BaseController) GetStaff(ctx *gin.Context) (*model.Staff, *errors.Erro
 	return staff, nil
 }
 
+func (con BaseController) GetLoginType(ctx *gin.Context) (enums.LoginType, *errors.Errors) {
+	// 获取 token 中的用户信息
+	ltype, ok := ctx.MustGet("type").(enums.LoginType)
+	// 检查用户是否正确
+	if !ok {
+		return "", &errors.Errors{
+			Message: "登录错误",
+			Code:    errors.ErrStaffUnauthorized.Code,
+		}
+	}
+
+	return ltype, nil
+}
+
 func (con BaseController) Verify_permission(ctx *gin.Context, staff *model.Staff) error {
 	if staff.Identity == enums.IdentitySuperAdmin {
 		return nil

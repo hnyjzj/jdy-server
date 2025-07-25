@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic"
 	"jdy/logic/common"
@@ -40,7 +41,7 @@ func (l *LoginLogic) Login(ctx *gin.Context, req *types.LoginReq) (*types.TokenR
 	}
 
 	// 生成token
-	res, err := l.token.GenerateToken(ctx, &types.Staff{
+	res, err := l.token.GenerateToken(ctx, enums.LoginTypePhone, &types.Staff{
 		Id:         staff.Id,
 		Phone:      staff.Phone,
 		Nickname:   staff.Nickname,
@@ -70,14 +71,17 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 			Ctx: ctx,
 		}
 	)
+	var login_type enums.LoginType
 	switch req.State {
 	case wxwork.WxWorkOauth:
+		login_type = enums.LoginTypeAuth
 		staff, err = wxwork_logic.OauthLogin(req.Code, false)
 		if err != nil {
 			return nil, err
 		}
 
 	case wxwork.WxWorkCode:
+		login_type = enums.LoginTypeScan
 		staff, err = wxwork_logic.CodeLogin(req.Code)
 		if err != nil {
 			return nil, err
@@ -87,7 +91,7 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 		return nil, errors.New("错误的授权方式")
 	}
 
-	return l.token.GenerateToken(ctx, &types.Staff{
+	return l.token.GenerateToken(ctx, login_type, &types.Staff{
 		Id:         staff.Id,
 		Phone:      staff.Phone,
 		Nickname:   staff.Nickname,
@@ -96,6 +100,15 @@ func (l *LoginLogic) Oauth(ctx *gin.Context, req *types.LoginOAuthReq) (*types.T
 }
 
 // 登出
-func (l *LoginLogic) Logout(ctx *gin.Context, phone string) error {
-	return l.token.RevokeToken(ctx, phone)
+func (l *LoginLogic) Logout(ctx *gin.Context, ltype enums.LoginType, phone string) error {
+	if ltype == "" {
+		for v := range enums.LoginTypeMap {
+			if err := l.token.RevokeToken(ctx, v, phone); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+	return l.token.RevokeToken(ctx, ltype, phone)
 }

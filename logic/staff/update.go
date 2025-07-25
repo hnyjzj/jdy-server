@@ -110,7 +110,7 @@ func (l *StaffUpdateLogic) logout() error {
 	if l.req.Password != "" && l.Staff.Phone != "" {
 		// 退出登录
 		auth := auth.LoginLogic{}
-		if err := auth.Logout(l.ctx, l.Staff.Phone); err != nil {
+		if err := auth.Logout(l.ctx, "", l.Staff.Phone); err != nil {
 			return errors.New("更新账号信息失败")
 		}
 	}

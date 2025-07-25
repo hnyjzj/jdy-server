@@ -67,7 +67,7 @@ type ProductInventoryWhere struct {
 
 	Remark string `json:"remark" label:"备注" input:"textarea" type:"string" find:"false" create:"true" sort:"15" required:"false"` // 备注
 
-	Status enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" find:"false" sort:"16" required:"false" preset:"typeMap"` // 状态
+	Status enums.ProductInventoryStatus `json:"status" label:"状态" input:"select" type:"number" find:"true" sort:"16" required:"false" preset:"typeMap"` // 状态
 
 	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"17" required:"false"` // 开始时间
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"18" required:"false"`   // 结束时间

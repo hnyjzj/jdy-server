@@ -61,6 +61,11 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
+	} else {
+		db = db.Where("status IN (?)", []enums.OrderSalesStatus{
+			enums.OrderSalesStatusWaitPay,
+			enums.OrderSalesStatusRefund,
+		})
 	}
 	if req.Source != 0 {
 		db = db.Where("source = ?", req.Source)
@@ -197,8 +202,6 @@ func (OrderSalesProduct) Preloads(db *gorm.DB) *gorm.DB {
 // 销售单成品
 type OrderSalesProductFinished struct {
 	SoftDelete
-
-	Status enums.OrderSalesStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
 
 	OrderId string     `json:"order_id" gorm:"type:varchar(255);not NULL;comment:销售单ID;"`            // 销售单ID
 	Order   OrderSales `json:"order,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:销售单;"` // 销售单

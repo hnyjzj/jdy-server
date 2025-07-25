@@ -134,7 +134,8 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 	db = db.Where("order_id IN (?)", order_query)
 
 	// 查询今日销售件数
-	db = db.Where(&model.OrderSalesProductFinished{
+	db = db.Where(&model.OrderSalesProduct{
+		Type:   enums.ProductTypeFinished,
 		Status: enums.OrderSalesStatusComplete,
 	}).Scopes(model.DurationCondition(enums.DurationToday))
 	if err := db.Count(&l.Res.SalesCount).Error; err != nil {

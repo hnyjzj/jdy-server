@@ -51,7 +51,7 @@ func (l *StaffLogic) List(req *types.StaffListReq) (*types.PageRes[model.Staff],
 
 	db = staff.Preloads(db)
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取员工列表失败")

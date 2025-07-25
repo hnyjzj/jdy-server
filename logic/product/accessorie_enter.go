@@ -56,7 +56,7 @@ func (l *ProductAccessorieEnterLogic) EnterList(req *types.ProductAccessorieEnte
 	db = db.Preload("Store")
 
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取配件列表失败")
 	}

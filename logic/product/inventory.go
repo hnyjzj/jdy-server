@@ -265,8 +265,12 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 				if err := tx.Unscoped().Where(&model.ProductFinished{
 					Code:    code,
 					StoreId: inventory.StoreId,
-				}).First(&finished).Error; err != nil && err != gorm.ErrRecordNotFound {
-					return errors.New("[" + code + "] 不存在")
+				}).First(&finished).Error; err != nil {
+					if err == gorm.ErrRecordNotFound {
+						return errors.New("[" + code + "] 不存在")
+					}
+
+					return errors.New("[" + code + "] 查询失败")
 				}
 
 			case enums.ProductTypeUsedOld:
@@ -274,8 +278,12 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 				if err := tx.Unscoped().Where(&model.ProductOld{
 					Code:    code,
 					StoreId: inventory.StoreId,
-				}).First(&old).Error; err != nil && err != gorm.ErrRecordNotFound {
-					return errors.New("[" + code + "] 不存在")
+				}).First(&old).Error; err != nil {
+					if err == gorm.ErrRecordNotFound {
+						return errors.New("[" + code + "] 不存在")
+					}
+
+					return errors.New("[" + code + "] 查询失败")
 				}
 
 			default:

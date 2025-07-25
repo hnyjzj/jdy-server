@@ -34,7 +34,7 @@ type Agent struct {
 }
 
 type Robot struct {
-	Warning string `mapstructure:"warning"` // 告警机器人
+	Warning string `mapstructure:"warning" default:""` // 告警机器人
 }
 
 type WechatService struct {

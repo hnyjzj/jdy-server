@@ -44,7 +44,7 @@ func (l *RemarkLogic) List(req *types.RemarkListReq) (*types.PageRes[model.Remar
 
 	// 获取列表
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	db = remark.Preloads(db)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取列表失败")

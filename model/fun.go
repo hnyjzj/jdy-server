@@ -3,24 +3,31 @@ package model
 import (
 	"errors"
 	"jdy/enums"
+	"jdy/types"
 	"time"
 
 	"gorm.io/gorm"
 )
 
 // 分页条件
-func PageCondition(db *gorm.DB, page, limit int) *gorm.DB {
-	if page == 0 {
-		page = 1
+func PageCondition(db *gorm.DB, req *types.PageReq) *gorm.DB {
+	if req == nil {
+		_ = db.AddError(errors.New("分页参数不能为空"))
+		return db
+	}
+	if !req.All {
+		if req.Page == 0 {
+			req.Page = 1
+		}
+
+		switch {
+		case req.Limit <= 0:
+			req.Limit = 10
+		}
 	}
 
-	switch {
-	case limit <= 0:
-		limit = 10
-	}
-
-	offset := (page - 1) * limit
-	return db.Offset(offset).Limit(limit)
+	offset := (req.Page - 1) * req.Limit
+	return db.Offset(offset).Limit(req.Limit)
 }
 
 func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.DB) *gorm.DB {

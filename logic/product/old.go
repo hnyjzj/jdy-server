@@ -34,7 +34,7 @@ func (p *ProductOldLogic) List(req *types.ProductOldListReq) (*types.PageRes[mod
 
 	// 获取列表
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取旧料列表失败")
 	}

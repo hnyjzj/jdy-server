@@ -58,7 +58,7 @@ func (l *ProductFinishedEnterLogic) EnterList(req *types.ProductFinishedEnterLis
 	db = db.Preload("Store")
 
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取产品列表失败: " + err.Error())
 	}
@@ -76,7 +76,7 @@ func (l *ProductFinishedEnterLogic) EnterInfo(req *types.ProductFinishedEnterInf
 
 	// 获取产品入库单详情
 	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
-		db = model.PageCondition(tx, req.Page, req.Limit)
+		db = model.PageCondition(tx, &req.PageReq)
 		db = db.Unscoped()
 		return db
 	})

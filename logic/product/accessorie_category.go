@@ -36,7 +36,7 @@ func (p *ProductAccessorieCategoryLogic) List(req *types.ProductAccessorieCatego
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = db.Preload("Products")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取配件条目列表失败")
 	}

@@ -131,7 +131,7 @@ func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.P
 	// 获取列表
 	db = allocate.Preloads(db)
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取调拨单列表失败")
 	}
@@ -150,11 +150,11 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 	db = allocate.Preloads(db)
 
 	db = db.Preload("ProductFinisheds", func(tx *gorm.DB) *gorm.DB {
-		tx = model.PageCondition(tx, req.Page, req.Limit)
+		tx = model.PageCondition(tx, &req.PageReq)
 		return tx
 	})
 	db = db.Preload("ProductOlds", func(tx *gorm.DB) *gorm.DB {
-		tx = model.PageCondition(tx, req.Page, req.Limit)
+		tx = model.PageCondition(tx, &req.PageReq)
 		return tx
 	})
 

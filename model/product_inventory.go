@@ -144,7 +144,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			pdb = pdb.Preload("ProductOld")
 			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusShould})
 			if req != nil && req.Page != 0 && req.Limit != 0 {
-				pdb = PageCondition(pdb, req.Page, req.Limit)
+				pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 			}
 
 			return pdb
@@ -156,7 +156,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			pdb = pdb.Preload("ProductOld")
 			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusExtra})
 			if req != nil && req.Page != 0 && req.Limit != 0 {
-				pdb = PageCondition(pdb, req.Page, req.Limit)
+				pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 			}
 
 			return pdb
@@ -168,7 +168,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			pdb = pdb.Preload("ProductOld")
 			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusLoss})
 			if req != nil && req.Page != 0 && req.Limit != 0 {
-				pdb = PageCondition(pdb, req.Page, req.Limit)
+				pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 			}
 
 			return pdb
@@ -182,7 +182,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 			pdb = pdb.Preload("ProductFinished")
 			pdb = pdb.Preload("ProductOld")
 			pdb = pdb.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusActual})
-			pdb = PageCondition(pdb, req.Page, req.Limit)
+			pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 
 			return pdb
 		})

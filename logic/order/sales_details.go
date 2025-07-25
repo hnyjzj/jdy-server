@@ -32,7 +32,7 @@ func (l *OrderSalesDetailLogic) List(req *types.OrderSalesDetailListReq) (*types
 	db = product.Preloads(db)
 
 	db = db.Order("created_at desc")
-	db = model.PageCondition(db, req.Page, req.Limit)
+	db = model.PageCondition(db, &req.PageReq)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取订单列表失败")
 	}

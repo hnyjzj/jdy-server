@@ -75,6 +75,7 @@ func (con StoreController) My(ctx *gin.Context) {
 
 	if list == nil || len(*list) == 0 {
 		con.ExceptionWithAuth(ctx, errors.ErrStaffNoStore)
+		return
 	}
 
 	con.Success(ctx, "ok", list)

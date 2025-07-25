@@ -133,8 +133,8 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 					return errors.New("更新旧料状态失败")
 				}
 				// 添加旧料历史记录
-				product.Finished.Product.Status = enums.ProductStatusNormal
-				log.NewValue = product.Finished
+				product.Old.Product.Status = enums.ProductStatusNormal
+				log.NewValue = product.Old
 				if err := tx.Create(&log).Error; err != nil {
 					return errors.New("添加旧料历史记录失败")
 				}

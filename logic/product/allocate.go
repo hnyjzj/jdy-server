@@ -193,7 +193,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		case enums.ProductTypeFinished:
 			var product []model.ProductFinished
 			// 获取产品
-			if err := tx.Where("id in (?)", req.ProductId).Find(&product).Error; err != nil {
+			if err := tx.Where("id in (?)", req.ProductIds).Or("code in (?)", req.Codes).Find(&product).Error; err != nil {
 				return errors.New("产品不存在")
 			}
 
@@ -226,7 +226,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		case enums.ProductTypeOld:
 			var product []model.ProductOld
 			// 获取产品
-			if err := tx.Where("id in (?)", req.ProductId).Find(&product).Error; err != nil {
+			if err := tx.Where("id in (?)", req.ProductIds).Or("code in (?)", req.Codes).Find(&product).Error; err != nil {
 				return errors.New("产品不存在")
 			}
 

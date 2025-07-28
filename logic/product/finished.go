@@ -130,6 +130,8 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 			IP:         p.Ctx.ClientIP(),
 		}
 
+		data.Class = data.GetClass()
+
 		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Updates(&data).Error; err != nil {
 			return errors.New("更新成品信息失败")
 		}

@@ -52,6 +52,13 @@ func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhe
 		db = db.Where("action = ?", query.Action)
 	}
 
+	if query.StartTime != nil {
+		db = db.Where("created_at >= ?", query.StartTime)
+	}
+	if query.EndTime != nil {
+		db = db.Where("created_at <= ?", query.EndTime)
+	}
+
 	return db
 }
 
@@ -69,6 +76,13 @@ func (ProductHistory) WhereAccessorieCondition(db *gorm.DB, query *types.Product
 	}
 	if query.Action != 0 {
 		db = db.Where("action = ?", query.Action)
+	}
+
+	if query.StartTime != nil {
+		db = db.Where("created_at >= ?", query.StartTime)
+	}
+	if query.EndTime != nil {
+		db = db.Where("created_at <= ?", query.EndTime)
 	}
 
 	return db

@@ -118,7 +118,7 @@ func (l *TodaySalesLogic) getTodaySales() error {
 // 获取今日销售件数
 func (l *TodaySalesLogic) getTodaySalesCount() error {
 	var (
-		db = l.Db.Model(&model.OrderSalesProductFinished{})
+		db = l.Db.Model(&model.OrderSalesProduct{})
 	)
 
 	// 如果是店员，则仅查询该店员的订单

@@ -22,6 +22,9 @@ type ProductHistoryWhere struct {
 	Type    enums.ProductTypeUsed `json:"type" label:"产品类型" input:"select" type:"number" find:"true" sort:"2" required:"false" preset:"typeMap"` // 产品类型
 	StoreId string                `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"false"`                 // 门店
 	Action  enums.ProductAction   `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"false" preset:"typeMap"` // 操作
+
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"5" required:"false"` // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间
 }
 
 type ProductAccessorieHistoryWhere struct {
@@ -29,6 +32,9 @@ type ProductAccessorieHistoryWhere struct {
 	Code    string              `json:"code" label:"条码" input:"text" type:"string" find:"true" sort:"2" required:"false"`                      // 产品
 	StoreId string              `json:"store_id" label:"门店" input:"text" type:"string" find:"false" sort:"3" required:"false"`                 // 门店
 	Action  enums.ProductAction `json:"action" label:"操作" input:"select" type:"number" find:"true" sort:"4" required:"false" preset:"typeMap"` // 操作
+
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"5" required:"false"` // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间
 }
 
 type ProductHistoryListReq struct {

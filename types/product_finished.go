@@ -11,14 +11,14 @@ type ProductFinishedWhere struct {
 	Code string `json:"code" label:"条码" find:"true" create:"true" update:"true" sort:"1" type:"string" input:"text" required:"true"` // 条码
 	Name string `json:"name" label:"名称" find:"true" create:"true" update:"true" sort:"2" type:"string" input:"text" required:"true"` // 名称
 
-	AccessFee  *decimal.Decimal `json:"access_fee" label:"入网费" find:"true" create:"true" update:"true" sort:"3" type:"float" input:"number" required:"true"`  // 入网费
-	LabelPrice *decimal.Decimal `json:"label_price" label:"标签价" find:"true" create:"true" update:"true" sort:"4" type:"float" input:"number" required:"true"` // 标签价
-	LaborFee   *decimal.Decimal `json:"labor_fee" label:"工费" find:"true" create:"true" update:"true" sort:"5" type:"float" input:"number" required:"true"`    // 工费
+	AccessFee  *decimal.Decimal `json:"access_fee" label:"入网费" find:"true" create:"true" update:"true" sort:"3" type:"float" input:"text" required:"true"`  // 入网费
+	LabelPrice *decimal.Decimal `json:"label_price" label:"标签价" find:"true" create:"true" update:"true" sort:"4" type:"float" input:"text" required:"true"` // 标签价
+	LaborFee   *decimal.Decimal `json:"labor_fee" label:"工费" find:"true" create:"true" update:"true" sort:"5" type:"float" input:"text" required:"true"`    // 工费
 
-	WeightTotal *decimal.Decimal           `json:"weight_total" label:"总重量" find:"true" create:"true" update:"true" sort:"6" type:"float" input:"number"`                    // 总重量
-	WeightMetal *decimal.Decimal           `json:"weight_metal" label:"金重" find:"true" create:"true" update:"true" sort:"7" type:"float" input:"number"`                     // 金重
-	WeightGem   *decimal.Decimal           `json:"weight_gem" label:"主石重" find:"true" create:"true" update:"true" sort:"8" type:"float" input:"number"`                      // 主石重
-	WeightOther *decimal.Decimal           `json:"weight_other" label:"杂料重" find:"true" create:"true" update:"true" sort:"9" type:"float" input:"number"`                    // 杂料重
+	WeightTotal *decimal.Decimal           `json:"weight_total" label:"总重量" find:"true" create:"true" update:"true" sort:"6" type:"float" input:"text"`                      // 总重量
+	WeightMetal *decimal.Decimal           `json:"weight_metal" label:"金重" find:"true" create:"true" update:"true" sort:"7" type:"float" input:"text"`                       // 金重
+	WeightGem   *decimal.Decimal           `json:"weight_gem" label:"主石重" find:"true" create:"true" update:"true" sort:"8" type:"float" input:"text"`                        // 主石重
+	WeightOther *decimal.Decimal           `json:"weight_other" label:"杂料重" find:"true" create:"true" update:"true" sort:"9" type:"float" input:"text"`                      // 杂料重
 	NumGem      int                        `json:"num_gem" label:"主石数" find:"true" create:"true" update:"true" sort:"10" type:"number" input:"number"`                       // 主石数
 	NumOther    int                        `json:"num_other" label:"杂料数" find:"true" create:"true" update:"true" sort:"11" type:"number" input:"number"`                     // 杂料数
 	ColorMetal  string                     `json:"color_metal" label:"贵金属颜色" find:"true" create:"true" update:"true" sort:"12" type:"string" input:"text"`                   // 贵金属颜色

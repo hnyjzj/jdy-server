@@ -128,12 +128,12 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 				}
 				// 更新旧料状态
 				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Product.Id).Updates(&model.ProductOld{
-					Status: enums.ProductStatusNormal,
+					Status: enums.ProductStatusDraft,
 				}).Error; err != nil {
 					return errors.New("更新旧料状态失败")
 				}
 				// 添加旧料历史记录
-				product.Old.Product.Status = enums.ProductStatusNormal
+				product.Old.Product.Status = enums.ProductStatusDraft
 				log.NewValue = product.Old
 				if err := tx.Create(&log).Error; err != nil {
 					return errors.New("添加旧料历史记录失败")
@@ -372,7 +372,8 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 
 			// 更新订单旧料状态
 			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
-				Status: enums.OrderSalesStatusReturn}).Error; err != nil {
+				Status: enums.OrderSalesStatusReturn,
+			}).Error; err != nil {
 				return errors.New("更新订单旧料状态失败")
 			}
 			// 添加历史
@@ -388,7 +389,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 			// 更新旧料状态
 			if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Old.Product.Id).Updates(&model.ProductOld{
-				Status: enums.ProductStatusNormal,
+				Status: enums.ProductStatusNoStock,
 			}).Error; err != nil {
 				return errors.New("更新旧料状态失败")
 			}

@@ -257,6 +257,101 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 计算并添加产品
+		if strings.TrimSpace(req.Code) == "" {
+			return errors.New("产品条码不能为空")
+		}
+		for _, product := range inventory.ActualProducts {
+			if product.ProductCode == strings.ToUpper(req.Code) {
+				return errors.New(req.Code + "产品已存在")
+			}
+		}
+
+		switch inventory.Type {
+		case enums.ProductTypeUsedFinished:
+			var finished model.ProductFinished
+			if err := tx.Unscoped().Where(&model.ProductFinished{
+				Code:    req.Code,
+				StoreId: inventory.StoreId,
+			}).First(&finished).Error; err != nil {
+				if err == gorm.ErrRecordNotFound {
+					return errors.New("[" + req.Code + "] 不存在")
+				}
+
+				return errors.New("[" + req.Code + "] 查询失败")
+			}
+
+		case enums.ProductTypeUsedOld:
+			var old model.ProductOld
+			if err := tx.Unscoped().Where(&model.ProductOld{
+				Code:    req.Code,
+				StoreId: inventory.StoreId,
+			}).First(&old).Error; err != nil {
+				if err == gorm.ErrRecordNotFound {
+					return errors.New("[" + req.Code + "] 不存在")
+				}
+
+				return errors.New("[" + req.Code + "] 查询失败")
+			}
+
+		default:
+			return errors.New("[" + req.Code + "]不存在")
+		}
+
+		// 添加产品
+		if err := tx.Create(&model.ProductInventoryProduct{
+			ProductInventoryId: req.Id,
+			ProductType:        inventory.Type,
+			ProductCode:        strings.ToUpper(req.Code),
+			Status:             enums.ProductInventoryProductStatusActual,
+			InventoryTime:      &now,
+		}).Error; err != nil {
+			return errors.New("[" + req.Code + "]添加失败")
+		}
+		// 产品总数
+		if err := tx.Model(&model.ProductInventory{}).
+			Where("id = ?", req.Id).
+			Update("actual_count", gorm.Expr("actual_count + ?", 1)).Error; err != nil {
+			return errors.New("[" + req.Code + "]添加失败")
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 添加产品盘点单产品
+func (l *ProductInventoryLogic) AddBatch(req *types.ProductInventoryAddBatchReq) error {
+	var (
+		inventory model.ProductInventory
+	)
+	db := model.DB.Model(&model.ProductInventory{})
+	db = db.Preload("ActualProducts", func(tx *gorm.DB) *gorm.DB {
+		pdb := tx
+		pdb = pdb.Where(&model.ProductInventoryProduct{Status: enums.ProductInventoryProductStatusActual})
+
+		return pdb
+	})
+	db = inventory.Preloads(db, nil, false)
+	if err := db.First(&inventory, "id = ?", req.Id).Error; err != nil {
+		return errors.New("获取失败")
+	}
+
+	var InventoryPersonIds []string
+	for _, staff := range inventory.InventoryPersons {
+		InventoryPersonIds = append(InventoryPersonIds, staff.Id)
+	}
+
+	if can := inventory.Status.CanEdit(enums.ProductInventoryStatusInventorying, l.Staff.Id, InventoryPersonIds, inventory.InspectorId); !can {
+		return errors.New("当前状态不允许这样操作")
+	}
+
+	now := time.Now()
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 计算并添加产品
 		for _, code := range req.Codes {
 			if strings.TrimSpace(code) == "" {
 				return errors.New("产品条码不能为空")

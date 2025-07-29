@@ -233,7 +233,12 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 		inventory model.ProductInventory
 	)
 	db := model.DB.Model(&model.ProductInventory{})
-	db = db.Preload("ActualProducts")
+	db = db.Preload("ActualProducts", func(tx *gorm.DB) *gorm.DB {
+		pdb := tx
+		pdb = pdb.Where(&model.ProductInventoryProduct{Status: enums.ProductInventoryProductStatusActual})
+
+		return pdb
+	})
 	db = inventory.Preloads(db, nil, false)
 	if err := db.First(&inventory, "id = ?", req.Id).Error; err != nil {
 		return errors.New("获取失败")
@@ -253,6 +258,9 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 计算并添加产品
 		for _, code := range req.Codes {
+			if strings.TrimSpace(code) == "" {
+				return errors.New("产品条码不能为空")
+			}
 			for _, product := range inventory.ActualProducts {
 				if product.ProductCode == strings.ToUpper(code) {
 					return errors.New(code + "产品已存在")

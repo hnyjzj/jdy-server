@@ -475,9 +475,9 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		var finished model.ProductFinished
 		db := l.Tx.Model(&model.ProductFinished{})
 		db = db.Where("id = ?", product_id)
+		db = db.Or("code = ?", strings.ToUpper(p.Code))
 		db = db.Where(&model.ProductFinished{
-			Status:  enums.ProductStatusSold,
-			StoreId: l.Req.StoreId,
+			Status: enums.ProductStatusSold,
 		})
 		db = db.Preload("Store")
 

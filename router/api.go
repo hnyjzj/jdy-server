@@ -381,12 +381,13 @@ func Api(g *gin.Engine) {
 				inventory.GET("/where", product.ProductInventoryController{}.Where) // 盘点单筛选
 				inventory.Use(middlewares.JWTMiddleware())
 				{
-					inventory.POST("/create", product.ProductInventoryController{}.Create) // 创建盘点单
-					inventory.POST("/list", product.ProductInventoryController{}.List)     // 盘点单列表
-					inventory.POST("/info", product.ProductInventoryController{}.Info)     // 盘点单详情
-					inventory.POST("/add", product.ProductInventoryController{}.Add)       // 添加产品
-					inventory.PUT("/remove", product.ProductInventoryController{}.Remove)  // 移除产品
-					inventory.PUT("/change", product.ProductInventoryController{}.Change)  // 盘点单变化
+					inventory.POST("/create", product.ProductInventoryController{}.Create)      // 创建盘点单
+					inventory.POST("/list", product.ProductInventoryController{}.List)          // 盘点单列表
+					inventory.POST("/info", product.ProductInventoryController{}.Info)          // 盘点单详情
+					inventory.POST("/add", product.ProductInventoryController{}.Add)            // 添加产品
+					inventory.POST("/add_batch", product.ProductInventoryController{}.AddBatch) // 批量添加产品
+					inventory.PUT("/remove", product.ProductInventoryController{}.Remove)       // 移除产品
+					inventory.PUT("/change", product.ProductInventoryController{}.Change)       // 盘点单变化
 				}
 			}
 

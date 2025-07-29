@@ -142,8 +142,12 @@ type ProductInventoryInfoReq struct {
 }
 
 type ProductInventoryAddReq struct {
-	Id    string   `json:"id" binding:"required"`          // 盘点单ID
-	Codes []string `json:"codes" binding:"required,min=1"` // 产品编码
+	Id   string `json:"id" binding:"required"`   // 盘点单ID
+	Code string `json:"code" binding:"required"` // 产品编码
+}
+type ProductInventoryAddBatchReq struct {
+	Id    string   `json:"id" binding:"required"`    // 盘点单ID
+	Codes []string `json:"codes" binding:"required"` // 产品编码
 }
 
 type ProductInventoryRemoveReq struct {

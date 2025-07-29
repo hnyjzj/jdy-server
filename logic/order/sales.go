@@ -227,7 +227,7 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 			case enums.ProductTypeOld:
 				// 更新旧料状态
 				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Product.Id).Updates(&model.ProductOld{
-					Status: enums.ProductStatusSold,
+					Status: enums.ProductStatusNormal,
 				}).Error; err != nil {
 					return errors.New("更新旧料状态失败")
 				}

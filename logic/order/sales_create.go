@@ -432,7 +432,6 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 	old := &model.ProductOld{
 		Code:                    strings.ToUpper(p.Code),
 		Name:                    p.Name,
-		Status:                  enums.ProductStatusNormal,
 		LabelPrice:              p.LabelPrice,
 		Brand:                   p.Brand,
 		Material:                p.Material,
@@ -465,9 +464,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		RecycleStore:            *l.Store,
 	}
 
-	if !p.IsOur {
-		old.IsOur = false
-	} else {
+	if p.IsOur {
 		if p.ProductId == "" {
 			return nil, errors.New("旧料ID不能为空")
 		}
@@ -486,6 +483,10 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		}
 
 		old.IsOur = true
+		old.Status = enums.ProductStatusDraft
+	} else {
+		old.IsOur = false
+		old.Status = enums.ProductStatusDraft
 	}
 
 	// 添加商品

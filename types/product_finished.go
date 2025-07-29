@@ -68,8 +68,8 @@ type ProductFinishedInfoReq struct {
 }
 
 type ProductFinishedRetrievalReq struct {
-	Code    string `json:"code" binding:"required"`     // 条码
-	StoreId string `json:"store_id" binding:"required"` // 门店
+	Code    string `json:"code" binding:"required"` // 条码
+	StoreId string `json:"store_id"`                // 门店
 }
 
 type ProductFinishedUpdateReq struct {

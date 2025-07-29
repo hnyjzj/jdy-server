@@ -125,6 +125,10 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 				return errors.New("参数错误")
 			}
 
+			if product.Code == "" {
+				return errors.New("条码不能为空")
+			}
+
 			var p model.ProductFinished
 			if err := tx.Where("code = ?", strings.ToUpper(product.Code)).First(&p).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {

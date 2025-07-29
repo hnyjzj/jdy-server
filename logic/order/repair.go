@@ -67,12 +67,9 @@ func (l *OrderRepairLogic) Create(req *types.OrderRepairCreateReq) (*model.Order
 			if p.IsOur {
 				var product model.ProductFinished
 				if err := tx.Model(&product).Where(&model.ProductFinished{
-					StoreId: order.StoreId,
+					Status: enums.ProductStatusSold,
 				}).First(&product, "id = ?", p.ProductId).Error; err != nil {
 					return errors.New("获取商品信息失败")
-				}
-				if product.Status != enums.ProductStatusSold && product.Status != enums.ProductStatusNoStock {
-					return errors.New("商品状态不正常")
 				}
 
 				data.ProductId = product.Id

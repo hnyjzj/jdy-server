@@ -283,13 +283,6 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 	l.Order.Products = append(l.Order.Products, order_product)
 	l.Order.ProductOldPrice = l.Order.ProductOldPrice.Add(order_product.Old.RecyclePrice)
 
-	// 更新商品状态
-	if err := l.Tx.Model(&model.ProductOld{}).Where("id = ?", old.Id).Updates(model.ProductOld{
-		Status: enums.ProductStatusNormal,
-	}).Error; err != nil {
-		return errors.New("旧料状态更新失败")
-	}
-
 	// 添加记录
 	log.NewValue = old
 	if err := l.Tx.Create(&log).Error; err != nil {
@@ -429,10 +422,9 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 }
 
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
-	old := &model.ProductOld{
+	old := model.ProductOld{
 		Code:                    strings.ToUpper(p.Code),
 		Name:                    p.Name,
-		Status:                  enums.ProductStatusNormal,
 		LabelPrice:              p.LabelPrice,
 		Brand:                   p.Brand,
 		Material:                p.Material,
@@ -465,9 +457,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		RecycleStore:            *l.Store,
 	}
 
-	if !p.IsOur {
-		old.IsOur = false
-	} else {
+	if p.IsOur {
 		if p.ProductId == "" {
 			return nil, errors.New("旧料ID不能为空")
 		}
@@ -486,15 +476,19 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		}
 
 		old.IsOur = true
+		old.Status = enums.ProductStatusDraft
+	} else {
+		old.IsOur = false
+		old.Status = enums.ProductStatusDraft
 	}
 
 	// 添加商品
 	old.Class = old.GetClass()
-	if err := l.Tx.Create(old).Error; err != nil {
+	if err := l.Tx.Create(&old).Error; err != nil {
 		return nil, errors.New("旧料添加失败")
 	}
 
-	return old, nil
+	return &old, nil
 }
 
 // 获取配件

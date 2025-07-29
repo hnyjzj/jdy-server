@@ -93,7 +93,8 @@ func (p *ProductFinishedLogic) Retrieval(req *types.ProductFinishedRetrievalReq)
 
 	if err := model.DB.
 		Where(model.ProductFinished{
-			Code: strings.ToUpper(req.Code),
+			Code:    strings.ToUpper(req.Code),
+			StoreId: req.StoreId,
 		}).
 		Preload("Store").
 		First(&product).Error; err != nil {

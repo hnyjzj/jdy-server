@@ -85,8 +85,8 @@ type ProductAccessorieAllocateAddProduct struct {
 }
 
 type ProductAccessorieAllocateRemoveReq struct {
-	Id        string `json:"id" binding:"required"`         // 调拨单ID
-	ProductId string `json:"product_id" binding:"required"` // 产品ID
+	Id         string   `json:"id" binding:"required"`          // 调拨单ID
+	ProductIds []string `json:"product_ids" binding:"required"` // 产品ID
 }
 
 type ProductAccessorieAllocateConfirmReq struct {

@@ -3,8 +3,6 @@ package types
 import (
 	"jdy/enums"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 type ProductAccessorieEnterCreateReq struct {
@@ -13,13 +11,14 @@ type ProductAccessorieEnterCreateReq struct {
 }
 
 type ProductAccessorieEnterWhere struct {
-	Id      string                   `json:"id" label:"入库单号" input:"text" type:"string" find:"true" create:"false" sort:"1" required:"false"`                     // ID
-	StoreId string                   `json:"store_id" label:"门店" input:"text" type:"string" find:"false" create:"true" sort:"2" required:"true"`                  // 门店ID
-	Status  enums.ProductEnterStatus `json:"status" label:"状态" input:"select" type:"number" find:"true" create:"true" sort:"3" required:"false" preset:"typeMap"` // 状态
-	Remark  string                   `json:"remark" label:"备注" input:"text" type:"string" find:"true" create:"true" sort:"4" required:"false"`                    // 类型
-	Code    string                   `json:"code" label:"条码" input:"text" type:"string" find:"true" sort:"5" required:"false"`                                    // 条码
-	StartAt *time.Time               `json:"start_at" label:"开始时间" input:"date" type:"time" find:"true" sort:"6" required:"false"`                                // 开始时间
-	EndAt   *time.Time               `json:"end_at" label:"结束时间" input:"date" type:"time" find:"true" sort:"7" required:"false"`                                  // 结束时间
+	Id      string                   `json:"id" label:"入库单号" input:"text" type:"string" find:"true" create:"false" sort:"1" required:"false"`                      // ID
+	StoreId string                   `json:"store_id" label:"门店" input:"text" type:"string" find:"false" create:"true" sort:"2" required:"true"`                   // 门店ID
+	Status  enums.ProductEnterStatus `json:"status" label:"状态" input:"select" type:"number" find:"true" create:"false" sort:"3" required:"false" preset:"typeMap"` // 状态
+	Remark  string                   `json:"remark" label:"备注" input:"text" type:"string" find:"true" create:"true" sort:"4" required:"false"`                     // 类型
+	Name    string                   `json:"name" label:"名称" input:"text" type:"string" find:"true" sort:"5" required:"false"`                                     // 名称
+
+	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"6" required:"false"` // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间
 }
 
 type ProductAccessorieEnterListReq struct {
@@ -28,6 +27,7 @@ type ProductAccessorieEnterListReq struct {
 }
 
 type ProductAccessorieEnterInfoReq struct {
+	PageReq
 	Id string `json:"id" binding:"required"`
 }
 
@@ -56,7 +56,9 @@ type ProductAccessorieEnterCancelReq struct {
 }
 
 type ProductAccessorieEnterReqProduct struct {
-	Code      string          `json:"code" label:"编号" input:"text" type:"string" find:"true" sort:"2" required:"true"` // 条码
-	AccessFee decimal.Decimal `json:"access_fee" label:"入网费" input:"number" type:"number" find:"false" create:"true" sort:"3"`
-	Stock     int64           `json:"stock" label:"库存" input:"number" type:"number" find:"false" create:"true" sort:"3" required:"true"` // 库存
+	Name       string                            `json:"name" label:"名称" find:"true" create:"true" update:"false" sort:"3" type:"string" input:"text" required:"true" binding:"required"`                             // 名称
+	Type       enums.ProductAccessorieType       `json:"type" label:"类型" find:"true" create:"true" update:"false" sort:"4" type:"string" input:"select" required:"true" preset:"typeMap" binding:"required"`          // 类型
+	RetailType enums.ProductAccessorieRetailType `json:"retail_type" label:"零售方式" find:"true" create:"true" update:"false" sort:"5" type:"string" input:"select" required:"true" preset:"typeMap" binding:"required"` // 零售类型
+	Remark     string                            `json:"remark" label:"备注" find:"true" create:"true" update:"true" sort:"6" type:"string" input:"textarea" required:"false"`                                          // 备注
+	Stock      int64                             `json:"stock" label:"库存" find:"false" create:"true" update:"true" sort:"7" type:"int" input:"text" required:"true" binding:"required"`                               // 库存
 }

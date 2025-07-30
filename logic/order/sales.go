@@ -190,6 +190,7 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 	return nil
 }
 
+// 支付
 func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 	var (
 		order model.OrderSales
@@ -260,6 +261,7 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 	return nil
 }
 
+// 退货
 func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 	var (
 		order model.OrderSales
@@ -409,7 +411,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 		case enums.ProductTypeAccessorie:
 			// 查询配件
 			var p model.OrderSalesProduct
-			if err := tx.Preload("Accessorie.Product.Category").First(&p, "id = ?", req.ProductId).Error; err != nil {
+			if err := tx.Preload("Accessorie.Product").First(&p, "id = ?", req.ProductId).Error; err != nil {
 				return errors.New("获取配件订单详情失败")
 			}
 			if p.Status != enums.OrderSalesStatusComplete {
@@ -436,7 +438,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 
 			// 更新配件状态
 			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", p.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
-				Status: enums.ProductStatusNormal,
+				Status: enums.ProductAccessorieStatusNormal,
 				Stock:  p.Accessorie.Product.Stock + p.Accessorie.Quantity,
 			}).Error; err != nil {
 				return errors.New("更新配件状态失败")
@@ -447,8 +449,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			data.Type = enums.ProductTypeAccessorie
-			data.Code = strings.ToUpper(p.Accessorie.Product.Code)
-			data.Name = p.Accessorie.Product.Category.Name
+			data.Name = p.Accessorie.Product.Name
 			data.Quantity = p.Accessorie.Quantity
 			data.Price = req.Price
 			data.PriceOriginal = p.Accessorie.Price

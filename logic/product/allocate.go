@@ -88,7 +88,12 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			}
 
 			// 更新调拨单
-			if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", data.Id).Updates(&allocate).Error; err != nil {
+			if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+				"product_count",
+				"product_total_weight_metal",
+				"product_total_label_price",
+				"product_total_access_fee",
+			}).Updates(data).Error; err != nil {
 				return err
 			}
 
@@ -273,7 +278,12 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		}
 
 		// 更新调拨单
-		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Updates(&data).Error; err != nil {
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			"product_count",
+			"product_total_weight_metal",
+			"product_total_label_price",
+			"product_total_access_fee",
+		}).Updates(data).Error; err != nil {
 			return err
 		}
 
@@ -591,13 +601,12 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 		// 解锁产品
 		for _, product := range allocate.ProductFinisheds {
 			log := model.ProductHistory{
-				Action:     enums.ProductActionTransfer,
 				Type:       enums.ProductTypeFinished,
 				OldValue:   product,
 				ProductId:  product.Id,
-				StoreId:    product.StoreId,
 				SourceId:   allocate.Id,
 				OperatorId: p.Staff.Id,
+				Reason:     allocate.Remark,
 				IP:         p.Ctx.ClientIP(),
 			}
 
@@ -622,20 +631,27 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
 			}
 			log.NewValue = product
-			if err := tx.Create(&log).Error; err != nil {
+			flog := log
+			flog.Action = enums.ProductActionTransfer
+			flog.StoreId = allocate.FromStoreId
+			tlog := log
+			tlog.Action = enums.ProductActionDirectIn
+			tlog.StoreId = allocate.ToStoreId
+
+			logs := []model.ProductHistory{flog, tlog}
+			if err := tx.Create(&logs).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
 			}
 		}
 
 		for _, product := range allocate.ProductOlds {
 			log := model.ProductHistory{
-				Action:     enums.ProductActionTransfer,
 				Type:       enums.ProductTypeOld,
 				OldValue:   product,
 				ProductId:  product.Id,
-				StoreId:    product.StoreId,
 				SourceId:   allocate.Id,
 				OperatorId: p.Staff.Id,
+				Reason:     allocate.Remark,
 				IP:         p.Ctx.ClientIP(),
 			}
 
@@ -659,7 +675,15 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
 			}
 			log.NewValue = product
-			if err := tx.Create(&log).Error; err != nil {
+			flog := log
+			flog.Action = enums.ProductActionTransfer
+			flog.StoreId = allocate.FromStoreId
+			tlog := log
+			tlog.Action = enums.ProductActionDirectIn
+			tlog.StoreId = allocate.ToStoreId
+
+			logs := []model.ProductHistory{flog, tlog}
+			if err := tx.Create(&logs).Error; err != nil {
 				return errors.New(fmt.Sprintf("【%s】%s 更新失败", product.Code, product.Name))
 			}
 		}

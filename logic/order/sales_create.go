@@ -458,23 +458,21 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 	}
 
 	if p.IsOur {
-		if p.ProductId == "" {
-			return nil, errors.New("旧料ID不能为空")
-		}
-		// 获取商品信息
-		var finished model.ProductFinished
-		db := l.Tx.Model(&model.ProductFinished{})
-		db = db.Where("id = ?", product_id)
-		db = db.Or("code = ?", strings.ToUpper(p.Code))
-		db = db.Where(&model.ProductFinished{
-			Status: enums.ProductStatusSold,
-		})
-		db = db.Preload("Store")
+		if product_id != "" {
+			var finished model.ProductFinished
+			// 获取商品信息
+			db := l.Tx.Model(&model.ProductFinished{})
+			db = db.Where("id = ?", product_id)
+			db = db.Or("code = ?", strings.ToUpper(p.Code))
+			db = db.Where(&model.ProductFinished{
+				Status: enums.ProductStatusSold,
+			})
+			db = db.Preload("Store")
 
-		if err := db.First(&finished).Error; err != nil {
-			return nil, errors.New("旧料不存在")
+			if err := db.First(&finished).Error; err != nil {
+				return nil, errors.New("旧料不存在")
+			}
 		}
-
 		old.IsOur = true
 		old.Status = enums.ProductStatusDraft
 	} else {

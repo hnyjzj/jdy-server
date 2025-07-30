@@ -224,6 +224,10 @@ func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model
 		}
 	}
 
+	for _, staff := range res.InventoryPersons {
+		res.InventoryPersonIds = append(res.InventoryPersonIds, staff.Id)
+	}
+
 	return &res, nil
 }
 

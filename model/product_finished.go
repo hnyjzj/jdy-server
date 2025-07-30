@@ -138,6 +138,13 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 	return db
 }
 
+func (ProductFinished) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Store")
+	db = db.Preload("Enter")
+
+	return db
+}
+
 func (p *ProductFinished) GetClass() enums.ProductClassFinished {
 	switch {
 	case p.RetailType == enums.ProductRetailTypeGoldKg &&

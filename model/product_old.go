@@ -156,6 +156,13 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 	return db
 }
 
+func (ProductOld) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Store")
+	db = db.Preload("RecycleStore")
+
+	return db
+}
+
 func (p *ProductOld) GetClass() enums.ProductClassOld {
 	// 黄金旧料
 	// 黄金 + 999/999.9/999.99 + 素金类

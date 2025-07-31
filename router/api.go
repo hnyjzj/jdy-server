@@ -309,7 +309,8 @@ func Api(g *gin.Engine) {
 				// 配件入库
 				enters := accessories.Group("/enter")
 				{
-					enters.GET("/where", product.ProductAccessorieEnterController{}.Where) // 配件入库单筛选
+					enters.GET("/where", product.ProductAccessorieEnterController{}.Where)                       // 配件入库单筛选
+					enters.GET("/where_add_product", product.ProductAccessorieEnterController{}.WhereAddProduct) // 配件入库单筛选
 					enters.Use(middlewares.JWTMiddleware())
 					{
 						enters.POST("/create", product.ProductAccessorieEnterController{}.Create) // 创建配件入库单

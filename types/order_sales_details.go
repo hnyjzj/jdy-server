@@ -6,9 +6,9 @@ import (
 )
 
 type OrderSalesDetailWhere struct {
-	OrderId  string `json:"order_id" label:"订单号" find:"true" sort:"1" type:"string" input:"search" required:"true"` // 订单号
-	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
-	MemberId string `json:"member_id" label:"会员" find:"true" create:"true" sort:"3" type:"string" input:"search"`   // 会员
+	OrderId string `json:"order_id" label:"订单号" find:"true" sort:"1" type:"string" input:"search" required:"true"` // 订单号
+	StoreId string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
+	Phone   string `json:"phone" label:"会员(手机号)" find:"true" create:"true" sort:"3" type:"string" input:"text"`    // 会员
 
 	Type   enums.ProductType      `json:"type" label:"货品类型" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`   // 货品类型
 	Status enums.OrderSalesStatus `json:"status" label:"货品状态" find:"true" sort:"5" type:"number" input:"select" preset:"typeMap"` // 货品状态

@@ -128,6 +128,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 				enterData.ProductTotal += p.Stock
 			} else {
 				data := model.ProductAccessorieEnterProduct{
+					EnterId: enter.Id,
 					ProductAccessorie: model.ProductAccessorie{
 						StoreId:    enter.StoreId,
 						Name:       strings.Trim(strings.ToUpper(p.Name), " "),

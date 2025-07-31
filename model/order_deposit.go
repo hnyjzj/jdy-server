@@ -59,8 +59,8 @@ func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *g
 		db = db.Where("store_id = ?", req.StoreId)
 	}
 	// 会员
-	if req.MemberId != "" {
-		db = db.Where("member_id = ?", req.MemberId)
+	if req.Phone != "" {
+		db = db.Where("member_id = (SELECT id FROM members WHERE phone = ?)", req.Phone)
 	}
 	// 收银员
 	if req.CashierId != "" {

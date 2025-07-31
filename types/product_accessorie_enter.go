@@ -60,5 +60,5 @@ type ProductAccessorieEnterReqProduct struct {
 	Type       enums.ProductAccessorieType       `json:"type" label:"类型" find:"true" create:"true" update:"false" sort:"4" type:"string" input:"select" required:"true" preset:"typeMap" binding:"required"`          // 类型
 	RetailType enums.ProductAccessorieRetailType `json:"retail_type" label:"零售方式" find:"true" create:"true" update:"false" sort:"5" type:"string" input:"select" required:"true" preset:"typeMap" binding:"required"` // 零售类型
 	Remark     string                            `json:"remark" label:"备注" find:"true" create:"true" update:"true" sort:"6" type:"string" input:"textarea" required:"false"`                                          // 备注
-	Stock      int64                             `json:"stock" label:"库存" find:"false" create:"true" update:"true" sort:"7" type:"int" input:"text" required:"true" binding:"required"`                               // 库存
+	Stock      int64                             `json:"stock" label:"库存" find:"false" create:"true" update:"true" sort:"7" type:"int" input:"number" required:"true" binding:"required"`                             // 库存
 }

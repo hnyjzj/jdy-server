@@ -5,7 +5,7 @@ import "jdy/enums"
 // 配件条件
 type ProductAccessorieWhere struct {
 	Id         string                            `json:"id" label:"编号" find:"true" create:"false" update:"false" sort:"1" type:"string" input:"text" required:"false"`                             // ID
-	StoreId    string                            `json:"store_id" label:"门店" find:"true" create:"true" update:"false" sort:"2" type:"string" input:"text" required:"true"`                         // 门店
+	StoreId    string                            `json:"store_id" label:"门店" find:"true" create:"false" update:"false" sort:"2" type:"string" input:"text" required:"true"`                        // 门店
 	Name       string                            `json:"name" label:"名称" find:"true" create:"true" update:"false" sort:"3" type:"string" input:"text" required:"true"`                             // 名称
 	Type       enums.ProductAccessorieType       `json:"type" label:"类型" find:"true" create:"true" update:"false" sort:"4" type:"string" input:"select" required:"true" preset:"typeMap"`          // 类型
 	RetailType enums.ProductAccessorieRetailType `json:"retail_type" label:"零售方式" find:"true" create:"true" update:"false" sort:"5" type:"string" input:"select" required:"true" preset:"typeMap"` // 零售类型

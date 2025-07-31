@@ -61,17 +61,12 @@ func (OrderSales) WhereCondition(db *gorm.DB, req *types.OrderSalesWhere) *gorm.
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
-	} else {
-		db = db.Where("status IN (?)", []enums.OrderSalesStatus{
-			enums.OrderSalesStatusWaitPay,
-			enums.OrderSalesStatusRefund,
-		})
 	}
 	if req.Source != 0 {
 		db = db.Where("source = ?", req.Source)
 	}
 	if req.Phone != "" {
-		db = db.Where("member_id IN (SELECT id FROM members WHERE phone = ?)", req.Phone)
+		db = db.Where("member_id = (SELECT id FROM members WHERE phone = ?)", req.Phone)
 	}
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
@@ -113,9 +108,7 @@ func (OrderSales) Preloads(db *gorm.DB) *gorm.DB {
 			return tx1.Preload("Product")
 		})
 		tx = tx.Preload("Accessorie", func(tx1 *gorm.DB) *gorm.DB {
-			return tx1.Preload("Product", func(tx2 *gorm.DB) *gorm.DB {
-				return tx2.Preload("Category")
-			})
+			return tx1.Preload("Product")
 		})
 
 		return tx

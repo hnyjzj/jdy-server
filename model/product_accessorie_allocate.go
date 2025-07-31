@@ -63,10 +63,10 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 }
 
 type ProductAccessorieAllocateProduct struct {
+	ProductAccessorie
+
 	AllocateId string                     `json:"allocate_id" gorm:"type:varchar(255);not NULL;comment:调拨单ID;"`     // 调拨单ID
 	Allocate   *ProductAccessorieAllocate `json:"allocate" gorm:"foreignKey:AllocateId;references:Id;comment:调拨单;"` // 调拨单
-
-	ProductAccessorie
 }
 
 func init() {

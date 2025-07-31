@@ -44,7 +44,7 @@ func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, query *types.ProductAc
 		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")
 	}
 	if query.Name != "" {
-		db = db.Where("id IN (SELECT enter_id FROM product_accessorie WHERE name LIKE ?)", "%"+query.Name+"%")
+		db = db.Where("id IN (SELECT enter_id FROM product_accessorie_enter_products WHERE name LIKE ?)", "%"+query.Name+"%")
 	}
 	if query.StartTime != nil {
 		db = db.Where("created_at >= ?", query.StartTime)
@@ -72,10 +72,10 @@ func (ProductAccessorieEnter) Preloads(db *gorm.DB, pages *types.PageReq) *gorm.
 }
 
 type ProductAccessorieEnterProduct struct {
+	ProductAccessorie
+
 	EnterId string                  `json:"enter_id,omitempty" gorm:"type:varchar(255);comment:产品入库单ID;"`           // 产品入库单ID
 	Enter   *ProductAccessorieEnter `json:"enter,omitempty" gorm:"foreignKey:EnterId;references:Id;comment:产品入库单;"` // 产品入库单
-
-	ProductAccessorie
 }
 
 func init() {

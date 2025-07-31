@@ -190,9 +190,7 @@ func (OrderSalesProduct) Preloads(db *gorm.DB) *gorm.DB {
 		return tx1.Preload("Product")
 	})
 	db = db.Preload("Accessorie", func(tx1 *gorm.DB) *gorm.DB {
-		return tx1.Preload("Product", func(tx2 *gorm.DB) *gorm.DB {
-			return tx2.Preload("Category")
-		})
+		return tx1.Preload("Product")
 	})
 
 	return db

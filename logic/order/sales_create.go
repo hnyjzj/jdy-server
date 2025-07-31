@@ -498,7 +498,6 @@ func (l *OrderSalesCreateLogic) getProductAccessory(product_id string, quantity 
 		StoreId: l.Req.StoreId,
 	})
 	db = db.Preload("Store")
-	db = db.Preload("Category")
 
 	if err := db.First(&product).Error; err != nil {
 		return nil, errors.New("产品不存在")

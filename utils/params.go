@@ -6,6 +6,7 @@ import (
 	"jdy/types"
 	"log"
 	"reflect"
+	"sort"
 	"strconv"
 )
 
@@ -41,6 +42,23 @@ func StructToWhere[S any](s S) map[string]types.WhereForm {
 	}
 
 	return params
+}
+
+// 将结构体转换为查询参数数组
+func StructWhereToArray[S any](s S) []types.WhereForm {
+	// 将结构体转换为 map
+	where := StructToWhere(s)
+	// 将 map 转换为 []WhereForm
+	var dataSlice []types.WhereForm
+	for _, value := range where {
+		dataSlice = append(dataSlice, value)
+	}
+	// 对 []WhereForm 进行排序
+	sort.Slice(dataSlice, func(i, j int) bool {
+		return dataSlice[i].Sort < dataSlice[j].Sort
+	})
+
+	return dataSlice
 }
 
 func parseTag(class reflect.Type, tga reflect.StructTag) (types.WhereForm, error) {

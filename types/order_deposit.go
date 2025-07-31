@@ -9,9 +9,9 @@ import (
 )
 
 type OrderDepositWhere struct {
-	Id       string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                        // 订单编号
-	StoreId  string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
-	MemberId string `json:"member_id" label:"会员" find:"true" create:"true" sort:"3" type:"string" input:"search"`   // 会员
+	Id      string `json:"id" label:"订单编号" find:"true" sort:"1" type:"string" input:"text"`                        // 订单编号
+	StoreId string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
+	Phone   string `json:"phone" label:"会员(手机号)" find:"true" create:"true" sort:"3" type:"string" input:"text"`    // 会员
 
 	Status        enums.OrderDepositStatus `json:"status" label:"订单状态" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`                                      // 订单状态
 	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" label:"支付方式" find:"false" create:"true" update:"true" sort:"6" type:"number" input:"select" preset:"typeMap"` // 支付方式

@@ -306,24 +306,11 @@ func Api(g *gin.Engine) {
 					}
 				}
 
-				// 配件条目管理
-				categorys := accessories.Group("/category")
-				{
-					categorys.GET("/where", product.ProductAccessorieCategoryController{}.Where) // 配件条目筛选
-					categorys.Use(middlewares.JWTMiddleware())
-					{
-						categorys.POST("/create", product.ProductAccessorieCategoryController{}.Create) // 创建配件条目
-						categorys.PUT("/update", product.ProductAccessorieCategoryController{}.Update)  // 更新配件条目
-						categorys.DELETE("/del", product.ProductAccessorieCategoryController{}.Delete)  // 删除配件条目
-						categorys.POST("/list", product.ProductAccessorieCategoryController{}.List)     // 配件条目列表
-						categorys.POST("/info", product.ProductAccessorieCategoryController{}.Info)     // 配件条目详情
-					}
-				}
-
 				// 配件入库
 				enters := accessories.Group("/enter")
 				{
-					enters.GET("/where", product.ProductAccessorieEnterController{}.Where) // 配件入库单筛选
+					enters.GET("/where", product.ProductAccessorieEnterController{}.Where)                       // 配件入库单筛选
+					enters.GET("/where_add_product", product.ProductAccessorieEnterController{}.WhereAddProduct) // 配件入库单筛选
 					enters.Use(middlewares.JWTMiddleware())
 					{
 						enters.POST("/create", product.ProductAccessorieEnterController{}.Create) // 创建配件入库单

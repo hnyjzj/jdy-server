@@ -170,7 +170,12 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 		}
 
 		// 更新入库单
-		if err := tx.Model(model.ProductFinishedEnter{}).Where("id = ?", req.EnterId).Updates(enter_statistics).Error; err != nil {
+		if err := tx.Model(&model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Select([]string{
+			"product_count",
+			"product_total_access_fee",
+			"product_total_label_price",
+			"product_total_weight_metal",
+		}).Updates(&enter_statistics).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -222,8 +227,13 @@ func (l *ProductFinishedEnterLogic) EditProduct(req *types.ProductFinishedEnterE
 			ProductTotalLabelPrice:  enter.ProductTotalLabelPrice.Add(new_product.LabelPrice.Sub(product.LabelPrice)),
 			ProductTotalWeightMetal: enter.ProductTotalWeightMetal.Add(new_product.WeightMetal.Sub(product.WeightMetal)),
 		}
+
 		// 更新入库单
-		if err := tx.Model(&model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Updates(&data).Error; err != nil {
+		if err := tx.Model(&model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Select([]string{
+			"product_total_access_fee",
+			"product_total_label_price",
+			"product_total_weight_metal",
+		}).Updates(&data).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -324,8 +334,14 @@ func (l *ProductFinishedEnterLogic) ClearProduct(req *types.ProductFinishedEnter
 		enter.ProductTotalAccessFee = decimal.Zero
 		enter.ProductTotalLabelPrice = decimal.Zero
 		enter.ProductTotalWeightMetal = decimal.Zero
+
 		// 更新入库单
-		if err := tx.Save(&enter).Error; err != nil {
+		if err := tx.Model(&model.ProductFinishedEnter{}).Where("id = ?", enter.Id).Select([]string{
+			"product_count",
+			"product_total_access_fee",
+			"product_total_label_price",
+			"product_total_weight_metal",
+		}).Updates(&enter).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 

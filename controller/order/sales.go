@@ -48,7 +48,6 @@ func (con OrderSalesController) Create(ctx *gin.Context) {
 
 	// 校验参数
 	if err := req.Validate(); err != nil {
-		log.Printf("err.Error(): %v\n", err.Error())
 		con.Exception(ctx, err.Error())
 		return
 	}

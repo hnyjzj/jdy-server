@@ -315,7 +315,6 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		StoreId:  l.Req.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeAccessorie,
-		Code:     strings.ToUpper(accessory.Code),
 		MemberId: l.Order.MemberId,
 		Accessorie: model.OrderSalesProductAccessorie{
 			OrderId:   l.Order.Id,
@@ -336,7 +335,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	status := accessory.Status
 	// 判断库存
 	if accessory.Stock-p.Quantity == 0 {
-		status = enums.ProductStatusNoStock
+		status = enums.ProductAccessorieStatusNoStock
 	}
 
 	// 更新商品状态

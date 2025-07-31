@@ -120,6 +120,13 @@ func (con ProductAccessorieEnterController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 入库单筛选条件
+func (con ProductAccessorieEnterController) WhereAddProduct(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductAccessorieEnterReqProduct{})
+
+	con.Success(ctx, "ok", where)
+}
+
 // 入库单添加产品
 func (con ProductAccessorieEnterController) AddProduct(ctx *gin.Context) {
 	var (

@@ -473,7 +473,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 			}
 		}
 		for _, product := range allocate.ProductOlds {
-			if product.Status != enums.ProductStatusNormal {
+			if product.Status != enums.ProductStatusAllocate {
 				return errors.New(fmt.Sprintf("【%s】%s 状态异常", product.Code, product.Name))
 			}
 		}

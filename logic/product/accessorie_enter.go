@@ -110,7 +110,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 			var product model.ProductAccessorieEnterProduct
 			if err := tx.Where(&model.ProductAccessorieEnterProduct{
 				ProductAccessorie: model.ProductAccessorie{
-					Name: strings.Trim(strings.ToUpper(p.Name), " "),
+					Name: strings.TrimSpace(strings.ToUpper(p.Name)),
 				},
 			}).First(&product).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
@@ -131,7 +131,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 					EnterId: enter.Id,
 					ProductAccessorie: model.ProductAccessorie{
 						StoreId:    enter.StoreId,
-						Name:       strings.Trim(strings.ToUpper(p.Name), " "),
+						Name:       strings.TrimSpace(strings.ToUpper(p.Name)),
 						Type:       p.Type,
 						RetailType: p.RetailType,
 						Remark:     p.Remark,

@@ -36,6 +36,13 @@
                 "false"
             ]
         },
+        "info": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ]
+        },
         "sort": {
             "cases": [],
             "options": []
@@ -64,7 +71,9 @@
             ]
         },
         "preset": {
-            "cases": [],
+            "cases": [
+                "typeMap"
+            ],
             "options": [
                 "typeMap"
             ]

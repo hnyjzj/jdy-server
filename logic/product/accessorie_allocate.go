@@ -38,10 +38,8 @@ func (l *ProductAccessorieAllocateLogic) Create(req *types.ProductAccessorieAllo
 			data.ToStoreId = req.ToStoreId
 		}
 		if req.Method == enums.ProductAllocateMethodOut {
-			var store model.Store
-			if err := tx.Where(&model.Store{
-				Name: "总部",
-			}).First(&store).Error; err != nil {
+			store, err := model.Store{}.Headquarters()
+			if err != nil {
 				return err
 			}
 			data.ToStoreId = store.Id
@@ -60,7 +58,7 @@ func (l *ProductAccessorieAllocateLogic) Create(req *types.ProductAccessorieAllo
 }
 
 // 获取配件调拨单列表
-func (p *ProductAccessorieAllocateLogic) List(req *types.ProductAccessorieAllocateListReq) (*types.PageRes[model.ProductAccessorieAllocate], error) {
+func (l *ProductAccessorieAllocateLogic) List(req *types.ProductAccessorieAllocateListReq) (*types.PageRes[model.ProductAccessorieAllocate], error) {
 	var (
 		allocate model.ProductAccessorieAllocate
 
@@ -87,16 +85,14 @@ func (p *ProductAccessorieAllocateLogic) List(req *types.ProductAccessorieAlloca
 }
 
 // 获取配件调拨单详情
-func (p *ProductAccessorieAllocateLogic) Info(req *types.ProductAccessorieAllocateInfoReq) (*model.ProductAccessorieAllocate, error) {
+func (l *ProductAccessorieAllocateLogic) Info(req *types.ProductAccessorieAllocateInfoReq) (*model.ProductAccessorieAllocate, error) {
 	var (
 		allocate model.ProductAccessorieAllocate
 	)
 
 	db := model.DB.Model(&allocate)
 
-	db = db.Preload("Products")
-	db = db.Preload("FromStore").Preload("ToStore")
-	db = db.Preload("Operator")
+	db = allocate.Preloads(db, &req.PageReq)
 
 	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取调拨单详情失败")
@@ -106,7 +102,7 @@ func (p *ProductAccessorieAllocateLogic) Info(req *types.ProductAccessorieAlloca
 }
 
 // 添加配件调拨单产品
-func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocateAddReq) *errors.Errors {
+func (l *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocateAddReq) *errors.Errors {
 	var (
 		allocate model.ProductAccessorieAllocate
 	)
@@ -139,26 +135,24 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 			if rp.Quantity <= 0 {
 				return errors.New("调拨数量必须大于0")
 			}
+
 			// 获取要调拨的配件
 			var accessorie model.ProductAccessorie
-			if err := tx.First(&accessorie, "id = ?", rp.ProductId).Error; err != nil {
-				return errors.New("配件不存在")
-			}
-			// 检查配件状态
-			if accessorie.Status != enums.ProductAccessorieStatusNormal {
-				return errors.New("配件状态异常")
-			}
-			// 检查门店
-			if accessorie.StoreId != allocate.FromStoreId {
-				return errors.New("配件不在调拨单的门店中")
+			if err := tx.Where(&model.ProductAccessorie{
+				StoreId: allocate.FromStoreId,
+				Name:    rp.Name,
+				Status:  enums.ProductAccessorieStatusNormal,
+			}).First(&accessorie).Error; err != nil {
+				return errors.New("配件不存在或状态异常")
 			}
 
 			// 检查调拨单是否已经存在该配件
 			paap, ok := names[accessorie.Name]
-			if ok { // 已存在，更新数量
+			if ok {
+				// 已存在，更新数量
 				// 检查配件库存
 				if accessorie.Stock < (rp.Quantity + paap.Stock) {
-					return errors.New("配件库存不足")
+					return errors.New("配件库存不足1")
 				}
 				// 更新配件数量
 				if err := tx.Model(&model.ProductAccessorieAllocateProduct{}).
@@ -173,22 +167,21 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 				// 更新调拨单产品数量
 				allocateData.ProductTotal += rp.Quantity
 
-			} else { // 不存在，新增
+			} else {
+				// 不存在，新增
 				// 检查配件库存
 				if accessorie.Stock < rp.Quantity {
-					return errors.New("配件库存不足")
+					return errors.New("配件库存不足2")
 				}
 				data := model.ProductAccessorieAllocateProduct{
 					AllocateId: allocate.Id,
-					ProductAccessorie: model.ProductAccessorie{
-						StoreId:    accessorie.StoreId,
-						Name:       accessorie.Name,
-						Type:       accessorie.Type,
-						RetailType: accessorie.RetailType,
-						Remark:     accessorie.Remark,
-						Stock:      rp.Quantity,
-						Status:     accessorie.Status,
-					},
+					Name:       accessorie.Name,
+					Type:       accessorie.Type,
+					RetailType: accessorie.RetailType,
+					Price:      accessorie.Price,
+					Remark:     accessorie.Remark,
+					Stock:      rp.Quantity,
+					Status:     accessorie.Status,
 				}
 				// 添加配件
 				if err := tx.Create(&data).Error; err != nil {
@@ -200,6 +193,15 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 				// 更新调拨单产品数量
 				allocateData.ProductCount++
 				allocateData.ProductTotal += rp.Quantity
+			}
+
+			// 扣除配件库存
+			db := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Update("stock", gorm.Expr("stock - ?", rp.Quantity))
+			if accessorie.Stock-rp.Quantity <= 0 {
+				db = db.Update("status", enums.ProductAccessorieStatusNoStock)
+			}
+			if err := db.Error; err != nil {
+				return errors.New("扣除配件库存失败")
 			}
 		}
 
@@ -220,7 +222,7 @@ func (p *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 }
 
 // 移除配件调拨单配件
-func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllocateRemoveReq) *errors.Errors {
+func (l *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllocateRemoveReq) *errors.Errors {
 	var (
 		allocate model.ProductAccessorieAllocate
 	)
@@ -240,23 +242,18 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		var product []model.ProductAccessorieAllocateProduct
 		// 获取配件
+		var product model.ProductAccessorieAllocateProduct
 		where := &model.ProductAccessorieAllocateProduct{
 			AllocateId: req.Id,
 		}
-
-		if err := model.DB.Where(where).Find(&product, "id IN (?)", req.ProductIds).Error; err != nil {
+		if err := tx.Where(where).Find(&product, "id = ?", req.ProductId).Error; err != nil {
 			return errors.New("配件不存在")
 		}
 
-		for _, p := range product {
-			// 更新调拨单产品数量
-			allocateData.ProductCount--
-			allocateData.ProductTotal -= p.Stock
-		}
-
 		// 更新调拨单
+		allocateData.ProductCount--
+		allocateData.ProductTotal -= product.Stock
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Select([]string{
 			"product_count",
 			"product_total",
@@ -265,8 +262,74 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 		}
 
 		// 移除配件
-		if err := model.DB.Where(where).Delete(&product).Error; err != nil {
+		if err := tx.Unscoped().Delete(&product).Error; err != nil {
 			return errors.New("移除配件失败")
+		}
+
+		// 归还库存
+		if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
+			Name:    product.Name,
+			StoreId: allocate.FromStoreId,
+		}).Updates(&model.ProductAccessorie{
+			Status: enums.ProductAccessorieStatusNormal,
+		}).Update("stock", gorm.Expr("stock + ?", product.Stock)).Error; err != nil {
+			return errors.New("扣除配件库存失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New(err.Error())
+	}
+
+	return nil
+}
+
+// 清空配件调拨单配件
+func (l *ProductAccessorieAllocateLogic) Clear(req *types.ProductAccessorieAllocateClearReq) *errors.Errors {
+	var (
+		allocate model.ProductAccessorieAllocate
+	)
+
+	// 获取调拨单
+	if err := model.DB.Preload("Products").First(&allocate, "id = ?", req.Id).Error; err != nil {
+		return errors.New("调拨单不存在")
+	}
+
+	if allocate.Status != enums.ProductAllocateStatusDraft {
+		return errors.New("调拨单状态异常")
+	}
+
+	allocateData := model.ProductAccessorieAllocate{
+		ProductCount: allocate.ProductCount,
+		ProductTotal: allocate.ProductTotal,
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 更新调拨单
+		allocateData.ProductCount = 0
+		allocateData.ProductTotal = 0
+		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			"product_count",
+			"product_total",
+		}).Updates(allocateData).Error; err != nil {
+			return errors.New("更新调拨单失败")
+		}
+
+		for _, product := range allocate.Products {
+			// 移除配件
+			if err := tx.Unscoped().Delete(&product).Error; err != nil {
+				return errors.New("移除配件失败")
+			}
+
+			// 归还库存
+			if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
+				Name:    product.Name,
+				StoreId: allocate.FromStoreId,
+			}).Updates(&model.ProductAccessorie{
+				Status: enums.ProductAccessorieStatusNormal,
+			}).Update("stock", gorm.Expr("stock + ?", product.Stock)).Error; err != nil {
+				return errors.New("扣除配件库存失败")
+			}
 		}
 
 		return nil
@@ -278,7 +341,7 @@ func (p *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 }
 
 // 确认调拨
-func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAllocateConfirmReq) *errors.Errors {
+func (l *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAllocateConfirmReq) *errors.Errors {
 	var (
 		allocate model.ProductAccessorieAllocate
 	)
@@ -296,41 +359,20 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		// 扣除配件库存
-		for _, p := range allocate.Products {
-			var product model.ProductAccessorie
-			if err := tx.First(&product, "id = ?", p.Id).Error; err != nil {
-				return fmt.Errorf("【%s】不存在", p.Name)
-			}
-			// 扣除库存
-			product.Stock -= p.Stock
-			if product.Stock < 0 {
-				return fmt.Errorf("【%s】库存不足", p.Name)
-			}
-			if product.Stock == 0 {
-				product.Status = enums.ProductAccessorieStatusNoStock
-			}
-			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Id).Select([]string{
-				"stock",
-				"status",
-			}).Updates(product).Error; err != nil {
-				return fmt.Errorf("【%s】扣除库存失败", p.Name)
-			}
-
-			if err := tx.Model(&model.ProductAccessorieAllocateProduct{}).Where("id = ?", p.Id).Updates(&model.ProductAccessorieAllocateProduct{
-				ProductAccessorie: model.ProductAccessorie{
-					Status: enums.ProductAccessorieStatusAllocate,
-				},
-			}).Error; err != nil {
-				return fmt.Errorf("【%s】更新调拨单配件失败", p.Name)
-			}
-		}
-
 		// 确认调拨
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
 			Status: enums.ProductAllocateStatusOnTheWay,
 		}).Error; err != nil {
 			return errors.New("更新调拨单失败")
+		}
+
+		// 开始调拨
+		if err := tx.Model(&model.ProductAccessorieAllocateProduct{}).Where(&model.ProductAccessorieAllocateProduct{
+			AllocateId: allocate.Id,
+		}).Updates(&model.ProductAccessorieAllocateProduct{
+			Status: enums.ProductAccessorieStatusAllocate,
+		}).Error; err != nil {
+			return fmt.Errorf("更新调拨状态失败")
 		}
 
 		return nil
@@ -339,8 +381,8 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 	}
 
 	go func() {
-		msg := message.NewMessage(p.Ctx)
-		allocate.Operator = p.Staff
+		msg := message.NewMessage(l.Ctx)
+		allocate.Operator = l.Staff
 		msg.SendProductAccessorieAllocateCreateMessage(&message.ProductAccessorieAllocateMessage{
 			ProductAccessorieAllocate: &allocate,
 		})
@@ -350,7 +392,7 @@ func (p *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 }
 
 // 取消调拨
-func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllocateCancelReq) *errors.Errors {
+func (l *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllocateCancelReq) *errors.Errors {
 	var (
 		allocate model.ProductAccessorieAllocate
 	)
@@ -367,60 +409,45 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 		return errors.New("调拨单状态异常")
 	}
 
-	sendmsg := false
+	var sendmsg bool
+
+	// 判断调拨单状态
+	switch allocate.Status {
+	case enums.ProductAllocateStatusDraft:
+		sendmsg = false
+	case enums.ProductAllocateStatusOnTheWay:
+		sendmsg = true
+	default:
+		return errors.New("调拨单状态异常")
+	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		// 判断调拨单状态
-		if allocate.Status == enums.ProductAllocateStatusOnTheWay {
-			sendmsg = true
-			for _, product := range allocate.Products {
-				// 获取调拨单配件
-				var paap model.ProductAccessorieAllocateProduct
-				if err := tx.First(&paap, "id = ?", product.Id).Error; err != nil {
-					return fmt.Errorf("【%s】不存在", product.Name)
-				}
-
-				if paap.Status != enums.ProductAccessorieStatusAllocate {
-					return fmt.Errorf("【%s】状态异常", product.Name)
-				}
-
-				// 获取配件
-				var accessorie model.ProductAccessorie
-				if err := tx.Where(&model.ProductAccessorie{
-					StoreId: allocate.ToStoreId,
-					Name:    product.Name,
-				}).First(&accessorie).Error; err != nil {
-					return fmt.Errorf("【%s】不存在", product.Name)
-				}
-
-				// 归还库存
-				accessorie.Stock += product.Stock
-				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Select([]string{
-					"stock",
-					"status",
-				}).Updates(&model.ProductAccessorie{
-					Stock:  accessorie.Stock,
-					Status: enums.ProductAccessorieStatusNormal,
-				}).Error; err != nil {
-					return fmt.Errorf("【%s】归还库存失败", product.Name)
-				}
-
-				// 更新调拨单配件状态
-				if err := tx.Model(&model.ProductAccessorieAllocateProduct{}).Where("id = ?", paap.Id).Updates(&model.ProductAccessorieAllocateProduct{
-					ProductAccessorie: model.ProductAccessorie{
-						Status: enums.ProductAccessorieStatusNormal,
-					},
-				}).Error; err != nil {
-					return fmt.Errorf("【%s】更新调拨单配件失败", product.Name)
-				}
-			}
-		}
-
 		// 取消调拨
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
 			Status: enums.ProductAllocateStatusCancelled,
 		}).Error; err != nil {
 			return errors.New("更新调拨单失败")
+		}
+
+		// 更新调拨单配件状态
+		if err := tx.Model(&model.ProductAccessorieAllocateProduct{}).Where(&model.ProductAccessorieAllocateProduct{
+			AllocateId: allocate.Id,
+		}).Updates(&model.ProductAccessorieAllocateProduct{
+			Status: enums.ProductAccessorieStatusDraft,
+		}).Error; err != nil {
+			return fmt.Errorf("更新调拨状态失败")
+		}
+
+		// 归还库存
+		for _, product := range allocate.Products {
+			if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
+				Name:    product.Name,
+				StoreId: allocate.FromStoreId,
+			}).Updates(&model.ProductAccessorie{
+				Status: enums.ProductAccessorieStatusNormal,
+			}).Update("stock", gorm.Expr("stock + ?", product.Stock)).Error; err != nil {
+				return fmt.Errorf("归还库存失败")
+			}
 		}
 
 		return nil
@@ -432,8 +459,8 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 		if !sendmsg {
 			return
 		}
-		msg := message.NewMessage(p.Ctx)
-		allocate.Operator = p.Staff
+		msg := message.NewMessage(l.Ctx)
+		allocate.Operator = l.Staff
 		msg.SendProductAccessorieAllocateCancelMessage(&message.ProductAccessorieAllocateMessage{
 			ProductAccessorieAllocate: &allocate,
 		})
@@ -443,7 +470,7 @@ func (p *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 }
 
 // 完成调拨
-func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAllocateCompleteReq) *errors.Errors {
+func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAllocateCompleteReq) *errors.Errors {
 	var (
 		allocate model.ProductAccessorieAllocate
 	)
@@ -461,9 +488,15 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 确认调拨
+		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
+			Status: enums.ProductAllocateStatusCompleted,
+		}).Error; err != nil {
+			return errors.New("更新调拨单失败")
+		}
+
 		// 接收配件
 		for _, product := range allocate.Products {
-
 			// 查询配件
 			var accessorie model.ProductAccessorie
 			if err := tx.Where(&model.ProductAccessorie{
@@ -482,6 +515,7 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 					Name:       product.Name,
 					Type:       product.Type,
 					RetailType: product.RetailType,
+					Price:      product.Price,
 					Remark:     product.Remark,
 					Stock:      product.Stock,
 					Status:     enums.ProductAccessorieStatusNormal,
@@ -491,21 +525,15 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 				}
 
 			} else {
+				accessorie.Stock += product.Stock
 				// 更新配件
 				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
-					Stock:  accessorie.Stock + product.Stock,
+					Stock:  accessorie.Stock,
 					Status: enums.ProductAccessorieStatusNormal,
 				}).Error; err != nil {
 					return fmt.Errorf("【%s】更新配件失败", product.Name)
 				}
 			}
-		}
-
-		// 确认调拨
-		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
-			Status: enums.ProductAllocateStatusCompleted,
-		}).Error; err != nil {
-			return errors.New("更新调拨单失败")
 		}
 
 		return nil
@@ -514,8 +542,8 @@ func (p *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 	}
 
 	go func() {
-		msg := message.NewMessage(p.Ctx)
-		allocate.Operator = p.Staff
+		msg := message.NewMessage(l.Ctx)
+		allocate.Operator = l.Staff
 		msg.SendProductAccessorieAllocateCompleteMessage(&message.ProductAccessorieAllocateMessage{
 			ProductAccessorieAllocate: &allocate,
 		})

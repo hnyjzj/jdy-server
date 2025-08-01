@@ -317,9 +317,10 @@ func Api(g *gin.Engine) {
 						enters.POST("/list", product.ProductAccessorieEnterController{}.List)     // 配件入库单列表
 						enters.POST("/info", product.ProductAccessorieEnterController{}.Info)     // 配件入库单详情
 
-						enters.POST("/add_product", product.ProductAccessorieEnterController{}.AddProduct)   // 添加产品
-						enters.DELETE("/del_product", product.ProductAccessorieEnterController{}.DelProduct) // 删除产品
-						enters.PUT("/edit_product", product.ProductAccessorieEnterController{}.EditProduct)  // 编辑产品
+						enters.POST("/add_product", product.ProductAccessorieEnterController{}.AddProduct)       // 添加产品
+						enters.DELETE("/del_product", product.ProductAccessorieEnterController{}.DelProduct)     // 删除产品
+						enters.DELETE("/clear_product", product.ProductAccessorieEnterController{}.ClearProduct) // 清空产品
+						enters.PUT("/edit_product", product.ProductAccessorieEnterController{}.EditProduct)      // 编辑产品
 
 						enters.PUT("/finish", product.ProductAccessorieEnterController{}.Finish) // 完成入库
 						enters.PUT("/cancel", product.ProductAccessorieEnterController{}.Cancel) // 取消入库
@@ -337,6 +338,7 @@ func Api(g *gin.Engine) {
 						allocate.POST("/info", product.ProductAccessorieAllocateController{}.Info)        // 调拨单详情
 						allocate.PUT("/add", product.ProductAccessorieAllocateController{}.Add)           // 添加产品
 						allocate.PUT("/remove", product.ProductAccessorieAllocateController{}.Remove)     // 移除产品
+						allocate.PUT("/clear", product.ProductAccessorieAllocateController{}.Clear)       // 清空产品
 						allocate.PUT("/confirm", product.ProductAccessorieAllocateController{}.Confirm)   // 确认调拨
 						allocate.PUT("/cancel", product.ProductAccessorieAllocateController{}.Cancel)     // 取消调拨
 						allocate.PUT("/complete", product.ProductAccessorieAllocateController{}.Complete) // 完成调拨

@@ -31,8 +31,10 @@ func (p *ProductAccessorieLogic) List(req *types.ProductAccessorieListReq) (*typ
 
 	// 获取列表
 	db = model.PageCondition(db, &req.PageReq)
+	db = product.Preloads(db)
 	db = db.Order("created_at desc")
 	db = db.Order("stock desc")
+
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取配件列表失败")
 	}

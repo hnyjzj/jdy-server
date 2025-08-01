@@ -85,7 +85,7 @@ func (l *ProductAccessorieEnterLogic) EnterInfo(req *types.ProductAccessorieEnte
 func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnterAddProductReq) (*[]string, error) {
 	// 查询入库单
 	var enter model.ProductAccessorieEnter
-	if err := model.DB.Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
+	if err := model.DB.First(&enter, "id = ?", req.EnterId).Error; err != nil {
 		return nil, errors.New("入库单不存在")
 	}
 
@@ -109,9 +109,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 		for _, p := range req.Products {
 			var product model.ProductAccessorieEnterProduct
 			if err := tx.Where(&model.ProductAccessorieEnterProduct{
-				ProductAccessorie: model.ProductAccessorie{
-					Name: strings.TrimSpace(strings.ToUpper(p.Name)),
-				},
+				Name: strings.TrimSpace(strings.ToUpper(p.Name)),
 			}).First(&product).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("配件条目错误")
@@ -128,16 +126,14 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 				enterData.ProductTotal += p.Stock
 			} else {
 				data := model.ProductAccessorieEnterProduct{
-					EnterId: enter.Id,
-					ProductAccessorie: model.ProductAccessorie{
-						StoreId:    enter.StoreId,
-						Name:       strings.TrimSpace(strings.ToUpper(p.Name)),
-						Type:       p.Type,
-						RetailType: p.RetailType,
-						Remark:     p.Remark,
-						Stock:      p.Stock,
-						Status:     enums.ProductAccessorieStatusDraft,
-					},
+					EnterId:    enter.Id,
+					Name:       strings.TrimSpace(strings.ToUpper(p.Name)),
+					Type:       p.Type,
+					RetailType: p.RetailType,
+					Price:      p.Price,
+					Remark:     p.Remark,
+					Stock:      p.Stock,
+					Status:     enums.ProductAccessorieStatusDraft,
 				}
 
 				if err := tx.Create(&data).Error; err != nil {
@@ -179,12 +175,11 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 
 // 入库单编辑配件
 func (l *ProductAccessorieEnterLogic) EditProduct(req *types.ProductAccessorieEnterEditProductReq) error {
-
 	// 编辑配件逻辑存在潜在并发风险，使用事务包裹并加锁
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
 		var enter model.ProductAccessorieEnter
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&enter, "id = ?", req.EnterId).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -193,12 +188,14 @@ func (l *ProductAccessorieEnterLogic) EditProduct(req *types.ProductAccessorieEn
 		}
 
 		var product model.ProductAccessorieEnterProduct
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.ProductId).First(&product).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where(&model.ProductAccessorieEnterProduct{
+			EnterId: enter.Id,
+		}).First(&product, "id = ?", req.ProductId).Error; err != nil {
 			return errors.New("配件不存在")
 		}
 
-		if product.EnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductAccessorieStatusDraft {
-			return errors.New("配件不属于该入库单")
+		if product.Status != enums.ProductAccessorieStatusDraft {
+			return errors.New("配件状态异常")
 		}
 
 		// 转换数据结构
@@ -207,17 +204,14 @@ func (l *ProductAccessorieEnterLogic) EditProduct(req *types.ProductAccessorieEn
 			return errors.New("配件录入失败: 参数错误")
 		}
 
-		// 更新配件数量
-		enterData := model.ProductAccessorieEnter{
-			ProductTotal: enter.ProductTotal,
-		}
-		enterData.ProductTotal -= product.Stock + data.Stock
-		if enterData.ProductTotal < 0 {
+		// 更新入库单
+		enter.ProductTotal += product.Stock - data.Stock
+		if enter.ProductTotal < 0 {
 			return errors.New("配件数量不能小于0")
 		}
 		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Select([]string{
 			"product_total",
-		}).Updates(enterData).Error; err != nil {
+		}).Updates(enter).Error; err != nil {
 			return errors.New("入库单更新失败")
 		}
 
@@ -239,7 +233,7 @@ func (l *ProductAccessorieEnterLogic) DelProduct(req *types.ProductAccessorieEnt
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
 		var enter model.ProductAccessorieEnter
-		if err := tx.Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
+		if err := tx.First(&enter, "id = ?", req.EnterId).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -247,39 +241,68 @@ func (l *ProductAccessorieEnterLogic) DelProduct(req *types.ProductAccessorieEnt
 			return errors.New("入库单已结束")
 		}
 
-		// 更新入库单配件数量
-		enterData := model.ProductAccessorieEnter{
-			ProductCount: enter.ProductCount,
-			ProductTotal: enter.ProductTotal,
-		}
-
 		// 查询配件
-		for _, id := range req.ProductIds {
-			var product model.ProductAccessorieEnterProduct
-			if err := tx.Where("id = ?", id).First(&product).Error; err != nil {
-				return errors.New("配件不存在")
-			}
-
-			if product.EnterId != enter.Id || product.StoreId != enter.StoreId || product.Status != enums.ProductAccessorieStatusDraft {
-				return errors.New("配件不属于该入库单")
-			}
-
-			// 删除配件(真实删除)
-			if err := tx.Unscoped().Where("id = ?", product.Id).Delete(&model.ProductAccessorieEnterProduct{}).Error; err != nil {
-				return errors.New("配件删除失败")
-			}
-
-			// 更新入库单配件数量
-			enterData.ProductCount--
-			enterData.ProductTotal -= product.Stock
+		var product model.ProductAccessorieEnterProduct
+		if err := tx.Where(&model.ProductAccessorieEnterProduct{
+			EnterId: enter.Id,
+		}).First(&product, "id = ?", req.ProductId).Error; err != nil {
+			return errors.New("配件不存在")
 		}
 
-		// 更新入库单配件数量
+		if product.Status != enums.ProductAccessorieStatusDraft {
+			return errors.New("配件状态异常")
+		}
+
+		// 更新入库单
+		enter.ProductCount--
+		enter.ProductTotal -= product.Stock
 		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Select([]string{
 			"product_count",
 			"product_total",
-		}).Updates(enterData).Error; err != nil {
+		}).Updates(enter).Error; err != nil {
 			return errors.New("入库单更新失败")
+		}
+
+		// 删除配件(真实删除)
+		if err := tx.Unscoped().Where("id = ?", product.Id).Delete(&model.ProductAccessorieEnterProduct{}).Error; err != nil {
+			return errors.New("配件删除失败")
+		}
+
+		return nil
+	}); err != nil {
+		return errors.New("配件删除失败：" + err.Error())
+	}
+	return nil
+}
+
+// 入库单清空配件
+func (l *ProductAccessorieEnterLogic) ClearProduct(req *types.ProductAccessorieEnterClearProductReq) error {
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询入库单
+		var enter model.ProductAccessorieEnter
+		if err := tx.First(&enter, "id = ?", req.EnterId).Error; err != nil {
+			return errors.New("入库单不存在")
+		}
+
+		if enter.Status != enums.ProductEnterStatusDraft {
+			return errors.New("入库单已结束")
+		}
+
+		// 更新入库单
+		enter.ProductCount = 0
+		enter.ProductTotal = 0
+		if err := tx.Model(&model.ProductAccessorieEnter{}).Where("id = ?", enter.Id).Select([]string{
+			"product_count",
+			"product_total",
+		}).Updates(enter).Error; err != nil {
+			return errors.New("入库单更新失败")
+		}
+
+		// 删除配件(真实删除)
+		if err := tx.Unscoped().Where(&model.ProductAccessorieEnterProduct{
+			EnterId: enter.Id,
+		}).Delete(&model.ProductAccessorieEnterProduct{}).Error; err != nil {
+			return errors.New("配件删除失败")
 		}
 
 		return nil
@@ -294,7 +317,7 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
 		var enter model.ProductAccessorieEnter
-		if err := tx.Where("id = ?", req.EnterId).Preload("Products").First(&enter).Error; err != nil {
+		if err := tx.Preload("Products").First(&enter, "id = ?", req.EnterId).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -308,12 +331,10 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 
 		// 更新配件状态
 		for _, product := range enter.Products {
-			// 加锁查询配件
+			// 查询配件
 			if err := tx.Where("id = ?", product.Id).
 				Where(&model.ProductAccessorieEnterProduct{
-					ProductAccessorie: model.ProductAccessorie{
-						Status: enums.ProductAccessorieStatusDraft,
-					},
+					Status: enums.ProductAccessorieStatusDraft,
 				}).
 				First(&product).Error; err != nil {
 				return errors.New("配件状态不正确或配件不存在")
@@ -337,6 +358,7 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 					Name:       product.Name,
 					Type:       product.Type,
 					RetailType: product.RetailType,
+					Price:      product.Price,
 					Remark:     product.Remark,
 					Stock:      product.Stock,
 					Status:     enums.ProductAccessorieStatusNormal,
@@ -370,9 +392,7 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 
 			// 更新配件状态
 			if err := tx.Model(&model.ProductAccessorieEnterProduct{}).Where("id = ?", product.Id).Updates(model.ProductAccessorieEnterProduct{
-				ProductAccessorie: model.ProductAccessorie{
-					Status: enums.ProductAccessorieStatusNormal,
-				},
+				Status: enums.ProductAccessorieStatusNormal,
 			}).Error; err != nil {
 				return errors.New("配件状态更新失败")
 			}
@@ -398,7 +418,7 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCancelReq) error {
 	// 查询入库单
 	var enter model.ProductAccessorieEnter
-	if err := model.DB.Where("id = ?", req.EnterId).Preload("Products").First(&enter).Error; err != nil {
+	if err := model.DB.Preload("Products").First(&enter, "id = ?", req.EnterId).Error; err != nil {
 		return errors.New("入库单不存在")
 	}
 
@@ -425,6 +445,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 				if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
 					StoreId: enter.StoreId,
 					Name:    product.Name,
+					Status:  enums.ProductAccessorieStatusNormal,
 				}).First(&accessorie).Error; err != nil {
 					return errors.New("配件查询失败")
 				}
@@ -441,7 +462,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 				// 添加记录
 				history := model.ProductHistory{
 					Type:       enums.ProductTypeAccessorie,
-					OldValue:   product.ProductAccessorie,
+					OldValue:   product,
 					NewValue:   accessorie,
 					Action:     enums.ProductActionEntryCancel,
 					ProductId:  accessorie.Id,

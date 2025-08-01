@@ -5,6 +5,7 @@ import (
 	"jdy/enums"
 	"jdy/types"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -62,11 +63,36 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	return db
 }
 
-type ProductAccessorieAllocateProduct struct {
-	ProductAccessorie
+func (ProductAccessorieAllocate) Preloads(db *gorm.DB, pages *types.PageReq) *gorm.DB {
+	db = db.Preload("FromStore").Preload("ToStore")
+	db = db.Preload("Operator")
+	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+		pdb := tx
+		if pages != nil {
+			pdb = PageCondition(pdb, &types.PageReq{Page: pages.Page, Limit: pages.Limit})
+		}
 
-	AllocateId string                     `json:"allocate_id" gorm:"type:varchar(255);not NULL;comment:调拨单ID;"`     // 调拨单ID
-	Allocate   *ProductAccessorieAllocate `json:"allocate" gorm:"foreignKey:AllocateId;references:Id;comment:调拨单;"` // 调拨单
+		return pdb
+	})
+	db = db.Preload("Operator")
+
+	return db
+}
+
+type ProductAccessorieAllocateProduct struct {
+	SoftDelete
+
+	Name       string                            `json:"name" gorm:"type:varchar(255);uniqueIndex:idx_allocate_name;comment:名称;"` // 名称
+	Type       enums.ProductAccessorieType       `json:"type" gorm:"type:int(11);comment:配件类型;"`                                  // 配件类型
+	RetailType enums.ProductAccessorieRetailType `json:"retail_type" gorm:"type:int(11);not NULL;comment:零售方式;"`                  // 零售方式
+	Price      decimal.Decimal                   `json:"price" gorm:"type:decimal(10,2);comment:单价;"`                             // 单价
+	Remark     string                            `json:"remark" gorm:"type:text;comment:备注;"`                                     // 备注
+	Stock      int64                             `json:"stock" gorm:"type:int(9);default:1;comment:库存;"`                          // 库存
+
+	Status enums.ProductAccessorieStatus `json:"status" gorm:"type:int(11);default:1;comment:状态;"` // 状态
+
+	AllocateId string                     `json:"allocate_id" gorm:"type:varchar(255);uniqueIndex:idx_allocate_name;not NULL;comment:调拨单ID;"` // 调拨单ID
+	Allocate   *ProductAccessorieAllocate `json:"allocate" gorm:"foreignKey:AllocateId;references:Id;comment:调拨单;"`                           // 调拨单
 }
 
 func init() {

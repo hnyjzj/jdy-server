@@ -11,21 +11,21 @@ type MemberWhere struct {
 	Phone       string       `json:"phone" label:"手机号" find:"true" sort:"1" type:"string" input:"text"`
 	Name        string       `json:"name" label:"姓名" find:"true" sort:"2" type:"string" input:"text"`
 	Gender      enums.Gender `json:"gender" label:"性别" find:"true" sort:"3" type:"number" input:"select" preset:"typeMap"`
-	Birthday    string       `json:"birthday" label:"生日" find:"true" sort:"4" type:"date" input:"date"`
-	Anniversary string       `json:"anniversary" label:"纪念日" find:"true" sort:"5" type:"date" input:"date"`
+	Birthday    string       `json:"birthday" label:"生日" find:"false" sort:"4" type:"date" input:"date"`
+	Anniversary string       `json:"anniversary" label:"纪念日" find:"false" sort:"5" type:"date" input:"date"`
 	Nickname    string       `json:"nickname" label:"昵称" find:"true" sort:"6" type:"string" input:"text"`
 
 	Level      enums.MemberLevel `json:"level" label:"等级" find:"true" sort:"8" type:"number" input:"select" preset:"typeMap"`
-	Integral   decimal.Decimal   `json:"integral" label:"积分" find:"true" sort:"9" type:"number" input:"text"`
-	BuyCount   int               `json:"buy_count" label:"购买次数" find:"true" sort:"10" type:"number" input:"text"`
-	EventCount int               `json:"event_count" label:"活动次数" find:"true" sort:"11" type:"number" input:"text"`
+	Integral   decimal.Decimal   `json:"integral" label:"积分" find:"false" sort:"9" type:"number" input:"text"`
+	BuyCount   int               `json:"buy_count" label:"购买次数" find:"false" sort:"10" type:"number" input:"text"`
+	EventCount int               `json:"event_count" label:"活动次数" find:"false" sort:"11" type:"number" input:"text"`
 
 	Source       enums.MemberSource `json:"source" label:"来源" find:"true" sort:"12" type:"number" input:"select" preset:"typeMap"`
-	ConsultantId string             `json:"consultant_id" label:"顾问" find:"true" sort:"13" type:"string" input:"text"`
-	StoreId      string             `json:"store_id" label:"门店" find:"true" sort:"14" type:"string" input:"text" required:"true"`
+	ConsultantId string             `json:"consultant_id" label:"顾问" find:"true" sort:"13" type:"string" input:"search"`
+	StoreId      string             `json:"store_id" label:"门店" find:"false" sort:"14" type:"string" input:"text" required:"true"`
 
 	Status         enums.MemberStatus `json:"status" label:"状态" find:"true" sort:"15" type:"number" input:"select" preset:"typeMap"`
-	ExternalUserId string             `json:"external_user_id" label:"外部用户id" find:"true" sort:"16" type:"string" input:"text"`
+	ExternalUserId string             `json:"external_user_id" label:"外部用户id" find:"false" sort:"16" type:"string" input:"text"`
 }
 
 type MemberCreateReq struct {

@@ -134,10 +134,10 @@ type OrderRepairProduct struct {
 	Gem         enums.ProductGem      `json:"gem" gorm:"type:int(11);not NULL;comment:主石;"`                // 主石
 	Category    enums.ProductCategory `json:"category" gorm:"type:int(11);not NULL;comment:品类;"`           // 品类
 	Craft       enums.ProductCraft    `json:"craft" gorm:"type:int(11);comment:工艺;"`                       // 工艺
-	WeightMetal decimal.Decimal       `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`          // 金重
-	WeightTotal decimal.Decimal       `json:"weight_total" gorm:"type:decimal(10,2);comment:总重;"`          // 总重
+	WeightMetal decimal.Decimal       `json:"weight_metal" gorm:"type:decimal(15,4);comment:金重;"`          // 金重
+	WeightTotal decimal.Decimal       `json:"weight_total" gorm:"type:decimal(15,4);comment:总重;"`          // 总重
 	ColorGem    enums.ProductColor    `json:"color_gem" gorm:"type:int(11);comment:颜色;"`                   // 颜色
-	WeightGem   decimal.Decimal       `json:"weight_gem" gorm:"type:decimal(10,2);comment:主石重;"`           // 主石重
+	WeightGem   decimal.Decimal       `json:"weight_gem" gorm:"type:decimal(15,4);comment:主石重;"`           // 主石重
 	Clarity     enums.ProductClarity  `json:"clarity" gorm:"type:int(11);comment:主石净度;"`                   // 主石净度
 	Cut         enums.ProductCut      `json:"cut" gorm:"type:int(11);comment:主石切工;"`                       // 主石切工
 	Remark      string                `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注

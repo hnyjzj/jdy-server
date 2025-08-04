@@ -63,7 +63,7 @@ type ProductAccessorieCategory struct {
 	Name          string                            `json:"name" gorm:"type:varchar(255);uniqueIndex;comment:名称;"`       // 名称
 	Code          string                            `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
 	RetailType    enums.ProductAccessorieRetailType `json:"retail_type" gorm:"type:int(11);not NULL;comment:零售方式;"`      // 零售方式
-	Weight        decimal.Decimal                   `json:"weight" gorm:"type:decimal(10,2);comment:重量;"`                // 重量
+	Weight        decimal.Decimal                   `json:"weight" gorm:"type:decimal(15,4);comment:重量;"`                // 重量
 	AccessFee     decimal.Decimal                   `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"`  // 入网费
 	LabelPrice    decimal.Decimal                   `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
 	Material      enums.ProductAccessorieMaterial   `json:"material" gorm:"type:int(11);not NULL;comment:材质;"`           // 材质

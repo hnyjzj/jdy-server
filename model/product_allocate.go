@@ -27,7 +27,7 @@ type ProductAllocate struct {
 	ProductOlds      []ProductOld      `json:"product_olds" gorm:"many2many:product_allocate_old_products;comment:旧料;"`           // 旧料
 
 	ProductCount            int64           `json:"product_count" gorm:"type:int(11);not NULL;comment:数量;"`                     // 数量
-	ProductTotalWeightMetal decimal.Decimal `json:"product_total_weight_metal" gorm:"type:decimal(10,2);not NULL;comment:总重;"`  // 总重
+	ProductTotalWeightMetal decimal.Decimal `json:"product_total_weight_metal" gorm:"type:decimal(15,4);not NULL;comment:总重;"`  // 总重
 	ProductTotalLabelPrice  decimal.Decimal `json:"product_total_label_price" gorm:"type:decimal(10,2);not NULL;comment:总标签价;"` // 总标签价
 	ProductTotalAccessFee   decimal.Decimal `json:"product_total_access_fee" gorm:"type:decimal(10,2);not NULL;comment:总加工费;"`  // 总加工费
 

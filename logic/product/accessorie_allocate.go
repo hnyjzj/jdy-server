@@ -34,17 +34,19 @@ func (l *ProductAccessorieAllocateLogic) Create(req *types.ProductAccessorieAllo
 		}
 
 		// 如果是调拨到门店，则添加门店ID
-		if req.Method == enums.ProductAllocateMethodStore {
+		if req.Method == enums.ProductAccessorieAllocateMethodStore {
 			data.ToStoreId = req.ToStoreId
 		}
-		if req.Method == enums.ProductAllocateMethodOut {
+		if req.Method == enums.ProductAccessorieAllocateMethodOut {
 			store, err := model.Store{}.Headquarters()
 			if err != nil {
 				return err
 			}
 			data.ToStoreId = store.Id
 		}
-
+		if req.Method == enums.ProductAccessorieAllocateMethodRegion {
+			data.ToRegionId = req.ToRegionId
+		}
 		// 创建调拨单
 		if err := tx.Create(&data).Error; err != nil {
 			return err
@@ -76,6 +78,7 @@ func (l *ProductAccessorieAllocateLogic) List(req *types.ProductAccessorieAlloca
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, &req.PageReq)
+	db = allocate.Preloads(db, nil)
 
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取调拨单列表失败")
@@ -495,43 +498,48 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 			return errors.New("更新调拨单失败")
 		}
 
-		// 接收配件
-		for _, product := range allocate.Products {
-			// 查询配件
-			var accessorie model.ProductAccessorie
-			if err := tx.Where(&model.ProductAccessorie{
-				StoreId: allocate.ToStoreId,
-				Name:    product.Name,
-			}).First(&accessorie).Error; err != nil {
-				if err != gorm.ErrRecordNotFound {
-					return errors.New("查询配件失败")
-				}
-			}
+		switch allocate.Method {
+		case enums.ProductAccessorieAllocateMethodStore, enums.ProductAccessorieAllocateMethodOut:
+			{
+				// 接收配件
+				for _, product := range allocate.Products {
+					// 查询配件
+					var accessorie model.ProductAccessorie
+					if err := tx.Where(&model.ProductAccessorie{
+						StoreId: allocate.ToStoreId,
+						Name:    product.Name,
+					}).First(&accessorie).Error; err != nil {
+						if err != gorm.ErrRecordNotFound {
+							return errors.New("查询配件失败")
+						}
+					}
 
-			if accessorie.Id == "" {
-				// 新增配件
-				data := model.ProductAccessorie{
-					StoreId:    allocate.ToStoreId,
-					Name:       product.Name,
-					Type:       product.Type,
-					RetailType: product.RetailType,
-					Price:      product.Price,
-					Remark:     product.Remark,
-					Stock:      product.Stock,
-					Status:     enums.ProductAccessorieStatusNormal,
-				}
-				if err := tx.Create(&data).Error; err != nil {
-					return fmt.Errorf("【%s】新增配件失败", product.Name)
-				}
+					if accessorie.Id == "" {
+						// 新增配件
+						data := model.ProductAccessorie{
+							StoreId:    allocate.ToStoreId,
+							Name:       product.Name,
+							Type:       product.Type,
+							RetailType: product.RetailType,
+							Price:      product.Price,
+							Remark:     product.Remark,
+							Stock:      product.Stock,
+							Status:     enums.ProductAccessorieStatusNormal,
+						}
+						if err := tx.Create(&data).Error; err != nil {
+							return fmt.Errorf("【%s】新增配件失败", product.Name)
+						}
 
-			} else {
-				accessorie.Stock += product.Stock
-				// 更新配件
-				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
-					Stock:  accessorie.Stock,
-					Status: enums.ProductAccessorieStatusNormal,
-				}).Error; err != nil {
-					return fmt.Errorf("【%s】更新配件失败", product.Name)
+					} else {
+						accessorie.Stock += product.Stock
+						// 更新配件
+						if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
+							Stock:  accessorie.Stock,
+							Status: enums.ProductAccessorieStatusNormal,
+						}).Error; err != nil {
+							return fmt.Errorf("【%s】更新配件失败", product.Name)
+						}
+					}
 				}
 			}
 		}

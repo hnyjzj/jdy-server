@@ -81,12 +81,6 @@ func (con ProductAccessorieAllocateController) List(ctx *gin.Context) {
 		return
 	}
 
-	// 校验参数
-	if err := req.Where.Validate(); err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
 	// 获取产品调拨单列表
 	res, err := logic.List(&req)
 	if err != nil {

@@ -13,14 +13,16 @@ import (
 type ProductAccessorieAllocate struct {
 	SoftDelete
 
-	Method enums.ProductAllocateMethod `json:"method" gorm:"type:int(11);not NULL;comment:调拨类型;"` // 调拨类型
-	Status enums.ProductAllocateStatus `json:"status" gorm:"type:int(11);comment:状态;"`            // 状态
-	Remark string                      `json:"remark" gorm:"type:text;comment:备注;"`               // 备注
+	Method enums.ProductAccessorieAllocateMethod `json:"method" gorm:"type:int(11);not NULL;comment:调拨类型;"` // 调拨类型
+	Status enums.ProductAllocateStatus           `json:"status" gorm:"type:int(11);comment:状态;"`            // 状态
+	Remark string                                `json:"remark" gorm:"type:text;comment:备注;"`               // 备注
 
-	FromStoreId string `json:"from_store_id" gorm:"type:varchar(255);comment:调出门店;"` // 调出门店
-	FromStore   *Store `json:"from_store" gorm:"foreignKey:FromStoreId;references:Id;comment:调出门店;"`
-	ToStoreId   string `json:"to_store_id" gorm:"type:varchar(255);comment:调入门店;"` // 调入门店
-	ToStore     *Store `json:"to_store" gorm:"foreignKey:ToStoreId;references:Id;comment:调入门店;"`
+	FromStoreId string  `json:"from_store_id" gorm:"type:varchar(255);comment:调出门店;"` // 调出门店
+	FromStore   *Store  `json:"from_store" gorm:"foreignKey:FromStoreId;references:Id;comment:调出门店;"`
+	ToStoreId   string  `json:"to_store_id" gorm:"type:varchar(255);comment:调入门店;"` // 调入门店
+	ToStore     *Store  `json:"to_store" gorm:"foreignKey:ToStoreId;references:Id;comment:调入门店;"`
+	ToRegionId  string  `json:"to_region_id" gorm:"type:varchar(255);comment:调入区域;"` // 调入区域
+	ToRegion    *Region `json:"to_region" gorm:"foreignKey:ToRegionId;references:Id;comment:调入区域;"`
 
 	Products     []ProductAccessorieAllocateProduct `json:"products" gorm:"foreignKey:AllocateId;references:Id;comment:产品;"` // 产品
 	ProductCount int64                              `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类数;"`       // 入库种类数
@@ -64,16 +66,18 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 }
 
 func (ProductAccessorieAllocate) Preloads(db *gorm.DB, pages *types.PageReq) *gorm.DB {
-	db = db.Preload("FromStore").Preload("ToStore")
+	db = db.Preload("FromStore").Preload("ToStore").Preload("ToRegion")
 	db = db.Preload("Operator")
-	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
-		pdb := tx
-		if pages != nil {
-			pdb = PageCondition(pdb, &types.PageReq{Page: pages.Page, Limit: pages.Limit})
-		}
+	if pages != nil {
+		db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
+			pdb := tx
+			if pages != nil {
+				pdb = PageCondition(pdb, &types.PageReq{Page: pages.Page, Limit: pages.Limit})
+			}
 
-		return pdb
-	})
+			return pdb
+		})
+	}
 	db = db.Preload("Operator")
 
 	return db

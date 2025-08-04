@@ -158,13 +158,12 @@ func (con ProductAccessorieEnterController) AddProduct(ctx *gin.Context) {
 	}
 
 	// 调用逻辑层
-	res, err := logic.AddProduct(&req)
-	if err != nil {
-		con.ExceptionWithResult(ctx, err.Error(), res)
+	if err := logic.AddProduct(&req); err != nil {
+		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", res)
+	con.Success(ctx, "ok", nil)
 }
 
 // 入库单编辑产品

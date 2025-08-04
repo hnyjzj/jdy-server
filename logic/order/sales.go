@@ -143,17 +143,16 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 					Action:     enums.ProductActionOrderCancel,
 					Type:       enums.ProductTypeAccessorie,
 					OldValue:   product.Accessorie.Product,
-					ProductId:  product.Accessorie.Product.Id,
+					ProductId:  product.Accessorie.ProductId,
 					StoreId:    product.Accessorie.Product.StoreId,
-					SourceId:   product.Accessorie.Product.Id,
+					SourceId:   product.Accessorie.ProductId,
 					OperatorId: l.Staff.Id,
 					IP:         l.Ctx.ClientIP(),
 				}
 				// 更新配件状态
-				stock := product.Accessorie.Product.Stock + product.Accessorie.Quantity
-				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
-					Stock: stock,
-				}).Error; err != nil {
+				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", product.Accessorie.ProductId).Updates(&model.ProductAccessorie{
+					Status: enums.ProductAccessorieStatusNormal,
+				}).Update("stock", gorm.Expr("stock + ?", product.Accessorie.Quantity)).Error; err != nil {
 					return errors.New("更新配件状态失败")
 				}
 				// 添加配件历史记录
@@ -429,9 +428,9 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				Action:     enums.ProductActionReturn,
 				Type:       enums.ProductTypeAccessorie,
 				OldValue:   p.Accessorie.Product,
-				ProductId:  p.Accessorie.Product.Id,
+				ProductId:  p.Accessorie.ProductId,
 				StoreId:    p.Accessorie.Product.StoreId,
-				SourceId:   p.Accessorie.Product.Id,
+				SourceId:   p.Accessorie.ProductId,
 				OperatorId: l.Staff.Id,
 				IP:         l.Ctx.ClientIP(),
 			}
@@ -439,8 +438,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			// 更新配件状态
 			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", p.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
 				Status: enums.ProductAccessorieStatusNormal,
-				Stock:  p.Accessorie.Product.Stock + p.Accessorie.Quantity,
-			}).Error; err != nil {
+			}).Update("stock", gorm.Expr("stock + ?", p.Accessorie.Quantity)).Error; err != nil {
 				return errors.New("更新配件状态失败")
 			}
 			log.NewValue = p.Accessorie.Product

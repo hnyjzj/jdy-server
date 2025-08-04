@@ -332,17 +332,17 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	l.Order.Products = append(l.Order.Products, order_product)
 	l.Order.ProductAccessoriePrice = l.Order.ProductAccessoriePrice.Add(order_product.Accessorie.Price)
 
-	status := accessory.Status
 	// 判断库存
-	if accessory.Stock-p.Quantity == 0 {
+	stock := accessory.Stock - p.Quantity
+	status := accessory.Status
+	if stock == 0 {
 		status = enums.ProductAccessorieStatusNoStock
 	}
 
 	// 更新商品状态
 	if err := l.Tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessory.Id).Updates(model.ProductAccessorie{
-		Stock:  accessory.Stock - p.Quantity,
 		Status: status,
-	}).Error; err != nil {
+	}).Update("stock", stock).Error; err != nil {
 		return errors.New("配件状态更新失败")
 	}
 	// 添加记录

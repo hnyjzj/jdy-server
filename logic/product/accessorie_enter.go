@@ -82,24 +82,27 @@ func (l *ProductAccessorieEnterLogic) EnterInfo(req *types.ProductAccessorieEnte
 }
 
 // 配件入库单添加配件
-func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnterAddProductReq) (*[]string, error) {
+func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnterAddProductReq) error {
 	// 查询入库单
 	var enter model.ProductAccessorieEnter
 	if err := model.DB.First(&enter, "id = ?", req.EnterId).Error; err != nil {
-		return nil, errors.New("入库单不存在")
+		return errors.New("入库单不存在")
 	}
 
 	if enter.Status != enums.ProductEnterStatusDraft {
-		return nil, errors.New("入库单已结束")
+		return errors.New("入库单已结束")
 	}
 
 	if len(req.Products) == 0 {
-		return nil, errors.New("请添加配件")
+		return errors.New("请添加配件")
 	}
 
+	// 所有配件ID
+	names := make(map[string]model.ProductAccessorieEnterProduct)
+	for _, p := range enter.Products {
+		names[p.Name] = p
+	}
 	// 添加配件的结果
-	errmap := []string{}
-	success := 0
 	enterData := model.ProductAccessorieEnter{
 		ProductCount: enter.ProductCount,
 		ProductTotal: enter.ProductTotal,
@@ -107,20 +110,12 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 	// 添加配件入库
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		for _, p := range req.Products {
-			var product model.ProductAccessorieEnterProduct
-			if err := tx.Where(&model.ProductAccessorieEnterProduct{
-				Name: strings.TrimSpace(strings.ToUpper(p.Name)),
-			}).First(&product).Error; err != nil {
-				if err != gorm.ErrRecordNotFound {
-					return errors.New("配件条目错误")
-				}
-			}
-
-			if product.Id != "" {
+			// 检查调拨单是否已经存在该配件
+			paap, ok := names[p.Name]
+			if ok {
 				// 配件已存在，更新配件
-				if err := tx.Model(&model.ProductAccessorieEnterProduct{}).Where("id = ?", product.Id).Update("stock", gorm.Expr("stock + ?", p.Stock)).Error; err != nil {
-					errmap = append(errmap, "["+p.Name+"]入库失败")
-					continue
+				if err := tx.Model(&model.ProductAccessorieEnterProduct{}).Where("id = ?", paap.Id).Update("stock", gorm.Expr("stock + ?", p.Stock)).Error; err != nil {
+					return errors.New("[" + p.Name + "]入库失败")
 				}
 				// 更新入库单配件数量
 				enterData.ProductTotal += p.Stock
@@ -137,8 +132,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 				}
 
 				if err := tx.Create(&data).Error; err != nil {
-					errmap = append(errmap, "["+p.Name+"]入库失败")
-					continue
+					return errors.New("[" + p.Name + "]入库失败")
 				}
 
 				// 更新入库单配件数量
@@ -146,15 +140,6 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 				enterData.ProductTotal += p.Stock
 			}
 
-			success++
-		}
-
-		if success == 0 {
-			return errors.New("无配件录入成功")
-		}
-
-		if len(errmap) > 0 {
-			return errors.New(strings.Join(errmap, "\n"))
 		}
 
 		// 更新入库单配件数量
@@ -167,10 +152,10 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 
 		return nil
 	}); err != nil {
-		return &errmap, errors.New("配件录入失败: " + err.Error())
+		return errors.New("配件录入失败: " + err.Error())
 	}
 
-	return &errmap, nil
+	return nil
 }
 
 // 入库单编辑配件

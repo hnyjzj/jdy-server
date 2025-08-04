@@ -71,9 +71,7 @@
             ]
         },
         "preset": {
-            "cases": [
-                "typeMap"
-            ],
+            "cases": [],
             "options": [
                 "typeMap"
             ]

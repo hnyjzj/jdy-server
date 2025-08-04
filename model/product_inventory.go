@@ -86,13 +86,6 @@ func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryW
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
-	} else {
-		db = db.Where("status in (?)", []enums.ProductInventoryStatus{
-			enums.ProductInventoryStatusDraft,
-			enums.ProductInventoryStatusInventorying,
-			enums.ProductInventoryStatusToBeVerified,
-			enums.ProductInventoryStatusAbnormal,
-		})
 	}
 	if req.InspectorId != "" {
 		db = db.Where("inspector_id = ?", req.InspectorId)

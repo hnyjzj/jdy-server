@@ -36,10 +36,6 @@ func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, query *types.ProductAc
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
-	} else {
-		db = db.Where("status IN (?)", []enums.ProductEnterStatus{
-			enums.ProductEnterStatusDraft,
-		})
 	}
 	if query.Remark != "" {
 		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")

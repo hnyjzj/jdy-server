@@ -47,12 +47,6 @@ func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *g
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
-	} else {
-		db = db.Where("status IN (?)", []enums.OrderDepositStatus{
-			enums.OrderDepositStatusWaitPay,
-			enums.OrderDepositStatusBooking,
-			enums.OrderDepositStatusRefund,
-		})
 	}
 	// 门店
 	if req.StoreId != "" {

@@ -50,8 +50,6 @@ func (ProductAccessorie) WhereCondition(db *gorm.DB, query *types.ProductAccesso
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
-	} else {
-		db = db.Where("status = ?", enums.ProductAccessorieStatusNormal)
 	}
 
 	return db

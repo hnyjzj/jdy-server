@@ -336,6 +336,19 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 				}
 			}
 
+			// 添加记录
+			history := model.ProductHistory{
+				Type:       enums.ProductTypeAccessorie,
+				Action:     enums.ProductActionEntry,
+				OldValue:   nil,
+				NewValue:   nil,
+				ProductId:  "",
+				StoreId:    enter.StoreId,
+				SourceId:   enter.Id,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}
+
 			if accessorie.Id == "" {
 				// 添加配件
 				accessorie = model.ProductAccessorie{
@@ -351,26 +364,28 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 				if err := tx.Create(&accessorie).Error; err != nil {
 					return errors.New("配件添加失败")
 				}
+
+				// 更新记录
+				history.NewValue = accessorie
+				history.ProductId = accessorie.Id
+
 			} else {
-				// 添加库存
-				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).
-					Update("stock", gorm.Expr("stock + ?", product.Stock)).Error; err != nil {
-					return errors.New("配件库存更新失败")
+				// 更新记录
+				history.OldValue = accessorie
+				history.ProductId = accessorie.Id
+
+				// 更新库存
+				accessorie.Stock += product.Stock
+				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
+					Status: enums.ProductAccessorieStatusNormal,
+				}).Update("stock", accessorie.Stock).Error; err != nil {
+					return errors.New("归还库存失败")
 				}
+
+				// 更新记录
+				history.NewValue = accessorie
 			}
 
-			// 添加记录
-			history := model.ProductHistory{
-				Type:       enums.ProductTypeAccessorie,
-				OldValue:   nil,
-				NewValue:   accessorie,
-				Action:     enums.ProductActionEntry,
-				ProductId:  accessorie.Id,
-				StoreId:    enter.StoreId,
-				SourceId:   enter.Id,
-				OperatorId: l.Staff.Id,
-				IP:         l.Ctx.ClientIP(),
-			}
 			if err := tx.Create(&history).Error; err != nil {
 				return errors.New("配件记录添加失败")
 			}
@@ -425,7 +440,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 					return errors.New("配件状态异常")
 				}
 
-				// 扣除库存
+				// 查询配件
 				var accessorie model.ProductAccessorie
 				if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
 					StoreId: enter.StoreId,
@@ -439,8 +454,14 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 				}
 
 				accessorie.Stock -= product.Stock
+				status := enums.ProductAccessorieStatusNormal
+				if accessorie.Stock == 0 {
+					status = enums.ProductAccessorieStatusNoStock
+				}
 				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).
-					Update("stock", gorm.Expr("stock - ?", product.Stock)).Error; err != nil {
+					Updates(model.ProductAccessorie{
+						Status: status,
+					}).Update("stock", accessorie.Stock).Error; err != nil {
 					return errors.New("配件库存更新失败")
 				}
 

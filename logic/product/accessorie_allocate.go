@@ -198,13 +198,32 @@ func (l *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 				allocateData.ProductTotal += rp.Quantity
 			}
 
+			log := model.ProductHistory{
+				Type:       enums.ProductTypeAccessorie,
+				Action:     enums.ProductActionTransfer,
+				OldValue:   accessorie,
+				ProductId:  accessorie.Id,
+				StoreId:    accessorie.StoreId,
+				SourceId:   allocate.Id,
+				Reason:     allocate.Remark,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}
+
 			// 扣除配件库存
-			db := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Update("stock", gorm.Expr("stock - ?", rp.Quantity))
-			if accessorie.Stock-rp.Quantity <= 0 {
+			accessorie.Stock -= rp.Quantity
+			db := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Update("stock", accessorie.Stock)
+			if accessorie.Stock <= 0 {
 				db = db.Update("status", enums.ProductAccessorieStatusNoStock)
 			}
 			if err := db.Error; err != nil {
 				return errors.New("扣除配件库存失败")
+			}
+
+			// 添加历史记录
+			log.NewValue = accessorie
+			if err := tx.Create(&log).Error; err != nil {
+				return errors.New("添加历史记录失败")
 			}
 		}
 
@@ -269,14 +288,38 @@ func (l *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 			return errors.New("移除配件失败")
 		}
 
-		// 归还库存
-		if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
+		var accessorie model.ProductAccessorie
+		if err := tx.Where(&model.ProductAccessorie{
 			Name:    product.Name,
 			StoreId: allocate.FromStoreId,
-		}).Updates(&model.ProductAccessorie{
+		}).First(&accessorie).Error; err != nil {
+			return errors.New("配件不存在或状态异常")
+		}
+
+		log := model.ProductHistory{
+			Type:       enums.ProductTypeAccessorie,
+			Action:     enums.ProductActionTransferCancel,
+			OldValue:   accessorie,
+			ProductId:  accessorie.Id,
+			StoreId:    accessorie.StoreId,
+			SourceId:   allocate.Id,
+			Reason:     allocate.Remark,
+			OperatorId: l.Staff.Id,
+			IP:         l.Ctx.ClientIP(),
+		}
+
+		accessorie.Stock += product.Stock
+		// 归还库存
+		if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
 			Status: enums.ProductAccessorieStatusNormal,
-		}).Update("stock", gorm.Expr("stock + ?", product.Stock)).Error; err != nil {
-			return errors.New("扣除配件库存失败")
+		}).Update("stock", accessorie.Stock).Error; err != nil {
+			return errors.New("归还库存失败")
+		}
+
+		// 添加历史记录
+		log.NewValue = accessorie
+		if err := tx.Create(&log).Error; err != nil {
+			return errors.New("添加历史记录失败")
 		}
 
 		return nil
@@ -324,14 +367,38 @@ func (l *ProductAccessorieAllocateLogic) Clear(req *types.ProductAccessorieAlloc
 				return errors.New("移除配件失败")
 			}
 
-			// 归还库存
-			if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
+			var accessorie model.ProductAccessorie
+			if err := tx.Where(&model.ProductAccessorie{
 				Name:    product.Name,
 				StoreId: allocate.FromStoreId,
-			}).Updates(&model.ProductAccessorie{
+			}).First(&accessorie).Error; err != nil {
+				return errors.New("配件不存在或状态异常")
+			}
+
+			log := model.ProductHistory{
+				Type:       enums.ProductTypeAccessorie,
+				Action:     enums.ProductActionTransferCancel,
+				OldValue:   accessorie,
+				ProductId:  accessorie.Id,
+				StoreId:    accessorie.StoreId,
+				SourceId:   allocate.Id,
+				Reason:     allocate.Remark,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}
+
+			accessorie.Stock += product.Stock
+			// 归还库存
+			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
 				Status: enums.ProductAccessorieStatusNormal,
-			}).Update("stock", gorm.Expr("stock + ?", product.Stock)).Error; err != nil {
-				return errors.New("扣除配件库存失败")
+			}).Update("stock", accessorie.Stock).Error; err != nil {
+				return errors.New("归还库存失败")
+			}
+
+			// 添加历史记录
+			log.NewValue = accessorie
+			if err := tx.Create(&log).Error; err != nil {
+				return errors.New("添加历史记录失败")
 			}
 		}
 
@@ -443,13 +510,38 @@ func (l *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 
 		// 归还库存
 		for _, product := range allocate.Products {
-			if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
+			var accessorie model.ProductAccessorie
+			if err := tx.Where(&model.ProductAccessorie{
 				Name:    product.Name,
 				StoreId: allocate.FromStoreId,
-			}).Updates(&model.ProductAccessorie{
+			}).First(&accessorie).Error; err != nil {
+				return errors.New("配件不存在或状态异常")
+			}
+
+			log := model.ProductHistory{
+				Type:       enums.ProductTypeAccessorie,
+				Action:     enums.ProductActionTransferCancel,
+				OldValue:   accessorie,
+				ProductId:  accessorie.Id,
+				StoreId:    accessorie.StoreId,
+				SourceId:   allocate.Id,
+				Reason:     allocate.Remark,
+				OperatorId: l.Staff.Id,
+				IP:         l.Ctx.ClientIP(),
+			}
+
+			accessorie.Stock += product.Stock
+			// 归还库存
+			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
 				Status: enums.ProductAccessorieStatusNormal,
-			}).Update("stock", gorm.Expr("stock + ?", product.Stock)).Error; err != nil {
-				return fmt.Errorf("归还库存失败")
+			}).Update("stock", accessorie.Stock).Error; err != nil {
+				return errors.New("归还库存失败")
+			}
+
+			// 添加历史记录
+			log.NewValue = accessorie
+			if err := tx.Create(&log).Error; err != nil {
+				return errors.New("添加历史记录失败")
 			}
 		}
 
@@ -514,6 +606,19 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 						}
 					}
 
+					log := model.ProductHistory{
+						Type:       enums.ProductTypeAccessorie,
+						Action:     enums.ProductActionDirectIn,
+						OldValue:   nil,
+						NewValue:   nil,
+						ProductId:  "",
+						StoreId:    allocate.ToStoreId,
+						SourceId:   allocate.Id,
+						Reason:     allocate.Remark,
+						OperatorId: l.Staff.Id,
+						IP:         l.Ctx.ClientIP(),
+					}
+
 					if accessorie.Id == "" {
 						// 新增配件
 						data := model.ProductAccessorie{
@@ -530,14 +635,26 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 							return fmt.Errorf("【%s】新增配件失败", product.Name)
 						}
 
+						// 更新记录
+						log.ProductId = data.Id
+						log.NewValue = data
+
 					} else {
-						accessorie.Stock += product.Stock
+						// 更新记录
+						log.ProductId = accessorie.Id
+						log.OldValue = accessorie
+
 						// 更新配件
+						accessorie.Stock += product.Stock
 						if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", accessorie.Id).Updates(&model.ProductAccessorie{
-							Stock:  accessorie.Stock,
 							Status: enums.ProductAccessorieStatusNormal,
-						}).Error; err != nil {
+						}).Update("stock", accessorie.Stock).Error; err != nil {
 							return fmt.Errorf("【%s】更新配件失败", product.Name)
+						}
+
+						log.NewValue = accessorie
+						if err := tx.Create(&log).Error; err != nil {
+							return errors.New("添加历史记录失败")
 						}
 					}
 				}

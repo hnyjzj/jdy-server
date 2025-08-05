@@ -47,7 +47,7 @@ type ProductFinishedWhere struct {
 	Images      []string `json:"images" label:"图片" find:"false" create:"false" update:"true" sort:"33" type:"string[]" input:"list"`     // 图片
 
 	EnterId   string    `json:"enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"`   // 产品入库单ID
-	EnterTime time.Time `json:"enter_time" label:"入库时间" find:"false" sort:"3" type:"time" input:"date"` // 产品入库时间
+	EnterTime time.Time `json:"enter_time" label:"入库时间" find:"false" sort:"3" type:"data" input:"date"` // 产品入库时间
 }
 
 type ProductFinishedListReq struct {

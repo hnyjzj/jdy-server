@@ -17,8 +17,8 @@ type ProductFinishedEnterWhere struct {
 	StoreId string                   `json:"store_id" label:"门店" input:"text" type:"string" find:"false" create:"true" sort:"2" required:"true"`                  // 门店ID
 	Status  enums.ProductEnterStatus `json:"status" label:"状态" input:"select" type:"number" find:"true" create:"true" sort:"3" required:"false" preset:"typeMap"` // 状态
 	Remark  string                   `json:"remark" label:"备注" input:"text" type:"string" find:"true" create:"true" sort:"4" required:"false"`                    // 备注
-	StartAt *time.Time               `json:"start_at" label:"开始时间" input:"date" type:"time" find:"true" sort:"5" required:"false"`                                // 开始时间
-	EndAt   *time.Time               `json:"end_at" label:"结束时间" input:"date" type:"time" find:"true" sort:"6" required:"false"`                                  // 结束时间
+	StartAt *time.Time               `json:"start_at" label:"开始时间" input:"date" type:"data" find:"true" sort:"5" required:"false"`                                // 开始时间
+	EndAt   *time.Time               `json:"end_at" label:"结束时间" input:"date" type:"data" find:"true" sort:"6" required:"false"`                                  // 结束时间
 }
 
 type ProductFinishedEnterListReq struct {

@@ -100,7 +100,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 	// 所有配件ID
 	names := make(map[string]model.ProductAccessorieEnterProduct)
 	for _, p := range enter.Products {
-		names[p.Name] = p
+		names[strings.TrimSpace(strings.ToUpper(p.Name))] = p
 	}
 	// 添加配件的结果
 	enterData := model.ProductAccessorieEnter{
@@ -111,7 +111,7 @@ func (l *ProductAccessorieEnterLogic) AddProduct(req *types.ProductAccessorieEnt
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		for _, p := range req.Products {
 			// 检查调拨单是否已经存在该配件
-			paap, ok := names[p.Name]
+			paap, ok := names[strings.TrimSpace(strings.ToUpper(p.Name))]
 			if ok {
 				// 配件已存在，更新配件
 				if err := tx.Model(&model.ProductAccessorieEnterProduct{}).Where("id = ?", paap.Id).Update("stock", gorm.Expr("stock + ?", p.Stock)).Error; err != nil {

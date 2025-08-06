@@ -30,13 +30,13 @@ type ProductFinished struct {
 	Gem         enums.ProductGem           `json:"gem" gorm:"type:int(11);not NULL;comment:主石;"`                // 主石
 	Category    enums.ProductCategory      `json:"category" gorm:"type:int(11);not NULL;comment:品类;"`           // 品类
 	Craft       enums.ProductCraft         `json:"craft" gorm:"type:int(11);comment:工艺;"`                       // 工艺
-	WeightMetal decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`          // 金重
-	WeightTotal decimal.Decimal            `json:"weight_total" gorm:"type:decimal(10,2);comment:总重;"`          // 总重
+	WeightMetal decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(15,4);comment:金重;"`          // 金重
+	WeightTotal decimal.Decimal            `json:"weight_total" gorm:"type:decimal(15,4);comment:总重;"`          // 总重
 	Size        string                     `json:"size" gorm:"type:varchar(255);comment:手寸;"`                   // 手寸
 	ColorMetal  string                     `json:"color_metal" gorm:"type:varchar(255);comment:贵金属颜色;"`         // 贵金属颜色
-	WeightGem   decimal.Decimal            `json:"weight_gem" gorm:"type:decimal(10,2);comment:主石重;"`           // 主石重
+	WeightGem   decimal.Decimal            `json:"weight_gem" gorm:"type:decimal(15,4);comment:主石重;"`           // 主石重
 	NumGem      int                        `json:"num_gem" gorm:"type:int(11);comment:主石数;"`                    // 主石数
-	WeightOther decimal.Decimal            `json:"weight_other" gorm:"type:decimal(10,2);comment:杂料重;"`         // 杂料重
+	WeightOther decimal.Decimal            `json:"weight_other" gorm:"type:decimal(15,4);comment:杂料重;"`         // 杂料重
 	NumOther    int                        `json:"num_other" gorm:"type:int(11);comment:杂料数;"`                  // 杂料数
 	ColorGem    enums.ProductColor         `json:"color_gem" gorm:"type:int(11);comment:颜色;"`                   // 颜色
 	Clarity     enums.ProductClarity       `json:"clarity" gorm:"type:int(11);comment:主石净度;"`                   // 净度
@@ -268,7 +268,7 @@ type ProductFinishedEnter struct {
 
 	Products                []ProductFinished `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:成品;"`                 // 成品
 	ProductCount            int64             `json:"product_count" gorm:"type:int(11);not NULL;comment:成品数量;"`                     // 成品数量
-	ProductTotalWeightMetal decimal.Decimal   `json:"product_total_weight_metal" gorm:"type:decimal(10,2);not NULL;comment:成品总重;"`  // 成品总重
+	ProductTotalWeightMetal decimal.Decimal   `json:"product_total_weight_metal" gorm:"type:decimal(15,4);not NULL;comment:成品总重;"`  // 成品总重
 	ProductTotalLabelPrice  decimal.Decimal   `json:"product_total_label_price" gorm:"type:decimal(10,2);not NULL;comment:成品总标签价;"` // 成品总标签价
 	ProductTotalAccessFee   decimal.Decimal   `json:"product_total_access_fee" gorm:"type:decimal(10,2);not NULL;comment:成品总加工费;"`  // 成品总加工费
 

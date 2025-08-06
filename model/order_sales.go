@@ -239,7 +239,7 @@ type OrderSalesProductOld struct {
 	ProductId string     `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`              // 产品ID
 	Product   ProductOld `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
-	WeightMetal             decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(10,2);comment:金重;"`                       // 金重
+	WeightMetal             decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(15,4);comment:金重;"`                       // 金重
 	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`               // 回收金价
 	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`              // 回收工费
 	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:int(11);comment:回收工费方式;"` // 回收工费方式

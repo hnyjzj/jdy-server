@@ -430,8 +430,12 @@ func (l *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 确认调拨
+		allocate_status := enums.ProductAllocateStatusOnTheWay
+		if allocate.Method == enums.ProductAccessorieAllocateMethodRegion {
+			allocate_status = enums.ProductAllocateStatusCompleted
+		}
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
-			Status: enums.ProductAllocateStatusOnTheWay,
+			Status: allocate_status,
 		}).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}

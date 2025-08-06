@@ -653,9 +653,10 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 						}
 
 						log.NewValue = accessorie
-						if err := tx.Create(&log).Error; err != nil {
-							return errors.New("添加历史记录失败")
-						}
+					}
+
+					if err := tx.Create(&log).Error; err != nil {
+						return errors.New("添加历史记录失败")
 					}
 				}
 			}

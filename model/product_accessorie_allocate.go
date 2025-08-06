@@ -52,6 +52,9 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	if query.ToStoreId != "" {
 		db = db.Where("to_store_id = ?", query.ToStoreId)
 	}
+	if query.ToRegionId != "" {
+		db = db.Where("to_region_id = ?", query.ToRegionId)
+	}
 	if query.StartTime != nil {
 		db = db.Where("created_at >= ?", query.StartTime)
 	}

@@ -21,7 +21,7 @@ type ProductAccessorieEnterWhere struct {
 	Name    string                   `json:"name" label:"名称" input:"text" type:"string" find:"true" sort:"5" required:"false"`                                     // 名称
 
 	StartTime *time.Time `json:"start_time" label:"开始时间" input:"date" type:"date" find:"true" sort:"6" required:"false"` // 开始时间
-	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"6" required:"false"`   // 结束时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"7" required:"false"`   // 结束时间
 }
 
 type ProductAccessorieEnterListReq struct {

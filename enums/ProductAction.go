@@ -13,8 +13,8 @@ const (
 	ProductActionOldToNew                                 // 旧料转成品
 	ProductActionDamageToNew                              // 报损转成品
 	ProductActionDamageToOld                              // 报损转旧料
-	ProductActionDirectOut                                // 直接调出
-	ProductActionTransfer                                 // 门店间调拨
+	ProductActionTransfer                                 // 调出
+	ProductActionDirectIn                                 // 调入
 	ProductActionTransferCancel                           // 调拨撤销
 	ProductActionTransferConfirm                          // 调拨确认
 	ProductActionOrder                                    // 开单
@@ -30,8 +30,8 @@ var ProductActionMap = map[ProductAction]string{
 	ProductActionOldToNew:        "旧料转成品",
 	ProductActionDamageToNew:     "报损转成品",
 	ProductActionDamageToOld:     "报损转旧料",
-	ProductActionDirectOut:       "直接调出",
-	ProductActionTransfer:        "门店间调拨",
+	ProductActionTransfer:        "调出",
+	ProductActionDirectIn:        "调入",
 	ProductActionTransferCancel:  "调拨撤销",
 	ProductActionTransferConfirm: "调拨确认",
 	ProductActionOrder:           "开单",

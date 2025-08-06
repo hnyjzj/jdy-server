@@ -69,8 +69,17 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 	if query.LaborFee != nil {
 		db = db.Where("labor_fee = ?", query.LaborFee) // 工费
 	}
+	if query.Style != "" {
+		db = db.Where("style LIKE (?)", "%"+query.Style+"%") // 款式
+	}
 	if query.WeightTotal != nil {
 		db = db.Where("weight_total = ?", query.WeightTotal) // 总重
+	}
+	if query.Size != "" {
+		db = db.Where("size LIKE (?)", "%"+query.Size+"%") // 手寸
+	}
+	if query.ColorMetal != "" {
+		db = db.Where("color_metal LIKE (?)", "%"+query.ColorMetal+"%") // 贵金属颜色
 	}
 	if query.WeightMetal != nil {
 		db = db.Where("weight_metal = ?", query.WeightMetal) // 金重
@@ -114,6 +123,12 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 	if query.Clarity != 0 {
 		db = db.Where("clarity = ?", query.Clarity) // 主石净度
 	}
+	if query.Series != "" {
+		db = db.Where("series LIKE (?)", "%"+query.Series+"%") // 系列
+	}
+	if query.Remark != "" {
+		db = db.Where("remark LIKE (?)", "%"+query.Remark+"%") // 备注
+	}
 	if query.Brand != 0 {
 		db = db.Where("brand = ?", query.Brand) // 品牌
 	}
@@ -125,8 +140,6 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status) // 状态
-	} else {
-		db = db.Where("status = ?", enums.ProductStatusNormal) // 状态
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId) // 门店ID
@@ -273,10 +286,6 @@ func (ProductFinishedEnter) WhereCondition(db *gorm.DB, query *types.ProductFini
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
-	} else {
-		db = db.Where("status in (?)", []enums.ProductEnterStatus{
-			enums.ProductEnterStatusDraft,
-		})
 	}
 	if query.Remark != "" {
 		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")

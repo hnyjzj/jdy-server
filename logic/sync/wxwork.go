@@ -68,15 +68,6 @@ func (l *WxWorkLogic) Contacts() error {
 				if err := logic.getStore(store); err != nil {
 					return err
 				}
-			case department.Department.Name == "总部": // 如果是总部
-				store := model.Store{
-					IdWx:  fmt.Sprintf("%d", department.Department.ID),
-					Name:  department.Department.Name,
-					Order: department.Department.Order,
-				}
-				if err := logic.getStore(store); err != nil {
-					return err
-				}
 			case strings.Contains(department.Department.Name, "区域"): // 如果是区域
 				region := model.Region{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
@@ -84,6 +75,15 @@ func (l *WxWorkLogic) Contacts() error {
 					Order: department.Department.Order,
 				}
 				if err := logic.getRegion(region); err != nil {
+					return err
+				}
+			case department.Department.Name == model.HeaderquartersName: // 如果是总部
+				store := model.Store{
+					IdWx:  fmt.Sprintf("%d", department.Department.ID),
+					Name:  department.Department.Name,
+					Order: department.Department.Order,
+				}
+				if err := logic.getStore(store); err != nil {
 					return err
 				}
 			}

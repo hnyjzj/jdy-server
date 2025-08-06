@@ -55,7 +55,7 @@ func (l *MemberIntegralRuleLogic) Accessorie(req *types.MemberIntegralRuleReq) (
 	)
 
 	for _, v := range req.Classes {
-		if enums.ProductTypePart.InMap(enums.ProductTypePart(v)) != nil {
+		if enums.ProductAccessorieType.InMap(enums.ProductAccessorieType(v)) != nil {
 			return nil, errors.New("类型错误")
 		}
 	}

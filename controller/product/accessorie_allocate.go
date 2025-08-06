@@ -81,12 +81,6 @@ func (con ProductAccessorieAllocateController) List(ctx *gin.Context) {
 		return
 	}
 
-	// 校验参数
-	if err := req.Where.Validate(); err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
 	// 获取产品调拨单列表
 	res, err := logic.List(&req)
 	if err != nil {
@@ -191,6 +185,37 @@ func (con ProductAccessorieAllocateController) Remove(ctx *gin.Context) {
 	}
 
 	if err := logic.Remove(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+// 清空调拨单产品
+func (con ProductAccessorieAllocateController) Clear(ctx *gin.Context) {
+	var (
+		req types.ProductAccessorieAllocateClearReq
+
+		logic = product.ProductAccessorieAllocateLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if err := logic.Clear(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

@@ -306,33 +306,21 @@ func Api(g *gin.Engine) {
 					}
 				}
 
-				// 配件条目管理
-				categorys := accessories.Group("/category")
-				{
-					categorys.GET("/where", product.ProductAccessorieCategoryController{}.Where) // 配件条目筛选
-					categorys.Use(middlewares.JWTMiddleware())
-					{
-						categorys.POST("/create", product.ProductAccessorieCategoryController{}.Create) // 创建配件条目
-						categorys.PUT("/update", product.ProductAccessorieCategoryController{}.Update)  // 更新配件条目
-						categorys.DELETE("/del", product.ProductAccessorieCategoryController{}.Delete)  // 删除配件条目
-						categorys.POST("/list", product.ProductAccessorieCategoryController{}.List)     // 配件条目列表
-						categorys.POST("/info", product.ProductAccessorieCategoryController{}.Info)     // 配件条目详情
-					}
-				}
-
 				// 配件入库
 				enters := accessories.Group("/enter")
 				{
-					enters.GET("/where", product.ProductAccessorieEnterController{}.Where) // 配件入库单筛选
+					enters.GET("/where", product.ProductAccessorieEnterController{}.Where)                       // 配件入库单筛选
+					enters.GET("/where_add_product", product.ProductAccessorieEnterController{}.WhereAddProduct) // 配件入库单筛选
 					enters.Use(middlewares.JWTMiddleware())
 					{
 						enters.POST("/create", product.ProductAccessorieEnterController{}.Create) // 创建配件入库单
 						enters.POST("/list", product.ProductAccessorieEnterController{}.List)     // 配件入库单列表
 						enters.POST("/info", product.ProductAccessorieEnterController{}.Info)     // 配件入库单详情
 
-						enters.POST("/add_product", product.ProductAccessorieEnterController{}.AddProduct)   // 添加产品
-						enters.DELETE("/del_product", product.ProductAccessorieEnterController{}.DelProduct) // 删除产品
-						enters.PUT("/edit_product", product.ProductAccessorieEnterController{}.EditProduct)  // 编辑产品
+						enters.POST("/add_product", product.ProductAccessorieEnterController{}.AddProduct)       // 添加产品
+						enters.DELETE("/del_product", product.ProductAccessorieEnterController{}.DelProduct)     // 删除产品
+						enters.DELETE("/clear_product", product.ProductAccessorieEnterController{}.ClearProduct) // 清空产品
+						enters.PUT("/edit_product", product.ProductAccessorieEnterController{}.EditProduct)      // 编辑产品
 
 						enters.PUT("/finish", product.ProductAccessorieEnterController{}.Finish) // 完成入库
 						enters.PUT("/cancel", product.ProductAccessorieEnterController{}.Cancel) // 取消入库
@@ -350,6 +338,7 @@ func Api(g *gin.Engine) {
 						allocate.POST("/info", product.ProductAccessorieAllocateController{}.Info)        // 调拨单详情
 						allocate.PUT("/add", product.ProductAccessorieAllocateController{}.Add)           // 添加产品
 						allocate.PUT("/remove", product.ProductAccessorieAllocateController{}.Remove)     // 移除产品
+						allocate.PUT("/clear", product.ProductAccessorieAllocateController{}.Clear)       // 清空产品
 						allocate.PUT("/confirm", product.ProductAccessorieAllocateController{}.Confirm)   // 确认调拨
 						allocate.PUT("/cancel", product.ProductAccessorieAllocateController{}.Cancel)     // 取消调拨
 						allocate.PUT("/complete", product.ProductAccessorieAllocateController{}.Complete) // 完成调拨

@@ -14,8 +14,8 @@ type ProductHistory struct {
 	Type   enums.ProductType   `json:"type" gorm:"type:int(11);comment:产品类型;"` // 产品类型
 	Action enums.ProductAction `json:"action" gorm:"type:int(11);comment:操作;"` // 操作
 
-	NewValue any `json:"new_value" gorm:"type:text;serializer:json;comment:值;"`  // 值
 	OldValue any `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
+	NewValue any `json:"new_value" gorm:"type:text;serializer:json;comment:新值;"` // 新值
 
 	ProductId string `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"` // 产品ID
 
@@ -84,6 +84,13 @@ func (ProductHistory) WhereAccessorieCondition(db *gorm.DB, query *types.Product
 	if query.EndTime != nil {
 		db = db.Where("created_at <= ?", query.EndTime)
 	}
+
+	return db
+}
+
+func (ProductHistory) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Store")
+	db = db.Preload("Operator")
 
 	return db
 }

@@ -16,7 +16,7 @@ type GoldPriceOptions struct {
 	StoreId         string                 `json:"store_id" binding:"required"`         // 门店ID
 	Price           decimal.Decimal        `json:"price" binding:"required"`            // 金价
 	ProductMaterial enums.ProductMaterial  `json:"product_material" binding:"required"` // 产品材质
-	ProductType     enums.ProductType      `json:"product_type" binding:"required"`     // 产品类型
+	ProductType     enums.ProductTypeUsed  `json:"product_type" binding:"required"`     // 产品类型
 	ProductBrand    []enums.ProductBrand   `json:"product_brand"`                       // 产品品牌
 	ProductQuality  []enums.ProductQuality `json:"product_quality" binding:"required"`  // 产品成色
 }

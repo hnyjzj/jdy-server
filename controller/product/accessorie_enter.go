@@ -120,6 +120,13 @@ func (con ProductAccessorieEnterController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 入库单筛选条件
+func (con ProductAccessorieEnterController) WhereAddProduct(ctx *gin.Context) {
+	where := utils.StructToWhere(types.ProductAccessorieEnterReqProduct{})
+
+	con.Success(ctx, "ok", where)
+}
+
 // 入库单添加产品
 func (con ProductAccessorieEnterController) AddProduct(ctx *gin.Context) {
 	var (
@@ -143,14 +150,20 @@ func (con ProductAccessorieEnterController) AddProduct(ctx *gin.Context) {
 		return
 	}
 
+	for _, v := range req.Products {
+		if v.Validate() != nil {
+			con.Exception(ctx, v.Name+errors.ErrInvalidParam.Error())
+			return
+		}
+	}
+
 	// 调用逻辑层
-	res, err := logic.AddProduct(&req)
-	if err != nil {
-		con.ExceptionWithResult(ctx, err.Error(), res)
+	if err := logic.AddProduct(&req); err != nil {
+		con.Exception(ctx, err.Error())
 		return
 	}
 
-	con.Success(ctx, "ok", res)
+	con.Success(ctx, "ok", nil)
 }
 
 // 入库单编辑产品
@@ -173,6 +186,11 @@ func (con ProductAccessorieEnterController) EditProduct(ctx *gin.Context) {
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if req.Product.Validate() != nil {
+		con.Exception(ctx, req.Product.Name+errors.ErrInvalidParam.Error())
 		return
 	}
 
@@ -210,6 +228,38 @@ func (con ProductAccessorieEnterController) DelProduct(ctx *gin.Context) {
 
 	// 调用逻辑层
 	if err := logic.DelProduct(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}
+
+// 入库单清空产品
+func (con ProductAccessorieEnterController) ClearProduct(ctx *gin.Context) {
+	var (
+		req types.ProductAccessorieEnterClearProductReq
+
+		logic = product.ProductAccessorieEnterLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	if err := logic.ClearProduct(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

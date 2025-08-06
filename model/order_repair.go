@@ -53,15 +53,6 @@ func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gor
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
-	} else {
-		db = db.Where("status IN (?)", []enums.OrderRepairStatus{
-			enums.OrderRepairStatusWaitPay,
-			enums.OrderRepairStatusStoreReceived,
-			enums.OrderRepairStatusSendOut,
-			enums.OrderRepairStatusRepairing,
-			enums.OrderRepairStatusSendBack,
-			enums.OrderRepairStatusWaitPickUp,
-		})
 	}
 	if req.ReceptionistId != "" {
 		db = db.Where("receptionist_id = ?", req.ReceptionistId)
@@ -72,8 +63,8 @@ func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gor
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
 	}
-	if req.MemberId != "" {
-		db = db.Where("member_id = ?", req.MemberId)
+	if req.Phone != "" {
+		db = db.Where("member_id = (SELECT id FROM members WHERE phone = ?)", req.Phone)
 	}
 	if req.DeliveryMethod != 0 {
 		db = db.Where("delivery_method = ?", req.DeliveryMethod)

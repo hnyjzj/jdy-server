@@ -63,8 +63,8 @@ func (OrderRefund) WhereCondition(db *gorm.DB, req *types.OrderSalesRefundWhere)
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
 	}
-	if req.MemberId != "" {
-		db = db.Where("member_id = ?", req.MemberId)
+	if req.Phone != "" {
+		db = db.Where("member_id = (SELECT id FROM members WHERE phone = ?)", req.Phone)
 	}
 	if req.Code != "" {
 		db = db.Where("code = ?", req.Code)

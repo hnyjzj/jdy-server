@@ -62,8 +62,6 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
-	} else {
-		db = db.Where("status = ?", enums.ProductStatusNormal)
 	}
 	if query.LabelPrice != nil {
 		db = db.Where("label_price = ?", query.LabelPrice)

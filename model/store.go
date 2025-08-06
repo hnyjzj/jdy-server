@@ -70,6 +70,18 @@ func (Store) Default(identity enums.Identity) *Store {
 	return def
 }
 
+const HeaderquartersName = "总部"
+
+func (Store) Headquarters() (*Store, error) {
+	var store Store
+	if err := DB.Where(&Store{
+		Name: HeaderquartersName,
+	}).First(&store).Error; err != nil {
+		return nil, err
+	}
+	return &store, nil
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

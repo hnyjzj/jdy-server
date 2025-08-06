@@ -145,7 +145,7 @@ func (l *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 				StoreId: allocate.FromStoreId,
 				Name:    rp.Name,
 				Status:  enums.ProductAccessorieStatusNormal,
-			}).First(&accessorie).Error; err != nil {
+			}).Preload("Store").First(&accessorie).Error; err != nil {
 				return errors.New("配件不存在或状态异常")
 			}
 
@@ -292,7 +292,7 @@ func (l *ProductAccessorieAllocateLogic) Remove(req *types.ProductAccessorieAllo
 		if err := tx.Where(&model.ProductAccessorie{
 			Name:    product.Name,
 			StoreId: allocate.FromStoreId,
-		}).First(&accessorie).Error; err != nil {
+		}).Preload("Store").First(&accessorie).Error; err != nil {
 			return errors.New("配件不存在或状态异常")
 		}
 
@@ -371,7 +371,7 @@ func (l *ProductAccessorieAllocateLogic) Clear(req *types.ProductAccessorieAlloc
 			if err := tx.Where(&model.ProductAccessorie{
 				Name:    product.Name,
 				StoreId: allocate.FromStoreId,
-			}).First(&accessorie).Error; err != nil {
+			}).Preload("Store").First(&accessorie).Error; err != nil {
 				return errors.New("配件不存在或状态异常")
 			}
 
@@ -518,7 +518,7 @@ func (l *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 			if err := tx.Where(&model.ProductAccessorie{
 				Name:    product.Name,
 				StoreId: allocate.FromStoreId,
-			}).First(&accessorie).Error; err != nil {
+			}).Preload("Store").First(&accessorie).Error; err != nil {
 				return errors.New("配件不存在或状态异常")
 			}
 
@@ -604,7 +604,7 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 					if err := tx.Where(&model.ProductAccessorie{
 						StoreId: allocate.ToStoreId,
 						Name:    product.Name,
-					}).First(&accessorie).Error; err != nil {
+					}).Preload("Store").First(&accessorie).Error; err != nil {
 						if err != gorm.ErrRecordNotFound {
 							return errors.New("查询配件失败")
 						}
@@ -640,6 +640,7 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 						}
 
 						// 更新记录
+						data.Store = *allocate.ToStore
 						log.ProductId = data.Id
 						log.NewValue = data
 

@@ -32,7 +32,7 @@ func (l *ProductHistoryLogic) List(req *types.ProductHistoryListReq) (*types.Pag
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, &req.PageReq)
-	db = db.Preload("Operator")
+	db = logs.Preloads(db)
 
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取列表失败")
@@ -58,7 +58,7 @@ func (l *ProductHistoryLogic) ListAccessorie(req *types.ProductAccessorieHistory
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, &req.PageReq)
-	db = db.Preload("Operator")
+	db = logs.Preloads(db)
 
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取列表失败")
@@ -75,7 +75,7 @@ func (l *ProductHistoryLogic) Info(req *types.ProductHistoryInfoReq) (*model.Pro
 
 	db := model.DB.Model(&logs)
 	db = db.Where("id = ?", req.Id)
-	db = db.Preload("Operator")
+	db = logs.Preloads(db)
 
 	if err := db.First(&logs).Error; err != nil {
 		return nil, errors.New("获取详情失败")

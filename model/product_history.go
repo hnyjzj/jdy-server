@@ -88,6 +88,13 @@ func (ProductHistory) WhereAccessorieCondition(db *gorm.DB, query *types.Product
 	return db
 }
 
+func (ProductHistory) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Store")
+	db = db.Preload("Operator")
+
+	return db
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

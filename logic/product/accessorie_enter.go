@@ -302,7 +302,7 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询入库单
 		var enter model.ProductAccessorieEnter
-		if err := tx.Preload("Products").First(&enter, "id = ?", req.EnterId).Error; err != nil {
+		if err := tx.Preload("Products").Preload("Store").First(&enter, "id = ?", req.EnterId).Error; err != nil {
 			return errors.New("入库单不存在")
 		}
 
@@ -366,11 +366,13 @@ func (l *ProductAccessorieEnterLogic) Finish(req *types.ProductAccessorieEnterFi
 				}
 
 				// 更新记录
+				accessorie.Store = *enter.Store
 				history.NewValue = accessorie
 				history.ProductId = accessorie.Id
 
 			} else {
 				// 更新记录
+				accessorie.Store = *enter.Store
 				history.OldValue = accessorie
 				history.ProductId = accessorie.Id
 
@@ -442,7 +444,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 
 				// 查询配件
 				var accessorie model.ProductAccessorie
-				if err := tx.Model(&model.ProductAccessorie{}).Where(&model.ProductAccessorie{
+				if err := tx.Model(&model.ProductAccessorie{}).Preload("Store").Where(&model.ProductAccessorie{
 					StoreId: enter.StoreId,
 					Name:    product.Name,
 					Status:  enums.ProductAccessorieStatusNormal,

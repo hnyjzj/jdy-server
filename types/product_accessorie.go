@@ -9,7 +9,7 @@ import (
 // 配件条件
 type ProductAccessorieWhere struct {
 	Id         string                            `json:"id" label:"编号" find:"true" create:"false" update:"false" info:"true" sort:"1" type:"string" input:"text" required:"false"`                             // ID
-	StoreId    string                            `json:"store_id" label:"门店" find:"true" create:"false" update:"false" sort:"2" type:"string" input:"text" required:"true"`                                    // 门店
+	StoreId    string                            `json:"store_id" label:"门店" find:"false" create:"false" update:"false" sort:"2" type:"string" input:"text" required:"true"`                                   // 门店
 	Store      string                            `json:"store" label:"门店名称" info:"true" sort:"3" type:"string" input:"text" required:"true"`                                                                   // 门店名称
 	Name       string                            `json:"name" label:"名称" find:"true" create:"true" update:"false" info:"true" sort:"4" type:"string" input:"text" required:"true"`                             // 名称
 	Stock      int64                             `json:"stock" label:"库存" find:"false" create:"true" update:"false" info:"true" sort:"5" type:"number" input:"number" required:"true"`                         // 库存

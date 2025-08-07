@@ -67,15 +67,14 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			}).Where("id = ?", req.EnterId).First(&enter).Error; err != nil {
 				return errors.New("获取入库单失败")
 			}
-			var allocate model.ProductAllocate
 			for _, p := range enter.Products {
 				if p.Status != enums.ProductStatusNormal {
 					return errors.New("入库单产品状态异常")
 				}
-				allocate.ProductCount++
-				allocate.ProductTotalWeightMetal = allocate.ProductTotalWeightMetal.Add(p.WeightMetal)
-				allocate.ProductTotalLabelPrice = allocate.ProductTotalLabelPrice.Add(p.LabelPrice)
-				allocate.ProductTotalAccessFee = allocate.ProductTotalAccessFee.Add(p.AccessFee)
+				data.ProductCount++
+				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
+				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
+				data.ProductTotalAccessFee = data.ProductTotalAccessFee.Add(p.AccessFee)
 
 				// 更新产品状态
 				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Id).Updates(&model.ProductFinished{
@@ -86,7 +85,7 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			}
 
 			// 更新调拨单
-			if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Select([]string{
+			if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", data.Id).Select([]string{
 				"product_count",
 				"product_total_weight_metal",
 				"product_total_label_price",

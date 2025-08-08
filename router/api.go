@@ -234,8 +234,13 @@ func Api(g *gin.Engine) {
 						finished.POST("/list", product.ProductFinishedController{}.List)           // 成品列表
 						finished.POST("/info", product.ProductFinishedController{}.Info)           // 成品详情
 						finished.POST("/retrieval", product.ProductFinishedController{}.Retrieval) // 成品检索
-						finished.PUT("/update", product.ProductFinishedController{}.Update)        // 成品更新
 						finished.PUT("/upload", product.ProductFinishedController{}.Upload)        // 成品图上传
+
+						update := finisheds.Group("/update")
+						{
+							update.PUT("/", product.ProductFinishedController{}.Update)         // 成品更新
+							update.PUT("/code", product.ProductFinishedController{}.UpdateCode) // 成品更新编码
+						}
 					}
 				}
 

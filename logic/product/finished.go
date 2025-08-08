@@ -116,6 +116,7 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 		var product model.ProductFinished
 		if err := tx.Model(&model.ProductFinished{}).
 			Preload("Store").
+			Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("id = ?", req.Id).First(&product).Error; err != nil {
 			return errors.New("获取成品信息失败")
 		}

@@ -7,6 +7,7 @@ import (
 	"jdy/types"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // 更新成品信息
@@ -15,7 +16,7 @@ func (p *ProductFinishedLogic) Code(req *types.ProductFinishedUpdateCodeReq) err
 		// 验证成品信息
 		for _, r := range req.Data {
 			var product model.ProductFinished
-			if err := tx.Model(&model.ProductFinished{}).Where(&model.ProductFinished{
+			if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Locking{Strength: "UPDATE"}).Where(&model.ProductFinished{
 				Code: r.Code,
 			}).First(&product).Error; err != nil {
 				return errors.New("查找[" + r.Code + "]信息失败")

@@ -236,6 +236,10 @@ func Api(g *gin.Engine) {
 						finished.POST("/retrieval", product.ProductFinishedController{}.Retrieval) // 成品检索
 						finished.PUT("/update", product.ProductFinishedController{}.Update)        // 成品更新
 						finished.PUT("/upload", product.ProductFinishedController{}.Upload)        // 成品图上传
+						batch := finished.Group("/batch")                                          // 批量操作
+						{
+							batch.PUT("/code", product.ProductFinishedBatchController{}.Code) // 批量更新条码
+						}
 					}
 				}
 

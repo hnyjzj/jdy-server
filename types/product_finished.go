@@ -77,6 +77,15 @@ type ProductFinishedUpdateReq struct {
 	ProductFinishedWhere
 }
 
+type ProductFinishedUpdateCodeReq struct {
+	Data []ProductFinishedUpdateCode `json:"data" binding:"required"`
+}
+
+type ProductFinishedUpdateCode struct {
+	Code    string `json:"code" binding:"required"`     // 条码
+	NewCode string `json:"new_code" binding:"required"` // 新条码
+}
+
 type ProductFinishedUploadReq struct {
 	Id     string   `json:"id" binding:"required"`     // ID
 	Images []string `json:"images" binding:"required"` // 图片

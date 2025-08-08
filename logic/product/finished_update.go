@@ -45,7 +45,7 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 		}
 
 		// 添加记录
-		history.NewValue = product
+		history.NewValue = data
 		if err := tx.Create(&history).Error; err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func (p *ProductFinishedLogic) UpdateCode(req *types.ProductFinishedUpdateCodeRe
 			}
 
 			product.Code = r.NewCode
-			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Update("code", r.NewCode).Error; err != nil {
+			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Update("code", product.Code).Error; err != nil {
 				return errors.New("更新[" + r.Code + "]为[" + r.NewCode + "]失败")
 			}
 

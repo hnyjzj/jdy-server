@@ -210,6 +210,13 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				return errors.New("产品不存在")
 			}
 
+			if len(product) == 0 {
+				return errors.New("产品不存在")
+			}
+			if len(product) != len(req.ProductIds) || len(product) != len(req.Codes) {
+				return errors.New("有产品不存在")
+			}
+
 			for _, p := range product {
 				data.ProductCount++
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
@@ -248,6 +255,13 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			})
 			if err := db.Find(&product).Error; err != nil {
 				return errors.New("产品不存在")
+			}
+
+			if len(product) == 0 {
+				return errors.New("产品不存在")
+			}
+			if len(product) != len(req.ProductIds) || len(product) != len(req.Codes) {
+				return errors.New("有产品不存在")
 			}
 
 			for _, p := range product {

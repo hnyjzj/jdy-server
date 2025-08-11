@@ -134,7 +134,7 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 
 		data.Class = data.GetClass()
 
-		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Omit(
+		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", product.Id).Omit(
 			"id", "created_at", "updated_at", "deleted_at",
 			"code", "status", "images", "store_id", "enter_id",
 		).Updates(&data).Error; err != nil {
@@ -177,7 +177,7 @@ func (p *ProductFinishedLogic) Upload(req *types.ProductFinishedUploadReq) error
 		}
 
 		product.Images = req.Images
-		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Updates(&model.ProductFinished{
+		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", product.Id).Updates(&model.ProductFinished{
 			Images: req.Images,
 		}).Error; err != nil {
 			return errors.New("上传成品图片失败")

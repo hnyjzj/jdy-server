@@ -90,7 +90,7 @@ func (p *ProductFinishedBatchLogic) Update(req *types.ProductFinishedUpdatesReq)
 
 			data.Class = data.GetClass()
 
-			if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Omit(
+			if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", product.Id).Omit(
 				"id", "created_at", "updated_at", "deleted_at",
 				"code", "status", "images", "store_id", "enter_id",
 			).Updates(&data).Error; err != nil {

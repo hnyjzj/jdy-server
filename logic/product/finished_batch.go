@@ -46,7 +46,7 @@ func (p *ProductFinishedBatchLogic) Code(req *types.ProductFinishedUpdateCodeReq
 			// 添加记录
 			history.NewValue = product
 			if err := tx.Create(&history).Error; err != nil {
-				return err
+				return errors.New("添加记录失败")
 			}
 		}
 
@@ -70,12 +70,11 @@ func (p *ProductFinishedBatchLogic) Update(req *types.ProductFinishedUpdatesReq)
 
 			var product model.ProductFinished
 			if err := tx.Model(&model.ProductFinished{}).
-				Preload("Store").
 				Clauses(clause.Locking{Strength: "UPDATE"}).
 				Where(&model.ProductFinished{
 					Code: data.Code,
 				}).First(&product).Error; err != nil {
-				return errors.New("获取成品信息失败")
+				return errors.New("获取【" + data.Code + "】条码信息失败，可能不存在")
 			}
 
 			history := model.ProductHistory{
@@ -92,13 +91,13 @@ func (p *ProductFinishedBatchLogic) Update(req *types.ProductFinishedUpdatesReq)
 			data.Class = data.GetClass()
 
 			if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Returning{}).Where("id = ?", product.Id).Updates(&data).Error; err != nil {
-				return errors.New("更新成品信息失败")
+				return errors.New("更新【" + data.Code + "】信息失败")
 			}
 
 			// 添加记录
 			history.NewValue = data
 			if err := tx.Create(&history).Error; err != nil {
-				return err
+				return errors.New("添加记录失败")
 			}
 
 		}

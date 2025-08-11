@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"jdy/enums"
 	"time"
 
@@ -75,6 +76,20 @@ type ProductFinishedRetrievalReq struct {
 type ProductFinishedUpdateReq struct {
 	Id string `json:"id" binding:"required"` // ID
 	ProductFinishedWhere
+}
+
+type ProductFinishedUpdatesReq struct {
+	Data []ProductFinishedWhere `json:"data" binding:"required"`
+}
+
+func (r *ProductFinishedUpdatesReq) Validate() error {
+	for _, v := range r.Data {
+		if v.Code == "" {
+			return errors.New("条码不能为空")
+		}
+	}
+
+	return nil
 }
 
 type ProductFinishedUpdateCodeReq struct {

@@ -63,7 +63,10 @@ func (l *RegionLogic) My(req *types.RegionListMyReq) (*[]model.Region, error) {
 	}
 
 	var regions []model.Region
-	if err := model.DB.Where("id in (?)", region_ids).Find(&regions).Error; err != nil {
+	rdb := model.DB.Model(&model.Region{})
+	rdb = rdb.Where("id in (?)", region_ids)
+	rdb = rdb.Order("name desc")
+	if err := rdb.Find(&regions).Error; err != nil {
 		return nil, errors.New("获取区域列表失败")
 	}
 

@@ -78,7 +78,7 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		sdb = sdb.Where("id in (?)", store_ids)
 	}
 
-	sdb = sdb.Order("`order` asc")
+	sdb = sdb.Order("name desc")
 	if err := sdb.Find(&stores).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
 	}

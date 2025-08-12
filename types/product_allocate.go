@@ -59,9 +59,16 @@ type ProductAllocateInfoReq struct {
 }
 
 type ProductAllocateAddReq struct {
-	Id         string   `json:"id" binding:"required"`          // 调拨单ID
-	ProductIds []string `json:"product_ids" binding:"required"` // 商品ID
-	Codes      []string `json:"codes" binding:"required"`       // 商品编码
+	Id    string   `json:"id" binding:"required"`    // 调拨单ID
+	Codes []string `json:"codes" binding:"required"` // 商品编码
+}
+
+func (req *ProductAllocateAddReq) Validate() error {
+	if len(req.Codes) == 0 {
+		return errors.New("商品编码不能为空")
+	}
+
+	return nil
 }
 
 type ProductAllocateRemoveReq struct {

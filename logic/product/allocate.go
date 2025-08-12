@@ -196,12 +196,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			var product []model.ProductFinished
 			// 获取产品
 			db := tx.Model(&model.ProductFinished{})
-			if len(req.ProductIds) > 0 {
-				db = db.Where("id in (?)", req.ProductIds)
-			}
-			if len(req.Codes) > 0 {
-				db = db.Where("code in (?)", req.Codes)
-			}
+			db = db.Where("code in (?)", req.Codes)
 			db = db.Where(&model.ProductFinished{
 				StoreId: allocate.FromStoreId,
 				Status:  enums.ProductStatusNormal,
@@ -212,6 +207,9 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 
 			if len(product) == 0 {
 				return errors.New("产品不存在")
+			}
+			if len(product) != len(req.Codes) {
+				return errors.New("有产品不存在")
 			}
 
 			for _, p := range product {
@@ -224,7 +222,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Id).Updates(&model.ProductFinished{
 					Status: enums.ProductStatusAllocate,
 				}).Error; err != nil {
-					return err
+					return errors.New("更新产品状态失败")
 				}
 			}
 			// 添加产品
@@ -233,19 +231,14 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 					"product_allocate_id": allocate.Id,
 					"product_finished_id": p.Id,
 				}).Error; err != nil {
-					return err
+					return errors.New("添加产品失败")
 				}
 			}
 		case enums.ProductTypeOld:
 			var product []model.ProductOld
 			// 获取产品
 			db := tx.Model(&model.ProductOld{})
-			if len(req.ProductIds) > 0 {
-				db = db.Where("id in (?)", req.ProductIds)
-			}
-			if len(req.Codes) > 0 {
-				db = db.Where("code in (?)", req.Codes)
-			}
+			db = db.Where("code in (?)", req.Codes)
 			db = db.Where(&model.ProductOld{
 				StoreId: allocate.FromStoreId,
 				Status:  enums.ProductStatusNormal,
@@ -257,6 +250,9 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			if len(product) == 0 {
 				return errors.New("产品不存在")
 			}
+			if len(product) != len(req.Codes) {
+				return errors.New("有产品不存在")
+			}
 
 			for _, p := range product {
 				data.ProductCount++
@@ -267,7 +263,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Id).Updates(&model.ProductOld{
 					Status: enums.ProductStatusAllocate,
 				}).Error; err != nil {
-					return err
+					return errors.New("更新产品状态失败")
 				}
 			}
 
@@ -277,7 +273,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 					"product_allocate_id": allocate.Id,
 					"product_old_id":      p.Id,
 				}).Error; err != nil {
-					return err
+					return errors.New("添加产品失败")
 				}
 			}
 		}
@@ -289,13 +285,12 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			"product_total_label_price",
 			"product_total_access_fee",
 		}).Updates(data).Error; err != nil {
-			return err
+			return errors.New("更新调拨单失败")
 		}
 
 		return nil
 	}); err != nil {
-		log.Printf("添加产品失败: %v", err.Error())
-		return errors.New("添加产品失败")
+		return errors.New("添加产品失败:" + err.Error())
 	}
 
 	return nil

@@ -423,7 +423,7 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
 	old := model.ProductOld{
-		Code:                    strings.ToUpper("JL" + utils.RandomAlphanumericUpper(8)),
+		Code:                    strings.ToUpper("JL" + utils.RandomCode(8)),
 		CodeFinished:            strings.ToUpper(p.Code),
 		Name:                    p.Name,
 		LabelPrice:              p.LabelPrice,

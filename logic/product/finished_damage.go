@@ -169,7 +169,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 			}
 
 			data := model.ProductOld{
-				Code:            strings.ToUpper("JL" + utils.RandomAlphanumericUpper(8)),
+				Code:            strings.ToUpper("JL" + utils.RandomCode(8)),
 				CodeFinished:    strings.ToUpper(product.Code),
 				Name:            product.Name,
 				Status:          enums.ProductStatusNormal,

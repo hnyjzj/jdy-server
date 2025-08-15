@@ -162,7 +162,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				log.Action = enums.ProductActionReturn
 			}
 			var old model.ProductOld
-			if err := tx.Preload("Store").Where(&model.ProductOld{CodeFinished: strings.ToUpper(product.Code)}).First(&old).Error; err != nil {
+			if err := tx.Unscoped().Preload("Store").Where(&model.ProductOld{CodeFinished: strings.ToUpper(product.Code)}).First(&old).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("旧品不存在")
 				}

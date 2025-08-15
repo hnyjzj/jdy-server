@@ -55,8 +55,7 @@ func (p *ProductOldLogic) Info(req *types.ProductOldInfoReq) (*model.ProductOld,
 		db = db.Where("id = ?", req.Id)
 	}
 	if req.Code != "" {
-		db = db.Where(&model.ProductOld{Code: strings.ToUpper(req.Code)})
-		db = db.Or(&model.ProductOld{CodeFinished: strings.ToUpper(req.Code)})
+		db = db.Where("(code = ? OR code_finished = ?)", strings.ToUpper(req.Code), strings.ToUpper(req.Code))
 	}
 
 	if err := db.First(&product).Error; err != nil {

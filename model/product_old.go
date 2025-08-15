@@ -53,7 +53,7 @@ type ProductOld struct {
 
 func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gorm.DB {
 	if query.Code != "" {
-		db = db.Where("code = ?", query.Code).Or("code_finished = ?", query.Code)
+		db = db.Where("(code = ? OR code_finished = ?)", query.Code, query.Code)
 	}
 	if query.Name != "" {
 		db = db.Where("name LIKE ?", "%"+query.Name+"%")

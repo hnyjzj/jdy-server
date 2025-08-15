@@ -55,7 +55,7 @@ func RandomCode(length int) string {
 		positions := rand.Perm(remaining)[:letterCount] // 生成不重复的随机位置
 		for _, pos := range positions {
 			// 注意：positions是相对于b[1:]的索引，实际位置需+1
-			b[pos+1] = letter_upper[rand.Intn(len(letter))]
+			b[pos+1] = letter_upper[rand.Intn(len(letter_upper))]
 		}
 	}
 

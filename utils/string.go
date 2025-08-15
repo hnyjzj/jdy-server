@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	digits       = "0123456789"              // 数字
+	digits       = "23456789"                // 数字（去除0、1）
 	letter       = "abcdefghjkmnpqrstuvwxyz" // 小写字母（去除i、l、o）
 	letter_upper = "ABCDEFGHJKMNPQRSTUVWXYZ" // 大写字母（去除I、L、O）
 )

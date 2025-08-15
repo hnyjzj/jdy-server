@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	digits       = "0123456789"                 // 数字
-	letter       = "abcdefghijklmnopqrstuvwxyz" // 小写字母
-	letter_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // 大写字母
+	digits       = "0123456789"              // 数字
+	letter       = "abcdefghjkmnpqrstuvwxyz" // 小写字母（去除i、l、o）
+	letter_upper = "ABCDEFGHJKMNPQRSTUVWXYZ" // 大写字母（去除I、L、O）
 )
 
 // 随机字符串（字母数字）

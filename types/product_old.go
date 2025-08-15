@@ -8,27 +8,28 @@ import (
 )
 
 type ProductOldWhere struct {
-	Code        string                `json:"code" label:"条码" find:"true" create:"true" update:"false" sort:"4" type:"string" input:"text" required:"false"`                          // 条码
-	Name        string                `json:"name" label:"名称" find:"true" create:"true" update:"false" sort:"5" type:"string" input:"text" required:"false"`                          // 名称
-	Class       enums.ProductClassOld `json:"class" label:"大类" find:"true" create:"false" update:"false" sort:"3" type:"number" input:"select" required:"false" preset:"typeMap"`     // 大类
-	Status      enums.ProductStatus   `json:"status" label:"状态" find:"true" create:"false" update:"false" sort:"13" type:"number" input:"select" required:"false" preset:"typeMap"`   // 状态
-	LabelPrice  *decimal.Decimal      `json:"label_price" label:"标签价" find:"true" create:"true" update:"false" sort:"12" type:"number" input:"text" required:"false"`                 // 标签价
-	Brand       enums.ProductBrand    `json:"brand" label:"品牌" find:"true" create:"true" update:"false" sort:"16" type:"number" input:"select" required:"false" preset:"typeMap"`     // 品牌
-	Material    enums.ProductMaterial `json:"material" label:"材质" find:"true" create:"true" update:"false" sort:"6" type:"number" input:"select" required:"true" preset:"typeMap"`    // 材质
-	Quality     enums.ProductQuality  `json:"quality" label:"成色" find:"true" create:"true" update:"false" sort:"7" type:"number" input:"select" required:"true" preset:"typeMap"`     // 成色
-	Gem         enums.ProductGem      `json:"gem" label:"主石" find:"true" create:"true" update:"false" sort:"8" type:"number" input:"select" required:"true" preset:"typeMap"`         // 主石
-	Category    enums.ProductCategory `json:"category" label:"品类" find:"true" create:"true" update:"false" sort:"9" type:"number" input:"select" required:"false" preset:"typeMap"`   // 品类
-	Craft       enums.ProductCraft    `json:"craft" label:"工艺" find:"true" create:"true" update:"false" sort:"10" type:"number" input:"select" required:"false" preset:"typeMap"`     // 工艺
-	WeightMetal *decimal.Decimal      `json:"weight_metal" label:"金重" find:"true" create:"true" update:"false" sort:"11" type:"number" input:"text" required:"true"`                  // 金重
-	WeightTotal *decimal.Decimal      `json:"weight_total" label:"总重" find:"true" create:"true" update:"false" sort:"24" type:"number" input:"text" required:"false"`                 // 总重
-	ColorGem    enums.ProductColor    `json:"color_gem" label:"颜色" find:"true" create:"true" update:"false" sort:"18" type:"number" input:"select" required:"false" preset:"typeMap"` // 颜色
-	WeightGem   *decimal.Decimal      `json:"weight_gem" label:"主石重" find:"true" create:"true" update:"false" sort:"17" type:"number" input:"text" required:"false"`                  // 主石重
-	NumGem      int                   `json:"num_gem" label:"主石数" find:"true" create:"true" update:"false" sort:"21" type:"number" input:"number" required:"false"`                   // 主石数
-	Clarity     enums.ProductClarity  `json:"clarity" label:"净度" find:"true" create:"true" update:"false" sort:"19" type:"number" input:"select" required:"false" preset:"typeMap"`   // 净度
-	Cut         enums.ProductCut      `json:"cut" label:"切工" find:"true" create:"true" update:"false" sort:"20" type:"number" input:"select" required:"false" preset:"typeMap"`       // 切工
-	WeightOther *decimal.Decimal      `json:"weight_other" label:"副石重" find:"true" create:"true" update:"false" sort:"22" type:"number" input:"text" required:"false"`                // 副石重
-	NumOther    int                   `json:"num_other" label:"副石数" find:"true" create:"true" update:"false" sort:"23" type:"number" input:"number" required:"false"`                 // 副石数
-	Remark      string                `json:"remark" label:"备注" find:"true" create:"true" update:"false" sort:"26" type:"string" input:"textarea" required:"false"`                   // 备注
+	Code         string                `json:"code" label:"旧料条码" find:"true" create:"false" update:"false" sort:"4" type:"string" input:"text" required:"false"`                       // 条码
+	CodeFinished string                `json:"code_finished" label:"成品条码" find:"true" create:"true" update:"false" sort:"4" type:"string" input:"text" required:"false"`               // 成品条码
+	Name         string                `json:"name" label:"名称" find:"true" create:"true" update:"false" sort:"5" type:"string" input:"text" required:"false"`                          // 名称
+	Class        enums.ProductClassOld `json:"class" label:"大类" find:"true" create:"false" update:"false" sort:"3" type:"number" input:"select" required:"false" preset:"typeMap"`     // 大类
+	Status       enums.ProductStatus   `json:"status" label:"状态" find:"true" create:"false" update:"false" sort:"13" type:"number" input:"select" required:"false" preset:"typeMap"`   // 状态
+	LabelPrice   *decimal.Decimal      `json:"label_price" label:"标签价" find:"true" create:"true" update:"false" sort:"12" type:"number" input:"text" required:"false"`                 // 标签价
+	Brand        enums.ProductBrand    `json:"brand" label:"品牌" find:"true" create:"true" update:"false" sort:"16" type:"number" input:"select" required:"false" preset:"typeMap"`     // 品牌
+	Material     enums.ProductMaterial `json:"material" label:"材质" find:"true" create:"true" update:"false" sort:"6" type:"number" input:"select" required:"true" preset:"typeMap"`    // 材质
+	Quality      enums.ProductQuality  `json:"quality" label:"成色" find:"true" create:"true" update:"false" sort:"7" type:"number" input:"select" required:"true" preset:"typeMap"`     // 成色
+	Gem          enums.ProductGem      `json:"gem" label:"主石" find:"true" create:"true" update:"false" sort:"8" type:"number" input:"select" required:"true" preset:"typeMap"`         // 主石
+	Category     enums.ProductCategory `json:"category" label:"品类" find:"true" create:"true" update:"false" sort:"9" type:"number" input:"select" required:"false" preset:"typeMap"`   // 品类
+	Craft        enums.ProductCraft    `json:"craft" label:"工艺" find:"true" create:"true" update:"false" sort:"10" type:"number" input:"select" required:"false" preset:"typeMap"`     // 工艺
+	WeightMetal  *decimal.Decimal      `json:"weight_metal" label:"金重" find:"true" create:"true" update:"false" sort:"11" type:"number" input:"text" required:"true"`                  // 金重
+	WeightTotal  *decimal.Decimal      `json:"weight_total" label:"总重" find:"true" create:"true" update:"false" sort:"24" type:"number" input:"text" required:"false"`                 // 总重
+	ColorGem     enums.ProductColor    `json:"color_gem" label:"颜色" find:"true" create:"true" update:"false" sort:"18" type:"number" input:"select" required:"false" preset:"typeMap"` // 颜色
+	WeightGem    *decimal.Decimal      `json:"weight_gem" label:"主石重" find:"true" create:"true" update:"false" sort:"17" type:"number" input:"text" required:"false"`                  // 主石重
+	NumGem       int                   `json:"num_gem" label:"主石数" find:"true" create:"true" update:"false" sort:"21" type:"number" input:"number" required:"false"`                   // 主石数
+	Clarity      enums.ProductClarity  `json:"clarity" label:"净度" find:"true" create:"true" update:"false" sort:"19" type:"number" input:"select" required:"false" preset:"typeMap"`   // 净度
+	Cut          enums.ProductCut      `json:"cut" label:"切工" find:"true" create:"true" update:"false" sort:"20" type:"number" input:"select" required:"false" preset:"typeMap"`       // 切工
+	WeightOther  *decimal.Decimal      `json:"weight_other" label:"副石重" find:"true" create:"true" update:"false" sort:"22" type:"number" input:"text" required:"false"`                // 副石重
+	NumOther     int                   `json:"num_other" label:"副石数" find:"true" create:"true" update:"false" sort:"23" type:"number" input:"number" required:"false"`                 // 副石数
+	Remark       string                `json:"remark" label:"备注" find:"true" create:"true" update:"false" sort:"26" type:"string" input:"textarea" required:"false"`                   // 备注
 
 	StoreId string `json:"store_id" label:"所属店铺" find:"false" create:"true" update:"false" sort:"28" type:"string" input:"text" required:"false"`
 
@@ -46,8 +47,9 @@ type ProductOldWhere struct {
 }
 
 type ProductOldCreateWhere struct {
-	IsOur                   *bool                      `json:"is_our" label:"是否为本公司货品" find:"true" create:"true" update:"false" sort:"1" type:"boolean" input:"switch" required:"true"`                                     // 是否为本公司货品
-	Code                    string                     `json:"code" label:"条码" find:"true" create:"true" update:"false" sort:"2" type:"string" input:"text" required:"false"`                                               // 条码
+	IsOur                   *bool                      `json:"is_our" label:"是否为本公司货品" info:"true" find:"true" create:"true" update:"false" sort:"1" type:"boolean" input:"switch" required:"true"`                         // 是否为本公司货品
+	Code                    string                     `json:"code" label:"旧料条码" find:"true" create:"false" update:"false" sort:"2" type:"string" input:"text" required:"false"`                                            // 条码
+	CodeFinished            string                     `json:"code_finished" label:"成品条码" find:"true" create:"true" update:"false" sort:"3" type:"string" input:"text" required:"false"`                                    // 成品条码
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method" label:"回收方式" find:"true" create:"true" update:"false" sort:"3" type:"number" input:"select" required:"true" preset:"typeMap"`                 // 回收方式
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type" label:"回收类型" find:"true" create:"true" update:"false" sort:"4" type:"number" input:"select" preset:"typeMap"`                                   // 回收类型
 	Material                enums.ProductMaterial      `json:"material" label:"材质" find:"true" create:"true" update:"false" sort:"5" type:"number" input:"select" required:"true" preset:"typeMap"`                         // 材质
@@ -81,8 +83,8 @@ type ProductOldListReq struct {
 }
 
 type ProductOldInfoReq struct {
-	Id   string `json:"id"`   // 产品ID
-	Code string `json:"code"` // 产品编码
+	Id   string `json:"id"`   // ID
+	Code string `json:"code"` // 条码
 }
 
 func (r *ProductOldInfoReq) Validate() error {
@@ -94,7 +96,7 @@ func (r *ProductOldInfoReq) Validate() error {
 }
 
 type ProductOldUpdateReq struct {
-	Id string `json:"id" binding:"required"` // 产品ID
+	Id string `json:"id" binding:"required"` // ID
 	ProductOldWhere
 }
 

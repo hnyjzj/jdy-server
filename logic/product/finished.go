@@ -133,10 +133,23 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 		}
 
 		data.Class = data.GetClass()
+		// 统一 code 大小写
+		if data.Code != "" {
+			data.Code = strings.ToUpper(data.Code)
+		}
+
+		// 若 code 发生变更，则同步更新旧料的 code_finished，保持关联一致
+		if data.Code != "" && data.Code != product.Code {
+			if err := tx.Model(&model.ProductOld{}).Where(&model.ProductOld{
+				CodeFinished: product.Code,
+			}).Update("code_finished", data.Code).Error; err != nil {
+				return errors.New("同步旧料成品条码失败")
+			}
+		}
 
 		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", product.Id).Omit(
-			"id", "created_at", "updated_at", "deleted_at",
-			"code", "status", "images", "store_id", "enter_id",
+			"id", "created_at", "deleted_at",
+			"status", "images", "store_id", "enter_id",
 		).Updates(&data).Error; err != nil {
 			return errors.New("更新成品信息失败")
 		}

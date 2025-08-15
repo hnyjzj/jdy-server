@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	letterBytes      = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	letterBytesUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
 // 随机字符串（字母数字）
@@ -17,6 +18,16 @@ func RandomAlphanumeric(length int) string {
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
+}
+
+// 随机字符串（字母数字大写）
+func RandomAlphanumericUpper(length int) string {
+	rand.Seed(uint64(time.Now().UnixNano()))
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = letterBytesUpper[rand.Intn(len(letterBytesUpper))]
 	}
 	return string(b)
 }

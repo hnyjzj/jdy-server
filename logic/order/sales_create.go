@@ -6,6 +6,7 @@ import (
 	"jdy/message"
 	"jdy/model"
 	"jdy/types"
+	"jdy/utils"
 	"log"
 	"strings"
 
@@ -330,7 +331,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	}
 
 	l.Order.Products = append(l.Order.Products, order_product)
-	l.Order.ProductAccessoriePrice = l.Order.ProductAccessoriePrice.Add(order_product.Accessorie.Price)
+	l.Order.ProductAccessoriePrice = l.Order.ProductAccessoriePrice.Add(order_product.Accessorie.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
 
 	// 判断库存
 	stock := accessory.Stock - p.Quantity
@@ -351,8 +352,8 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		return errors.New("配件记录添加失败")
 	}
 	// 计算总金额
-	l.Order.Price = l.Order.Price.Add(order_product.Accessorie.Price)
-	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Accessorie.Price)
+	l.Order.Price = l.Order.Price.Add(order_product.Accessorie.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
+	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Accessorie.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
 	l.Order.Integral = l.Order.Integral.Add(order_product.Accessorie.Integral)
 
 	return nil
@@ -422,7 +423,8 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
 	old := model.ProductOld{
-		Code:                    strings.ToUpper(p.Code),
+		Code:                    strings.ToUpper("JL" + utils.RandomAlphanumericUpper(8)),
+		CodeFinished:            strings.ToUpper(p.Code),
 		Name:                    p.Name,
 		LabelPrice:              p.LabelPrice,
 		Brand:                   p.Brand,

@@ -5,6 +5,7 @@ import (
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
+	"jdy/utils"
 	"strings"
 	"time"
 
@@ -161,14 +162,15 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				log.Action = enums.ProductActionReturn
 			}
 			var old model.ProductOld
-			if err := tx.Unscoped().Preload("Store").Where(&model.ProductOld{Code: strings.ToUpper(product.Code)}).First(&old).Error; err != nil {
+			if err := tx.Preload("Store").Where(&model.ProductOld{CodeFinished: strings.ToUpper(product.Code)}).First(&old).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("旧品不存在")
 				}
 			}
 
 			data := model.ProductOld{
-				Code:            strings.ToUpper(product.Code),
+				Code:            strings.ToUpper("JL" + utils.RandomAlphanumericUpper(8)),
+				CodeFinished:    strings.ToUpper(product.Code),
 				Name:            product.Name,
 				Status:          enums.ProductStatusNormal,
 				LabelPrice:      product.LabelPrice,

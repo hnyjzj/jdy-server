@@ -39,6 +39,7 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	// 获取列表
 	db = db.Order("created_at desc")
 	db = model.PageCondition(db, &req.PageReq)
+	db = product.Preloads(db)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取成品列表失败")
 	}
@@ -73,12 +74,14 @@ func (p *ProductFinishedLogic) Info(req *types.ProductFinishedInfoReq) (*model.P
 		product model.ProductFinished
 	)
 
-	if err := model.DB.
-		Where(model.ProductFinished{
-			Code: strings.ToUpper(req.Code),
-		}).
-		Preload("Store").
-		First(&product).Error; err != nil {
+	db := model.DB.Model(&model.ProductFinished{})
+
+	db = db.Where(model.ProductFinished{
+		Code: strings.ToUpper(req.Code),
+	})
+	db = product.Preloads(db)
+
+	if err := db.First(&product).Error; err != nil {
 		return nil, errors.New("获取成品信息失败")
 	}
 
@@ -91,13 +94,15 @@ func (p *ProductFinishedLogic) Retrieval(req *types.ProductFinishedRetrievalReq)
 		product model.ProductFinished
 	)
 
-	if err := model.DB.
-		Where(model.ProductFinished{
-			Code:    strings.ToUpper(req.Code),
-			StoreId: req.StoreId,
-		}).
-		Preload("Store").
-		First(&product).Error; err != nil {
+	db := model.DB.Model(&model.ProductFinished{})
+
+	db = db.Where(model.ProductFinished{
+		Code:    strings.ToUpper(req.Code),
+		StoreId: req.StoreId,
+	})
+	db = product.Preloads(db)
+
+	if err := db.First(&product).Error; err != nil {
 		return nil, errors.New("获取成品信息失败")
 	}
 

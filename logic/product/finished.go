@@ -97,9 +97,13 @@ func (p *ProductFinishedLogic) Retrieval(req *types.ProductFinishedRetrievalReq)
 	db := model.DB.Model(&model.ProductFinished{})
 
 	db = db.Where(model.ProductFinished{
-		Code:    strings.ToUpper(req.Code),
-		StoreId: req.StoreId,
+		Code: strings.ToUpper(req.Code),
 	})
+	if req.StoreId != "" {
+		db = db.Where(model.ProductFinished{
+			StoreId: req.StoreId,
+		})
+	}
 	db = product.Preloads(db)
 
 	if err := db.First(&product).Error; err != nil {

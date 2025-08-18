@@ -12,7 +12,7 @@ type ProductFinishedBatchController struct {
 	ProductFinishedController
 }
 
-// 更新商品信息
+// 批量更新
 func (con ProductFinishedBatchController) Update(ctx *gin.Context) {
 	var (
 		req types.ProductFinishedUpdatesReq
@@ -52,7 +52,7 @@ func (con ProductFinishedBatchController) Update(ctx *gin.Context) {
 	con.Success(ctx, "ok", nil)
 }
 
-// 更新商品信息
+// 批量更新条码
 func (con ProductFinishedBatchController) UpdateCode(ctx *gin.Context) {
 	var (
 		req types.ProductFinishedUpdateCodeReq
@@ -84,4 +84,39 @@ func (con ProductFinishedBatchController) UpdateCode(ctx *gin.Context) {
 	}
 
 	con.Success(ctx, "ok", nil)
+}
+
+// 批量查找条码
+func (con ProductFinishedBatchController) FindCode(ctx *gin.Context) {
+	var (
+		req types.ProductFinishedFindCodeReq
+
+		logic = product.ProductFinishedBatchLogic{
+			ProductFinishedLogic: product.ProductFinishedLogic{
+				Ctx: ctx,
+			},
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	res, err := logic.FindCode(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
 }

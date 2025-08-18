@@ -15,7 +15,7 @@ type ProductFinishedBatchLogic struct {
 	ProductFinishedLogic
 }
 
-// 批量更新成品信息
+// 批量更新
 func (p *ProductFinishedBatchLogic) Update(req *types.ProductFinishedUpdatesReq) error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		for _, r := range req.Data {
@@ -70,7 +70,7 @@ func (p *ProductFinishedBatchLogic) Update(req *types.ProductFinishedUpdatesReq)
 	return nil
 }
 
-// 批量更新成品信息
+// 批量更新条码
 func (p *ProductFinishedBatchLogic) UpdateCode(req *types.ProductFinishedUpdateCodeReq) error {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 验证成品信息
@@ -111,4 +111,25 @@ func (p *ProductFinishedBatchLogic) UpdateCode(req *types.ProductFinishedUpdateC
 	}
 
 	return nil
+}
+
+// 批量查找条码
+func (p *ProductFinishedBatchLogic) FindCode(req *types.ProductFinishedFindCodeReq) ([]model.ProductFinished, error) {
+	var (
+		products []model.ProductFinished
+
+		db = model.DB.Model(&model.ProductFinished{})
+	)
+
+	if len(req.Codes) <= 0 {
+		return nil, errors.New("请输入条码")
+	}
+
+	db = db.Where("code IN (?)", req.Codes)
+	db = model.ProductFinished{}.Preloads(db)
+	if err := db.Find(&products).Error; err != nil {
+		return nil, errors.New("查找条码失败")
+	}
+
+	return products, nil
 }

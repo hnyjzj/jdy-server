@@ -105,3 +105,7 @@ type ProductFinishedUploadReq struct {
 	Id     string   `json:"id" binding:"required"`     // ID
 	Images []string `json:"images" binding:"required"` // 图片
 }
+
+type ProductFinishedFindCodeReq struct {
+	Codes []string `json:"codes" binding:"required"` // 条码
+}

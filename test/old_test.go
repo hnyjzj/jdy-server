@@ -23,13 +23,13 @@ func TestOldCreateCode(t *testing.T) {
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Unscoped().Where("code = '' or code is null or code = ' '").Find(&olds).Error; err != nil {
 			t.Error(err)
+			return err
 		}
 
 		for _, old := range olds {
-			t.Log(old.Id)
-
 			if err := tx.Unscoped().Model(&model.ProductOld{}).Where("id = ?", old.Id).Update("code", strings.ToUpper("JL"+utils.RandomCode(8))).Error; err != nil {
 				t.Error(err)
+				return err
 			}
 		}
 

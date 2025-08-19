@@ -58,12 +58,6 @@ func (M *BaseMessage) SendProductAccessorieAllocateCreateMessage(req *ProductAcc
 					Keyname: "目标门店",
 					Value:   req.ProductAccessorieAllocate.ToStore.Name,
 				},
-				{
-					Type:    3,
-					Keyname: "操作人",
-					Value:   req.ProductAccessorieAllocate.Operator.Nickname,
-					UserID:  req.ProductAccessorieAllocate.Operator.Username,
-				},
 			},
 			CardAction: &request.TemplateCardAction{
 				Type: 1,
@@ -133,12 +127,6 @@ func (M *BaseMessage) SendProductAccessorieAllocateCancelMessage(req *ProductAcc
 					Keyname: "目标门店",
 					Value:   req.ProductAccessorieAllocate.ToStore.Name,
 				},
-				{
-					Type:    3,
-					Keyname: "操作人",
-					Value:   req.ProductAccessorieAllocate.Operator.Nickname,
-					UserID:  req.ProductAccessorieAllocate.Operator.Username,
-				},
 			},
 			CardAction: &request.TemplateCardAction{
 				Type: 1,
@@ -207,12 +195,6 @@ func (M *BaseMessage) SendProductAccessorieAllocateCompleteMessage(req *ProductA
 					Type:    0,
 					Keyname: "目标门店",
 					Value:   req.ProductAccessorieAllocate.ToStore.Name,
-				},
-				{
-					Type:    3,
-					Keyname: "操作人",
-					Value:   req.ProductAccessorieAllocate.Operator.Nickname,
-					UserID:  req.ProductAccessorieAllocate.Operator.Username,
 				},
 			},
 			CardAction: &request.TemplateCardAction{

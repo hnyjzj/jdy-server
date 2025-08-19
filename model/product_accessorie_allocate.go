@@ -28,9 +28,17 @@ type ProductAccessorieAllocate struct {
 	ProductCount int64                              `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类数;"`       // 入库种类数
 	ProductTotal int64                              `json:"product_total" gorm:"type:int(11);not NULL;comment:入库总件数;"`       // 入库总件数
 
-	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);NULL;comment:操作人ID;"`         // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
-	IP         string `json:"-" gorm:"type:varchar(255);not NULL;comment:IP;"`                  // IP
+	IP         string `json:"-" gorm:"type:varchar(255);NULL;comment:IP;"`                      // IP
+
+	InitiatorId string `json:"initiator_id" gorm:"type:varchar(255);NULL;comment:发起人ID;"`          // 发起人ID
+	InitiatorIP string `json:"initiator_ip" gorm:"type:varchar(255);NULL;comment:发起人IP;"`          // 发起人IP
+	Initiator   *Staff `json:"initiator" gorm:"foreignKey:InitiatorId;references:Id;comment:发起人;"` // 发起人
+
+	ReceiverId string `json:"receiver_id" gorm:"type:varchar(255);NULL;comment:接收人ID;"`         // 接收人ID
+	ReceiverIP string `json:"receiver_ip" gorm:"type:varchar(255);NULL;comment:接收人IP;"`         // 接收人IP
+	Receiver   *Staff `json:"receiver" gorm:"foreignKey:ReceiverId;references:Id;comment:接收人;"` // 接收人
 }
 
 func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.ProductAccessorieAllocateWhere) *gorm.DB {
@@ -70,7 +78,6 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 
 func (ProductAccessorieAllocate) Preloads(db *gorm.DB, pages *types.PageReq) *gorm.DB {
 	db = db.Preload("FromStore").Preload("ToStore").Preload("ToRegion")
-	db = db.Preload("Operator")
 	if pages != nil {
 		db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx
@@ -82,6 +89,8 @@ func (ProductAccessorieAllocate) Preloads(db *gorm.DB, pages *types.PageReq) *go
 		})
 	}
 	db = db.Preload("Operator")
+	db = db.Preload("Initiator")
+	db = db.Preload("Receiver")
 
 	return db
 }

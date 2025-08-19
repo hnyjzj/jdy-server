@@ -36,11 +36,11 @@ type ProductAllocate struct {
 	IP         string `json:"-" gorm:"type:varchar(255);NULL;comment:IP;"`                      // IP
 
 	InitiatorId string `json:"initiator_id" gorm:"type:varchar(255);NULL;comment:发起人ID;"`          // 发起人ID
-	InitiatorIP string `json:"initiator_ip" gorm:"type:varchar(255);NULL;comment:发起人IP;"`          // 发起人IP
+	InitiatorIP string `json:"-" gorm:"type:varchar(255);NULL;comment:发起人IP;"`                     // 发起人IP
 	Initiator   *Staff `json:"initiator" gorm:"foreignKey:InitiatorId;references:Id;comment:发起人;"` // 发起人
 
 	ReceiverId string `json:"receiver_id" gorm:"type:varchar(255);NULL;comment:接收人ID;"`         // 接收人ID
-	ReceiverIP string `json:"receiver_ip" gorm:"type:varchar(255);NULL;comment:接收人IP;"`         // 接收人IP
+	ReceiverIP string `json:"-" gorm:"type:varchar(255);NULL;comment:接收人IP;"`                   // 接收人IP
 	Receiver   *Staff `json:"receiver" gorm:"foreignKey:ReceiverId;references:Id;comment:接收人;"` // 接收人
 }
 
@@ -74,6 +74,12 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 	}
 	if query.StoreId != "" {
 		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
+	}
+	if query.InitiatorId != "" {
+		db = db.Where("initiator_id = ?", query.InitiatorId)
+	}
+	if query.ReceiverId != "" {
+		db = db.Where("receiver_id = ?", query.ReceiverId)
 	}
 
 	return db

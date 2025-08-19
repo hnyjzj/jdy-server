@@ -35,8 +35,8 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 
 			FromStoreId: req.FromStoreId,
 
-			OperatorId: l.Staff.Id,
-			IP:         l.Ctx.ClientIP(),
+			InitiatorId: l.Staff.Id,
+			InitiatorIP: l.Ctx.ClientIP(),
 		}
 		// 如果是调拨到门店，则添加门店ID
 		if req.Method == enums.ProductAllocateMethodStore {
@@ -490,7 +490,9 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusOnTheWay
 		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAllocate{
-			Status: enums.ProductAllocateStatusOnTheWay,
+			Status:      enums.ProductAllocateStatusOnTheWay,
+			InitiatorId: p.Staff.Id,
+			InitiatorIP: p.Ctx.ClientIP(),
 		}).Error; err != nil {
 			return errors.New("确认调拨失败")
 		}
@@ -503,7 +505,6 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 
 	go func() {
 		msg := message.NewMessage(p.Ctx)
-		allocate.Operator = p.Staff
 		msg.SendProductAllocateCreateMessage(&message.ProductAllocateMessage{
 			ProductAllocate: &allocate,
 		})
@@ -534,7 +535,11 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 取消调拨
 		allocate.Status = enums.ProductAllocateStatusCancelled
-		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Update("status", enums.ProductAllocateStatusCancelled).Error; err != nil {
+		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAllocate{
+			Status:     enums.ProductAllocateStatusCancelled,
+			ReceiverId: p.Staff.Id,
+			ReceiverIP: p.Ctx.ClientIP(),
+		}).Error; err != nil {
 			return errors.New("取消调拨失败")
 		}
 		// 解锁产品
@@ -569,7 +574,6 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 
 	go func() {
 		msg := message.NewMessage(p.Ctx)
-		allocate.Operator = p.Staff
 		msg.SendProductAllocateCancelMessage(&message.ProductAllocateMessage{
 			ProductAllocate: &allocate,
 		})
@@ -691,7 +695,9 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 		// 确认调拨
 		allocate.Status = enums.ProductAllocateStatusCompleted
 		if err := tx.Model(&model.ProductAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAllocate{
-			Status: enums.ProductAllocateStatusCompleted,
+			Status:     enums.ProductAllocateStatusCompleted,
+			ReceiverId: p.Staff.Id,
+			ReceiverIP: p.Ctx.ClientIP(),
 		}).Error; err != nil {
 			return errors.New("调拨失败")
 		}
@@ -704,7 +710,6 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 
 	go func() {
 		msg := message.NewMessage(p.Ctx)
-		allocate.Operator = p.Staff
 		msg.SendProductAllocateCompleteMessage(&message.ProductAllocateMessage{
 			ProductAllocate: &allocate,
 		})

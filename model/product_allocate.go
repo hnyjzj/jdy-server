@@ -31,9 +31,17 @@ type ProductAllocate struct {
 	ProductTotalLabelPrice  decimal.Decimal `json:"product_total_label_price" gorm:"type:decimal(10,2);not NULL;comment:总标签价;"` // 总标签价
 	ProductTotalAccessFee   decimal.Decimal `json:"product_total_access_fee" gorm:"type:decimal(10,2);not NULL;comment:总加工费;"`  // 总加工费
 
-	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
+	OperatorId string `json:"operator_id" gorm:"type:varchar(255);NULL;comment:操作人ID;"`         // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
-	IP         string `json:"-" gorm:"type:varchar(255);not NULL;comment:IP;"`                  // IP
+	IP         string `json:"-" gorm:"type:varchar(255);NULL;comment:IP;"`                      // IP
+
+	InitiatorId string `json:"initiator_id" gorm:"type:varchar(255);NULL;comment:发起人ID;"`          // 发起人ID
+	InitiatorIP string `json:"-" gorm:"type:varchar(255);NULL;comment:发起人IP;"`                     // 发起人IP
+	Initiator   *Staff `json:"initiator" gorm:"foreignKey:InitiatorId;references:Id;comment:发起人;"` // 发起人
+
+	ReceiverId string `json:"receiver_id" gorm:"type:varchar(255);NULL;comment:接收人ID;"`         // 接收人ID
+	ReceiverIP string `json:"-" gorm:"type:varchar(255);NULL;comment:接收人IP;"`                   // 接收人IP
+	Receiver   *Staff `json:"receiver" gorm:"foreignKey:ReceiverId;references:Id;comment:接收人;"` // 接收人
 }
 
 func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateWhere) *gorm.DB {
@@ -67,6 +75,12 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 	if query.StoreId != "" {
 		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
 	}
+	if query.InitiatorId != "" {
+		db = db.Where("initiator_id = ?", query.InitiatorId)
+	}
+	if query.ReceiverId != "" {
+		db = db.Where("receiver_id = ?", query.ReceiverId)
+	}
 
 	return db
 }
@@ -75,6 +89,8 @@ func (ProductAllocate) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("FromStore")
 	db = db.Preload("ToStore")
 	db = db.Preload("Operator")
+	db = db.Preload("Initiator")
+	db = db.Preload("Receiver")
 
 	return db
 }

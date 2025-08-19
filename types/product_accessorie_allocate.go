@@ -43,6 +43,9 @@ type ProductAccessorieAllocateWhere struct {
 	StoreId string `json:"store_id" label:"门店ID" input:"search" type:"string" find:"false" info:"false" sort:"10" required:"false"` // 门店ID
 
 	CreatedAt string `json:"created_at" label:"创建时间" info:"true" sort:"11" type:"date"` // 创建时间
+
+	InitiatorId string `json:"initiator_id" label:"发起人" input:"search" type:"string" find:"true" info:"true" sort:"12" required:"false"` // 发起人
+	ReceiverId  string `json:"receiver_id" label:"接收人" input:"search" type:"string" find:"true" info:"true" sort:"13" required:"false"`  // 接收人
 }
 
 type ProductAccessorieAllocateListReq struct {

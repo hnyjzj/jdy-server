@@ -56,6 +56,10 @@ type ProductAllocateListReq struct {
 	Where ProductAllocateWhere `json:"where"`
 }
 
+type ProductAllocateDetailsReq struct {
+	Where ProductAllocateWhere `json:"where"`
+}
+
 type ProductAllocateInfoReq struct {
 	PageReq
 	Id string `json:"id" binding:"required"`

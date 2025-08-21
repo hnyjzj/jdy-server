@@ -87,6 +87,37 @@ func (l *ProductAccessorieAllocateLogic) List(req *types.ProductAccessorieAlloca
 	return &res, nil
 }
 
+// 获取配件调拨单明细
+func (l *ProductAccessorieAllocateLogic) Details(req *types.ProductAccessorieAllocateDetailsReq) (*[]model.ProductAccessorieAllocate, error) {
+	var (
+		allocates []model.ProductAccessorieAllocate
+
+		res []model.ProductAccessorieAllocate
+	)
+
+	db := model.DB.Model(&allocates)
+	db = model.ProductAccessorieAllocate{}.WhereCondition(db, &req.Where)
+
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = model.ProductAccessorieAllocate{}.Preloads(db, nil)
+	db = db.Preload("Products")
+	if err := db.Find(&allocates).Error; err != nil {
+		return nil, errors.New("获取调拨单列表失败")
+	}
+
+	for _, a := range allocates {
+		for _, p := range a.Products {
+			a.Product = p
+			// 明细展开后不再需要整批产品，避免重复数据与响应体过大
+			a.Products = nil
+			res = append(res, a)
+		}
+	}
+
+	return &res, nil
+}
+
 // 获取配件调拨单详情
 func (l *ProductAccessorieAllocateLogic) Info(req *types.ProductAccessorieAllocateInfoReq) (*model.ProductAccessorieAllocate, error) {
 	var (

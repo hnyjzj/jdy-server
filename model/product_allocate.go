@@ -25,6 +25,7 @@ type ProductAllocate struct {
 
 	ProductFinisheds []ProductFinished `json:"product_finisheds" gorm:"many2many:product_allocate_finished_products;comment:成品;"` // 成品
 	ProductOlds      []ProductOld      `json:"product_olds" gorm:"many2many:product_allocate_old_products;comment:旧料;"`           // 旧料
+	Product          any               `json:"product" gorm:"-"`                                                                  // 产品
 
 	ProductCount            int64           `json:"product_count" gorm:"type:int(11);not NULL;comment:数量;"`                     // 数量
 	ProductTotalWeightMetal decimal.Decimal `json:"product_total_weight_metal" gorm:"type:decimal(15,4);not NULL;comment:总重;"`  // 总重

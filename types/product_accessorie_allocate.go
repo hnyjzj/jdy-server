@@ -53,6 +53,10 @@ type ProductAccessorieAllocateListReq struct {
 	Where ProductAccessorieAllocateWhere `json:"where"`
 }
 
+type ProductAccessorieAllocateDetailsReq struct {
+	Where ProductAccessorieAllocateWhere `json:"where"`
+}
+
 type ProductAccessorieAllocateInfoReq struct {
 	PageReq
 	Id string `json:"id" binding:"required"` // 调拨单ID

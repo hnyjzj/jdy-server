@@ -141,6 +141,38 @@ func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.P
 	return &res, nil
 }
 
+// 获取产品调拨单明细列表
+func (p *ProductAllocateLogic) Details(req *types.ProductAllocateDetailsReq) (*[]model.ProductAllocate, error) {
+	var (
+		allocates []model.ProductAllocate
+		res       []model.ProductAllocate
+	)
+
+	db := model.DB.Model(&allocates)
+	db = model.ProductAllocate{}.WhereCondition(db, &req.Where)
+
+	// 获取列表
+	db = model.ProductAllocate{}.Preloads(db)
+	db = db.Order("created_at desc")
+	db = db.Preload("ProductFinisheds.Store").Preload("ProductOlds.Store")
+	if err := db.Find(&allocates).Error; err != nil {
+		return nil, errors.New("获取调拨单列表失败")
+	}
+
+	for _, a := range allocates {
+		for _, p := range a.ProductFinisheds {
+			a.Product = p
+			res = append(res, a)
+		}
+		for _, p := range a.ProductOlds {
+			a.Product = p
+			res = append(res, a)
+		}
+	}
+
+	return &res, nil
+}
+
 // 获取产品调拨单详情
 func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.ProductAllocate, error) {
 	var (

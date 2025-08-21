@@ -24,6 +24,7 @@ type ProductAccessorieAllocate struct {
 	ToRegionId  string  `json:"to_region_id" gorm:"type:varchar(255);comment:调入区域;"` // 调入区域
 	ToRegion    *Region `json:"to_region" gorm:"foreignKey:ToRegionId;references:Id;comment:调入区域;"`
 
+	Product      ProductAccessorieAllocateProduct   `json:"product" gorm:"-"`
 	Products     []ProductAccessorieAllocateProduct `json:"products" gorm:"foreignKey:AllocateId;references:Id;comment:产品;"` // 产品
 	ProductCount int64                              `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类数;"`       // 入库种类数
 	ProductTotal int64                              `json:"product_total" gorm:"type:int(11);not NULL;comment:入库总件数;"`       // 入库总件数

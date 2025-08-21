@@ -91,6 +91,44 @@ func (con ProductAccessorieAllocateController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 获取产品调拨单列表
+func (con ProductAccessorieAllocateController) Details(ctx *gin.Context) {
+	var (
+		req types.ProductAccessorieAllocateDetailsReq
+
+		logic = product.ProductAccessorieAllocateLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if req.Where.StartTime == nil || req.Where.EndTime == nil {
+		con.Exception(ctx, "请选择时间范围")
+		return
+	}
+
+	// 获取产品调拨单列表
+	res, err := logic.Details(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}
+
 // 获取产品调拨单详情
 func (con ProductAccessorieAllocateController) Info(ctx *gin.Context) {
 	var (

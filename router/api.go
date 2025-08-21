@@ -339,6 +339,7 @@ func Api(g *gin.Engine) {
 					{
 						allocate.POST("/create", product.ProductAccessorieAllocateController{}.Create)    // 创建调拨单
 						allocate.POST("/list", product.ProductAccessorieAllocateController{}.List)        // 调拨单列表
+						allocate.POST("/details", product.ProductAccessorieAllocateController{}.Details)  // 调拨单明细
 						allocate.POST("/info", product.ProductAccessorieAllocateController{}.Info)        // 调拨单详情
 						allocate.PUT("/add", product.ProductAccessorieAllocateController{}.Add)           // 添加产品
 						allocate.PUT("/remove", product.ProductAccessorieAllocateController{}.Remove)     // 移除产品
@@ -358,6 +359,7 @@ func Api(g *gin.Engine) {
 				{
 					allocate.POST("/create", product.ProductAllocateController{}.Create)    // 创建调拨单
 					allocate.POST("/list", product.ProductAllocateController{}.List)        // 调拨单列表
+					allocate.POST("/details", product.ProductAllocateController{}.Details)  // 调拨单明细
 					allocate.POST("/info", product.ProductAllocateController{}.Info)        // 调拨单详情
 					allocate.PUT("/add", product.ProductAllocateController{}.Add)           // 添加产品
 					allocate.DELETE("/remove", product.ProductAllocateController{}.Remove)  // 移除产品

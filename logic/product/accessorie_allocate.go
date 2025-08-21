@@ -29,8 +29,8 @@ func (l *ProductAccessorieAllocateLogic) Create(req *types.ProductAccessorieAllo
 
 			FromStoreId: req.FromStoreId,
 
-			OperatorId: l.Staff.Id,
-			IP:         l.Ctx.ClientIP(),
+			InitiatorId: l.Staff.Id,
+			InitiatorIP: l.Ctx.ClientIP(),
 		}
 
 		// 如果是调拨到门店，则添加门店ID
@@ -82,6 +82,37 @@ func (l *ProductAccessorieAllocateLogic) List(req *types.ProductAccessorieAlloca
 
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取调拨单列表失败")
+	}
+
+	return &res, nil
+}
+
+// 获取配件调拨单明细
+func (l *ProductAccessorieAllocateLogic) Details(req *types.ProductAccessorieAllocateDetailsReq) (*[]model.ProductAccessorieAllocate, error) {
+	var (
+		allocates []model.ProductAccessorieAllocate
+
+		res []model.ProductAccessorieAllocate
+	)
+
+	db := model.DB.Model(&allocates)
+	db = model.ProductAccessorieAllocate{}.WhereCondition(db, &req.Where)
+
+	// 获取列表
+	db = db.Order("created_at desc")
+	db = model.ProductAccessorieAllocate{}.Preloads(db, nil)
+	db = db.Preload("Products")
+	if err := db.Find(&allocates).Error; err != nil {
+		return nil, errors.New("获取调拨单列表失败")
+	}
+
+	for _, a := range allocates {
+		for _, p := range a.Products {
+			a.Product = p
+			// 明细展开后不再需要整批产品，避免重复数据与响应体过大
+			a.Products = nil
+			res = append(res, a)
+		}
 	}
 
 	return &res, nil
@@ -435,7 +466,9 @@ func (l *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 			allocate_status = enums.ProductAllocateStatusCompleted
 		}
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
-			Status: allocate_status,
+			Status:      allocate_status,
+			InitiatorId: l.Staff.Id,
+			InitiatorIP: l.Ctx.ClientIP(),
 		}).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
@@ -456,7 +489,6 @@ func (l *ProductAccessorieAllocateLogic) Confirm(req *types.ProductAccessorieAll
 
 	go func() {
 		msg := message.NewMessage(l.Ctx)
-		allocate.Operator = l.Staff
 		msg.SendProductAccessorieAllocateCreateMessage(&message.ProductAccessorieAllocateMessage{
 			ProductAccessorieAllocate: &allocate,
 		})
@@ -498,7 +530,9 @@ func (l *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 取消调拨
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
-			Status: enums.ProductAllocateStatusCancelled,
+			Status:     enums.ProductAllocateStatusCancelled,
+			ReceiverId: l.Staff.Id,
+			ReceiverIP: l.Ctx.ClientIP(),
 		}).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
@@ -559,7 +593,6 @@ func (l *ProductAccessorieAllocateLogic) Cancel(req *types.ProductAccessorieAllo
 			return
 		}
 		msg := message.NewMessage(l.Ctx)
-		allocate.Operator = l.Staff
 		msg.SendProductAccessorieAllocateCancelMessage(&message.ProductAccessorieAllocateMessage{
 			ProductAccessorieAllocate: &allocate,
 		})
@@ -589,7 +622,9 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 确认调拨
 		if err := tx.Model(&model.ProductAccessorieAllocate{}).Where("id = ?", allocate.Id).Updates(&model.ProductAccessorieAllocate{
-			Status: enums.ProductAllocateStatusCompleted,
+			Status:     enums.ProductAllocateStatusCompleted,
+			ReceiverId: l.Staff.Id,
+			ReceiverIP: l.Ctx.ClientIP(),
 		}).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
@@ -674,7 +709,6 @@ func (l *ProductAccessorieAllocateLogic) Complete(req *types.ProductAccessorieAl
 
 	go func() {
 		msg := message.NewMessage(l.Ctx)
-		allocate.Operator = l.Staff
 		msg.SendProductAccessorieAllocateCompleteMessage(&message.ProductAccessorieAllocateMessage{
 			ProductAccessorieAllocate: &allocate,
 		})

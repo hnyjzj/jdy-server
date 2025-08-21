@@ -38,6 +38,9 @@ type ProductAllocateWhere struct {
 	EndTime   *time.Time `json:"end_time" label:"结束时间" input:"date" type:"date" find:"true" sort:"9" required:"false"`   // 结束时间
 
 	StoreId string `json:"store_id" label:"门店" input:"search" type:"string" find:"false" sort:"10" required:"false"` // 门店
+
+	InitiatorId string `json:"initiator_id" label:"发起人" input:"search" type:"string" find:"true" sort:"11" required:"false"` // 发起人
+	ReceiverId  string `json:"receiver_id" label:"接收人" input:"search" type:"string" find:"true" sort:"12" required:"false"`  // 接收人
 }
 
 func (req *ProductAllocateWhere) Validate() error {
@@ -50,6 +53,10 @@ func (req *ProductAllocateWhere) Validate() error {
 
 type ProductAllocateListReq struct {
 	PageReq
+	Where ProductAllocateWhere `json:"where"`
+}
+
+type ProductAllocateDetailsReq struct {
 	Where ProductAllocateWhere `json:"where"`
 }
 

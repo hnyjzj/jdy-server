@@ -160,12 +160,16 @@ func (p *ProductAllocateLogic) Details(req *types.ProductAllocateDetailsReq) (*[
 	}
 
 	for _, a := range allocates {
-		for _, p := range a.ProductFinisheds {
-			a.Product = p
+		for _, pf := range a.ProductFinisheds {
+			a.Product = pf
+			a.ProductFinisheds = nil
+			a.ProductOlds = nil
 			res = append(res, a)
 		}
-		for _, p := range a.ProductOlds {
-			a.Product = p
+		for _, po := range a.ProductOlds {
+			a.Product = po
+			a.ProductFinisheds = nil
+			a.ProductOlds = nil
 			res = append(res, a)
 		}
 	}

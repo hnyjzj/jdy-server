@@ -109,6 +109,8 @@ func (l *ProductAccessorieAllocateLogic) Details(req *types.ProductAccessorieAll
 	for _, a := range allocates {
 		for _, p := range a.Products {
 			a.Product = p
+			// 明细展开后不再需要整批产品，避免重复数据与响应体过大
+			a.Products = nil
 			res = append(res, a)
 		}
 	}

@@ -88,6 +88,8 @@ func Api(g *gin.Engine) {
 		{
 			statistics.Use(middlewares.JWTMiddleware())
 			{
+				statistics.POST("/sales_detail_daily", statistic.StatisticController{}.SalesDetailDaily) // 销售明细日报
+
 				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales)     // 今日销售
 				statistics.POST("/today_product", statistic.StatisticController{}.TodayProduct) // 今日货品
 

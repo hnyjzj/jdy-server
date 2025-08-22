@@ -48,3 +48,7 @@ func (p ProductClassFinished) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductClassFinished) String() string {
+	return ProductClassFinishedMap[p]
+}

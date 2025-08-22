@@ -135,6 +135,12 @@ func (con ProductFinishedEnterController) AddProduct(ctx *gin.Context) {
 		return
 	}
 
+	// 校验参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return

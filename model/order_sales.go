@@ -37,7 +37,7 @@ type OrderSales struct {
 
 	Products []OrderSalesProduct `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:货品;"` // 货品
 
-	// 其他单
+	// 定金单
 	OrderDeposits []OrderDeposit  `json:"order_deposits" gorm:"many2many:order_sales_deposits;"`
 	PriceDeposit  decimal.Decimal `json:"price_deposit" gorm:"type:decimal(10,2);not NULL;comment:定金抵扣;"`
 
@@ -102,20 +102,20 @@ func (OrderSales) Preloads(db *gorm.DB) *gorm.DB {
 	})
 	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
 		tx = tx.Preload("Finished", func(tx1 *gorm.DB) *gorm.DB {
-			return tx1.Preload("Product")
+			return tx1.Unscoped().Preload("Product")
 		})
 		tx = tx.Preload("Old", func(tx1 *gorm.DB) *gorm.DB {
-			return tx1.Preload("Product")
+			return tx1.Unscoped().Preload("Product")
 		})
 		tx = tx.Preload("Accessorie", func(tx1 *gorm.DB) *gorm.DB {
-			return tx1.Preload("Product")
+			return tx1.Unscoped().Preload("Product")
 		})
 
 		return tx
 	})
 	db = db.Preload("OrderDeposits", func(tx1 *gorm.DB) *gorm.DB {
 		return tx1.Preload("Products", func(tx2 *gorm.DB) *gorm.DB {
-			return tx2.Preload("ProductFinished")
+			return tx2.Unscoped().Preload("ProductFinished")
 		})
 	})
 	db = db.Preload("Payments")
@@ -184,13 +184,13 @@ func (OrderSalesProduct) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Member")
 
 	db = db.Preload("Finished", func(tx1 *gorm.DB) *gorm.DB {
-		return tx1.Preload("Product")
+		return tx1.Unscoped().Preload("Product")
 	})
 	db = db.Preload("Old", func(tx1 *gorm.DB) *gorm.DB {
-		return tx1.Preload("Product")
+		return tx1.Unscoped().Preload("Product")
 	})
 	db = db.Preload("Accessorie", func(tx1 *gorm.DB) *gorm.DB {
-		return tx1.Preload("Product")
+		return tx1.Unscoped().Preload("Product")
 	})
 
 	return db
@@ -264,9 +264,10 @@ type OrderSalesProductAccessorie struct {
 	ProductId string            `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`              // 产品ID
 	Product   ProductAccessorie `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
-	Quantity int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`       // 数量
-	Price    decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`  // 应付金额
-	Integral decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"` // 积分
+	Quantity      int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`             // 数量
+	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"` // 原价
+	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`        // 应付金额
+	Integral      decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"`       // 积分
 }
 
 // 销售单导购员

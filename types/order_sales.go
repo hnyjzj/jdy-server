@@ -108,7 +108,7 @@ type OrderSalesCreateReqProductAccessorie struct {
 	ProductId string `json:"product_id" binding:"required"` // 商品ID
 
 	Quantity int64           `json:"quantity" binding:"required"` // 数量
-	Price    decimal.Decimal `json:"price" binding:"required"`    // 价格
+	Price    decimal.Decimal `json:"price" binding:"required"`    // 应付金额
 	Integral decimal.Decimal `json:"integral" binding:"required"` // 积分
 }
 

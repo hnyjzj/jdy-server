@@ -1,17 +1,16 @@
 package statistic
 
 import (
-	"jdy/enums"
 	"jdy/logic/statistic"
 	"jdy/types"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 门店销售统计
-func (con StatisticController) StoreSalesTotal(ctx *gin.Context) {
+// 销售明细日报
+func (con StatisticController) SalesDetailDaily(ctx *gin.Context) {
 	var (
-		req   types.StatisticStoreSalesTotalReq
+		req   types.StatisticSalesDetailDailyReq
 		logic = statistic.StatisticLogic{}
 	)
 
@@ -29,17 +28,11 @@ func (con StatisticController) StoreSalesTotal(ctx *gin.Context) {
 		logic.Staff = staff
 	}
 
-	if logic.Staff.Identity < enums.IdentityAreaManager {
-		con.Exception(ctx, "权限不足")
-		return
-	}
-
-	_, err := logic.StoreSalesTotal(&req)
+	res, err := logic.SalesDetailDaily(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
-	// con.Success(ctx, "ok", res)
-	con.Exception(ctx, "暂未开放")
+	con.Success(ctx, "ok", res)
 }

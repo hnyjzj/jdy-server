@@ -48,3 +48,7 @@ func (p ProductCraft) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductCraft) String() string {
+	return ProductCraftMap[p]
+}

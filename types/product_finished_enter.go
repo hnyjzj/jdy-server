@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"jdy/enums"
 	"time"
 
@@ -34,6 +35,16 @@ type ProductFinishedEnterInfoReq struct {
 type ProductFinishedEnterAddProductReq struct {
 	EnterId  string                           `json:"enter_id" binding:"required"` // 入库单ID
 	Products []ProductFinishedEnterReqProduct `json:"products" binding:"required"` // 商品信息
+}
+
+func (req *ProductFinishedEnterAddProductReq) Validate() error {
+	for _, product := range req.Products {
+		if err := product.Validate(); err != nil {
+			return errors.New(product.Code + "信息错误:" + err.Error())
+		}
+	}
+
+	return nil
 }
 
 type ProductFinishedEnterEditProductReq struct {
@@ -94,4 +105,45 @@ type ProductFinishedEnterReqProduct struct {
 	Certificate    []string `json:"certificate"`      // 证书
 
 	EnterTime *time.Time `json:"enter_time"` // 入库时间
+}
+
+func (req *ProductFinishedEnterReqProduct) Validate() error {
+	if req.Code == "" {
+		return errors.New("条码不能为空")
+	}
+	if req.Name == "" {
+		return errors.New("名称不能为空")
+	}
+	if req.AccessFee == nil {
+		return errors.New("入网费不能为空")
+	}
+	if req.LabelPrice == nil {
+		return errors.New("标签价不能为空")
+	}
+	if req.LaborFee == nil {
+		return errors.New("工费不能为空")
+	}
+	if req.WeightMetal == nil {
+		return errors.New("金重不能为空")
+	}
+	if req.RetailType == 0 {
+		return errors.New("零售方式不能为空")
+	}
+	if req.Supplier == 0 {
+		return errors.New("供应商不能为空")
+	}
+	if req.Material == 0 {
+		return errors.New("材质不能为空")
+	}
+	if req.Quality == 0 {
+		return errors.New("成色不能为空")
+	}
+	if req.Gem == 0 {
+		return errors.New("主石不能为空")
+	}
+	if req.Category == 0 {
+		return errors.New("品类不能为空")
+	}
+
+	return nil
 }

@@ -323,7 +323,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 			ProductId:     old_product.Id,
 			Quantity:      p.Quantity,
 			Price:         p.Price,
-			PriceOriginal: accessory.Price,
+			PriceOriginal: accessory.Price.Mul(decimal.NewFromInt(p.Quantity)),
 		},
 	}
 

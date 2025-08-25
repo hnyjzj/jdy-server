@@ -64,7 +64,8 @@ type StatisticSalesDetailDailyFinishedSalesCraftsCategory struct {
 }
 
 type StatisticSalesDetailDailyAccessorieSales struct {
+	Received   decimal.Decimal `json:"received"`   // 实收
 	Receivable decimal.Decimal `json:"receivable"` // 应收
-	Price      decimal.Decimal `json:"price"`      // 标签价
+	Price      decimal.Decimal `json:"price"`      // 单价
 	Quantity   int64           `json:"quantity"`   // 件数
 }

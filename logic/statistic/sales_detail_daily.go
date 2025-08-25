@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -453,12 +454,14 @@ func (l *StatisticSalesDetailDailyLogic) getAccessorieSales() {
 			}
 
 			accessorie := res[name]
-			accessorie.Receivable = accessorie.Receivable.Add(product.Accessorie.Price)
+			accessorie.Received = accessorie.Received.Add(product.Accessorie.Price)
+			accessorie.Receivable = accessorie.Receivable.Add(product.Accessorie.Product.Price.Mul(decimal.NewFromInt(product.Accessorie.Quantity)))
 			accessorie.Price = accessorie.Price.Add(product.Accessorie.Product.Price)
 			accessorie.Quantity += product.Accessorie.Quantity
 
 			accessorieTotal := res[toolName]
-			accessorieTotal.Receivable = accessorieTotal.Receivable.Add(product.Accessorie.Price)
+			accessorieTotal.Received = accessorieTotal.Received.Add(product.Accessorie.Price)
+			accessorieTotal.Receivable = accessorieTotal.Receivable.Add(product.Accessorie.Product.Price.Mul(decimal.NewFromInt(product.Accessorie.Quantity)))
 			accessorieTotal.Price = accessorieTotal.Price.Add(product.Accessorie.Product.Price)
 			accessorieTotal.Quantity += product.Accessorie.Quantity
 			res[toolName] = accessorieTotal

@@ -267,7 +267,6 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 					}
 					payment := res[name]
 					payment.Income = payment.Income.Add(pay.Amount)
-					payment.Received = payment.Received.Add(payment.Income.Sub(payment.Expense))
 					res[name] = payment
 				}
 			}
@@ -281,7 +280,6 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 					}
 					payment := res[name]
 					payment.Income = payment.Income.Add(pay.Amount)
-					payment.Received = payment.Received.Add(payment.Income.Sub(payment.Expense))
 					res[name] = payment
 				}
 			}
@@ -298,7 +296,6 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 							}
 							payment := res[name]
 							payment.Income = payment.Income.Add(pay.Amount)
-							payment.Received = payment.Received.Add(payment.Income.Sub(payment.Expense))
 							res[name] = payment
 						}
 					}
@@ -312,7 +309,6 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 							}
 							payment := res[name]
 							payment.Expense = payment.Expense.Add(pay.Amount)
-							payment.Received = payment.Received.Add(payment.Income.Sub(payment.Expense))
 							res[name] = payment
 						}
 					}
@@ -325,12 +321,13 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 		Name: "汇总",
 	}
 	for n, i := range res {
+		i.Name = n
+		i.Received = i.Income.Sub(i.Expense)
+		l.resp.Payment = append(l.resp.Payment, i)
+
 		total.Income = total.Income.Add(i.Income)
 		total.Expense = total.Expense.Add(i.Expense)
 		total.Received = total.Received.Add(i.Received)
-
-		i.Name = n
-		l.resp.Payment = append(l.resp.Payment, i)
 	}
 
 	l.resp.PaymentTotal = total

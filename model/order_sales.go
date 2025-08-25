@@ -264,9 +264,10 @@ type OrderSalesProductAccessorie struct {
 	ProductId string            `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"`              // 产品ID
 	Product   ProductAccessorie `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
-	Quantity int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`       // 数量
-	Price    decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`  // 应付金额
-	Integral decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"` // 积分
+	Quantity      int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`             // 数量
+	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"` // 原价
+	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`        // 应付金额
+	Integral      decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"`       // 积分
 }
 
 // 销售单导购员

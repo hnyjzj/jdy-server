@@ -318,11 +318,12 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		Type:     enums.ProductTypeAccessorie,
 		MemberId: l.Order.MemberId,
 		Accessorie: model.OrderSalesProductAccessorie{
-			OrderId:   l.Order.Id,
-			StoreId:   l.Req.StoreId,
-			ProductId: old_product.Id,
-			Quantity:  p.Quantity,
-			Price:     p.Price,
+			OrderId:       l.Order.Id,
+			StoreId:       l.Req.StoreId,
+			ProductId:     old_product.Id,
+			Quantity:      p.Quantity,
+			Price:         p.Price,
+			PriceOriginal: accessory.Price,
 		},
 	}
 
@@ -331,7 +332,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	}
 
 	l.Order.Products = append(l.Order.Products, order_product)
-	l.Order.ProductAccessoriePrice = l.Order.ProductAccessoriePrice.Add(order_product.Accessorie.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
+	l.Order.ProductAccessoriePrice = l.Order.ProductAccessoriePrice.Add(order_product.Accessorie.Price)
 
 	// 判断库存
 	stock := accessory.Stock - p.Quantity
@@ -352,8 +353,8 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		return errors.New("配件记录添加失败")
 	}
 	// 计算总金额
-	l.Order.Price = l.Order.Price.Add(order_product.Accessorie.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
-	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Accessorie.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
+	l.Order.Price = l.Order.Price.Add(order_product.Accessorie.Price)
+	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(accessory.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
 	l.Order.Integral = l.Order.Integral.Add(order_product.Accessorie.Integral)
 
 	return nil

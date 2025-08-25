@@ -35,17 +35,17 @@ type StatisticSalesDetailDailySummary struct {
 }
 
 type StatisticSalesDetailDailyItemized struct {
-	FinishedReceivable      decimal.Decimal `json:"finished_receivable"`          // 成品应收
-	FinishedQuantity        int64           `json:"finished_quantity"`            // 成品件数
-	DepositDeduction        decimal.Decimal `json:"deposit_deduction"`            // 定金抵扣
-	OldDeduction            decimal.Decimal `json:"old_deduction"`                // 旧料抵扣
-	OldQuantity             int64           `json:"old_quantity"`                 // 旧料件数
-	OldWeightMetal          decimal.Decimal `json:"old_weight_metal"`             // 旧料金重
-	OldToFnishedQuantity    int64           `json:"old_to_finished_quantity"`     // 旧料转成品件数
-	OldToFnishedDeduction   decimal.Decimal `json:"old_to_finished_deduction"`    // 旧料转成品抵扣
-	OldToFnishedWeightMetal decimal.Decimal `json:"old_to_finished_weight_metal"` // 旧料转成品金重
-	AccessoriePrice         decimal.Decimal `json:"accessorie_price"`             // 配件金额
-	AccessorieQuantity      int64           `json:"accessorie_quantity"`          // 配件件数
+	FinishedReceivable       decimal.Decimal `json:"finished_receivable"`          // 成品应收
+	FinishedQuantity         int64           `json:"finished_quantity"`            // 成品件数
+	DepositDeduction         decimal.Decimal `json:"deposit_deduction"`            // 定金抵扣
+	OldDeduction             decimal.Decimal `json:"old_deduction"`                // 旧料抵扣
+	OldQuantity              int64           `json:"old_quantity"`                 // 旧料件数
+	OldWeightMetal           decimal.Decimal `json:"old_weight_metal"`             // 旧料金重
+	OldToFinishedQuantity    int64           `json:"old_to_finished_quantity"`     // 旧料转成品件数
+	OldToFinishedDeduction   decimal.Decimal `json:"old_to_finished_deduction"`    // 旧料转成品抵扣
+	OldToFinishedWeightMetal decimal.Decimal `json:"old_to_finished_weight_metal"` // 旧料转成品金重
+	AccessoriePrice          decimal.Decimal `json:"accessorie_price"`             // 配件金额
+	AccessorieQuantity       int64           `json:"accessorie_quantity"`          // 配件件数
 }
 
 type StatisticSalesDetailDailyPayment struct {

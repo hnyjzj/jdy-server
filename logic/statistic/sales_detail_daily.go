@@ -6,6 +6,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"log"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -81,6 +82,11 @@ func (l *StatisticSalesDetailDailyLogic) getOrderSales() error {
 	}
 
 	db = model.OrderSales{}.Preloads(db)
+	db = db.Where("status in (?)", []enums.OrderSalesStatus{
+		enums.OrderSalesStatusComplete,
+		enums.OrderSalesStatusRefund,
+		enums.OrderSalesStatusReturn,
+	})
 
 	if err := db.Find(&l.OrderSales).Error; err != nil {
 		return err
@@ -108,6 +114,11 @@ func (l *StatisticSalesDetailDailyLogic) getOrderDeposit() error {
 	}
 
 	db = model.OrderDeposit{}.Preloads(db)
+	db = db.Where("status in (?)", []enums.OrderDepositStatus{
+		enums.OrderDepositStatusComplete,
+		enums.OrderDepositStatusRefund,
+		enums.OrderDepositStatusReturn,
+	})
 
 	if err := db.Find(&l.OrderDeposit).Error; err != nil {
 		return err
@@ -229,11 +240,11 @@ func (l *StatisticSalesDetailDailyLogic) getItemized() {
 					// 旧料转成品
 					if product.Old.Product.DeletedAt.Valid {
 						// 旧料转成品件数
-						res.OldToFnishedQuantity++
+						res.OldToFinishedQuantity++
 						// 旧料转成品金额
-						res.OldToFnishedDeduction = res.OldToFnishedDeduction.Add(product.Old.RecyclePrice)
+						res.OldToFinishedDeduction = res.OldToFinishedDeduction.Add(product.Old.RecyclePrice)
 						// 旧料转成品重量
-						res.OldToFnishedWeightMetal = res.OldToFnishedWeightMetal.Add(product.Old.WeightMetal)
+						res.OldToFinishedWeightMetal = res.OldToFinishedWeightMetal.Add(product.Old.WeightMetal)
 					}
 				}
 
@@ -343,12 +354,12 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
 				continue
 			}
 			// 大类
-			className := product.Finished.Product.Class.String()
-			if _, ok := res[className]; !ok {
-				res[className] = map[string]types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+			blockName := product.Finished.Product.Class.String()
+			if _, ok := res[blockName]; !ok {
+				res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
 			}
 			// 块
-			block := res[className]
+			block := res[blockName]
 			// 行名
 			rowName := product.Finished.Product.Category.String() + product.Finished.Product.Craft.String()
 			if rowName == "" {
@@ -385,9 +396,36 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
 			block[rowName] = row
 			block[rowTotalName] = rowTotal
 
-			res[className] = block
+			res[blockName] = block
 		}
 	}
+
+	blockName := "汇总统计"
+	if _, ok := res[blockName]; !ok {
+		res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+	}
+	totalRow := res[blockName]
+	rowName := "合计"
+	if _, ok := totalRow[rowName]; !ok {
+		totalRow[rowName] = types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+	}
+	totalRowTotal := totalRow[rowName]
+	for ResblockName, block := range res {
+		if ResblockName == blockName {
+			continue
+		}
+		for name, row := range block {
+			if strings.Contains(name, rowName) {
+				totalRowTotal.Receivable = totalRowTotal.Receivable.Add(row.Receivable)
+				totalRowTotal.Price = totalRowTotal.Price.Add(row.Price)
+				totalRowTotal.WeightMetal = totalRowTotal.WeightMetal.Add(row.WeightMetal)
+				totalRowTotal.LaborFee = totalRowTotal.LaborFee.Add(row.LaborFee)
+				totalRowTotal.Quantity += row.Quantity
+			}
+		}
+	}
+	totalRow[rowName] = totalRowTotal
+	res[blockName] = totalRow
 
 	l.resp.FinishedSales = res
 }

@@ -34,7 +34,7 @@ func (ProductAccessorie) WhereCondition(db *gorm.DB, query *types.ProductAccesso
 		db = db.Where("store_id = ?", query.StoreId)
 	}
 	if query.Name != "" {
-		db = db.Where("name = ?", query.Name)
+		db = db.Where("name LIKE (?)", fmt.Sprintf("%%%s%%", query.Name))
 	}
 	if query.Type != 0 {
 		db = db.Where("type = ?", query.Type)

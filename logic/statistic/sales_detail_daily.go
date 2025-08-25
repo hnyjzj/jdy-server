@@ -67,14 +67,17 @@ func (l *StatisticSalesDetailDailyLogic) getOrderSales() error {
 
 	db := l.tx.Model(&model.OrderSales{})
 
+	if l.req.StoreId != "" {
+		db = db.Where("store_id = ?", l.req.StoreId)
+	}
+	if l.req.SalesmanId != "" {
+		db = db.Where("id in (select order_id from order_sales_clerks where salesman_id = ?)", l.req.SalesmanId)
+	}
 	if l.req.StartTime != nil {
 		db = db.Where("created_at >= ?", l.req.StartTime)
 	}
 	if l.req.EndTime != nil {
 		db = db.Where("created_at <= ?", l.req.EndTime)
-	}
-	if l.req.SalesmanId != "" {
-		db = db.Where("id in (select order_id from order_sales_clerks where salesman_id = ?)", l.req.SalesmanId)
 	}
 
 	db = model.OrderSales{}.Preloads(db)
@@ -91,14 +94,17 @@ func (l *StatisticSalesDetailDailyLogic) getOrderDeposit() error {
 
 	db := l.tx.Model(&model.OrderDeposit{})
 
+	if l.req.StoreId != "" {
+		db = db.Where("store_id = ?", l.req.StoreId)
+	}
+	if l.req.SalesmanId != "" {
+		db = db.Where(&model.OrderDeposit{ClerkId: l.req.SalesmanId})
+	}
 	if l.req.StartTime != nil {
 		db = db.Where("created_at >= ?", l.req.StartTime)
 	}
 	if l.req.EndTime != nil {
 		db = db.Where("created_at <= ?", l.req.EndTime)
-	}
-	if l.req.SalesmanId != "" {
-		db = db.Where(&model.OrderDeposit{ClerkId: l.req.SalesmanId})
 	}
 
 	db = model.OrderDeposit{}.Preloads(db)
@@ -115,14 +121,17 @@ func (l *StatisticSalesDetailDailyLogic) getOrderOther() error {
 
 	db := l.tx.Model(&model.OrderOther{})
 
+	if l.req.StoreId != "" {
+		db = db.Where("store_id = ?", l.req.StoreId)
+	}
+	if l.req.SalesmanId != "" {
+		db = db.Where(&model.OrderOther{ClerkId: l.req.SalesmanId})
+	}
 	if l.req.StartTime != nil {
 		db = db.Where("created_at >= ?", l.req.StartTime)
 	}
 	if l.req.EndTime != nil {
 		db = db.Where("created_at <= ?", l.req.EndTime)
-	}
-	if l.req.SalesmanId != "" {
-		db = db.Where(&model.OrderOther{ClerkId: l.req.SalesmanId})
 	}
 
 	db = model.OrderOther{}.Preloads(db)

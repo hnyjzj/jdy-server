@@ -420,12 +420,12 @@ func (l *StatisticSalesDetailDailyLogic) getAccessorieSales() {
 			accessorie := res[name]
 			accessorie.Receivable = accessorie.Receivable.Add(product.Accessorie.Price)
 			accessorie.Price = accessorie.Price.Add(product.Accessorie.Product.Price)
-			accessorie.Quantity++
+			accessorie.Quantity += product.Accessorie.Quantity
 
 			accessorieTotal := res[toolName]
 			accessorieTotal.Receivable = accessorieTotal.Receivable.Add(product.Accessorie.Price)
 			accessorieTotal.Price = accessorieTotal.Price.Add(product.Accessorie.Product.Price)
-			accessorieTotal.Quantity++
+			accessorieTotal.Quantity += product.Accessorie.Quantity
 			res[toolName] = accessorieTotal
 
 			res[name] = accessorie

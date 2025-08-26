@@ -48,3 +48,7 @@ func (p ProductQuality) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductQuality) String() string {
+	return ProductQualityMap[p]
+}

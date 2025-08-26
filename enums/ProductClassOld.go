@@ -36,3 +36,7 @@ func (p ProductClassOld) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductClassOld) String() string {
+	return ProductClassOldMap[p]
+}

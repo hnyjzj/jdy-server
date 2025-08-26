@@ -21,6 +21,7 @@ type StatisticSalesDetailDailyResp struct {
 	PaymentTotal StatisticSalesDetailDailyPayment   `json:"payment_total"` // 支付项汇总
 
 	FinishedSales   map[string]map[string]StatisticSalesDetailDailyFinishedSalesCraftsCategory `json:"finished_sales"`   // 成品销售
+	OldSales        map[string][]StatisticSalesDetailDailyOldSales                             `json:"old_sales"`        // 旧料销售
 	AccessorieSales map[string]StatisticSalesDetailDailyAccessorieSales                        `json:"accessorie_sales"` // 配件销售
 }
 
@@ -61,6 +62,20 @@ type StatisticSalesDetailDailyFinishedSalesCraftsCategory struct {
 	WeightMetal decimal.Decimal `json:"weight_metal"` // 金重
 	LaborFee    decimal.Decimal `json:"labor_fee"`    // 工费
 	Quantity    int64           `json:"quantity"`     // 件数
+}
+
+type StatisticSalesDetailDailyOldSales struct {
+	Name                  string           `json:"name"`                               // 名称
+	Deduction             decimal.Decimal  `json:"deduction"`                          // 抵值
+	WeightMetal           decimal.Decimal  `json:"weight_metal"`                       // 金重
+	WeightGem             decimal.Decimal  `json:"weight_gem"`                         // 主石重
+	Quantity              int64            `json:"quantity"`                           // 件数
+	LabelPrice            decimal.Decimal  `json:"label_price"`                        // 标签价
+	LaborFee              decimal.Decimal  `json:"labor_fee"`                          // 工费
+	ToFinishedDeduction   string           `json:"to_finished_deduction"`              // 转成品抵值
+	ToFinishedWeightMetal *decimal.Decimal `json:"to_finished_weight_metal,omitempty"` // 转成品金重
+	ToFinishedQuantity    *int64           `json:"to_finished_quantity,omitempty"`     // 转成品件数
+	SurplusWeight         *decimal.Decimal `json:"surplus_weight,omitempty"`           // 剩余金重
 }
 
 type StatisticSalesDetailDailyAccessorieSales struct {

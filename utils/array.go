@@ -13,3 +13,24 @@ func ArrayToString[T comparable](array []T, sep string) string {
 	}
 	return strings.Join(strs, sep)
 }
+
+// 在数组中查找指定元素，返回元素索引和指针
+func ArrayFind[T any](array []T, find func(item T) bool) (item T, index int, err error) {
+	if len(array) == 0 || array == nil {
+		return item, -1, fmt.Errorf("empty array")
+	}
+	for i, v := range array {
+		if find(v) {
+			return v, i, nil
+		}
+	}
+	return item, -1, fmt.Errorf("not found")
+}
+
+// 根据下标删除数组元素
+func ArrayDeleteOfIndex[T any](array []T, index int) []T {
+	if index < 0 || index >= len(array) || array == nil {
+		return array
+	}
+	return append(array[:index], array[index+1:]...)
+}

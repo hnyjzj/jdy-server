@@ -5,9 +5,11 @@ import (
 	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
+	"jdy/utils"
 	"log"
 	"strings"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -41,6 +43,7 @@ func (l *StatisticLogic) SalesDetailDaily(req *types.StatisticSalesDetailDailyRe
 		logic.getItemized()
 		logic.getPayment()
 		logic.getFinishedSales()
+		logic.getOldSales()
 		logic.getAccessorieSales()
 
 		return nil
@@ -428,6 +431,182 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
 	res[blockName] = totalRow
 
 	l.resp.FinishedSales = res
+}
+
+// 获取旧料销售
+func (l *StatisticSalesDetailDailyLogic) getOldSales() {
+	res := map[string][]types.StatisticSalesDetailDailyOldSales{}
+
+	for _, order := range l.OrderSales {
+		for _, product := range order.Products {
+			if product.Type != enums.ProductTypeOld {
+				continue
+			}
+			// 大类
+			blockName := product.Old.Product.RecycleMethod.String()
+			if _, ok := res[blockName]; !ok {
+				res[blockName] = []types.StatisticSalesDetailDailyOldSales{}
+			}
+			// 块
+			block := res[blockName]
+			if block == nil {
+				block = make([]types.StatisticSalesDetailDailyOldSales, 0)
+			}
+			// 行名
+			name := []string{
+				product.Old.Product.Material.String(),
+				product.Old.Product.Quality.String(),
+				product.Old.Product.Gem.String(),
+			}
+			// 行名
+			rowName := strings.Join(name, "")
+			if rowName == "" {
+				rowName = "其他"
+			}
+			// 统计行名
+			totalName := strings.Join(append([]string{
+				product.Old.Product.RecycleType.String(),
+			}, name...), "-")
+
+			// 行
+			row := types.StatisticSalesDetailDailyOldSales{
+				Name: rowName,
+			}
+			// 查找统计行
+			total, index, err := utils.ArrayFind(block, func(item types.StatisticSalesDetailDailyOldSales) bool {
+				return item.Name == totalName
+			})
+			// 如果没有找到统计行
+			if err != nil {
+				total = types.StatisticSalesDetailDailyOldSales{
+					Name: totalName,
+				}
+			} else {
+				// 如果找到了统计行,则删除统计行
+				block = utils.ArrayDeleteOfIndex(block, index)
+			}
+
+			// 抵值
+			row.Deduction = product.Old.RecyclePrice
+			total.Deduction = total.Deduction.Add(product.Old.RecyclePrice)
+			// 金重
+			row.WeightMetal = product.Old.Product.WeightMetal
+			total.WeightMetal = total.WeightMetal.Add(product.Old.Product.WeightMetal)
+			// 宝石重
+			row.WeightGem = product.Old.Product.WeightGem
+			total.WeightGem = total.WeightGem.Add(product.Old.Product.WeightGem)
+			// 件数
+			row.Quantity++
+			total.Quantity++
+			// 标签价
+			row.LabelPrice = product.Old.Product.LabelPrice
+			total.LabelPrice = total.LabelPrice.Add(product.Old.Product.LabelPrice)
+			// 工费
+			row.LaborFee = product.Old.Product.RecyclePriceLabor
+			total.LaborFee = total.LaborFee.Add(product.Old.Product.RecyclePriceLabor)
+			// 转成品抵值
+			row.ToFinishedDeduction = product.Old.Product.Code
+			total.ToFinishedDeduction = "0"
+			// 转成品金重
+			toFinishedWeightMetal := decimal.NewFromInt(0)
+			if total.ToFinishedWeightMetal == nil {
+				total.ToFinishedWeightMetal = &toFinishedWeightMetal
+			}
+			if product.Old.Product.DeletedAt.Valid {
+				toFinishedWeightMetal = total.ToFinishedWeightMetal.Add(product.Old.Product.WeightMetal)
+			}
+			total.ToFinishedWeightMetal = &toFinishedWeightMetal
+			// 转成品件数
+			var toFinishedQuantity int64 = 0
+			if total.ToFinishedQuantity == nil {
+				total.ToFinishedQuantity = &toFinishedQuantity
+			}
+			if product.Old.Product.DeletedAt.Valid {
+				toFinishedQuantity++
+			}
+			total.ToFinishedQuantity = &toFinishedQuantity
+			// 剩余金重
+			surplusWeight := decimal.NewFromInt(0)
+			if total.SurplusWeight == nil {
+				total.SurplusWeight = &surplusWeight
+			}
+			surplusWeight = total.SurplusWeight.Add(row.WeightMetal)
+			total.SurplusWeight = &surplusWeight
+
+			if index == -1 {
+				block = append(block, total)
+			} else {
+				// 将 block 放回原处
+				block = append(block[:index], append([]types.StatisticSalesDetailDailyOldSales{total}, block[index:]...)...)
+			}
+			block = append(block, row)
+
+			res[blockName] = block
+		}
+	}
+
+	blockName := "合计"
+	if _, ok := res[blockName]; !ok {
+		res[blockName] = []types.StatisticSalesDetailDailyOldSales{}
+	}
+	totalRow := res[blockName]
+	total := types.StatisticSalesDetailDailyOldSales{}
+	for ResblockName, block := range res {
+		if ResblockName == blockName {
+			continue
+		}
+		for _, row := range block {
+			if strings.Contains(row.Name, "-") {
+				total.Deduction = total.Deduction.Add(row.Deduction)
+				total.WeightMetal = total.WeightMetal.Add(row.WeightMetal)
+				total.WeightGem = total.WeightGem.Add(row.WeightGem)
+				total.Quantity += row.Quantity
+				total.LabelPrice = total.LabelPrice.Add(row.LabelPrice)
+				total.LaborFee = total.LaborFee.Add(row.LaborFee)
+
+				ToFinishedDeduction, err := decimal.NewFromString(total.ToFinishedDeduction)
+				if err != nil {
+					ToFinishedDeduction = decimal.NewFromInt(0)
+				}
+				toFinishedDeduction, err := decimal.NewFromString(row.ToFinishedDeduction)
+				if err != nil {
+					toFinishedDeduction = decimal.NewFromInt(0)
+				}
+				total.ToFinishedDeduction = ToFinishedDeduction.Add(toFinishedDeduction).String()
+
+				toFinishedWeightMetal := decimal.NewFromInt(0)
+				if total.ToFinishedWeightMetal == nil {
+					total.ToFinishedWeightMetal = &toFinishedWeightMetal
+				}
+				if row.ToFinishedWeightMetal != nil {
+					toFinishedWeightMetal = total.ToFinishedWeightMetal.Add(*row.ToFinishedWeightMetal)
+					total.ToFinishedWeightMetal = &toFinishedWeightMetal
+				}
+
+				var toFinishedQuantity int64 = 0
+				if total.ToFinishedQuantity == nil {
+					total.ToFinishedQuantity = &toFinishedQuantity
+				}
+				if row.ToFinishedQuantity != nil {
+					toFinishedQuantity = *total.ToFinishedQuantity + *row.ToFinishedQuantity
+					total.ToFinishedQuantity = &toFinishedQuantity
+				}
+
+				surplusWeight := decimal.NewFromInt(0)
+				if total.SurplusWeight == nil {
+					total.SurplusWeight = &surplusWeight
+				}
+				if row.SurplusWeight != nil {
+					surplusWeight = total.SurplusWeight.Add(*row.SurplusWeight)
+					total.SurplusWeight = &surplusWeight
+				}
+			}
+		}
+	}
+	totalRow = append(totalRow, total)
+	res[blockName] = totalRow
+
+	l.resp.OldSales = res
 }
 
 // 获取配件销售

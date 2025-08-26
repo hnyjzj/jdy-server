@@ -28,3 +28,7 @@ func (p ProductRecycleMethod) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductRecycleMethod) String() string {
+	return ProductRecycleMethodMap[p]
+}

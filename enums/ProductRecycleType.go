@@ -33,7 +33,7 @@ func (p ProductRecycleType) InMap() error {
 
 func (p ProductRecycleType) String() string {
 	if err := p.InMap(); err != nil {
-		return ProductRecycleTypeMap[ProductRecycleTypeRecycle]
+		return ProductRecycleTypeMap[ProductRecycleTypeNone]
 	}
 	return ProductRecycleTypeMap[p]
 }

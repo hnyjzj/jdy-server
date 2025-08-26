@@ -80,5 +80,8 @@
             "cases": [],
             "options": []
         }
+    },
+    "go.delveConfig": {
+        "debugAdapter": "legacy",
     }
 }

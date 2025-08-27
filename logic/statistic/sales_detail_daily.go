@@ -38,6 +38,10 @@ func (l *StatisticLogic) SalesDetailDaily(req *types.StatisticSalesDetailDailyRe
 			return err
 		}
 
+		if err := logic.getOrderRefund(); err != nil {
+			return err
+		}
+
 		// 开始统计
 		logic.getSummary()
 		logic.getItemized()
@@ -45,6 +49,7 @@ func (l *StatisticLogic) SalesDetailDaily(req *types.StatisticSalesDetailDailyRe
 		logic.getFinishedSales()
 		logic.getOldSales()
 		logic.getAccessorieSales()
+		logic.getFinishedSalesRefund()
 
 		return nil
 	}); err != nil {
@@ -64,6 +69,7 @@ type StatisticSalesDetailDailyLogic struct {
 	OrderSales   []model.OrderSales
 	OrderDeposit []model.OrderDeposit
 	OrderOther   []model.OrderOther
+	OrderRefund  []model.OrderRefund
 }
 
 // 获取销售单
@@ -157,6 +163,81 @@ func (l *StatisticSalesDetailDailyLogic) getOrderOther() error {
 	return nil
 }
 
+func (l *StatisticSalesDetailDailyLogic) getOrderRefund() error {
+	db := l.tx.Model(&model.OrderRefund{})
+
+	if l.req.StoreId != "" {
+		db = db.Where("store_id = ?", l.req.StoreId)
+	}
+	if l.req.StartTime != nil {
+		db = db.Where("created_at >= ?", l.req.StartTime)
+	}
+	if l.req.EndTime != nil {
+		db = db.Where("created_at <= ?", l.req.EndTime)
+	}
+
+	db = db.Where(&model.OrderRefund{
+		Type: enums.ProductTypeFinished,
+	})
+
+	if err := db.Find(&l.OrderRefund).Error; err != nil {
+		return err
+	}
+
+	for i, refund := range l.OrderRefund {
+		var order model.OrderSalesProduct
+		pdb := l.tx.Model(&model.OrderSalesProduct{})
+		switch refund.Type {
+		case enums.ProductTypeFinished:
+			{
+				pdb = pdb.Where(&model.OrderSalesProduct{
+					OrderId: refund.OrderId,
+					Type:    enums.ProductTypeFinished,
+					Code:    refund.Code,
+				})
+			}
+		case enums.ProductTypeOld:
+			{
+				pdb = pdb.Where(&model.OrderSalesProduct{
+					OrderId: refund.OrderId,
+					Type:    enums.ProductTypeOld,
+					Code:    refund.Code,
+				})
+			}
+		case enums.ProductTypeAccessorie:
+			{
+				pdb = pdb.Where(&model.OrderSalesProduct{
+					OrderId: refund.OrderId,
+					Type:    enums.ProductTypeAccessorie,
+					Name:    refund.Name,
+				})
+			}
+		}
+
+		pdb = order.Preloads(pdb)
+		if err := pdb.First(&order).Error; err != nil {
+			return err
+		}
+
+		switch refund.Type {
+		case enums.ProductTypeFinished:
+			{
+				l.OrderRefund[i].Product = order.Finished.Product
+			}
+		case enums.ProductTypeOld:
+			{
+				l.OrderRefund[i].Product = order.Old.Product
+			}
+		case enums.ProductTypeAccessorie:
+			{
+				l.OrderRefund[i].Product = order.Accessorie.Product
+			}
+		}
+	}
+
+	return nil
+}
+
 // 获取汇总项
 func (l *StatisticSalesDetailDailyLogic) getSummary() {
 	// 汇总
@@ -165,32 +246,13 @@ func (l *StatisticSalesDetailDailyLogic) getSummary() {
 	for _, order := range l.OrderSales {
 		// 销售应收
 		res.SalesReceivable = res.SalesReceivable.Add(order.Price)
-		// 退货
-		if order.Status == enums.OrderSalesStatusRefund {
-			for _, refund := range order.Products {
-				if refund.Status == enums.OrderSalesStatusRefund {
-					switch refund.Type {
-					case enums.ProductTypeFinished:
-						{
-							// 销售退款
-							res.SalesRefund = res.SalesRefund.Add(refund.Finished.Price)
-						}
-					case enums.ProductTypeOld:
-						{
-							// 销售退款
-							res.SalesRefund = res.SalesRefund.Add(refund.Old.RecyclePrice)
-						}
-					case enums.ProductTypeAccessorie:
-						{
-							// 销售退款
-							res.SalesRefund = res.SalesRefund.Add(refund.Accessorie.Price)
-						}
-					}
-				}
-			}
-		}
 		// 销售实收
 		res.SalesReceived = res.SalesReceived.Add(order.PricePay)
+	}
+
+	for _, order := range l.OrderRefund {
+		// 销售退款
+		res.SalesRefund = res.SalesRefund.Add(order.Price)
 	}
 
 	for _, order := range l.OrderDeposit {
@@ -349,7 +411,7 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 
 // 获取成品销售
 func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
-	res := map[string]map[string]types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+	res := map[string]map[string]types.StatisticSalesDetailDailyFinishedSales{}
 
 	for _, order := range l.OrderSales {
 		for _, product := range order.Products {
@@ -359,7 +421,7 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
 			// 大类
 			blockName := product.Finished.Product.Class.String()
 			if _, ok := res[blockName]; !ok {
-				res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+				res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSales{}
 			}
 			// 块
 			block := res[blockName]
@@ -371,10 +433,10 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
 			rowTotalName := product.Finished.Product.Craft.String() + "合计"
 
 			if _, ok := block[rowName]; !ok {
-				block[rowName] = types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+				block[rowName] = types.StatisticSalesDetailDailyFinishedSales{}
 			}
 			if _, ok := block[rowTotalName]; !ok {
-				block[rowTotalName] = types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+				block[rowTotalName] = types.StatisticSalesDetailDailyFinishedSales{}
 			}
 
 			row := block[rowName]
@@ -405,12 +467,12 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
 
 	blockName := "汇总统计"
 	if _, ok := res[blockName]; !ok {
-		res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+		res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSales{}
 	}
 	totalRow := res[blockName]
 	rowName := "合计"
 	if _, ok := totalRow[rowName]; !ok {
-		totalRow[rowName] = types.StatisticSalesDetailDailyFinishedSalesCraftsCategory{}
+		totalRow[rowName] = types.StatisticSalesDetailDailyFinishedSales{}
 	}
 	totalRowTotal := totalRow[rowName]
 	for ResblockName, block := range res {
@@ -650,4 +712,95 @@ func (l *StatisticSalesDetailDailyLogic) getAccessorieSales() {
 	}
 
 	l.resp.AccessorieSales = res
+}
+
+// 获取成品退货
+func (l *StatisticSalesDetailDailyLogic) getFinishedSalesRefund() {
+	res := map[string]map[string]types.StatisticSalesDetailDailyFinishedSalesRefund{}
+
+	for _, order := range l.OrderRefund {
+		if order.Type != enums.ProductTypeFinished {
+			continue
+		}
+
+		product, ok := order.Product.(model.ProductFinished)
+		if !ok {
+			log.Printf("order: %+v \n product: %+v", order, product)
+			continue
+		}
+
+		// 大类
+		blockName := product.Class.String()
+		if _, ok := res[blockName]; !ok {
+			res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSalesRefund{}
+		}
+		// 块
+		block := res[blockName]
+		// 行名
+		rowName := product.Category.String() + product.Craft.String()
+		if rowName == "" {
+			rowName = "其他"
+		}
+		rowTotalName := product.Craft.String() + "合计"
+
+		if _, ok := block[rowName]; !ok {
+			block[rowName] = types.StatisticSalesDetailDailyFinishedSalesRefund{}
+		}
+		if _, ok := block[rowTotalName]; !ok {
+			block[rowTotalName] = types.StatisticSalesDetailDailyFinishedSalesRefund{}
+		}
+
+		row := block[rowName]
+		rowTotal := block[rowTotalName]
+
+		// 退款
+		row.Refunded = row.Refunded.Add(order.Price)
+		rowTotal.Refunded = rowTotal.Refunded.Add(order.Price)
+		// 标签价
+		row.Price = row.Price.Add(product.LabelPrice)
+		rowTotal.Price = rowTotal.Price.Add(product.LabelPrice)
+		// 金重
+		row.WeightMetal = row.WeightMetal.Add(product.WeightMetal)
+		rowTotal.WeightMetal = rowTotal.WeightMetal.Add(product.WeightMetal)
+		// 工费
+		row.LaborFee = row.LaborFee.Add(product.LaborFee)
+		rowTotal.LaborFee = rowTotal.LaborFee.Add(product.LaborFee)
+		// 件数
+		row.Quantity++
+		rowTotal.Quantity++
+
+		block[rowName] = row
+		block[rowTotalName] = rowTotal
+
+		res[blockName] = block
+
+	}
+	blockName := "汇总统计"
+	if _, ok := res[blockName]; !ok {
+		res[blockName] = map[string]types.StatisticSalesDetailDailyFinishedSalesRefund{}
+	}
+	totalRow := res[blockName]
+	rowName := "合计"
+	if _, ok := totalRow[rowName]; !ok {
+		totalRow[rowName] = types.StatisticSalesDetailDailyFinishedSalesRefund{}
+	}
+	totalRowTotal := totalRow[rowName]
+	for ResblockName, block := range res {
+		if ResblockName == blockName {
+			continue
+		}
+		for name, row := range block {
+			if strings.Contains(name, rowName) {
+				totalRowTotal.Refunded = totalRowTotal.Refunded.Add(row.Refunded)
+				totalRowTotal.Price = totalRowTotal.Price.Add(row.Price)
+				totalRowTotal.WeightMetal = totalRowTotal.WeightMetal.Add(row.WeightMetal)
+				totalRowTotal.LaborFee = totalRowTotal.LaborFee.Add(row.LaborFee)
+				totalRowTotal.Quantity += row.Quantity
+			}
+		}
+	}
+	totalRow[rowName] = totalRowTotal
+	res[blockName] = totalRow
+
+	l.resp.FinishedSalesRefund = res
 }

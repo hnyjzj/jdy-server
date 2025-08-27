@@ -316,6 +316,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 		StoreId:  l.Req.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeAccessorie,
+		Name:     accessory.Name,
 		MemberId: l.Order.MemberId,
 		Accessorie: model.OrderSalesProductAccessorie{
 			OrderId:       l.Order.Id,

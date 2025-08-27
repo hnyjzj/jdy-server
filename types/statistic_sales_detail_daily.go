@@ -20,9 +20,10 @@ type StatisticSalesDetailDailyResp struct {
 	Payment      []StatisticSalesDetailDailyPayment `json:"payment"`       // 支付项
 	PaymentTotal StatisticSalesDetailDailyPayment   `json:"payment_total"` // 支付项汇总
 
-	FinishedSales   map[string]map[string]StatisticSalesDetailDailyFinishedSalesCraftsCategory `json:"finished_sales"`   // 成品销售
-	OldSales        map[string][]StatisticSalesDetailDailyOldSales                             `json:"old_sales"`        // 旧料销售
-	AccessorieSales map[string]StatisticSalesDetailDailyAccessorieSales                        `json:"accessorie_sales"` // 配件销售
+	FinishedSales       map[string]map[string]StatisticSalesDetailDailyFinishedSales       `json:"finished_sales"`        // 成品销售
+	OldSales            map[string][]StatisticSalesDetailDailyOldSales                     `json:"old_sales"`             // 旧料销售
+	AccessorieSales     map[string]StatisticSalesDetailDailyAccessorieSales                `json:"accessorie_sales"`      // 配件销售
+	FinishedSalesRefund map[string]map[string]StatisticSalesDetailDailyFinishedSalesRefund `json:"finished_sales_refund"` // 成品退货
 }
 
 type StatisticSalesDetailDailySummary struct {
@@ -56,7 +57,7 @@ type StatisticSalesDetailDailyPayment struct {
 	Received decimal.Decimal `json:"received"` // 实收
 }
 
-type StatisticSalesDetailDailyFinishedSalesCraftsCategory struct {
+type StatisticSalesDetailDailyFinishedSales struct {
 	Receivable  decimal.Decimal `json:"receivable"`   // 应收
 	Price       decimal.Decimal `json:"price"`        // 标签价
 	WeightMetal decimal.Decimal `json:"weight_metal"` // 金重
@@ -83,4 +84,12 @@ type StatisticSalesDetailDailyAccessorieSales struct {
 	Receivable decimal.Decimal `json:"receivable"` // 应收
 	Price      decimal.Decimal `json:"price"`      // 单价
 	Quantity   int64           `json:"quantity"`   // 件数
+}
+
+type StatisticSalesDetailDailyFinishedSalesRefund struct {
+	Refunded    decimal.Decimal `json:"refunded"`     // 退款
+	Price       decimal.Decimal `json:"price"`        // 标签价
+	WeightMetal decimal.Decimal `json:"weight_metal"` // 金重
+	LaborFee    decimal.Decimal `json:"labor_fee"`    // 工费
+	Quantity    int64           `json:"quantity"`     // 件数
 }

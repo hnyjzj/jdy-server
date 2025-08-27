@@ -139,6 +139,7 @@ type OrderSalesProduct struct {
 
 	Type enums.ProductType `json:"type" gorm:"type:int(11);not NULL;comment:类型;"`  // 类型
 	Code string            `json:"code" gorm:"type:varchar(255);NULL;comment:条码;"` // 条码
+	Name string            `json:"name" gorm:"type:varchar(255);NULL;comment:名称;"` // 名称
 
 	Finished   OrderSalesProductFinished   `json:"finished,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:成品;"`
 	Old        OrderSalesProductOld        `json:"old,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:旧料;"`

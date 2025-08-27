@@ -36,3 +36,7 @@ func (p ProductMaterial) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductMaterial) String() string {
+	return ProductMaterialMap[p]
+}

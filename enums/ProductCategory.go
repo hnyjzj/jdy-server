@@ -52,3 +52,7 @@ func (p ProductCategory) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductCategory) String() string {
+	return ProductCategoryMap[p]
+}

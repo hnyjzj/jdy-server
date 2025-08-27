@@ -30,3 +30,10 @@ func (p ProductRecycleType) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductRecycleType) String() string {
+	if err := p.InMap(); err != nil {
+		return ProductRecycleTypeMap[ProductRecycleTypeNone]
+	}
+	return ProductRecycleTypeMap[p]
+}

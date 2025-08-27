@@ -58,3 +58,7 @@ func (p ProductGem) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductGem) String() string {
+	return ProductGemMap[p]
+}

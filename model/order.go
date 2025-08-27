@@ -42,10 +42,11 @@ type OrderRefund struct {
 	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`             // 会员ID
 	Member   Member `json:"member,omitempty" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
 
-	Type   enums.ProductType `json:"type" gorm:"type:int(11);not NULL;comment:产品类型;"`      // 产品类型
-	Code   string            `json:"code" gorm:"type:varchar(255);not NULL;comment:条码;"`   // 条码
-	Name   string            `json:"name" gorm:"type:varchar(255);not NULL;comment:名称;"`   // 名称
-	Remark string            `json:"remark" gorm:"type:varchar(255);not NULL;comment:备注;"` // 备注
+	Type    enums.ProductType `json:"type" gorm:"type:int(11);not NULL;comment:产品类型;"`    // 产品类型
+	Code    string            `json:"code" gorm:"type:varchar(255);not NULL;comment:条码;"` // 条码
+	Product any               `json:"product,omitempty" gorm:"-"`
+	Name    string            `json:"name" gorm:"type:varchar(255);not NULL;comment:名称;"`   // 名称
+	Remark  string            `json:"remark" gorm:"type:varchar(255);not NULL;comment:备注;"` // 备注
 
 	Quantity      int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`              // 数量
 	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:实退金额;"`         // 实退金额

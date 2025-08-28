@@ -1,7 +1,6 @@
-package statistic
+package finished_stock
 
 import (
-	"errors"
 	"fmt"
 	"jdy/enums"
 	"jdy/logic/store"
@@ -11,67 +10,15 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type ProductInventoryFinishedTitle struct {
-	Title     string `json:"title"`
-	Key       string `json:"key"`
-	Width     string `json:"width"`
-	Fixed     string `json:"fixed"`
-	ClassName string `json:"className"`
-	Align     string `json:"align"`
-}
-
-func (l *StatisticLogic) ProductInventoryFinishedTitles() *[]ProductInventoryFinishedTitle {
-	var titles []ProductInventoryFinishedTitle
-	titles = append(titles, ProductInventoryFinishedTitle{
-		Title:     "门店",
-		Key:       "name",
-		Width:     "100px",
-		Fixed:     "left",
-		ClassName: "age",
-		Align:     "center",
-	})
-	titles = append(titles, ProductInventoryFinishedTitle{
-		Title: "总",
-		Key:   "total",
-		Width: "100px",
-		Fixed: "left",
-		Align: "center",
-	})
-
-	for k, v := range enums.ProductClassFinishedMap {
-		titles = append(titles, ProductInventoryFinishedTitle{
-			Title: v,
-			Key:   fmt.Sprint(k),
-			Width: "100px",
-			Align: "center",
-		})
-	}
-
-	return &titles
-}
-
-type ProductInventoryFinishedType int
-
-const (
-	ProductInventoryFinishedTypeCount       ProductInventoryFinishedType = iota + 1 // 件数
-	ProductInventoryFinishedTypeWeightMetal                                         // 金重
-	ProductInventoryFinishedTypeLabelPrice                                          // 标价
-	// ProductInventoryFinishedTypeCost                                                // 成本
-)
-
-type ProductInventoryFinishedReq struct {
-	Type ProductInventoryFinishedType `json:"type" label:"类型" find:"true" required:"true" sort:"1" type:"number" input:"radio" preset:"typeMap" binding:"required"` // 类型
-}
-
-type ProductInventoryFinishedLogic struct {
-	*StatisticLogic
+type dataLogic struct {
+	*Logic
 
 	Stores *[]model.Store
 }
 
-func (l *StatisticLogic) ProductInventoryFinishedData(req *ProductInventoryFinishedReq) (any, error) {
-	logic := ProductInventoryFinishedLogic{
-		StatisticLogic: l,
+func (l *Logic) GetDatas(req *DataReq) (any, error) {
+	logic := dataLogic{
+		Logic: l,
 	}
 
 	// 查询门店
@@ -86,21 +33,21 @@ func (l *StatisticLogic) ProductInventoryFinishedData(req *ProductInventoryFinis
 
 	// 查询数据
 	switch req.Type {
-	case ProductInventoryFinishedTypeCount:
-		return logic.ProductInventoryFinishedCountData(req)
-	case ProductInventoryFinishedTypeWeightMetal:
-		return logic.ProductInventoryFinishedWeightMetalData(req)
-	case ProductInventoryFinishedTypeLabelPrice:
-		return logic.ProductInventoryFinishedLabelPriceData(req)
-		// case ProductInventoryFinishedTypeCost:
-		// 	return logic.ProductInventoryFinishedCostData(req)
+	case TypesCount:
+		return logic.get_count(req)
+	case TypesWeightMetal:
+		return logic.get_weight_metal(req)
+	case TypesLabelPrice:
+		return logic.get_label_price(req)
+		// case TypesCost:
+		// 	return logic.get_cost(req)
 	}
 
 	return nil, nil
 }
 
 // 件数
-func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedCountData(req *ProductInventoryFinishedReq) (any, error) {
+func (r *dataLogic) get_count(req *DataReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -141,7 +88,7 @@ func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedCountData(req *P
 }
 
 // 金重
-func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedWeightMetalData(req *ProductInventoryFinishedReq) (any, error) {
+func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -181,7 +128,7 @@ func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedWeightMetalData(
 	return &data, nil
 }
 
-func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedLabelPriceData(req *ProductInventoryFinishedReq) (any, error) {
+func (r *dataLogic) get_label_price(req *DataReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -221,7 +168,7 @@ func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedLabelPriceData(r
 	return &data, nil
 }
 
-func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedCostData(req *ProductInventoryFinishedReq) (any, error) {
+func (r *dataLogic) get_cost(req *DataReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -259,22 +206,4 @@ func (r *ProductInventoryFinishedLogic) ProductInventoryFinishedCostData(req *Pr
 	}
 
 	return &data, nil
-}
-
-var ProductInventoryFinishedTypeMap = map[ProductInventoryFinishedType]string{
-	ProductInventoryFinishedTypeCount:       "件数",
-	ProductInventoryFinishedTypeWeightMetal: "金重",
-	ProductInventoryFinishedTypeLabelPrice:  "标价",
-	// ProductInventoryFinishedTypeCost:        "成本",
-}
-
-func (p ProductInventoryFinishedType) ToMap() any {
-	return ProductInventoryFinishedTypeMap
-}
-
-func (p ProductInventoryFinishedType) InMap() error {
-	if _, ok := ProductInventoryFinishedTypeMap[p]; !ok {
-		return errors.New("not in enum")
-	}
-	return nil
 }

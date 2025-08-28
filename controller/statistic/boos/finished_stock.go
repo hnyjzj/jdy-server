@@ -1,34 +1,34 @@
-package statistic
+package boos
 
 import (
-	"jdy/logic/statistic"
+	"jdy/logic/statistic/boos/finished_stock"
 	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (con StatisticController) OrderPaymentWhere(ctx *gin.Context) {
-	where := utils.StructToWhere(statistic.OrderPaymentReq{})
+func (con BoosController) FinishedStockWhere(ctx *gin.Context) {
+	where := utils.StructToWhere(finished_stock.Where{})
 
 	con.Success(ctx, "ok", where)
 }
 
-func (con StatisticController) OrderPaymentTitles(ctx *gin.Context) {
+func (con BoosController) FinishedStockTitles(ctx *gin.Context) {
 
 	var (
-		logic = statistic.StatisticLogic{}
+		logic = finished_stock.Logic{}
 	)
 
-	res := logic.OrderPaymentTitles()
+	res := logic.GetTitles()
 
 	con.Success(ctx, "ok", res)
 }
 
-// 订单收支统计
-func (con StatisticController) OrderPaymentData(ctx *gin.Context) {
+// 成品库存统计
+func (con BoosController) FinishedStockData(ctx *gin.Context) {
 	var (
-		req   statistic.OrderPaymentReq
-		logic = statistic.StatisticLogic{}
+		req   finished_stock.DataReq
+		logic = finished_stock.Logic{}
 	)
 
 	// 获取请求参数
@@ -45,7 +45,7 @@ func (con StatisticController) OrderPaymentData(ctx *gin.Context) {
 		logic.Staff = staff
 	}
 
-	res, err := logic.OrderPaymentData(&req)
+	res, err := logic.GetDatas(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return

@@ -11,6 +11,7 @@ import (
 	"jdy/controller/setting"
 	"jdy/controller/staff"
 	"jdy/controller/statistic"
+	"jdy/controller/statistic/boos"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
@@ -88,31 +89,35 @@ func Api(g *gin.Engine) {
 		{
 			statistics.Use(middlewares.JWTMiddleware())
 			{
+				Boos := statistics.Group("/boos") // Boos看板
+				{
+					finished_stock := Boos.Group("/finished_stock") // 成品库存
+					{
+						finished_stock.GET("/where", boos.BoosController{}.FinishedStockWhere)  // 成品库存筛选
+						finished_stock.GET("/title", boos.BoosController{}.FinishedStockTitles) // 成品库存标题
+						finished_stock.POST("/data", boos.BoosController{}.FinishedStockData)   // 成品库存列表
+					}
+
+					old_stock := Boos.Group("/old_stock") // 旧料库存
+					{
+						old_stock.GET("/where", boos.BoosController{}.OldStockWhere)  // 旧料库存筛选
+						old_stock.GET("/title", boos.BoosController{}.OldStockTitles) // 旧料库存标题
+						old_stock.POST("/data", boos.BoosController{}.OldStockData)   // 旧料库存列表
+					}
+
+					payments := Boos.Group("/payments") // 订单收支统计
+					{
+						payments.GET("/where", boos.BoosController{}.PaymentsWhere)  // 订单收支统计筛选
+						payments.GET("/title", boos.BoosController{}.PaymentsTitles) // 订单收支统计标题
+						payments.POST("/data", boos.BoosController{}.PaymentsData)   // 订单收支统计列表
+					}
+				}
+
 				statistics.POST("/sales_detail_daily", statistic.StatisticController{}.SalesDetailDaily) // 销售明细日报
 
 				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales)     // 今日销售
 				statistics.POST("/today_product", statistic.StatisticController{}.TodayProduct) // 今日货品
 
-				product_inventory_finished := statistics.Group("/product_inventory_finished") // 成品库存
-				{
-					product_inventory_finished.GET("/where", statistic.StatisticController{}.ProductInventoryFinishedWhere)  // 成品库存筛选
-					product_inventory_finished.GET("/title", statistic.StatisticController{}.ProductInventoryFinishedTitles) // 成品库存标题
-					product_inventory_finished.POST("/data", statistic.StatisticController{}.ProductInventoryFinishedData)   // 成品库存列表
-				}
-
-				product_inventory_old := statistics.Group("/product_inventory_old") // 旧料库存
-				{
-					product_inventory_old.GET("/where", statistic.StatisticController{}.ProductInventoryOldWhere)  // 旧料库存筛选
-					product_inventory_old.GET("/title", statistic.StatisticController{}.ProductInventoryOldTitles) // 旧料库存标题
-					product_inventory_old.POST("/data", statistic.StatisticController{}.ProductInventoryOldData)   // 旧料库存列表
-				}
-
-				order_payment := statistics.Group("/order_payment") // 订单收支统计
-				{
-					order_payment.GET("/where", statistic.StatisticController{}.OrderPaymentWhere)  // 订单收支统计筛选
-					order_payment.GET("/title", statistic.StatisticController{}.OrderPaymentTitles) // 订单收支统计标题
-					order_payment.POST("/data", statistic.StatisticController{}.OrderPaymentData)   // 订单收支统计列表
-				}
 			}
 		}
 

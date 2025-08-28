@@ -1,34 +1,34 @@
-package statistic
+package boos
 
 import (
-	"jdy/logic/statistic"
+	"jdy/logic/statistic/boos/old_stock"
 	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (con StatisticController) ProductInventoryOldWhere(ctx *gin.Context) {
-	where := utils.StructToWhere(statistic.ProductInventoryOldReq{})
+func (con BoosController) OldStockWhere(ctx *gin.Context) {
+	where := utils.StructToWhere(old_stock.Where{})
 
 	con.Success(ctx, "ok", where)
 }
 
-func (con StatisticController) ProductInventoryOldTitles(ctx *gin.Context) {
+func (con BoosController) OldStockTitles(ctx *gin.Context) {
 
 	var (
-		logic = statistic.StatisticLogic{}
+		logic = old_stock.Logic{}
 	)
 
-	res := logic.ProductInventoryOldTitles()
+	res := logic.GetTitles()
 
 	con.Success(ctx, "ok", res)
 }
 
 // 旧料库存统计
-func (con StatisticController) ProductInventoryOldData(ctx *gin.Context) {
+func (con BoosController) OldStockData(ctx *gin.Context) {
 	var (
-		req   statistic.ProductInventoryOldReq
-		logic = statistic.StatisticLogic{}
+		req   old_stock.DataReq
+		logic = old_stock.Logic{}
 	)
 
 	// 获取请求参数
@@ -45,7 +45,7 @@ func (con StatisticController) ProductInventoryOldData(ctx *gin.Context) {
 		logic.Staff = staff
 	}
 
-	res, err := logic.ProductInventoryOldData(&req)
+	res, err := logic.GetDatas(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return

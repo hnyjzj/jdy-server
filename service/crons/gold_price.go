@@ -7,6 +7,16 @@ import (
 	"log"
 )
 
+func init() {
+	RegisterCrons(
+		Crons{
+			// 每天早上9点 发送金价设置提醒
+			Spec: "0 0 9 * * *",
+			Func: SendGoldPriceSetMessage,
+		},
+	)
+}
+
 // 发送金价设置提醒
 func SendGoldPriceSetMessage() {
 	// 查询所有门店

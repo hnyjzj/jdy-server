@@ -93,7 +93,6 @@ func (p Duration) GetTime(now time.Time) (start, end time.Time) {
 	case DurationLastYear: // 去年
 		start = time.Date(now.Year()-1, 1, 1, 0, 0, 0, 0, now.Location())
 		end = start.Add(time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
-
 	}
 
 	return start, end

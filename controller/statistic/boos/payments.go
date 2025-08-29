@@ -19,7 +19,7 @@ func (con BoosController) PaymentsTitles(ctx *gin.Context) {
 		logic = payments.Logic{}
 	)
 
-	res := logic.GeyTitles()
+	res := logic.GetTitles()
 
 	con.Success(ctx, "ok", res)
 }

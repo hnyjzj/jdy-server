@@ -5,7 +5,7 @@ import (
 	"jdy/enums"
 )
 
-func (l *Logic) GetTitles() *[]TitleRes {
+func (l *Logic) GetTitles() []TitleRes {
 	var titles []TitleRes
 	titles = append(titles, TitleRes{
 		Title:     "门店",
@@ -32,5 +32,5 @@ func (l *Logic) GetTitles() *[]TitleRes {
 		})
 	}
 
-	return &titles
+	return titles
 }

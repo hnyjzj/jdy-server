@@ -284,27 +284,6 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 			return errors.New("更新订单成品状态失败")
 		}
 
-		var refund_price decimal.Decimal
-		for _, payment := range req.Payments {
-			refund_price = refund_price.Add(payment.Amount)
-
-			data := model.OrderPayment{
-				StoreId:       order.StoreId,
-				OrderId:       order.Id,
-				Type:          enums.FinanceTypeExpense,
-				Source:        enums.FinanceSourceDepositRefund,
-				OrderType:     enums.OrderTypeDeposit,
-				PaymentMethod: payment.PaymentMethod,
-				Amount:        payment.Amount,
-			}
-			if err := tx.Create(&data).Error; err != nil {
-				return errors.New("创建退款记录失败")
-			}
-		}
-		if refund_price.Cmp(p.Price) != 0 {
-			return errors.New("退款金额不正确")
-		}
-
 		if !p.IsOur {
 			data.Name = p.ProductDemand.Name
 			data.Code = strings.ToUpper(p.ProductDemand.Code)
@@ -347,6 +326,27 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 
 		if err := tx.Create(&data).Error; err != nil {
 			return errors.New("创建退款记录失败")
+		}
+
+		var refund_price decimal.Decimal
+		for _, payment := range req.Payments {
+			refund_price = refund_price.Add(payment.Amount)
+
+			payment := model.OrderPayment{
+				StoreId:       order.StoreId,
+				OrderId:       data.Id,
+				Type:          enums.FinanceTypeExpense,
+				Source:        enums.FinanceSourceDepositRefund,
+				OrderType:     enums.OrderTypeReturn,
+				PaymentMethod: payment.PaymentMethod,
+				Amount:        payment.Amount,
+			}
+			if err := tx.Create(&payment).Error; err != nil {
+				return errors.New("创建退款记录失败")
+			}
+		}
+		if refund_price.Cmp(p.Price) != 0 {
+			return errors.New("退款金额不正确")
 		}
 
 		return nil

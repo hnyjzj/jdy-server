@@ -24,6 +24,7 @@ type OrderPayment struct {
 	OrderRepair  OrderRepair     `json:"order_repair,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:维修单;"`  // 维修单
 	OrderDeposit OrderDeposit    `json:"order_deposit,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:定金单;"` // 定金单
 	OrderOther   OrderOther      `json:"order_other,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:其他单;"`   // 其他单
+	OrderRefund  OrderRefund     `json:"order_refund,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:退单;"`   // 退单
 
 	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" gorm:"type:int(11);not NULL;comment:支付方式;"` // 支付方式
 	Amount        decimal.Decimal          `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:金额;"`     // 金额

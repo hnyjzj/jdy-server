@@ -14,6 +14,7 @@ type ProductOld struct {
 	Code         string                `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
 	CodeFinished string                `json:"code_finished" gorm:"type:varchar(255);comment:成品条码;"`        // 成品条码
 	Name         string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
+	Images       []string              `json:"images" gorm:"type:text;serializer:json;comment:图片;"`         // 图片
 	Status       enums.ProductStatus   `json:"status" gorm:"type:int(11);comment:状态;"`                      // 状态
 	Class        enums.ProductClassOld `json:"class" gorm:"type:int(11);not NULL;comment:旧料大类;"`            // 旧料大类
 	LabelPrice   decimal.Decimal       `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价

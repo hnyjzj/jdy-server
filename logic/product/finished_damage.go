@@ -172,6 +172,7 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				Code:            strings.ToUpper("JL" + utils.RandomCode(8)),
 				CodeFinished:    strings.ToUpper(product.Code),
 				Name:            product.Name,
+				Images:          product.Images,
 				Status:          enums.ProductStatusNormal,
 				LabelPrice:      product.LabelPrice,
 				Brand:           product.Brand,

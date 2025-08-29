@@ -34,18 +34,18 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 	// 查询数据
 	switch req.Type {
 	case TypesCount:
-		return logic.get_count_data()
+		return logic.get_count_data(req)
 	case TypesWeightMetal:
-		return logic.get_weight_metal()
+		return logic.get_weight_metal(req)
 	case TypesRecyclePrice:
-		return logic.get_recycle_price()
+		return logic.get_recycle_price(req)
 	}
 
 	return nil, nil
 }
 
 // 件数
-func (r *dataLogic) get_count_data() (any, error) {
+func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -59,6 +59,8 @@ func (r *dataLogic) get_count_data() (any, error) {
 			StoreId: store.Id,
 			Status:  enums.ProductStatusNormal,
 		})
+		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 		var total int64
 		if err := db_total.Count(&total).Error; err != nil {
 			return nil, err
@@ -86,7 +88,7 @@ func (r *dataLogic) get_count_data() (any, error) {
 }
 
 // 金重
-func (r *dataLogic) get_weight_metal() (any, error) {
+func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -100,6 +102,8 @@ func (r *dataLogic) get_weight_metal() (any, error) {
 			StoreId: store.Id,
 			Status:  enums.ProductStatusNormal,
 		})
+		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 		var total decimal.Decimal
 		if err := db_total.Select("SUM(weight_metal) as total").Having("total > 0").Scan(&total).Error; err != nil {
 			return nil, err
@@ -127,7 +131,7 @@ func (r *dataLogic) get_weight_metal() (any, error) {
 }
 
 // 抵值
-func (r *dataLogic) get_recycle_price() (any, error) {
+func (r *dataLogic) get_recycle_price(req *DataReq) (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -141,6 +145,8 @@ func (r *dataLogic) get_recycle_price() (any, error) {
 			StoreId: store.Id,
 			Status:  enums.ProductStatusNormal,
 		})
+		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 		var total decimal.Decimal
 		if err := db_total.Select("SUM(recycle_price) as total").Having("total > 0").Scan(&total).Error; err != nil {
 			return nil, err

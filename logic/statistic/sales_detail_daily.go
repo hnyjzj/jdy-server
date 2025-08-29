@@ -42,6 +42,10 @@ func (l *StatisticLogic) SalesDetailDaily(req *types.StatisticSalesDetailDailyRe
 			return err
 		}
 
+		if err := logic.getOrderPayment(); err != nil {
+			return err
+		}
+
 		// 开始统计
 		logic.getSummary()
 		logic.getItemized()
@@ -70,6 +74,7 @@ type StatisticSalesDetailDailyLogic struct {
 	OrderDeposit []model.OrderDeposit
 	OrderOther   []model.OrderOther
 	OrderRefund  []model.OrderRefund
+	OrderPayment []model.OrderPayment
 }
 
 // 获取销售单
@@ -124,6 +129,7 @@ func (l *StatisticSalesDetailDailyLogic) getOrderDeposit() error {
 
 	db = model.OrderDeposit{}.Preloads(db)
 	db = db.Where("status in (?)", []enums.OrderDepositStatus{
+		enums.OrderDepositStatusBooking,
 		enums.OrderDepositStatusComplete,
 		enums.OrderDepositStatusRefund,
 		enums.OrderDepositStatusReturn,
@@ -163,6 +169,7 @@ func (l *StatisticSalesDetailDailyLogic) getOrderOther() error {
 	return nil
 }
 
+// 获取退货单
 func (l *StatisticSalesDetailDailyLogic) getOrderRefund() error {
 	db := l.tx.Model(&model.OrderRefund{})
 
@@ -238,6 +245,27 @@ func (l *StatisticSalesDetailDailyLogic) getOrderRefund() error {
 	return nil
 }
 
+// 获取支付数据
+func (l *StatisticSalesDetailDailyLogic) getOrderPayment() error {
+	db := l.tx.Model(&model.OrderPayment{})
+
+	if l.req.StoreId != "" {
+		db = db.Where("store_id = ?", l.req.StoreId)
+	}
+	if l.req.StartTime != nil {
+		db = db.Where("created_at >= ?", l.req.StartTime)
+	}
+	if l.req.EndTime != nil {
+		db = db.Where("created_at <= ?", l.req.EndTime)
+	}
+
+	if err := db.Find(&l.OrderPayment).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // 获取汇总项
 func (l *StatisticSalesDetailDailyLogic) getSummary() {
 	// 汇总
@@ -260,7 +288,12 @@ func (l *StatisticSalesDetailDailyLogic) getSummary() {
 		res.DepositIncome = res.DepositIncome.Add(order.PricePay)
 		// 订金退款
 		if order.Status == enums.OrderDepositStatusRefund {
-			res.DepositRefund = res.DepositRefund.Add(order.PricePay)
+			for _, refund := range order.Products {
+				if refund.Status != enums.OrderDepositStatusReturn && refund.Status != enums.OrderDepositStatusRefund {
+					continue
+				}
+				res.DepositRefund = res.DepositRefund.Add(refund.Price)
+			}
 		}
 	}
 
@@ -335,60 +368,23 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 	res := map[string]types.StatisticSalesDetailDailyPayment{}
 
 	for method, name := range enums.OrderPaymentMethodMap {
-		for _, order := range l.OrderSales {
-			for _, pay := range order.Payments {
-				if method == pay.PaymentMethod {
-					if _, ok := res[name]; !ok {
-						res[name] = types.StatisticSalesDetailDailyPayment{}
-					}
-					payment := res[name]
-					payment.Income = payment.Income.Add(pay.Amount)
-					res[name] = payment
+		for _, order := range l.OrderPayment {
+			if method == order.PaymentMethod {
+				if _, ok := res[name]; !ok {
+					res[name] = types.StatisticSalesDetailDailyPayment{}
 				}
-			}
-		}
-
-		for _, order := range l.OrderDeposit {
-			for _, pay := range order.Payments {
-				if method == pay.PaymentMethod {
-					if _, ok := res[name]; !ok {
-						res[name] = types.StatisticSalesDetailDailyPayment{}
+				payment := res[name]
+				switch order.Type {
+				case enums.FinanceTypeIncome:
+					{
+						payment.Income = payment.Income.Add(order.Amount)
 					}
-					payment := res[name]
-					payment.Income = payment.Income.Add(pay.Amount)
-					res[name] = payment
-				}
-			}
-		}
-
-		for _, order := range l.OrderOther {
-			switch order.Type {
-			case enums.FinanceTypeIncome:
-				{
-					for _, pay := range order.Payments {
-						if method == pay.PaymentMethod {
-							if _, ok := res[name]; !ok {
-								res[name] = types.StatisticSalesDetailDailyPayment{}
-							}
-							payment := res[name]
-							payment.Income = payment.Income.Add(pay.Amount)
-							res[name] = payment
-						}
+				case enums.FinanceTypeExpense:
+					{
+						payment.Expense = payment.Expense.Add(order.Amount)
 					}
 				}
-			case enums.FinanceTypeExpense:
-				{
-					for _, pay := range order.Payments {
-						if method == pay.PaymentMethod {
-							if _, ok := res[name]; !ok {
-								res[name] = types.StatisticSalesDetailDailyPayment{}
-							}
-							payment := res[name]
-							payment.Expense = payment.Expense.Add(pay.Amount)
-							res[name] = payment
-						}
-					}
-				}
+				res[name] = payment
 			}
 		}
 	}

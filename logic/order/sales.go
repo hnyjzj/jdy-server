@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -306,6 +307,27 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				Status: enums.OrderSalesStatusReturn,
 			}).Error; err != nil {
 				return errors.New("更新订单成品状态失败")
+			}
+
+			var refund_price decimal.Decimal
+			for _, payment := range req.Payments {
+				refund_price = refund_price.Add(payment.Amount)
+
+				data := model.OrderPayment{
+					StoreId:       order.StoreId,
+					OrderId:       order.Id,
+					Type:          enums.FinanceTypeExpense,
+					Source:        enums.FinanceSourceSaleRefund,
+					OrderType:     enums.OrderTypeSales,
+					PaymentMethod: payment.PaymentMethod,
+					Amount:        payment.Amount,
+				}
+				if err := tx.Create(&data).Error; err != nil {
+					return errors.New("创建退款记录失败")
+				}
+			}
+			if refund_price.Cmp(p.Finished.Price) != 0 {
+				return errors.New("退款金额不正确")
 			}
 
 			// 根据入库类型更新成品

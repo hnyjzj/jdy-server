@@ -74,6 +74,8 @@ func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 			var count int64
 			if err := db.Count(&count).Error; err != nil {
 				return nil, err
@@ -117,6 +119,8 @@ func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 			var total decimal.Decimal
 			if err := db.Select("SUM(weight_metal) as total").Having("total > 0").Scan(&total).Error; err != nil {
 				return nil, err
@@ -160,6 +164,8 @@ func (r *dataLogic) get_recycle_price(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 			var total decimal.Decimal
 			if err := db.Select("SUM(recycle_price) as total").Having("total > 0").Scan(&total).Error; err != nil {
 				return nil, err

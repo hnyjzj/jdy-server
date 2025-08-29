@@ -39,8 +39,6 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 		return logic.get_weight_metal(req)
 	case TypesLabelPrice:
 		return logic.get_label_price(req)
-		// case TypesCost:
-		// 	return logic.get_cost()
 	}
 
 	return nil, nil
@@ -76,6 +74,8 @@ func (r *dataLogic) get_count(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 			var count int64
 			if err := db.Count(&count).Error; err != nil {
 				return nil, err
@@ -119,6 +119,8 @@ func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 			var total decimal.Decimal
 			if err := db.Select("SUM(weight_metal) as total").Having("total > 0").Scan(&total).Error; err != nil {
 				return nil, err
@@ -161,6 +163,8 @@ func (r *dataLogic) get_label_price(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
+			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+
 			var total decimal.Decimal
 			if err := db.Select("SUM(label_price) as total").Having("total > 0").Scan(&total).Error; err != nil {
 				return nil, err
@@ -173,43 +177,3 @@ func (r *dataLogic) get_label_price(req *DataReq) (any, error) {
 
 	return &data, nil
 }
-
-// func (r *dataLogic) get_cost(req *DataReq) (any, error) {
-// 	var data []map[string]any
-
-// 	for _, store := range *r.Stores {
-// 		item := map[string]any{
-// 			"name": store.Name,
-// 		}
-
-// 		// 总
-// 		db_total := model.DB.Model(&model.ProductFinished{})
-// 		db_total = db_total.Where(&model.ProductFinished{
-// 			StoreId: store.Id,
-// 			Status:  enums.ProductStatusNormal,
-// 		})
-// 		var total decimal.Decimal
-// 		if err := db_total.Select("SUM(label_price) as total").Having("total > 0").Scan(&total).Error; err != nil {
-// 			return nil, err
-// 		}
-// 		item["total"] = total
-
-// 		for k := range enums.ProductClassFinishedMap {
-// 			db := model.DB.Model(&model.ProductFinished{})
-// 			db = db.Where(&model.ProductFinished{
-// 				StoreId: store.Id,
-// 				Status:  enums.ProductStatusNormal,
-// 				Class:   k,
-// 			})
-// 			var total decimal.Decimal
-// 			if err := db.Select("SUM(label_price) as total").Having("total > 0").Scan(&total).Error; err != nil {
-// 				return nil, err
-// 			}
-// 			item[fmt.Sprint(k)] = total
-// 		}
-
-// 		data = append(data, item)
-// 	}
-
-// 	return &data, nil
-// }

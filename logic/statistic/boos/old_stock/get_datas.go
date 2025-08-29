@@ -34,18 +34,18 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 	// 查询数据
 	switch req.Type {
 	case TypesCount:
-		return logic.get_count_data(req)
+		return logic.get_count_data()
 	case TypesWeightMetal:
-		return logic.get_weight_metal(req)
+		return logic.get_weight_metal()
 	case TypesRecyclePrice:
-		return logic.get_recycle_price(req)
+		return logic.get_recycle_price()
 	}
 
 	return nil, nil
 }
 
 // 件数
-func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
+func (r *dataLogic) get_count_data() (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -86,7 +86,7 @@ func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
 }
 
 // 金重
-func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
+func (r *dataLogic) get_weight_metal() (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {
@@ -126,7 +126,8 @@ func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 	return &data, nil
 }
 
-func (r *dataLogic) get_recycle_price(req *DataReq) (any, error) {
+// 抵值
+func (r *dataLogic) get_recycle_price() (any, error) {
 	var data []map[string]any
 
 	for _, store := range *r.Stores {

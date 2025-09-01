@@ -10,8 +10,9 @@ import (
 
 func (c *CronScript) Funcs() {
 	for _, v := range CronsList {
-		_, err := c.AddFunc(v.Spec, func() {
-			go v.Func()
+		cp := v
+		_, err := c.AddFunc(cp.Spec, func() {
+			go cp.Func()
 		})
 		if err != nil {
 			log.Printf("定时任务添加失败: %v", err)

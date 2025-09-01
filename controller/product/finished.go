@@ -53,6 +53,38 @@ func (con ProductFinishedController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 空图片列表
+func (con ProductFinishedController) EmptyImage(ctx *gin.Context) {
+	var (
+		req types.ProductFinishedEmptyImageReq
+
+		logic = product.ProductFinishedLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	res, err := logic.EmptyImage(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}
+
 // 成品详情
 func (con ProductFinishedController) Info(ctx *gin.Context) {
 	var (

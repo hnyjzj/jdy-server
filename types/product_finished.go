@@ -64,6 +64,10 @@ type ProductFinishedListRes[T any] struct {
 	WeightMetal decimal.Decimal `json:"weight_metal"` // 金重
 }
 
+type ProductFinishedEmptyImageReq struct {
+	StoreId string `json:"store_id" binding:"required"` // 门店
+}
+
 type ProductFinishedInfoReq struct {
 	Code string `json:"code" binding:"required"` // 条码
 }

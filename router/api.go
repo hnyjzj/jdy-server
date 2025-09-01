@@ -91,6 +91,13 @@ func Api(g *gin.Engine) {
 			{
 				Boos := statistics.Group("/boos") // Boos看板
 				{
+					finished_sales := Boos.Group("/finished_sales") // 成品销售
+					{
+						finished_sales.GET("/where", boos.BoosController{}.FinishedSalesWhere)  // 成品销售筛选
+						finished_sales.GET("/title", boos.BoosController{}.FinishedSalesTitles) // 成品销售标题
+						finished_sales.POST("/data", boos.BoosController{}.FinishedSalesData)   // 成品销售列表
+					}
+
 					finished_stock := Boos.Group("/finished_stock") // 成品库存
 					{
 						finished_stock.GET("/where", boos.BoosController{}.FinishedStockWhere)  // 成品库存筛选
@@ -103,6 +110,13 @@ func Api(g *gin.Engine) {
 						old_stock.GET("/where", boos.BoosController{}.OldStockWhere)  // 旧料库存筛选
 						old_stock.GET("/title", boos.BoosController{}.OldStockTitles) // 旧料库存标题
 						old_stock.POST("/data", boos.BoosController{}.OldStockData)   // 旧料库存列表
+					}
+
+					old_sales := Boos.Group("/old_sales") // 旧料销售
+					{
+						old_sales.GET("/where", boos.BoosController{}.OldSalesWhere)  // 旧料销售筛选
+						old_sales.GET("/title", boos.BoosController{}.OldSalesTitles) // 旧料销售标题
+						old_sales.POST("/data", boos.BoosController{}.OldSalesData)   // 旧料销售列表
 					}
 
 					payments := Boos.Group("/payments") // 订单收支统计

@@ -13,7 +13,7 @@ import (
 type dataLogic struct {
 	*Logic
 
-	Stores *[]model.Store
+	Stores []model.Store
 }
 
 func (l *Logic) GetDatas(req *DataReq) (any, error) {
@@ -29,7 +29,7 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	logic.Stores = stores
+	logic.Stores = *stores
 
 	// 查询数据
 	switch req.Type {
@@ -48,7 +48,7 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 func (r *dataLogic) get_income(req *DataReq) (any, error) {
 	var data []map[string]any
 
-	for _, store := range *r.Stores {
+	for _, store := range r.Stores {
 		item := map[string]any{
 			"name": store.Name,
 		}
@@ -94,7 +94,7 @@ func (r *dataLogic) get_income(req *DataReq) (any, error) {
 func (r *dataLogic) get_expense(req *DataReq) (any, error) {
 	var data []map[string]any
 
-	for _, store := range *r.Stores {
+	for _, store := range r.Stores {
 		item := map[string]any{
 			"name": store.Name,
 		}
@@ -140,7 +140,7 @@ func (r *dataLogic) get_expense(req *DataReq) (any, error) {
 func (r *dataLogic) get_surplus(req *DataReq) (any, error) {
 	var data []map[string]any
 
-	for _, store := range *r.Stores {
+	for _, store := range r.Stores {
 		item := map[string]any{
 			"name": store.Name,
 		}

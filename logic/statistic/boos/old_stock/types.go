@@ -22,7 +22,7 @@ type Where struct {
 // DataReq 为数据查询请求
 type DataReq struct {
 	Type      Types          `json:"type" binding:"required,gt=0"`
-	Duration  enums.Duration `json:"duration" binding:"required"`
+	Duration  enums.Duration `json:"duration" binding:"required,gt=0"`
 	StartTime string         `json:"startTime"`
 	EndTime   string         `json:"endTime"`
 }

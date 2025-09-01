@@ -9,10 +9,15 @@ import (
 )
 
 func (c *CronScript) Funcs() {
-	// 每天 9 点执行
-	_, _ = c.AddFunc("0 0 9 * * *", func() {
-		go SendGoldPriceSetMessage()
-	})
+	for _, v := range CronsList {
+		cp := v
+		_, err := c.AddFunc(cp.Spec, func() {
+			go cp.Func()
+		})
+		if err != nil {
+			log.Printf("定时任务添加失败: %v", err)
+		}
+	}
 }
 
 type CronScript struct {
@@ -37,4 +42,16 @@ func Cron() {
 
 	// 阻塞主线程
 	select {}
+}
+
+type Crons struct {
+	Spec string
+	Func func()
+}
+
+var CronsList []Crons = []Crons{}
+
+// 注册定时任务
+func RegisterCrons(cron ...Crons) {
+	CronsList = append(CronsList, cron...)
 }

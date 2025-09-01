@@ -32,6 +32,10 @@ func (up *Upload) Save() (*Upload, error) {
 
 	up.conf = &config.Config.Storage
 
+	if up.conf == nil {
+		return nil, errors.New("配置文件不存在")
+	}
+
 	if up.File == nil && up.Files == nil {
 		return nil, errors.New("文件不存在")
 	}

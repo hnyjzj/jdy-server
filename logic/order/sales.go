@@ -463,6 +463,22 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			return errors.New("创建退货单失败")
 		}
 
+		// 添加退款方式
+		for _, payment := range req.Payments {
+			payment := model.OrderPayment{
+				StoreId:       order.StoreId,
+				OrderId:       data.Id,
+				Type:          enums.FinanceTypeExpense,
+				Source:        enums.FinanceSourceSaleRefund,
+				OrderType:     enums.OrderTypeReturn,
+				PaymentMethod: payment.PaymentMethod,
+				Amount:        payment.Amount,
+			}
+			if err := tx.Create(&payment).Error; err != nil {
+				return errors.New("添加退款方式失败")
+			}
+		}
+
 		return nil
 	}); err != nil {
 		return errors.New(err.Error())

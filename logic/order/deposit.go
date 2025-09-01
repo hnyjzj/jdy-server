@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -71,10 +72,11 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 			}
 
 			order.Products = append(order.Products, data)
+			order.Price = order.Price.Add(data.Price)
 		}
 
 		for _, p := range req.Payments {
-			order.Price = order.Price.Add(p.Amount)
+			order.PricePay = order.PricePay.Add(p.Amount)
 			order.Payments = append(order.Payments, model.OrderPayment{
 				StoreId:       order.StoreId,
 				Type:          enums.FinanceTypeIncome,
@@ -324,6 +326,27 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 
 		if err := tx.Create(&data).Error; err != nil {
 			return errors.New("创建退款记录失败")
+		}
+
+		var refund_price decimal.Decimal
+		for _, payment := range req.Payments {
+			refund_price = refund_price.Add(payment.Amount)
+
+			payment := model.OrderPayment{
+				StoreId:       order.StoreId,
+				OrderId:       data.Id,
+				Type:          enums.FinanceTypeExpense,
+				Source:        enums.FinanceSourceDepositRefund,
+				OrderType:     enums.OrderTypeReturn,
+				PaymentMethod: payment.PaymentMethod,
+				Amount:        payment.Amount,
+			}
+			if err := tx.Create(&payment).Error; err != nil {
+				return errors.New("创建退款记录失败")
+			}
+		}
+		if refund_price.Cmp(p.Price) != 0 {
+			return errors.New("退款金额不正确")
 		}
 
 		return nil

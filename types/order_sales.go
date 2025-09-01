@@ -212,10 +212,15 @@ func (req *OrderSalesRefundReq) Validate() error {
 	if len(req.Payments) == 0 {
 		return errors.New("支付方式不能为空")
 	}
+	var total decimal.Decimal
 	for _, payment := range req.Payments {
 		if payment.Amount.LessThan(decimal.NewFromFloat(0)) {
 			return errors.New("支付金额错误")
 		}
+		total = total.Add(payment.Amount)
+	}
+	if total.Cmp(req.Price) != 0 {
+		return errors.New("支付金额错误")
 	}
 
 	return nil

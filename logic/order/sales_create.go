@@ -475,6 +475,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 			if err := db.First(&finished).Error; err != nil {
 				return nil, errors.New("旧料不存在")
 			}
+			old.Images = finished.Images
 		}
 		old.IsOur = true
 		old.Status = enums.ProductStatusDraft

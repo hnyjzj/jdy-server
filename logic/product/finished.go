@@ -29,6 +29,12 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	// 获取总数
 	db := model.DB.Model(&model.ProductFinished{})
 	db = product.WhereCondition(db, &req.Where)
+
+	db = db.Where("status IN (?)", []enums.ProductStatus{
+		enums.ProductStatusNormal,
+		enums.ProductStatusAllocate,
+	})
+
 	if err := db.Count(&res.Total).Error; err != nil {
 		return nil, errors.New("获取成品列表数量失败")
 	}
@@ -66,6 +72,34 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	}
 
 	return &res, nil
+}
+
+// 空图片列表
+func (ProductFinishedLogic) EmptyImage(req *types.ProductFinishedEmptyImageReq) ([]model.ProductFinished, error) {
+	var (
+		product model.ProductFinished
+
+		res []model.ProductFinished
+	)
+
+	// 获取总数
+	db := model.DB.Model(&model.ProductFinished{})
+	db = product.WhereCondition(db, &types.ProductFinishedWhere{
+		StoreId: req.StoreId,
+	})
+	db = db.Where("status IN (?)", []enums.ProductStatus{
+		enums.ProductStatusNormal,
+		enums.ProductStatusAllocate,
+	})
+
+	db = db.Where("images is null or images = ''")
+	db = product.Preloads(db)
+
+	if err := db.Find(&res).Error; err != nil {
+		return nil, errors.New("获取成品列表失败")
+	}
+
+	return res, nil
 }
 
 // 成品详情
@@ -158,7 +192,7 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 
 		if err := tx.Model(&model.ProductFinished{}).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", product.Id).Omit(
 			"id", "created_at", "deleted_at",
-			"status", "images", "store_id", "enter_id",
+			"status", "store_id", "enter_id",
 		).Updates(&data).Error; err != nil {
 			return errors.New("更新成品信息失败")
 		}

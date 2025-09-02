@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -12,6 +13,15 @@ type StatisticSalesDetailDailyReq struct {
 
 	StartTime *time.Time `json:"start_time" binding:"required"` // 开始时间
 	EndTime   *time.Time `json:"end_time" binding:"required"`   // 结束时间
+}
+
+func (req *StatisticSalesDetailDailyReq) Validate() error {
+	// 开始时间不能大于结束时间
+	if req.StartTime.After(*req.EndTime) {
+		return errors.New("开始时间不能大于结束时间")
+	}
+
+	return nil
 }
 
 type StatisticSalesDetailDailyResp struct {

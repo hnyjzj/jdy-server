@@ -53,7 +53,7 @@ func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
 			"name": store.Name,
 		}
 
-		// 总
+		// 合计
 		db_total := model.DB.Model(&model.ProductOld{})
 		db_total = db_total.Where(&model.ProductOld{
 			StoreId: store.Id,
@@ -98,7 +98,7 @@ func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 			"name": store.Name,
 		}
 
-		// 总
+		// 合计
 		db_total := model.DB.Model(&model.ProductOld{})
 		db_total = db_total.Where(&model.ProductOld{
 			StoreId: store.Id,
@@ -143,7 +143,7 @@ func (r *dataLogic) get_recycle_price(req *DataReq) (any, error) {
 			"name": store.Name,
 		}
 
-		// 总
+		// 合计
 		db_total := model.DB.Model(&model.ProductOld{})
 		db_total = db_total.Where(&model.ProductOld{
 			StoreId: store.Id,

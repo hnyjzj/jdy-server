@@ -13,17 +13,6 @@ func (con BoosController) OldStockWhere(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
-func (con BoosController) OldStockTitles(ctx *gin.Context) {
-
-	var (
-		logic = old_stock.Logic{}
-	)
-
-	res := logic.GetTitles()
-
-	con.Success(ctx, "ok", res)
-}
-
 // 旧料库存统计
 func (con BoosController) OldStockData(ctx *gin.Context) {
 	var (

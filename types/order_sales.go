@@ -76,7 +76,7 @@ type OrderSalesCreateReqProductOld struct {
 
 	IsOur                   bool                       `json:"is_our" binding:"required"`         // 是否本司货品
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method" binding:"required"` // 回收方式
-	RecycleType             enums.ProductRecycleType   `json:"recycle_type"`                      // 回收类型
+	RecycleType             enums.ProductRecycleType   `json:"recycle_type" binding:"required"`   // 回收类型
 	Code                    string                     `json:"code"`                              // 条码
 	Material                enums.ProductMaterial      `json:"material" binding:"required"`       // 材质
 	Quality                 enums.ProductQuality       `json:"quality" binding:"required"`        // 成色

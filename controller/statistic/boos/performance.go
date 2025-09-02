@@ -1,23 +1,22 @@
 package boos
 
 import (
-	"jdy/logic/statistic/boos/finished_stock"
+	"jdy/logic/statistic/boos/performance"
 	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (con BoosController) FinishedStockWhere(ctx *gin.Context) {
-	where := utils.StructToWhere(finished_stock.Where{})
+func (con BoosController) PerformanceWhere(ctx *gin.Context) {
+	where := utils.StructToWhere(performance.Where{})
 
 	con.Success(ctx, "ok", where)
 }
 
-// 成品库存统计
-func (con BoosController) FinishedStockData(ctx *gin.Context) {
+func (con BoosController) PerformanceData(ctx *gin.Context) {
 	var (
-		req   finished_stock.DataReq
-		logic = finished_stock.Logic{}
+		req   performance.DataReq
+		logic = performance.Logic{}
 	)
 
 	// 获取请求参数

@@ -13,17 +13,6 @@ func (con BoosController) PaymentsWhere(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
-func (con BoosController) PaymentsTitles(ctx *gin.Context) {
-
-	var (
-		logic = payments.Logic{}
-	)
-
-	res := logic.GetTitles()
-
-	con.Success(ctx, "ok", res)
-}
-
 // 订单收支统计
 func (con BoosController) PaymentsData(ctx *gin.Context) {
 	var (

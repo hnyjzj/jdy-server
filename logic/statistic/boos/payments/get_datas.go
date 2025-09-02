@@ -1,7 +1,6 @@
 package payments
 
 import (
-	"fmt"
 	"jdy/enums"
 	"jdy/logic/store"
 	"jdy/model"
@@ -81,7 +80,7 @@ func (r *dataLogic) get_income(req *DataReq) (any, error) {
 			if err := db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 				return nil, err
 			}
-			item[fmt.Sprint(k)] = total
+			item[k.String()] = total
 		}
 
 		data = append(data, item)
@@ -127,7 +126,7 @@ func (r *dataLogic) get_expense(req *DataReq) (any, error) {
 			if err := db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 				return nil, err
 			}
-			item[fmt.Sprint(k)] = total
+			item[k.String()] = total
 		}
 
 		data = append(data, item)
@@ -199,7 +198,7 @@ func (r *dataLogic) get_surplus(req *DataReq) (any, error) {
 				return nil, err
 			}
 
-			item[fmt.Sprint(k)] = income.Sub(expense)
+			item[k.String()] = income.Sub(expense)
 		}
 
 		data = append(data, item)

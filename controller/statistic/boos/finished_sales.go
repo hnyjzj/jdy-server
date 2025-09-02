@@ -13,17 +13,6 @@ func (con BoosController) FinishedSalesWhere(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
-func (con BoosController) FinishedSalesTitles(ctx *gin.Context) {
-
-	var (
-		logic = finished_sales.Logic{}
-	)
-
-	res := logic.GetTitles()
-
-	con.Success(ctx, "ok", res)
-}
-
 func (con BoosController) FinishedSalesData(ctx *gin.Context) {
 	var (
 		req   finished_sales.DataReq

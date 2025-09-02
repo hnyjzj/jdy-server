@@ -87,51 +87,56 @@ func Api(g *gin.Engine) {
 		// 统计
 		statistics := r.Group("/statistic")
 		{
+			bs := statistics.Group("/boos") // Boos看板
+			{
+				bs.GET("/where", boos.BoosController{}.BoosWhere) // Boos看板筛选
+				bs.Use(middlewares.JWTMiddleware())
+				{
+					performance := bs.Group("/performance") // 业绩统计
+					{
+						performance.GET("/where", boos.BoosController{}.PerformanceWhere) // 业绩统计筛选
+						performance.POST("/data", boos.BoosController{}.PerformanceData)  // 业绩统计列表
+					}
+
+					finished_sales := bs.Group("/finished_sales") // 成品销售
+					{
+						finished_sales.GET("/where", boos.BoosController{}.FinishedSalesWhere) // 成品销售筛选
+						finished_sales.POST("/data", boos.BoosController{}.FinishedSalesData)  // 成品销售列表
+					}
+
+					finished_stock := bs.Group("/finished_stock") // 成品库存
+					{
+						finished_stock.GET("/where", boos.BoosController{}.FinishedStockWhere) // 成品库存筛选
+						finished_stock.POST("/data", boos.BoosController{}.FinishedStockData)  // 成品库存列表
+					}
+
+					old_stock := bs.Group("/old_stock") // 旧料库存
+					{
+						old_stock.GET("/where", boos.BoosController{}.OldStockWhere) // 旧料库存筛选
+						old_stock.POST("/data", boos.BoosController{}.OldStockData)  // 旧料库存列表
+					}
+
+					old_sales := bs.Group("/old_sales") // 旧料销售
+					{
+						old_sales.GET("/where", boos.BoosController{}.OldSalesWhere) // 旧料销售筛选
+						old_sales.POST("/data", boos.BoosController{}.OldSalesData)  // 旧料销售列表
+					}
+
+					payments := bs.Group("/payments") // 订单收支统计
+					{
+						payments.GET("/where", boos.BoosController{}.PaymentsWhere) // 订单收支统计筛选
+						payments.POST("/data", boos.BoosController{}.PaymentsData)  // 订单收支统计列表
+					}
+
+				}
+			}
+
 			statistics.Use(middlewares.JWTMiddleware())
 			{
-				Boos := statistics.Group("/boos") // Boos看板
-				{
-					finished_sales := Boos.Group("/finished_sales") // 成品销售
-					{
-						finished_sales.GET("/where", boos.BoosController{}.FinishedSalesWhere)  // 成品销售筛选
-						finished_sales.GET("/title", boos.BoosController{}.FinishedSalesTitles) // 成品销售标题
-						finished_sales.POST("/data", boos.BoosController{}.FinishedSalesData)   // 成品销售列表
-					}
-
-					finished_stock := Boos.Group("/finished_stock") // 成品库存
-					{
-						finished_stock.GET("/where", boos.BoosController{}.FinishedStockWhere)  // 成品库存筛选
-						finished_stock.GET("/title", boos.BoosController{}.FinishedStockTitles) // 成品库存标题
-						finished_stock.POST("/data", boos.BoosController{}.FinishedStockData)   // 成品库存列表
-					}
-
-					old_stock := Boos.Group("/old_stock") // 旧料库存
-					{
-						old_stock.GET("/where", boos.BoosController{}.OldStockWhere)  // 旧料库存筛选
-						old_stock.GET("/title", boos.BoosController{}.OldStockTitles) // 旧料库存标题
-						old_stock.POST("/data", boos.BoosController{}.OldStockData)   // 旧料库存列表
-					}
-
-					old_sales := Boos.Group("/old_sales") // 旧料销售
-					{
-						old_sales.GET("/where", boos.BoosController{}.OldSalesWhere)  // 旧料销售筛选
-						old_sales.GET("/title", boos.BoosController{}.OldSalesTitles) // 旧料销售标题
-						old_sales.POST("/data", boos.BoosController{}.OldSalesData)   // 旧料销售列表
-					}
-
-					payments := Boos.Group("/payments") // 订单收支统计
-					{
-						payments.GET("/where", boos.BoosController{}.PaymentsWhere)  // 订单收支统计筛选
-						payments.GET("/title", boos.BoosController{}.PaymentsTitles) // 订单收支统计标题
-						payments.POST("/data", boos.BoosController{}.PaymentsData)   // 订单收支统计列表
-					}
-				}
-
 				statistics.POST("/sales_detail_daily", statistic.StatisticController{}.SalesDetailDaily) // 销售明细日报
 
 				statistics.POST("/today_sales", statistic.StatisticController{}.TodaySales)     // 今日销售
 				statistics.POST("/today_product", statistic.StatisticController{}.TodayProduct) // 今日货品
-
 			}
 		}
 

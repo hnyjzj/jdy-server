@@ -5,17 +5,15 @@ import (
 )
 
 /* 回收类型 */
-// 无、回收、兑换
+// 回收、兑换
 type ProductRecycleType int
 
 const (
-	ProductRecycleTypeNone     ProductRecycleType = iota + 1 // 无
-	ProductRecycleTypeRecycle                                // 回收
+	ProductRecycleTypeRecycle  ProductRecycleType = iota + 1 // 回收
 	ProductRecycleTypeExchange                               // 兑换
 )
 
 var ProductRecycleTypeMap = map[ProductRecycleType]string{
-	ProductRecycleTypeNone:     "无",
 	ProductRecycleTypeRecycle:  "回收",
 	ProductRecycleTypeExchange: "兑换",
 }
@@ -32,8 +30,5 @@ func (p ProductRecycleType) InMap() error {
 }
 
 func (p ProductRecycleType) String() string {
-	if err := p.InMap(); err != nil {
-		return ProductRecycleTypeMap[ProductRecycleTypeNone]
-	}
 	return ProductRecycleTypeMap[p]
 }

@@ -58,6 +58,7 @@ func (p *ProductOldLogic) Info(req *types.ProductOldInfoReq) (*model.ProductOld,
 		db = db.Where("(code = ? OR code_finished = ?)", strings.ToUpper(req.Code), strings.ToUpper(req.Code))
 	}
 
+	db = product.Preloads(db)
 	if err := db.First(&product).Error; err != nil {
 		return nil, errors.New("获取旧料信息失败")
 	}

@@ -154,7 +154,14 @@ func (p *ProductAllocateLogic) Details(req *types.ProductAllocateDetailsReq) (*[
 	// 获取列表
 	db = model.ProductAllocate{}.Preloads(db)
 	db = db.Order("created_at desc")
-	db = db.Preload("ProductFinisheds.Store").Preload("ProductOlds.Store")
+	db = db.Preload("ProductFinisheds", func(tx *gorm.DB) *gorm.DB {
+		tx = model.ProductFinished{}.Preloads(tx)
+		return tx
+	})
+	db = db.Preload("ProductOlds", func(tx *gorm.DB) *gorm.DB {
+		tx = model.ProductOld{}.Preloads(tx)
+		return tx
+	})
 	if err := db.Find(&allocates).Error; err != nil {
 		return nil, errors.New("获取调拨单列表失败")
 	}
@@ -189,10 +196,12 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 
 	db = db.Preload("ProductFinisheds", func(tx *gorm.DB) *gorm.DB {
 		tx = model.PageCondition(tx, &req.PageReq)
+		tx = model.ProductFinished{}.Preloads(tx)
 		return tx
 	})
 	db = db.Preload("ProductOlds", func(tx *gorm.DB) *gorm.DB {
 		tx = model.PageCondition(tx, &req.PageReq)
+		tx = model.ProductOld{}.Preloads(tx)
 		return tx
 	})
 

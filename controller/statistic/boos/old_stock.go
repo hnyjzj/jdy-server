@@ -36,7 +36,7 @@ func (con BoosController) OldStockData(ctx *gin.Context) {
 
 	res, err := logic.GetDatas(&req)
 	if err != nil {
-		con.Exception(ctx, err.Error())
+		con.Exception(ctx, "获取失败")
 		return
 	}
 

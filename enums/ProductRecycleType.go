@@ -9,7 +9,8 @@ import (
 type ProductRecycleType int
 
 const (
-	ProductRecycleTypeRecycle  ProductRecycleType = iota + 1 // 回收
+	ProductRecycleTypeNone     ProductRecycleType = iota + 1 // 无
+	ProductRecycleTypeRecycle                                // 回收
 	ProductRecycleTypeExchange                               // 兑换
 )
 

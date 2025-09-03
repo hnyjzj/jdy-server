@@ -53,7 +53,9 @@ func (r *dataLogic) get_stores() error {
 	if err != nil {
 		return err
 	}
-	r.Stores = *stores
+	if stores != nil {
+		r.Stores = *stores
+	}
 
 	return nil
 }

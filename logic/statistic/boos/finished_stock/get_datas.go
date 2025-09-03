@@ -29,7 +29,9 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	logic.Stores = *stores
+	if stores != nil {
+		logic.Stores = *stores
+	}
 
 	// 查询数据
 	switch req.Type {

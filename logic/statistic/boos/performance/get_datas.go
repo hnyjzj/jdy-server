@@ -42,7 +42,9 @@ func (r *dataLogic) get_stores() error {
 	if err != nil {
 		return err
 	}
-	r.Stores = *stores
+	if stores != nil {
+		r.Stores = *stores
+	}
 
 	return nil
 }
@@ -107,6 +109,10 @@ func (r *dataLogic) get_sales() (any, error) {
 				case enums.ProductTypeFinished:
 					{
 						k := p.Finished.Product.Class.String()
+						if k == "" {
+							k = "其他"
+						}
+
 						item, ok := row[k].(decimal.Decimal)
 						if !ok {
 							item = decimal.Decimal{}
@@ -132,7 +138,11 @@ func (r *dataLogic) get_sales() (any, error) {
 						case enums.ProductRecycleMethod_PIECE:
 							finished.RetailType = enums.ProductRetailTypePiece
 						}
+
 						k := finished.GetClass().String()
+						if k == "" {
+							k = "其他"
+						}
 
 						switch p.Old.Product.RecycleType {
 						case enums.ProductRecycleTypeRecycle:
@@ -178,24 +188,6 @@ func (r *dataLogic) get_sales() (any, error) {
 		row["total"] = total
 
 		data = append(data, row)
-	}
-
-	total := map[string]any{
-		"name": "total",
-	}
-	for _, row := range data {
-		for k, v := range row {
-			if k == "name" {
-				continue
-			}
-			item, ok := total[k].(decimal.Decimal)
-			if !ok {
-				item = decimal.Decimal{}
-			}
-			item = item.Add(v.(decimal.Decimal))
-
-			total[k] = item
-		}
 	}
 
 	return &data, nil

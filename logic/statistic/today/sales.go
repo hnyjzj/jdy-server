@@ -1,4 +1,4 @@
-package statistic
+package today
 
 import (
 	"database/sql"
@@ -11,7 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type TodaySalesRes struct {
+type SalesReq struct {
+	DataReq
+	StoreId string `json:"store_id" binding:"required"`
+}
+
+type SalesRes struct {
 	GoldPrice      decimal.Decimal `json:"gold_price"`       // 金价
 	SalesAmount    decimal.Decimal `json:"sales_amount"`     // 销售金额
 	SalesCount     int64           `json:"sales_count"`      // 销售件数
@@ -19,22 +24,26 @@ type TodaySalesRes struct {
 	ReturnAmount   decimal.Decimal `json:"return_amount"`    // 退货金额
 }
 
-type TodaySalesLogic struct {
-	*StatisticLogic
+type SalesLogic struct {
+	*ToDayLogic
 
-	Req *types.StatisticTodaySalesReq
-	Res *TodaySalesRes
+	Req *SalesReq
+	Res *SalesRes
 	Db  *gorm.DB
 
 	clerk_query *gorm.DB
 }
 
-func (l *StatisticLogic) TodaySales(req *types.StatisticTodaySalesReq) (*TodaySalesRes, error) {
-	logic := &TodaySalesLogic{
-		StatisticLogic: l,
-		Req:            req,
-		Res:            &TodaySalesRes{},
-		Db:             model.DB,
+func (l *ToDayLogic) Sales(req *SalesReq) (*SalesRes, error) {
+	logic := &SalesLogic{
+		ToDayLogic: l,
+		Req:        req,
+		Res:        &SalesRes{},
+		Db:         model.DB,
+	}
+
+	if err := req.Duration.InMap(); err != nil {
+		logic.Req.Duration = enums.DurationToday
 	}
 
 	// 获取金价
@@ -46,16 +55,16 @@ func (l *StatisticLogic) TodaySales(req *types.StatisticTodaySalesReq) (*TodaySa
 	if l.Staff.Identity == enums.IdentityClerk {
 		logic.clerk_query = logic.Db.Model(&model.OrderSalesClerk{}).Where(&model.OrderSalesClerk{
 			SalesmanId: l.Staff.Id,
-		}).Scopes(model.DurationCondition(enums.DurationToday)).Select("order_id").Group("order_id")
+		}).Select("order_id").Group("order_id").Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
 	}
 
 	// 获取今日销售数据
-	if err := logic.getTodaySales(); err != nil {
+	if err := logic.getSales(); err != nil {
 		return nil, err
 	}
 
 	// 获取今日销售件数
-	if err := logic.getTodaySalesCount(); err != nil {
+	if err := logic.getSalesCount(); err != nil {
 		return nil, err
 	}
 
@@ -73,7 +82,7 @@ func (l *StatisticLogic) TodaySales(req *types.StatisticTodaySalesReq) (*TodaySa
 }
 
 // 获取金价
-func (l *TodaySalesLogic) getGoldPrice() error {
+func (l *SalesLogic) getGoldPrice() error {
 	price, _ := model.GetGoldPrice(&types.GoldPriceOptions{
 		StoreId: l.Req.StoreId,
 	})
@@ -83,7 +92,7 @@ func (l *TodaySalesLogic) getGoldPrice() error {
 }
 
 // 获取今日销售数据
-func (l *TodaySalesLogic) getTodaySales() error {
+func (l *SalesLogic) getSales() error {
 	var (
 		sales_amount sql.NullFloat64
 		db           = l.Db.Model(&model.OrderSales{})
@@ -98,7 +107,7 @@ func (l *TodaySalesLogic) getTodaySales() error {
 	db = db.Where(&model.OrderSales{
 		StoreId: l.Req.StoreId,
 		Status:  enums.OrderSalesStatusComplete,
-	}).Scopes(model.DurationCondition(enums.DurationToday))
+	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 
 	// 查询今日销售金额
 	if err := db.Select("sum(price_pay) as sales_amount").Scan(&sales_amount).Error; err != nil {
@@ -116,7 +125,7 @@ func (l *TodaySalesLogic) getTodaySales() error {
 }
 
 // 获取今日销售件数
-func (l *TodaySalesLogic) getTodaySalesCount() error {
+func (l *SalesLogic) getSalesCount() error {
 	var (
 		db = l.Db.Model(&model.OrderSalesProduct{})
 	)
@@ -130,14 +139,14 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 	order_query := l.Db.Model(&model.OrderSales{}).Where(&model.OrderSales{
 		StoreId: l.Req.StoreId,
 		Status:  enums.OrderSalesStatusComplete,
-	}).Scopes(model.DurationCondition(enums.DurationToday)).Select("id").Group("id")
+	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime)).Select("id").Group("id")
 	db = db.Where("order_id IN (?)", order_query)
 
 	// 查询今日销售件数
 	db = db.Where(&model.OrderSalesProduct{
 		Type:   enums.ProductTypeFinished,
 		Status: enums.OrderSalesStatusComplete,
-	}).Scopes(model.DurationCondition(enums.DurationToday))
+	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 	if err := db.Count(&l.Res.SalesCount).Error; err != nil {
 		return errors.New("获取今日销售件数失败")
 	}
@@ -146,7 +155,7 @@ func (l *TodaySalesLogic) getTodaySalesCount() error {
 }
 
 // 获取旧货抵值
-func (l *TodaySalesLogic) getOldGoodsAmount() error {
+func (l *SalesLogic) getOldGoodsAmount() error {
 	var (
 		old_goods_amount sql.NullFloat64
 		db               = l.Db.Model(&model.OrderSales{})
@@ -158,7 +167,7 @@ func (l *TodaySalesLogic) getOldGoodsAmount() error {
 	}
 
 	// 查询今日订单
-	db = db.Scopes(model.DurationCondition(enums.DurationToday))
+	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 
 	// 查询本门店已完成的订单
 	db = db.Where(&model.OrderSales{
@@ -182,7 +191,7 @@ func (l *TodaySalesLogic) getOldGoodsAmount() error {
 }
 
 // 获取退货金额
-func (l *TodaySalesLogic) getReturnAmount() error {
+func (l *SalesLogic) getReturnAmount() error {
 	var (
 		return_amount sql.NullFloat64
 		db            = l.Db.Model(&model.OrderRefund{})
@@ -194,7 +203,7 @@ func (l *TodaySalesLogic) getReturnAmount() error {
 	}
 
 	// 查询今日订单
-	db = db.Scopes(model.DurationCondition(enums.DurationToday))
+	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 	// 查询本门店销售单的退货订单
 	db = db.Where(&model.OrderRefund{
 		StoreId:   l.Req.StoreId,

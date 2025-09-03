@@ -1,17 +1,16 @@
-package statistic
+package today
 
 import (
-	"jdy/logic/statistic"
-	"jdy/types"
+	"jdy/logic/statistic/today"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 今日销售统计
-func (con StatisticController) TodaySales(ctx *gin.Context) {
+// 今日货品
+func (con ToDayController) Product(ctx *gin.Context) {
 	var (
-		req   types.StatisticTodaySalesReq
-		logic = statistic.StatisticLogic{}
+		req   today.ProductReq
+		logic = today.ToDayLogic{}
 	)
 
 	// 校验参数
@@ -28,7 +27,7 @@ func (con StatisticController) TodaySales(ctx *gin.Context) {
 		logic.Staff = staff
 	}
 
-	res, err := logic.TodaySales(&req)
+	res, err := logic.Product(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return

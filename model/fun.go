@@ -33,17 +33,13 @@ func PageCondition(db *gorm.DB, req *types.PageReq) *gorm.DB {
 }
 
 func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.DB) *gorm.DB {
-	if len(fields) == 0 {
-		fields = append(fields, "created_at")
-	}
-
 	var (
 		now = time.Now()
 	)
 
 	return func(tx *gorm.DB) *gorm.DB {
 		if err := duration.InMap(); err != nil {
-			_ = tx.AddError(errors.New("duration not in enum"))
+			_ = tx.AddError(errors.New("时间范围不合法"))
 			return tx
 		}
 
@@ -51,26 +47,32 @@ func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.
 		case enums.DurationCustom: // 自定义
 			{
 				if len(fields) < 3 || fields[1] == "" || fields[2] == "" {
-					_ = tx.AddError(errors.New("start or end time is empty"))
+					_ = tx.AddError(errors.New("自定义时间范围格式不正确"))
 					return tx
 				}
 
-				start, err := time.ParseInLocation(time.RFC3339, fields[1], now.Location())
+				field, stime, etime := fields[0], fields[1], fields[2]
+
+				start, err := time.ParseInLocation(time.RFC3339, stime, now.Location())
 				if err != nil {
-					_ = tx.AddError(errors.New("start time format error"))
+					_ = tx.AddError(errors.New("开始时间格式错误"))
 					return tx
 				}
 
-				end, err := time.ParseInLocation(time.RFC3339, fields[2], now.Location())
+				end, err := time.ParseInLocation(time.RFC3339, etime, now.Location())
 				if err != nil {
-					_ = tx.AddError(errors.New("end time format error"))
+					_ = tx.AddError(errors.New("结束时间格式错误"))
 					return tx
 				}
 
-				return tx.Where(fields[0]+" >= ? AND "+fields[0]+" < ?", start, end)
+				return tx.Where(field+" >= ? AND "+field+" < ?", start, end)
 			}
 		default:
 			{
+				if len(fields) == 0 {
+					fields = append(fields, "created_at")
+				}
+
 				start, end := duration.GetTime(now)
 
 				return tx.Where(fields[0]+" >= ? AND "+fields[0]+" < ?", start, end)

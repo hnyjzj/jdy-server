@@ -54,12 +54,12 @@ func (l *ToDayLogic) Sales(req *SalesReq) (*SalesRes, error) {
 		}).Select("order_id").Group("order_id").Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
 	}
 
-	// 获取今日销售数据
+	// 获取销售数据
 	if err := logic.getSales(); err != nil {
 		return nil, err
 	}
 
-	// 获取今日销售件数
+	// 获取销售件数
 	if err := logic.getSalesCount(); err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (l *SalesLogic) getGoldPrice() error {
 	return nil
 }
 
-// 获取今日销售数据
+// 获取销售数据
 func (l *SalesLogic) getSales() error {
 	var (
 		sales_amount sql.NullFloat64
@@ -99,15 +99,15 @@ func (l *SalesLogic) getSales() error {
 		db = db.Where("id IN (?)", l.clerk_query)
 	}
 
-	// 查询今日订单
+	// 查询订单
 	db = db.Where(&model.OrderSales{
 		StoreId: l.Req.StoreId,
 		Status:  enums.OrderSalesStatusComplete,
 	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 
-	// 查询今日销售金额
+	// 查询销售金额
 	if err := db.Select("sum(price_pay) as sales_amount").Scan(&sales_amount).Error; err != nil {
-		return errors.New("获取今日销售数据失败")
+		return errors.New("获取销售数据失败")
 	}
 
 	// 判断金额
@@ -120,7 +120,7 @@ func (l *SalesLogic) getSales() error {
 	return nil
 }
 
-// 获取今日销售件数
+// 获取销售件数
 func (l *SalesLogic) getSalesCount() error {
 	var (
 		db = l.Db.Model(&model.OrderSalesProduct{})
@@ -131,20 +131,20 @@ func (l *SalesLogic) getSalesCount() error {
 		db = db.Where("order_id IN (?)", l.clerk_query)
 	}
 
-	// 查询今日订单
+	// 查询订单
 	order_query := l.Db.Model(&model.OrderSales{}).Where(&model.OrderSales{
 		StoreId: l.Req.StoreId,
 		Status:  enums.OrderSalesStatusComplete,
 	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime)).Select("id").Group("id")
 	db = db.Where("order_id IN (?)", order_query)
 
-	// 查询今日销售件数
+	// 查询销售件数
 	db = db.Where(&model.OrderSalesProduct{
 		Type:   enums.ProductTypeFinished,
 		Status: enums.OrderSalesStatusComplete,
 	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 	if err := db.Count(&l.Res.SalesCount).Error; err != nil {
-		return errors.New("获取今日销售件数失败")
+		return errors.New("获取销售件数失败")
 	}
 
 	return nil
@@ -162,7 +162,7 @@ func (l *SalesLogic) getOldGoodsAmount() error {
 		db = db.Where("id IN (?)", l.clerk_query)
 	}
 
-	// 查询今日订单
+	// 查询订单
 	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 
 	// 查询本门店已完成的订单
@@ -171,9 +171,9 @@ func (l *SalesLogic) getOldGoodsAmount() error {
 		Status:  enums.OrderSalesStatusComplete,
 	})
 
-	// 查询今日销售金额
+	// 查询销售金额
 	if err := db.Select("sum(product_old_price) as sales_amount").Scan(&old_goods_amount).Error; err != nil {
-		return errors.New("获取今日销售数据失败")
+		return errors.New("获取销售数据失败")
 	}
 
 	// 判断金额
@@ -198,7 +198,7 @@ func (l *SalesLogic) getReturnAmount() error {
 		db = db.Where("order_id IN (?)", l.clerk_query)
 	}
 
-	// 查询今日订单
+	// 查询订单
 	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 	// 查询本门店销售单的退货订单
 	db = db.Where(&model.OrderRefund{

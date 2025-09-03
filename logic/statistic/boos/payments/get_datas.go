@@ -23,6 +23,7 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 	// 查询门店
 	store_logic := store.StoreLogic{
 		Staff: l.Staff,
+		Ctx:   l.Ctx,
 	}
 	stores, err := store_logic.My(&types.StoreListMyReq{})
 	if err != nil {

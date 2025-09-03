@@ -32,6 +32,7 @@ func (con BoosController) OldStockData(ctx *gin.Context) {
 		return
 	} else {
 		logic.Staff = staff
+		logic.Ctx = ctx
 	}
 
 	res, err := logic.GetDatas(&req)

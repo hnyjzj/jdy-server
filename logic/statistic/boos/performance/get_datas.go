@@ -37,6 +37,7 @@ func (r *dataLogic) get_stores() error {
 	// 查询门店
 	store_logic := store.StoreLogic{
 		Staff: r.Staff,
+		Ctx:   r.Ctx,
 	}
 	stores, err := store_logic.My(&types.StoreListMyReq{})
 	if err != nil {

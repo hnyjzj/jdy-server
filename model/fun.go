@@ -34,7 +34,8 @@ func PageCondition(db *gorm.DB, req *types.PageReq) *gorm.DB {
 
 func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.DB) *gorm.DB {
 	var (
-		now = time.Now()
+		now       = time.Now()
+		def_field = "created_at"
 	)
 
 	return func(tx *gorm.DB) *gorm.DB {
@@ -52,6 +53,9 @@ func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.
 				}
 
 				field, stime, etime := fields[0], fields[1], fields[2]
+				if field == "" {
+					field = def_field
+				}
 
 				start, err := time.ParseInLocation(time.RFC3339, stime, now.Location())
 				if err != nil {
@@ -70,7 +74,7 @@ func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.
 		default:
 			{
 				if len(fields) == 0 {
-					fields = append(fields, "created_at")
+					fields = append(fields, def_field)
 				}
 
 				start, end := duration.GetTime(now)

@@ -79,12 +79,12 @@ func (p Duration) GetTime(now time.Time) (start, end time.Time) {
 		end = start.Add(time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
 
 	case DurationQuarter: // 本季度
-		start = time.Date(now.Year(), time.Month(int(now.Month())/3*3+1), 1, 0, 0, 0, 0, now.Location())
-		end = start.Add(time.Date(now.Year(), time.Month(int(now.Month())/3*3+4), 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
+		start = time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+1), 1, 0, 0, 0, 0, now.Location())
+		end = start.Add(time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+4), 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
 
 	case DurationLastQuarter: // 上季度
-		start = time.Date(now.Year(), time.Month(int(now.Month())/3*3+1)-3, 1, 0, 0, 0, 0, now.Location())
-		end = start.Add(time.Date(now.Year(), time.Month(int(now.Month())/3*3+4)-3, 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
+		start = time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+1)-3, 1, 0, 0, 0, 0, now.Location())
+		end = start.Add(time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+4)-3, 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
 
 	case DurationYear: // 今年
 		start = time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())

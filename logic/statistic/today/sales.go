@@ -42,10 +42,6 @@ func (l *ToDayLogic) Sales(req *SalesReq) (*SalesRes, error) {
 		Db:         model.DB,
 	}
 
-	if err := req.Duration.InMap(); err != nil {
-		logic.Req.Duration = enums.DurationToday
-	}
-
 	// 获取金价
 	if err := logic.getGoldPrice(); err != nil {
 		return nil, err

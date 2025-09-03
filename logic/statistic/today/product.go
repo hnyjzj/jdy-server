@@ -36,13 +36,6 @@ func (l *ToDayLogic) Product(req *ProductReq) (*ProductRes, error) {
 		Db:  model.DB,
 	}
 
-	if err := req.Duration.InMap(); err != nil {
-		logic.Req.Duration = enums.DurationToday
-		start, end := logic.Req.Duration.GetTime(time.Now())
-		logic.Req.StartTime = start.Format(time.RFC3339)
-		logic.Req.EndTime = end.Format(time.RFC3339)
-	}
-
 	if err := logic.getProductStockCount(); err != nil {
 		return nil, err
 	}

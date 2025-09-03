@@ -19,6 +19,12 @@ func (con ToDayController) Sales(ctx *gin.Context) {
 		return
 	}
 
+	// 校验参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.Exception(ctx, "无法获取")

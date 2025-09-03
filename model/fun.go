@@ -68,6 +68,10 @@ func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.
 					_ = tx.AddError(errors.New("结束时间格式错误"))
 					return tx
 				}
+				if start.After(end) {
+					_ = tx.AddError(errors.New("开始时间不能大于结束时间"))
+					return tx
+				}
 
 				return tx.Where(field+" >= ? AND "+field+" < ?", start, end)
 			}

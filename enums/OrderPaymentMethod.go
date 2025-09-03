@@ -41,3 +41,7 @@ func (p OrderPaymentMethod) InMap() error {
 	}
 	return nil
 }
+
+func (p OrderPaymentMethod) String() string {
+	return OrderPaymentMethodMap[p]
+}

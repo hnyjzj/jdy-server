@@ -5,6 +5,7 @@ import (
 	"errors"
 	"jdy/enums"
 	"jdy/model"
+	"time"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -37,6 +38,9 @@ func (l *ToDayLogic) Product(req *ProductReq) (*ProductRes, error) {
 
 	if err := req.Duration.InMap(); err != nil {
 		logic.Req.Duration = enums.DurationToday
+		start, end := logic.Req.Duration.GetTime(time.Now())
+		logic.Req.StartTime = start.Format(time.RFC3339)
+		logic.Req.EndTime = end.Format(time.RFC3339)
 	}
 
 	if err := logic.getProductStockCount(); err != nil {
@@ -124,9 +128,14 @@ func (l *ProductLogic) getUnsalableCount() error {
 		StoreId: l.Req.StoreId,
 	})
 	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
-	// 滞销货品：enter_time 对比 req.end_time 大于 6 个月
-	db = db.Where("DATEDIFF(?, enter_time) > 180", l.Req.EndTime)
 	db = db.Select("COUNT(id) as count")
+
+	// 滞销货品：enter_time 对比 req.end_time 超过180天
+	end_time, err := time.ParseInLocation(time.RFC3339, l.Req.EndTime, time.Now().Location())
+	if err != nil {
+		return errors.New("时间格式错误")
+	}
+	db = db.Where("DATEDIFF(?, enter_time) > 180", end_time)
 
 	if err := db.Scan(&product_count).Error; err != nil {
 		return errors.New("获取滞销货品件数失败")

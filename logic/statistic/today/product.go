@@ -27,6 +27,8 @@ type ProductLogic struct {
 	Req *ProductReq
 	Db  *gorm.DB
 	Res *ProductRes
+
+	endtime time.Time
 }
 
 func (l *ToDayLogic) Product(req *ProductReq) (*ProductRes, error) {
@@ -35,6 +37,12 @@ func (l *ToDayLogic) Product(req *ProductReq) (*ProductRes, error) {
 		Res: &ProductRes{},
 		Db:  model.DB,
 	}
+
+	_, endtime, err := req.Duration.GetTime(time.Now(), req.StartTime, req.EndTime)
+	if err != nil {
+		return nil, err
+	}
+	logic.endtime = endtime
 
 	if err := logic.getProductStockCount(); err != nil {
 		return nil, err
@@ -62,7 +70,7 @@ func (l *ProductLogic) getProductStockCount() error {
 		Status:  enums.ProductStatusNormal,
 		StoreId: l.Req.StoreId,
 	})
-	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
+	db = db.Where("enter_time <= ?", l.endtime)
 
 	if err := db.Count(&count).Error; err != nil {
 		return errors.New("获取成品库存件数失败")
@@ -89,7 +97,7 @@ func (l *ProductLogic) getOldStock() error {
 		Status:  enums.ProductStatusNormal,
 		StoreId: l.Req.StoreId,
 	})
-	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
+	db = db.Where("created_at <= ?", l.endtime)
 	db = db.Select("COUNT(id) as count, SUM(weight_metal) as weight")
 
 	if err := db.Scan(&res).Error; err != nil {
@@ -120,7 +128,6 @@ func (l *ProductLogic) getUnsalableCount() error {
 		Status:  enums.ProductStatusNormal,
 		StoreId: l.Req.StoreId,
 	})
-	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 	db = db.Select("COUNT(id) as count")
 
 	// 滞销货品：enter_time 对比 req.end_time 超过180天

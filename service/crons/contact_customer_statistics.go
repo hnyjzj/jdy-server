@@ -40,7 +40,11 @@ func CustomerStatistics() {
 		wxwork = config.NewWechatService().JdyWork
 	)
 
-	strat, end := enums.DurationYesterday.GetTime(time.Now())
+	strat, end, err := enums.DurationYesterday.GetTime(time.Now())
+	if err != nil {
+		log.Printf("获取时间失败：%s", err.Error())
+		return
+	}
 
 	for _, staff := range staffs {
 		// 查询个人客户统计信息
@@ -78,7 +82,11 @@ func SendCustomerStatisticsPersonal() {
 	}
 
 	ctx := context.Background()
-	strat, _ := enums.DurationYesterday.GetTime(time.Now())
+	strat, _, err := enums.DurationYesterday.GetTime(time.Now())
+	if err != nil {
+		log.Printf("获取时间失败：%s", err.Error())
+		return
+	}
 
 	for _, staff := range staffs {
 		// 查询个人客户统计信息

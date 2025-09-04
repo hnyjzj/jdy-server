@@ -147,12 +147,6 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 	if query.EnterId != "" {
 		db = db.Where("enter_id = ?", query.EnterId) // 入库单ID
 	}
-	if query.EnterStartTime != nil {
-		db = db.Where("enter_time >= ?", query.EnterStartTime) // 入库时间
-	}
-	if query.EnterEndTime != nil {
-		db = db.Where("enter_time <= ?", query.EnterEndTime) // 入库时间
-	}
 
 	return db
 }

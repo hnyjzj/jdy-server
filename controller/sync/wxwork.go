@@ -12,9 +12,9 @@ type WxworkController struct {
 
 // 同步通讯录
 func (con WxworkController) SyncContacts(ctx *gin.Context) {
-	logic := sync.WxWorkLogic{
-		Ctx: ctx,
-	}
+	logic := sync.WxWorkLogic{}
+
+	logic.Ctx = ctx
 
 	if err := logic.Contacts(); err != nil {
 		con.Exception(ctx, err.Error())

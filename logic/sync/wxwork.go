@@ -11,12 +11,11 @@ import (
 	"strings"
 
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work"
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type WxWorkLogic struct {
-	Ctx *gin.Context
+	SyncLogic
 
 	App *work.Work
 }

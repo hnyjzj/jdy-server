@@ -68,14 +68,16 @@ func (p Duration) GetTime(now time.Time, times ...string) (start, end time.Time,
 
 	case DurationWeek: // 本周
 		{
-			start = time.Date(now.Year(), now.Month(), now.Day()-int(now.Weekday())+1, 0, 0, 0, 0, now.Location())
-			end = start.Add(7*24*time.Hour - time.Nanosecond)
+			offset := (int(now.Weekday()) - int(time.Monday) + 7) % 7
+			start = time.Date(now.Year(), now.Month(), now.Day()-offset, 0, 0, 0, 0, now.Location())
+			end = start.AddDate(0, 0, 7).Add(-time.Nanosecond)
 		}
 
 	case DurationLastWeek: // 上周
 		{
-			start = time.Date(now.Year(), now.Month(), now.Day()-int(now.Weekday())+1-7, 0, 0, 0, 0, now.Location())
-			end = start.Add(7*24*time.Hour - time.Nanosecond)
+			offset := (int(now.Weekday()) - int(time.Monday) + 7) % 7
+			start = time.Date(now.Year(), now.Month(), now.Day()-offset-7, 0, 0, 0, 0, now.Location())
+			end = start.AddDate(0, 0, 7).Add(-time.Nanosecond)
 		}
 
 	case DurationMonth: // 本月
@@ -92,13 +94,17 @@ func (p Duration) GetTime(now time.Time, times ...string) (start, end time.Time,
 
 	case DurationQuarter: // 本季度
 		{
-			start = time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+1), 1, 0, 0, 0, 0, now.Location())
-			end = start.Add(time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+4), 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
+			quarter := (int(now.Month()) - 1) / 3
+			startMonth := time.Month(quarter*3 + 1)
+			start = time.Date(now.Year(), startMonth, 1, 0, 0, 0, 0, now.Location())
+			end = start.AddDate(0, 3, 0).Add(-time.Nanosecond)
 		}
 	case DurationLastQuarter: // 上季度
 		{
-			start = time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+1)-3, 1, 0, 0, 0, 0, now.Location())
-			end = start.Add(time.Date(now.Year(), time.Month(int(now.Month()-1)/3*3+4)-3, 1, 0, 0, 0, 0, now.Location()).Sub(start)).Add(-time.Nanosecond)
+			quarter := (int(now.Month()) - 1) / 3
+			startMonth := time.Month(quarter*3 + 1)
+			start = time.Date(now.Year(), startMonth-3, 1, 0, 0, 0, 0, now.Location())
+			end = start.AddDate(0, 3, 0).Add(-time.Nanosecond)
 		}
 	case DurationYear: // 今年
 		{

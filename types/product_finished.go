@@ -39,16 +39,18 @@ type ProductFinishedWhere struct {
 	Size     string                `json:"size" label:"手寸" find:"true" create:"true" update:"true" sort:"25" type:"string" input:"text"`                        // 手寸
 
 	IsSpecialOffer *bool               `json:"is_special_offer" label:"是否特价" find:"true" create:"true" update:"true" sort:"26" type:"boolean" input:"switch"`       // 是否特价
-	Series         string              `json:"series" label:"系列" find:"true" create:"true" update:"true" sort:"26" type:"string" input:"text"`                      // 系列
-	Remark         string              `json:"remark" label:"备注" find:"true" create:"true" update:"true" sort:"27" type:"string" input:"textarea"`                  // 备注
-	Status         enums.ProductStatus `json:"status" label:"状态" find:"true" create:"false" update:"false" sort:"28" type:"number" input:"select" preset:"typeMap"` // 状态
+	Series         string              `json:"series" label:"系列" find:"true" create:"true" update:"true" sort:"27" type:"string" input:"text"`                      // 系列
+	Remark         string              `json:"remark" label:"备注" find:"true" create:"true" update:"true" sort:"28" type:"string" input:"textarea"`                  // 备注
+	Status         enums.ProductStatus `json:"status" label:"状态" find:"true" create:"false" update:"false" sort:"29" type:"number" input:"select" preset:"typeMap"` // 状态
 
-	StoreId     string   `json:"store_id" label:"门店" find:"false" create:"true" update:"false" sort:"31" type:"string" input:"text"`     // 门店
-	Certificate []string `json:"certificate" label:"证书" find:"false" create:"true" update:"true" sort:"32" type:"string[]" input:"list"` // 证书
-	Images      []string `json:"images" label:"图片" find:"false" create:"false" update:"true" sort:"33" type:"string[]" input:"list"`     // 图片
+	StoreId     string   `json:"store_id" label:"门店" find:"false" create:"true" update:"false" sort:"30" type:"string" input:"text"`     // 门店
+	Certificate []string `json:"certificate" label:"证书" find:"false" create:"true" update:"true" sort:"31" type:"string[]" input:"list"` // 证书
+	Images      []string `json:"images" label:"图片" find:"false" create:"false" update:"true" sort:"32" type:"string[]" input:"list"`     // 图片
 
-	EnterId   string    `json:"enter_id" label:"入库单" find:"true" sort:"2" type:"string" input:"text"`   // 产品入库单ID
-	EnterTime time.Time `json:"enter_time" label:"入库时间" find:"false" sort:"3" type:"data" input:"date"` // 产品入库时间
+	EnterId        string     `json:"enter_id" label:"入库单" find:"true" sort:"33" type:"string" input:"text"`          // 产品入库单ID
+	EnterTime      time.Time  `json:"enter_time" label:"入库时间" find:"false" sort:"34" type:"date" input:"date"`        // 产品入库时间
+	EnterStartTime *time.Time `json:"enter_start_time" label:"入库开始时间" find:"true" sort:"35" type:"date" input:"date"` // 产品入库时间
+	EnterEndTime   *time.Time `json:"enter_end_time" label:"入库结束时间" find:"true" sort:"36" type:"date" input:"date"`   // 产品入库时间
 }
 
 type ProductFinishedListReq struct {

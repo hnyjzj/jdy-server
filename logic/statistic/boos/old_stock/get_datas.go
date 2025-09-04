@@ -6,12 +6,15 @@ import (
 	"jdy/logic/store"
 	"jdy/model"
 	"jdy/types"
+	"time"
 
 	"github.com/shopspring/decimal"
 )
 
 type dataLogic struct {
 	*Logic
+
+	endtime time.Time
 
 	Stores []model.Store
 }
@@ -34,21 +37,27 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 		logic.Stores = *stores
 	}
 
+	_, endtime, err := req.Duration.GetTime(time.Now(), req.StartTime, req.EndTime)
+	if err != nil {
+		return nil, err
+	}
+	logic.endtime = endtime
+
 	// 查询数据
 	switch req.Type {
 	case TypesCount:
-		return logic.get_count_data(req)
+		return logic.get_count_data()
 	case TypesWeightMetal:
-		return logic.get_weight_metal(req)
+		return logic.get_weight_metal()
 	case TypesRecyclePrice:
-		return logic.get_recycle_price(req)
+		return logic.get_recycle_price()
 	}
 
 	return nil, nil
 }
 
 // 件数
-func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
+func (r *dataLogic) get_count_data() (any, error) {
 	var data []map[string]any
 
 	for _, store := range r.Stores {
@@ -62,7 +71,7 @@ func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
 			StoreId: store.Id,
 			Status:  enums.ProductStatusNormal,
 		})
-		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+		db_total = db_total.Where("created_at <= ?", r.endtime)
 
 		var total int64
 		if err := db_total.Count(&total).Error; err != nil {
@@ -77,7 +86,7 @@ func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
-			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+			db = db.Where("created_at <= ?", r.endtime)
 
 			var count int64
 			if err := db.Count(&count).Error; err != nil {
@@ -93,7 +102,7 @@ func (r *dataLogic) get_count_data(req *DataReq) (any, error) {
 }
 
 // 金重
-func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
+func (r *dataLogic) get_weight_metal() (any, error) {
 	var data []map[string]any
 
 	for _, store := range r.Stores {
@@ -107,7 +116,7 @@ func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 			StoreId: store.Id,
 			Status:  enums.ProductStatusNormal,
 		})
-		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+		db_total = db_total.Where("created_at <= ?", r.endtime)
 
 		var total decimal.Decimal
 		if err := db_total.Select("SUM(weight_metal) as total").Having("total > 0").Scan(&total).Error; err != nil {
@@ -122,7 +131,7 @@ func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
-			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+			db = db.Where("created_at <= ?", r.endtime)
 
 			var total decimal.Decimal
 			if err := db.Select("SUM(weight_metal) as total").Having("total > 0").Scan(&total).Error; err != nil {
@@ -138,7 +147,7 @@ func (r *dataLogic) get_weight_metal(req *DataReq) (any, error) {
 }
 
 // 抵值
-func (r *dataLogic) get_recycle_price(req *DataReq) (any, error) {
+func (r *dataLogic) get_recycle_price() (any, error) {
 	var data []map[string]any
 
 	for _, store := range r.Stores {
@@ -152,7 +161,7 @@ func (r *dataLogic) get_recycle_price(req *DataReq) (any, error) {
 			StoreId: store.Id,
 			Status:  enums.ProductStatusNormal,
 		})
-		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+		db_total = db_total.Where("created_at <= ?", r.endtime)
 
 		var total decimal.Decimal
 		if err := db_total.Select("SUM(recycle_price) as total").Having("total > 0").Scan(&total).Error; err != nil {
@@ -167,7 +176,7 @@ func (r *dataLogic) get_recycle_price(req *DataReq) (any, error) {
 				Status:  enums.ProductStatusNormal,
 				Class:   k,
 			})
-			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
+			db = db.Where("created_at <= ?", r.endtime)
 
 			var total decimal.Decimal
 			if err := db.Select("SUM(recycle_price) as total").Having("total > 0").Scan(&total).Error; err != nil {

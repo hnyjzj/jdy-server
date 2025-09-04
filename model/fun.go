@@ -57,19 +57,9 @@ func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.
 					field = def_field
 				}
 
-				start, err := time.ParseInLocation(time.RFC3339, stime, now.Location())
+				start, end, err := duration.GetTime(now, stime, etime)
 				if err != nil {
-					_ = tx.AddError(errors.New("开始时间格式错误"))
-					return tx
-				}
-
-				end, err := time.ParseInLocation(time.RFC3339, etime, now.Location())
-				if err != nil {
-					_ = tx.AddError(errors.New("结束时间格式错误"))
-					return tx
-				}
-				if start.After(end) {
-					_ = tx.AddError(errors.New("开始时间不能大于结束时间"))
+					_ = tx.AddError(err)
 					return tx
 				}
 
@@ -81,7 +71,11 @@ func DurationCondition(duration enums.Duration, fields ...string) func(tx *gorm.
 					fields = append(fields, def_field)
 				}
 
-				start, end := duration.GetTime(now)
+				start, end, err := duration.GetTime(now)
+				if err != nil {
+					_ = tx.AddError(err)
+					return tx
+				}
 
 				return tx.Where(fields[0]+" >= ? AND "+fields[0]+" < ?", start, end)
 			}

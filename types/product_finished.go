@@ -47,10 +47,8 @@ type ProductFinishedWhere struct {
 	Certificate []string `json:"certificate" label:"证书" find:"false" create:"true" update:"true" sort:"31" type:"string[]" input:"list"` // 证书
 	Images      []string `json:"images" label:"图片" find:"false" create:"false" update:"true" sort:"32" type:"string[]" input:"list"`     // 图片
 
-	EnterId        string     `json:"enter_id" label:"入库单" find:"true" sort:"33" type:"string" input:"text"`          // 产品入库单ID
-	EnterTime      time.Time  `json:"enter_time" label:"入库时间" find:"false" sort:"34" type:"date" input:"date"`        // 产品入库时间
-	EnterStartTime *time.Time `json:"enter_start_time" label:"入库开始时间" find:"true" sort:"35" type:"date" input:"date"` // 产品入库时间
-	EnterEndTime   *time.Time `json:"enter_end_time" label:"入库结束时间" find:"true" sort:"36" type:"date" input:"date"`   // 产品入库时间
+	EnterId   string    `json:"enter_id" label:"入库单" find:"true" sort:"33" type:"string" input:"text"`   // 产品入库单ID
+	EnterTime time.Time `json:"enter_time" label:"入库时间" find:"false" sort:"34" type:"date" input:"date"` // 产品入库时间
 }
 
 type ProductFinishedListReq struct {

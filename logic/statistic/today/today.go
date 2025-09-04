@@ -27,7 +27,10 @@ func (req *DataReq) Validate() error {
 		}
 	}
 
-	start, end := req.Duration.GetTime(time.Now())
+	start, end, err := req.Duration.GetTime(time.Now())
+	if err != nil {
+		return err
+	}
 	req.StartTime = start.Format(time.RFC3339)
 	req.EndTime = end.Format(time.RFC3339)
 

@@ -13,7 +13,7 @@ import (
 
 type SalesReq struct {
 	DataReq
-	StoreId string `json:"store_id" binding:"required"`
+	StoreId string `json:"store_id"`
 }
 
 type SalesRes struct {

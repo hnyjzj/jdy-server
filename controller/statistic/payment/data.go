@@ -1,28 +1,22 @@
-package today
+package payment
 
 import (
 	"jdy/enums"
-	"jdy/logic/statistic/today"
+	"jdy/logic/statistic/payment"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 今日货品
-func (con ToDayController) Product(ctx *gin.Context) {
+// 成品库存统计
+func (con PaymentController) Data(ctx *gin.Context) {
 	var (
-		req   today.ProductReq
-		logic = today.ToDayLogic{}
+		req   payment.DataReq
+		logic = payment.StatisticPaymentLogic{}
 	)
 
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
+	// 获取请求参数
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		con.Exception(ctx, "参数错误")
-		return
-	}
-
-	// 校验参数
-	if err := req.Validate(); err != nil {
-		con.Exception(ctx, err.Error())
 		return
 	}
 
@@ -32,6 +26,7 @@ func (con ToDayController) Product(ctx *gin.Context) {
 		return
 	} else {
 		logic.Staff = staff
+		logic.Ctx = ctx
 
 		if staff.Identity < enums.IdentityAreaManager && req.StoreId == "" {
 			con.Exception(ctx, "参数错误")
@@ -39,9 +34,9 @@ func (con ToDayController) Product(ctx *gin.Context) {
 		}
 	}
 
-	res, err := logic.Product(&req)
+	res, err := logic.Data(&req)
 	if err != nil {
-		con.Exception(ctx, err.Error())
+		con.Exception(ctx, "获取失败")
 		return
 	}
 

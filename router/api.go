@@ -12,7 +12,9 @@ import (
 	"jdy/controller/staff"
 	"jdy/controller/statistic"
 	"jdy/controller/statistic/boos"
+	"jdy/controller/statistic/payment"
 	"jdy/controller/statistic/sale"
+	"jdy/controller/statistic/stock"
 	"jdy/controller/statistic/today"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
@@ -133,14 +135,32 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			todays := statistics.Group("/today")
+			todays := statistics.Group("/today") // 今日数据
 			{
 				todays.Use(middlewares.JWTMiddleware())
 				{
 					todays.POST("/sales", today.ToDayController{}.Sales)     // 今日销售
 					todays.POST("/product", today.ToDayController{}.Product) // 今日货品
+					todays.POST("/payment", today.ToDayController{}.Payment) // 今日收支
 				}
+			}
 
+			payments := statistics.Group("/payment") // 收支数据
+			{
+				payments.GET("/where", payment.PaymentController{}.Where) // 筛选
+				payments.Use(middlewares.JWTMiddleware())
+				{
+					payments.POST("/data", payment.PaymentController{}.Data) // 概览
+				}
+			}
+
+			stocks := statistics.Group("/stock") // 库存数据
+			{
+				stocks.GET("/where", stock.StockController{}.Where) // 库存数据筛选
+				stocks.Use(middlewares.JWTMiddleware())
+				{
+					stocks.POST("/data", stock.StockController{}.Data) // 库存数据列表
+				}
 			}
 
 			sales := statistics.Group("/sales") // 销售数据

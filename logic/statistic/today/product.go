@@ -13,7 +13,7 @@ import (
 
 type ProductReq struct {
 	DataReq
-	StoreId string `json:"store_id" binding:"required"` // 门店ID
+	StoreId string `json:"store_id"` // 门店ID
 }
 
 type ProductRes struct {
@@ -67,8 +67,11 @@ func (l *ProductLogic) getProductStockCount() error {
 
 	db := l.Db.Model(&model.ProductFinished{})
 	db = db.Where(&model.ProductFinished{
-		Status:  enums.ProductStatusNormal,
 		StoreId: l.Req.StoreId,
+	})
+	db = db.Where("status IN (?)", []enums.ProductStatus{
+		enums.ProductStatusNormal,
+		enums.ProductStatusAllocate,
 	})
 	db = db.Where("enter_time <= ?", l.endtime)
 
@@ -125,8 +128,11 @@ func (l *ProductLogic) getUnsalableCount() error {
 
 	db := l.Db.Model(&model.ProductFinished{})
 	db = db.Where(&model.ProductFinished{
-		Status:  enums.ProductStatusNormal,
 		StoreId: l.Req.StoreId,
+	})
+	db = db.Where("status IN (?)", []enums.ProductStatus{
+		enums.ProductStatusNormal,
+		enums.ProductStatusAllocate,
 	})
 	db = db.Select("COUNT(id) as count")
 

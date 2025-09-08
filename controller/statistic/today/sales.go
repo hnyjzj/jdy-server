@@ -1,6 +1,7 @@
 package today
 
 import (
+	"jdy/enums"
 	"jdy/logic/statistic/today"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,11 @@ func (con ToDayController) Sales(ctx *gin.Context) {
 		return
 	} else {
 		logic.Staff = staff
+
+		if staff.Identity < enums.IdentityAreaManager && req.StoreId == "" {
+			con.Exception(ctx, "参数错误")
+			return
+		}
 	}
 
 	res, err := logic.Sales(&req)

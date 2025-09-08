@@ -388,7 +388,7 @@ func (l *dataLogic) get_old_class() map[string]any {
 		weight_row[k] = weight
 		data["金重"] = weight_row
 
-		price_row, ok := data["标价"].(map[string]any)
+		price_row, ok := data["抵值"].(map[string]any)
 		if !ok {
 			price_row = make(map[string]any, 0)
 		}
@@ -396,9 +396,9 @@ func (l *dataLogic) get_old_class() map[string]any {
 		if !ok {
 			price = decimal.NewFromInt(0)
 		}
-		price = price.Add(old.LabelPrice)
+		price = price.Add(old.RecyclePrice)
 		price_row[k] = price
-		data["标价"] = price_row
+		data["抵值"] = price_row
 	}
 
 	return data

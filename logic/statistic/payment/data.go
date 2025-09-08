@@ -119,65 +119,49 @@ func (l *datawLogic) get_overview() map[string]any {
 func (l *datawLogic) get_list() map[string]any {
 	data := make(map[string]any)
 
-	total, ok := data["合计"].(map[string]any)
-	if !ok {
-		total = make(map[string]any)
-		total["收入"] = decimal.Zero
-		total["支出"] = decimal.Zero
-		total["结余"] = decimal.Zero
-	}
+	totalIncome := decimal.Zero
+	totalOutcome := decimal.Zero
 
 	if len(l.Payments) == 0 {
-		data["合计"] = total
+		data["合计"] = map[string]any{
+			"收入": decimal.Zero,
+			"支出": decimal.Zero,
+			"结余": decimal.Zero,
+		}
 		return data
 	}
 
 	for _, payment := range l.Payments {
 		k := payment.PaymentMethod.String()
 
-		row, ok := data[k].(map[string]any)
-		if !ok {
-			row = make(map[string]any)
-		}
-		income, ok := row["收入"].(decimal.Decimal)
-		if !ok {
-			income = decimal.Zero
-		}
-		outcome, ok := row["支出"].(decimal.Decimal)
-		if !ok {
-			outcome = decimal.Zero
-		}
-
-		balance, ok := row["结余"].(decimal.Decimal)
-		if !ok {
-			balance = decimal.Zero
+		row, _ := data[k].(map[string]any)
+		if row == nil {
+			row = map[string]any{
+				"收入": decimal.Zero,
+				"支出": decimal.Zero,
+				"结余": decimal.Zero,
+			}
 		}
 
 		switch payment.Type {
 		case enums.FinanceTypeIncome:
-			{
-				income = income.Add(payment.Amount)
-				balance = income.Sub(outcome)
-			}
+			row["收入"] = row["收入"].(decimal.Decimal).Add(payment.Amount)
+			totalIncome = totalIncome.Add(payment.Amount)
 		case enums.FinanceTypeExpense:
-			{
-				outcome = outcome.Add(payment.Amount)
-				balance = income.Sub(outcome)
-			}
+			row["支出"] = row["支出"].(decimal.Decimal).Add(payment.Amount)
+			totalOutcome = totalOutcome.Add(payment.Amount)
 		}
 
-		row["收入"] = income
-		row["支出"] = outcome
-		row["结余"] = balance
-
-		total["收入"] = total["收入"].(decimal.Decimal).Add(income)
-		total["支出"] = total["支出"].(decimal.Decimal).Add(outcome)
-		total["结余"] = total["结余"].(decimal.Decimal).Add(balance)
-
+		// Update this row’s balance
+		row["结余"] = row["收入"].(decimal.Decimal).Sub(row["支出"].(decimal.Decimal))
 		data[k] = row
 	}
 
-	data["合计"] = total
+	data["合计"] = map[string]any{
+		"收入": totalIncome,
+		"支出": totalOutcome,
+		"结余": totalIncome.Sub(totalOutcome),
+	}
 
 	return data
 }

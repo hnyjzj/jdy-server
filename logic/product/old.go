@@ -26,6 +26,10 @@ func (p *ProductOldLogic) List(req *types.ProductOldListReq) (*types.PageRes[mod
 
 	db := model.DB.Model(&product)
 	db = product.WhereCondition(db, &req.Where)
+	db = db.Where("status IN (?)", []enums.ProductStatus{
+		enums.ProductStatusNormal,
+		enums.ProductStatusAllocate,
+	})
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {

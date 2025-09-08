@@ -32,3 +32,7 @@ func (p ProductAccessorieType) InMap() error {
 	}
 	return nil
 }
+
+func (p ProductAccessorieType) String() string {
+	return ProductAccessorieTypeMap[p]
+}

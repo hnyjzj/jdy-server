@@ -9,6 +9,7 @@ import (
 )
 
 type PaymentReq struct {
+	DataReq
 	StoreId string `json:"store_id"` // 门店ID
 }
 
@@ -42,7 +43,7 @@ func (l *PaymentLogic) get_payments() error {
 		StoreId: l.Req.StoreId,
 		Status:  true,
 	})
-	db = db.Scopes(model.DurationCondition(enums.DurationYesterday))
+	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
 
 	if err := db.Find(&l.Payments).Error; err != nil {
 		return errors.New("获取数据失败")

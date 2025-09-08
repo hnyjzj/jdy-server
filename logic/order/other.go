@@ -38,6 +38,7 @@ func (l *OrderOtherLogic) Create(req *types.OrderOtherCreateReq) (*model.OrderOt
 		for _, p := range req.Payments {
 			expense = expense.Add(p.Amount)
 			order.Payments = append(order.Payments, model.OrderPayment{
+				Status:        true,
 				StoreId:       order.StoreId,
 				Type:          req.Type,
 				Source:        enums.FinanceSource(req.Source),

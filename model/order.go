@@ -15,8 +15,9 @@ type OrderPayment struct {
 	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:店铺ID;"`  // 店铺ID
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:店铺;"` // 店铺
 
-	Type   enums.FinanceType   `json:"type" gorm:"type:int(11);not NULL;comment:支付类型;"`   // 支付类型
-	Source enums.FinanceSource `json:"source" gorm:"type:int(11);not NULL;comment:支付来源;"` // 支付来源
+	Type   enums.FinanceType   `json:"type" gorm:"type:int(11);not NULL;comment:支付类型;"`                // 支付类型
+	Source enums.FinanceSource `json:"source" gorm:"type:int(11);not NULL;comment:支付来源;"`              // 支付来源
+	Status bool                `json:"status" gorm:"type:tinyint(1);not NULL;default:0;comment:支付状态;"` // 支付状态
 
 	OrderId      string          `json:"order_id" gorm:"type:varchar(255);not NULL;comment:订单ID;"`                     // 订单ID
 	OrderType    enums.OrderType `json:"order_type" gorm:"type:int(11);not NULL;comment:订单类型;"`                        // 订单类型

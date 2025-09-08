@@ -259,6 +259,10 @@ func (l *StatisticSalesDetailDailyLogic) getOrderPayment() error {
 		db = db.Where("created_at <= ?", l.req.EndTime)
 	}
 
+	db = db.Where(&model.OrderPayment{
+		Status: true,
+	})
+
 	if err := db.Find(&l.OrderPayment).Error; err != nil {
 		return err
 	}

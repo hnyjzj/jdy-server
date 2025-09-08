@@ -303,6 +303,15 @@ func (l *OrderRepairLogic) Pay(req *types.OrderRepairPayReq) error {
 			}
 		}
 
+		for _, payment := range order.Payments {
+			// 更新支付状态
+			if err := tx.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Updates(&model.OrderPayment{
+				Status: true,
+			}).Error; err != nil {
+				return errors.New("更新支付状态失败")
+			}
+		}
+
 		// 更新订单状态
 		if err := tx.Model(&model.OrderRepair{}).Where("id = ?", order.Id).Updates(&model.OrderRepair{
 			Status: enums.OrderRepairStatusStoreReceived,

@@ -225,6 +225,15 @@ func (l *OrderDepositLogic) Pay(req *types.OrderDepositPayReq) error {
 			}
 		}
 
+		for _, payment := range order.Payments {
+			// 更新支付状态
+			if err := tx.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Updates(&model.OrderPayment{
+				Status: true,
+			}).Error; err != nil {
+				return errors.New("更新支付状态失败")
+			}
+		}
+
 		// 更新订单状态
 		if err := tx.Model(&model.OrderDeposit{}).Where("id = ?", order.Id).Updates(&model.OrderDeposit{
 			Status: enums.OrderDepositStatusBooking,
@@ -333,6 +342,7 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 			refund_price = refund_price.Add(payment.Amount)
 
 			payment := model.OrderPayment{
+				Status:        true,
 				StoreId:       order.StoreId,
 				OrderId:       data.Id,
 				Type:          enums.FinanceTypeExpense,

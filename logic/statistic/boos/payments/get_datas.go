@@ -60,6 +60,7 @@ func (r *dataLogic) get_income(req *DataReq) (any, error) {
 		db_total = db_total.Where(&model.OrderPayment{
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeIncome,
+			Status:  true,
 		})
 		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
 
@@ -75,6 +76,7 @@ func (r *dataLogic) get_income(req *DataReq) (any, error) {
 			db = db.Where(&model.OrderPayment{
 				StoreId:       store.Id,
 				Type:          enums.FinanceTypeIncome,
+				Status:        true,
 				PaymentMethod: k,
 			})
 			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
@@ -106,6 +108,7 @@ func (r *dataLogic) get_expense(req *DataReq) (any, error) {
 		db_total = db_total.Where(&model.OrderPayment{
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeExpense,
+			Status:  true,
 		})
 		db_total = db_total.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
 
@@ -121,6 +124,7 @@ func (r *dataLogic) get_expense(req *DataReq) (any, error) {
 			db = db.Where(&model.OrderPayment{
 				StoreId:       store.Id,
 				Type:          enums.FinanceTypeExpense,
+				Status:        true,
 				PaymentMethod: k,
 			})
 			db = db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
@@ -152,6 +156,7 @@ func (r *dataLogic) get_surplus(req *DataReq) (any, error) {
 		total_income_db = total_income_db.Where(&model.OrderPayment{
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeIncome,
+			Status:  true,
 		})
 		total_income_db = total_income_db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
 
@@ -164,6 +169,7 @@ func (r *dataLogic) get_surplus(req *DataReq) (any, error) {
 		total_expense_db = total_expense_db.Where(&model.OrderPayment{
 			StoreId: store.Id,
 			Type:    enums.FinanceTypeExpense,
+			Status:  true,
 		})
 		total_expense_db = total_expense_db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
 
@@ -179,6 +185,7 @@ func (r *dataLogic) get_surplus(req *DataReq) (any, error) {
 			income_db = income_db.Where(&model.OrderPayment{
 				StoreId:       store.Id,
 				Type:          enums.FinanceTypeIncome,
+				Status:        true,
 				PaymentMethod: k,
 			})
 			income_db = income_db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
@@ -192,6 +199,7 @@ func (r *dataLogic) get_surplus(req *DataReq) (any, error) {
 			expense_db = expense_db.Where(&model.OrderPayment{
 				StoreId:       store.Id,
 				Type:          enums.FinanceTypeExpense,
+				Status:        true,
 				PaymentMethod: k,
 			})
 			expense_db = expense_db.Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))

@@ -12,6 +12,7 @@ import (
 	"jdy/controller/staff"
 	"jdy/controller/statistic"
 	"jdy/controller/statistic/boos"
+	"jdy/controller/statistic/payment"
 	"jdy/controller/statistic/stock"
 	"jdy/controller/statistic/today"
 	"jdy/controller/store"
@@ -141,7 +142,15 @@ func Api(g *gin.Engine) {
 					todays.POST("/product", today.ToDayController{}.Product) // 今日货品
 					todays.POST("/payment", today.ToDayController{}.Payment) // 今日收支
 				}
+			}
 
+			payments := statistics.Group("/payment") // 收支数据
+			{
+				payments.GET("/where", payment.PaymentController{}.Where) // 筛选
+				payments.Use(middlewares.JWTMiddleware())
+				{
+					payments.POST("/data", payment.PaymentController{}.Data) // 概览
+				}
 			}
 
 			stocks := statistics.Group("/stock") // 库存数据

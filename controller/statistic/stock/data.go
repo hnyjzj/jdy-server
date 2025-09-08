@@ -1,6 +1,7 @@
 package stock
 
 import (
+	"jdy/enums"
 	"jdy/logic/statistic/stock"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,11 @@ func (con StockController) Data(ctx *gin.Context) {
 	} else {
 		logic.Staff = staff
 		logic.Ctx = ctx
+
+		if staff.Identity < enums.IdentityAdmin && req.StoreId == "" {
+			con.Exception(ctx, "参数错误")
+			return
+		}
 	}
 
 	res, err := logic.Data(&req)

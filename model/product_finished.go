@@ -256,8 +256,11 @@ func (p *ProductFinished) GetClass() enums.ProductClassFinished {
 	}
 }
 
-func (p *ProductFinished) IsUnsalable(t *time.Time) bool {
-	return p.EnterTime.Before(*t)
+// 是否滞销（180 天）
+func (p *ProductFinished) IsUnsalable(t time.Time) bool {
+	const unsalableDays = 180
+	cutoff := t.AddDate(0, 0, -unsalableDays)
+	return p.EnterTime.Before(cutoff)
 }
 
 // 成品入库单

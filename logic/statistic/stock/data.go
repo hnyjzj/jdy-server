@@ -64,8 +64,9 @@ func (l *dataLogic) get_finisheds() error {
 		StoreId: l.storeId,
 	})
 	db = db.Where("enter_time <= ?", l.endtime)
-	db = db.Where("status = (?)", []enums.ProductStatus{
+	db = db.Where("status IN (?)", []enums.ProductStatus{
 		enums.ProductStatusNormal,
+		enums.ProductStatusAllocate,
 	})
 
 	if err := db.Find(&l.Finisheds).Error; err != nil {
@@ -82,8 +83,9 @@ func (l *dataLogic) get_olds() error {
 		StoreId: l.storeId,
 	})
 	db = db.Where("created_at <= ?", l.endtime)
-	db = db.Where("status = (?)", []enums.ProductStatus{
+	db = db.Where("status IN (?)", []enums.ProductStatus{
 		enums.ProductStatusNormal,
+		enums.ProductStatusAllocate,
 	})
 
 	if err := db.Find(&l.Olds).Error; err != nil {
@@ -129,7 +131,7 @@ func (l *dataLogic) get_overview() map[string]any {
 		if !ok {
 			unsalable = decimal.Zero
 		}
-		if finished.IsUnsalable(&l.endtime) {
+		if finished.IsUnsalable(l.endtime) {
 			unsalable = unsalable.Add(decimal.NewFromInt(1))
 		}
 		data["成品滞销件数"] = unsalable
@@ -172,9 +174,9 @@ func (l *dataLogic) get_finished_class() map[string]any {
 	data := make(map[string]any)
 
 	if len(l.Finisheds) == 0 {
-		data["件数"] = []any{}
-		data["金重"] = []any{}
-		data["标价"] = []any{}
+		data["件数"] = map[string]any{}
+		data["金重"] = map[string]any{}
+		data["标价"] = map[string]any{}
 	}
 	for _, finished := range l.Finisheds {
 		k := finished.Class.String()
@@ -226,9 +228,9 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 
 	for _, class := range enums.ProductClassFinishedMap {
 		data[class] = map[string]any{
-			"件数": []any{},
-			"金重": []any{},
-			"标价": []any{},
+			"件数": map[string]any{},
+			"金重": map[string]any{},
+			"标价": map[string]any{},
 		}
 	}
 
@@ -283,9 +285,9 @@ func (l *dataLogic) get_finished_age() map[string]map[string]any {
 
 	for _, class := range enums.ProductClassFinishedMap {
 		data[class] = map[string]any{
-			"件数": []any{},
-			"金重": []any{},
-			"标价": []any{},
+			"件数": map[string]any{},
+			"金重": map[string]any{},
+			"标价": map[string]any{},
 		}
 	}
 
@@ -355,9 +357,9 @@ func (l *dataLogic) get_old_class() map[string]any {
 	data := make(map[string]any)
 
 	if len(l.Olds) == 0 {
-		data["件数"] = []any{}
-		data["金重"] = []any{}
-		data["标价"] = []any{}
+		data["件数"] = map[string]any{}
+		data["金重"] = map[string]any{}
+		data["标价"] = map[string]any{}
 	}
 	for _, old := range l.Olds {
 		k := old.Class.String()

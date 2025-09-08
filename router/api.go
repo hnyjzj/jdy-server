@@ -133,12 +133,13 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			todays := statistics.Group("/today")
+			todays := statistics.Group("/today") // 今日数据
 			{
 				todays.Use(middlewares.JWTMiddleware())
 				{
 					todays.POST("/sales", today.ToDayController{}.Sales)     // 今日销售
 					todays.POST("/product", today.ToDayController{}.Product) // 今日货品
+					todays.POST("/payment", today.ToDayController{}.Payment) // 今日收支
 				}
 
 			}

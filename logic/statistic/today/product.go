@@ -13,7 +13,7 @@ import (
 
 type ProductReq struct {
 	DataReq
-	StoreId string `json:"store_id" binding:"required"` // 门店ID
+	StoreId string `json:"store_id"` // 门店ID
 }
 
 type ProductRes struct {

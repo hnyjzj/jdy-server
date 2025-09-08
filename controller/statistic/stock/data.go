@@ -28,7 +28,7 @@ func (con StockController) Data(ctx *gin.Context) {
 		logic.Staff = staff
 		logic.Ctx = ctx
 
-		if staff.Identity < enums.IdentityAdmin && req.StoreId == "" {
+		if staff.Identity < enums.IdentityAreaManager && req.StoreId == "" {
 			con.Exception(ctx, "参数错误")
 			return
 		}

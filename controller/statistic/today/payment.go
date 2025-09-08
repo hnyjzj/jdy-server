@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 今日货品
-func (con ToDayController) Product(ctx *gin.Context) {
+// 今日收支
+func (con ToDayController) Payment(ctx *gin.Context) {
 	var (
-		req   today.ProductReq
+		req   today.PaymentReq
 		logic = today.ToDayLogic{}
 	)
 
@@ -39,7 +39,7 @@ func (con ToDayController) Product(ctx *gin.Context) {
 		}
 	}
 
-	res, err := logic.Product(&req)
+	res, err := logic.Payment(&req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return

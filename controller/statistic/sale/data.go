@@ -37,8 +37,6 @@ func (con SaleController) Data(ctx *gin.Context) {
 
 		if staff.Identity < enums.IdentityShopkeeper {
 			onlyself = true
-		} else {
-			onlyself = true
 		}
 	}
 

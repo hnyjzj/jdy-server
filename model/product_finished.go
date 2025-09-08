@@ -256,6 +256,10 @@ func (p *ProductFinished) GetClass() enums.ProductClassFinished {
 	}
 }
 
+func (p *ProductFinished) IsUnsalable(t *time.Time) bool {
+	return p.EnterTime.Before(*t)
+}
+
 // 成品入库单
 type ProductFinishedEnter struct {
 	SoftDelete

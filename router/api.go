@@ -12,6 +12,7 @@ import (
 	"jdy/controller/staff"
 	"jdy/controller/statistic"
 	"jdy/controller/statistic/boos"
+	"jdy/controller/statistic/stock"
 	"jdy/controller/statistic/today"
 	"jdy/controller/store"
 	"jdy/controller/workbench"
@@ -140,6 +141,15 @@ func Api(g *gin.Engine) {
 					todays.POST("/product", today.ToDayController{}.Product) // 今日货品
 				}
 
+			}
+
+			stocks := statistics.Group("/stock") // 库存数据
+			{
+				stocks.GET("/where", stock.StockController{}.Where) // 库存数据筛选
+				stocks.Use(middlewares.JWTMiddleware())
+				{
+					stocks.POST("/data", stock.StockController{}.Data) // 库存数据列表
+				}
 			}
 
 			statistics.Use(middlewares.JWTMiddleware())

@@ -81,7 +81,4 @@
             "options": []
         }
     },
-    "go.delveConfig": {
-        "debugAdapter": "legacy",
-    }
 }

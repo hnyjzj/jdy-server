@@ -234,6 +234,15 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 			}
 		}
 
+		for _, payment := range order.Payments {
+			// 更新支付状态
+			if err := tx.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Updates(&model.OrderPayment{
+				Status: true,
+			}).Error; err != nil {
+				return errors.New("更新支付状态失败")
+			}
+		}
+
 		// 更新订单状态
 		if err := tx.Model(&model.OrderSales{}).Where("id = ?", order.Id).Updates(&model.OrderSales{
 			Status: enums.OrderSalesStatusComplete,
@@ -466,6 +475,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 		// 添加退款方式
 		for _, payment := range req.Payments {
 			payment := model.OrderPayment{
+				Status:        true,
 				StoreId:       order.StoreId,
 				OrderId:       data.Id,
 				Type:          enums.FinanceTypeExpense,

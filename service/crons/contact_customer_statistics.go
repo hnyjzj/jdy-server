@@ -11,7 +11,7 @@ import (
 
 	"github.com/ArtisanCloud/PowerLibs/v3/object"
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/externalContact/statistics/request"
-	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func init() {
@@ -41,7 +41,7 @@ func CustomerStatistics() {
 		wxwork = config.NewWechatService().JdyWork
 	)
 
-	strat, end, err := enums.DurationYesterday.GetTime(time.Now())
+	start, end, err := enums.DurationYesterday.GetTime(time.Now())
 	if err != nil {
 		log.Printf("获取时间失败：%s", err.Error())
 		return
@@ -50,7 +50,7 @@ func CustomerStatistics() {
 	for _, staff := range staffs {
 		// 查询个人客户统计信息
 		res, err := wxwork.ExternalContactStatistics.GetUserBehaviorData(ctx, &request.RequestGetUserBehaviorData{
-			StartTime: strat.Unix(),
+			StartTime: start.Unix(),
 			EndTime:   end.Add(time.Nanosecond).Unix(),
 			UserID:    []string{staff.Username},
 		})
@@ -66,23 +66,24 @@ func CustomerStatistics() {
 			}
 			data.StaffId = staff.Id
 
-			var logs model.StaffCustomerStatistics
-			if err := model.DB.Where("staff_id = ? and stat_time = ?", staff.Id, data.StatTime).First(&logs).Error; err != nil {
-				if err != gorm.ErrRecordNotFound {
-					log.Printf("查询个人客户统计信息失败：%s", err.Error())
-					continue
-				}
-			}
-			if logs.Id == "" {
-				if err := model.DB.Create(&data).Error; err != nil {
-					log.Printf("保存个人客户统计信息失败：%s", err.Error())
-					continue
-				}
-			} else {
-				if err := model.DB.Model(&logs).Updates(&data).Error; err != nil {
-					log.Printf("更新个人客户统计信息失败：%s", err.Error())
-					continue
-				}
+			// 使用数据库级 UPSERT，显式允许零值更新，避免并发竞态
+			if err := model.DB.Clauses(clause.OnConflict{
+				Columns: []clause.Column{ // 索引判定列
+					{Name: "staff_id"},
+					{Name: "stat_time"},
+				},
+				DoUpdates: clause.AssignmentColumns([]string{ // 显式允许 0 值覆盖
+					"chat_cnt",
+					"message_cnt",
+					"reply_percentage",
+					"avg_reply_time",
+					"negative_feedback_cnt",
+					"new_apply_cnt",
+					"new_contact_cnt",
+				}),
+			}).Create(&data).Error; err != nil {
+				log.Printf("保存/更新个人客户统计信息失败 staff_id=%s stat_time=%d：%v", data.StaffId, data.StatTime, err.Error())
+				continue
 			}
 		}
 	}

@@ -24,7 +24,7 @@ func (Router) GetTree(Pid *string, inIds []string) ([]*Router, error) {
 	if len(inIds) > 0 {
 		db = db.Where("id IN (?)", inIds)
 	}
-	db = db.Order("sort ASC")
+	db = db.Order("sort desc")
 	if err := db.Find(&list).Error; err != nil {
 		return nil, err
 	}

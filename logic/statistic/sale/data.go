@@ -334,11 +334,11 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 			if !ok {
 				num_item = make(map[string]any, 0)
 			}
-			num, ok := num_item[k].(decimal.Decimal)
+			num, ok := num_item[k].(int64)
 			if !ok {
-				num = decimal.Zero
+				num = 0
 			}
-			num = num.Add(decimal.NewFromInt(1))
+			num = num + 1
 			num_item[k] = num
 			data[c]["件数"] = num_item
 

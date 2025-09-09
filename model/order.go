@@ -31,6 +31,17 @@ type OrderPayment struct {
 	Amount        decimal.Decimal          `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:金额;"`     // 金额
 }
 
+func (OrderPayment) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Store")
+	db = db.Preload("OrderSales")
+	db = db.Preload("OrderRepair")
+	db = db.Preload("OrderDeposit")
+	db = db.Preload("OrderOther")
+	db = db.Preload("OrderRefund")
+
+	return db
+}
+
 // 退单
 type OrderRefund struct {
 	SoftDelete

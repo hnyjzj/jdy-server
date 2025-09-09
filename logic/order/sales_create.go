@@ -196,7 +196,7 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 		StoreId:  finished.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeFinished,
-		Code:     strings.ToUpper(finished.Code),
+		Code:     strings.TrimSpace(strings.ToUpper(finished.Code)),
 		MemberId: l.Order.MemberId,
 		Finished: model.OrderSalesProductFinished{
 			OrderId:           l.Order.Id,
@@ -261,7 +261,7 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 		StoreId:  old.StoreId,
 		Status:   enums.OrderSalesStatusWaitPay,
 		Type:     enums.ProductTypeOld,
-		Code:     strings.ToUpper(old.Code),
+		Code:     strings.TrimSpace(strings.ToUpper(old.Code)),
 		MemberId: l.Order.MemberId,
 		Old: model.OrderSalesProductOld{
 			OrderId:                 l.Order.Id,
@@ -425,8 +425,8 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
 	old := model.ProductOld{
-		Code:                    strings.ToUpper("JL" + utils.RandomCode(8)),
-		CodeFinished:            strings.ToUpper(p.Code),
+		Code:                    strings.TrimSpace(strings.ToUpper("JL" + utils.RandomCode(8))),
+		CodeFinished:            strings.TrimSpace(strings.ToUpper(p.Code)),
 		Name:                    p.Name,
 		LabelPrice:              p.LabelPrice,
 		Brand:                   p.Brand,
@@ -466,7 +466,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 			// 获取商品信息
 			db := l.Tx.Model(&model.ProductFinished{})
 			db = db.Where("id = ?", product_id)
-			db = db.Or("code = ?", strings.ToUpper(p.Code))
+			db = db.Or("code = ?", strings.TrimSpace(strings.ToUpper(p.Code)))
 			db = db.Where(&model.ProductFinished{
 				Status: enums.ProductStatusSold,
 			})

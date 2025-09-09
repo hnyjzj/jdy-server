@@ -23,7 +23,7 @@ type ProductFinishedDamageLogic struct {
 func (l *ProductFinishedDamageLogic) Damage(req *types.ProductDamageReq) *errors.Errors {
 	// 查询商品信息
 	var product model.ProductFinished
-	if err := model.DB.Where(&model.ProductFinished{Code: strings.ToUpper(req.Code)}).
+	if err := model.DB.Where(&model.ProductFinished{Code: strings.TrimSpace(strings.ToUpper(req.Code))}).
 		Preload("Store").
 		First(&product).Error; err != nil {
 		return errors.New("商品不存在")
@@ -109,7 +109,7 @@ func (p *ProductFinishedDamageLogic) Info(req *types.ProductFinishedInfoReq) (*m
 
 	if err := model.DB.
 		Where(model.ProductFinished{
-			Code: strings.ToUpper(req.Code),
+			Code: strings.TrimSpace(strings.ToUpper(req.Code)),
 		}).
 		Preload("Store").
 		First(&product).Error; err != nil {
@@ -162,15 +162,15 @@ func (l *ProductFinishedDamageLogic) Conversion(req *types.ProductConversionReq)
 				log.Action = enums.ProductActionReturn
 			}
 			var old model.ProductOld
-			if err := tx.Unscoped().Preload("Store").Where(&model.ProductOld{CodeFinished: strings.ToUpper(product.Code)}).First(&old).Error; err != nil {
+			if err := tx.Unscoped().Preload("Store").Where(&model.ProductOld{CodeFinished: strings.TrimSpace(strings.ToUpper(product.Code))}).First(&old).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("旧品不存在")
 				}
 			}
 
 			data := model.ProductOld{
-				Code:            strings.ToUpper("JL" + utils.RandomCode(8)),
-				CodeFinished:    strings.ToUpper(product.Code),
+				Code:            strings.TrimSpace(strings.ToUpper("JL" + utils.RandomCode(8))),
+				CodeFinished:    strings.TrimSpace(strings.ToUpper(product.Code)),
 				Name:            product.Name,
 				Images:          product.Images,
 				Status:          enums.ProductStatusNormal,

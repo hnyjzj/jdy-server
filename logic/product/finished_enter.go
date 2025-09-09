@@ -130,7 +130,7 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 			}
 
 			var p model.ProductFinished
-			if err := tx.Where("code = ?", strings.ToUpper(product.Code)).First(&p).Error; err != nil {
+			if err := tx.Where("code = ?", strings.TrimSpace(strings.ToUpper(product.Code))).First(&p).Error; err != nil {
 				if err != gorm.ErrRecordNotFound {
 					return errors.New("产品不存在")
 				}
@@ -144,7 +144,7 @@ func (l *ProductFinishedEnterLogic) AddProduct(req *types.ProductFinishedEnterAd
 			product.StoreId = enter.StoreId
 			product.Class = product.GetClass()
 			product.Status = enums.ProductStatusDraft
-			product.Code = strings.ToUpper(product.Code)
+			product.Code = strings.TrimSpace(strings.ToUpper(product.Code))
 			if product.EnterTime.IsZero() {
 				product.EnterTime = time.Now()
 			}

@@ -295,10 +295,10 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 
 		if !p.IsOur {
 			data.Name = p.ProductDemand.Name
-			data.Code = strings.ToUpper(p.ProductDemand.Code)
+			data.Code = strings.TrimSpace(strings.ToUpper(p.ProductDemand.Code))
 		} else {
 			data.Name = p.ProductFinished.Name
-			data.Code = strings.ToUpper(p.ProductFinished.Code)
+			data.Code = strings.TrimSpace(strings.ToUpper(p.ProductFinished.Code))
 			// 添加历史
 			log := model.ProductHistory{
 				Action:     enums.ProductActionReturn,

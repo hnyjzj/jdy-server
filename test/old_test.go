@@ -27,7 +27,7 @@ func TestOldCreateCode(t *testing.T) {
 		}
 
 		for _, old := range olds {
-			if err := tx.Unscoped().Model(&model.ProductOld{}).Where("id = ?", old.Id).Update("code", strings.ToUpper("JL"+utils.RandomCode(8))).Error; err != nil {
+			if err := tx.Unscoped().Model(&model.ProductOld{}).Where("id = ?", old.Id).Update("code", strings.TrimSpace(strings.ToUpper("JL"+utils.RandomCode(8)))).Error; err != nil {
 				t.Error(err)
 				return err
 			}

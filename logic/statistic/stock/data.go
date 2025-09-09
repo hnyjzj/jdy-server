@@ -173,11 +173,6 @@ func (l *dataLogic) get_overview() map[string]any {
 func (l *dataLogic) get_finished_class() map[string]any {
 	data := make(map[string]any)
 
-	if len(l.Finisheds) == 0 {
-		data["件数"] = map[string]any{}
-		data["金重"] = map[string]any{}
-		data["标价"] = map[string]any{}
-	}
 	for _, finished := range l.Finisheds {
 		k := finished.Class.String()
 
@@ -236,7 +231,13 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 
 	for _, finished := range l.Finisheds {
 		c := finished.Class.String()
+		if c == "" {
+			c = "其他"
+		}
 		k := finished.Category.String()
+		if k == "" {
+			k = "其他"
+		}
 
 		num_item, ok := data[c]["件数"].(map[string]any)
 		if !ok {
@@ -273,7 +274,6 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 		price = price.Add(finished.LabelPrice)
 		price_item[k] = price
 		data[c]["标价"] = price_item
-
 	}
 
 	return data
@@ -388,7 +388,7 @@ func (l *dataLogic) get_old_class() map[string]any {
 		weight_row[k] = weight
 		data["金重"] = weight_row
 
-		price_row, ok := data["标价"].(map[string]any)
+		price_row, ok := data["抵值"].(map[string]any)
 		if !ok {
 			price_row = make(map[string]any, 0)
 		}
@@ -396,9 +396,9 @@ func (l *dataLogic) get_old_class() map[string]any {
 		if !ok {
 			price = decimal.NewFromInt(0)
 		}
-		price = price.Add(old.LabelPrice)
+		price = price.Add(old.RecyclePrice)
 		price_row[k] = price
-		data["标价"] = price_row
+		data["抵值"] = price_row
 	}
 
 	return data

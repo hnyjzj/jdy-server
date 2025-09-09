@@ -13,6 +13,7 @@ import (
 	"jdy/controller/statistic"
 	"jdy/controller/statistic/boos"
 	"jdy/controller/statistic/payment"
+	"jdy/controller/statistic/sale"
 	"jdy/controller/statistic/stock"
 	"jdy/controller/statistic/today"
 	"jdy/controller/store"
@@ -159,6 +160,15 @@ func Api(g *gin.Engine) {
 				stocks.Use(middlewares.JWTMiddleware())
 				{
 					stocks.POST("/data", stock.StockController{}.Data) // 库存数据列表
+				}
+			}
+
+			sales := statistics.Group("/sales") // 销售数据
+			{
+				sales.GET("/where", sale.SaleController{}.Where) // 筛选
+				sales.Use(middlewares.JWTMiddleware())
+				{
+					sales.POST("/data", sale.SaleController{}.Data) // 概览
 				}
 			}
 

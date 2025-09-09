@@ -51,13 +51,13 @@ func SendReportStatistic() {
 		orders_today, err := get_orders(store.Id, enums.DurationToday)
 		if err != nil {
 			log.Printf("SendReportStatistic error: %v", err.Error())
-			return
+			continue
 		}
 		// 本月订单
 		orders_month, err := get_orders(store.Id, enums.DurationMonth)
 		if err != nil {
 			log.Printf("SendReportStatistic error: %v", err.Error())
-			return
+			continue
 		}
 
 		// 发送

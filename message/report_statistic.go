@@ -34,21 +34,21 @@ func (M *BaseMessage) SendReportStatisticMessage(req *ReportStatisticMessage) {
 	content := []string{
 		fmt.Sprintf("###### %s(%s)", req.StoreName, req.StatisticalTime.Format("01-02")),
 		"",
-		fmt.Sprintf("销售业绩：**%s**", req.TodayFinished.String()),
-		fmt.Sprintf("旧料抵扣：**%s**", req.TodayOld.String()),
-		fmt.Sprintf("配件收款：**%s**", req.TodayAcciessorie.String()),
+		fmt.Sprintf("销售业绩：**%s**", req.TodayFinished.StringFixed(2)),
+		fmt.Sprintf("旧料抵扣：**%s**", req.TodayOld.StringFixed(2)),
+		fmt.Sprintf("配件收款：**%s**", req.TodayAcciessorie.StringFixed(2)),
 		"",
 	}
 	for class, total := range req.TodayFinisheds {
 		content = append(content,
-			fmt.Sprintf("> %s ：**%s**", class, total.String()),
+			fmt.Sprintf("> %s ：**%s**", class, total.StringFixed(2)),
 		)
 	}
 	content = append(content, []string{
 		"",
-		fmt.Sprintf("月度销售：**%s**", req.MonthFinished.String()),
-		fmt.Sprintf("月度抵扣：**%s**", req.MonthOld.String()),
-		fmt.Sprintf("月度配件：**%s**", req.MonthAcciessorie.String()),
+		fmt.Sprintf("月度销售：**%s**", req.MonthFinished.StringFixed(2)),
+		fmt.Sprintf("月度抵扣：**%s**", req.MonthOld.StringFixed(2)),
+		fmt.Sprintf("月度配件：**%s**", req.MonthAcciessorie.StringFixed(2)),
 	}...)
 
 	messages := &request.RequestMessageSendMarkdown{

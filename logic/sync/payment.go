@@ -29,7 +29,7 @@ func (l *PaymentLogic) Payments() error {
 				{
 					if payment.OrderSales.Status != enums.OrderSalesStatusWaitPay &&
 						payment.OrderSales.Status != enums.OrderSalesStatusCancel {
-						if err := model.DB.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Update("status", true).Error; err != nil {
+						if err := tx.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Update("status", true).Error; err != nil {
 							return err
 						}
 					}
@@ -38,7 +38,7 @@ func (l *PaymentLogic) Payments() error {
 				{
 					if payment.OrderDeposit.Status != enums.OrderDepositStatusWaitPay &&
 						payment.OrderDeposit.Status != enums.OrderDepositStatusCancel {
-						if err := model.DB.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Update("status", true).Error; err != nil {
+						if err := tx.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Update("status", true).Error; err != nil {
 							return err
 						}
 					}
@@ -47,7 +47,7 @@ func (l *PaymentLogic) Payments() error {
 				{
 					if payment.OrderRepair.Status != enums.OrderRepairStatusWaitPay &&
 						payment.OrderRepair.Status != enums.OrderRepairStatusCancel {
-						if err := model.DB.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Update("status", true).Error; err != nil {
+						if err := tx.Model(&model.OrderPayment{}).Where("id = ?", payment.Id).Update("status", true).Error; err != nil {
 							return err
 						}
 					}

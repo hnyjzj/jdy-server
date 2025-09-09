@@ -18,5 +18,10 @@ func Sync(g *gin.Engine) {
 		{
 			wxwork.GET("/contacts", sync.WxworkController{}.SyncContacts)
 		}
+
+		payments := c.Group("/payment")
+		{
+			payments.GET("/", sync.PaymentController{}.SyncPayments)
+		}
 	}
 }

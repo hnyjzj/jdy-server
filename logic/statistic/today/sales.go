@@ -1,14 +1,12 @@
 package today
 
 import (
-	"database/sql"
 	"errors"
 	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
 	"github.com/shopspring/decimal"
-	"gorm.io/gorm"
 )
 
 type SalesReq struct {
@@ -20,65 +18,115 @@ type SalesRes struct {
 	GoldPrice      decimal.Decimal `json:"gold_price"`       // 金价
 	SalesAmount    decimal.Decimal `json:"sales_amount"`     // 销售金额
 	SalesCount     int64           `json:"sales_count"`      // 销售件数
-	OldGoodsAmount decimal.Decimal `json:"old_goods_amount"` // 旧货抵值
+	OldGoodsAmount decimal.Decimal `json:"old_goods_amount"` // 旧料抵值
 	ReturnAmount   decimal.Decimal `json:"return_amount"`    // 退货金额
 }
 
 type SalesLogic struct {
 	*ToDayLogic
 
-	Req *SalesReq
-	Res *SalesRes
-	Db  *gorm.DB
+	Req    *SalesReq
+	Sales  []model.OrderSales
+	Refund []model.OrderRefund
 
-	clerk_query *gorm.DB
+	Res *SalesRes
 }
 
-func (l *ToDayLogic) Sales(req *SalesReq) (*SalesRes, error) {
+func (l *ToDayLogic) Sales(req *SalesReq, onlyself bool) (*SalesRes, error) {
 	logic := &SalesLogic{
 		ToDayLogic: l,
 		Req:        req,
 		Res:        &SalesRes{},
-		Db:         model.DB,
-	}
-
-	// 获取金价
-	if err := logic.getGoldPrice(); err != nil {
-		return nil, err
-	}
-
-	// 如果是店员，则仅查询该店员的订单
-	if l.Staff.Identity == enums.IdentityClerk {
-		logic.clerk_query = logic.Db.Model(&model.OrderSalesClerk{}).Where(&model.OrderSalesClerk{
-			SalesmanId: l.Staff.Id,
-		}).Select("order_id").Group("order_id").Scopes(model.DurationCondition(req.Duration, "created_at", req.StartTime, req.EndTime))
 	}
 
 	// 获取销售数据
-	if err := logic.getSales(); err != nil {
+	if err := logic.getSales(onlyself); err != nil {
+		return nil, err
+	}
+	if err := logic.getRefund(onlyself); err != nil {
+		return nil, err
+	}
+
+	// 获取金价
+	if err := logic.get_gold_price(); err != nil {
+		return nil, err
+	}
+
+	// 获取销售数据
+	if err := logic.get_sales_amount(); err != nil {
 		return nil, err
 	}
 
 	// 获取销售件数
-	if err := logic.getSalesCount(); err != nil {
+	if err := logic.get_sales_count(); err != nil {
 		return nil, err
 	}
 
-	// 获取旧货抵值
-	if err := logic.getOldGoodsAmount(); err != nil {
+	// 获取旧料抵值
+	if err := logic.get_old_goods_amount(); err != nil {
 		return nil, err
 	}
 
 	// 获取退货金额
-	if err := logic.getReturnAmount(); err != nil {
+	if err := logic.get_return_amount(); err != nil {
 		return nil, err
 	}
 
 	return logic.Res, nil
 }
 
+// 获取销售数据
+func (l *SalesLogic) getSales(onlyself bool) error {
+	db := model.DB.Model(&model.OrderSales{})
+	db = db.Where(&model.OrderSales{
+		StoreId: l.Req.StoreId,
+	})
+	db = db.Where("status in (?)", []enums.OrderSalesStatus{
+		enums.OrderSalesStatusComplete,
+		enums.OrderSalesStatusRefund,
+	})
+	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
+
+	if onlyself {
+		self := model.DB.Model(&model.OrderSalesClerk{})
+		self = self.Where(&model.OrderSalesClerk{
+			SalesmanId: l.Staff.Id,
+		})
+		self = self.Select("order_id").Group("order_id")
+		self = self.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
+
+		db = db.Where("id in (?)", self)
+	}
+
+	db = model.OrderSales{}.Preloads(db)
+	if err := db.Find(&l.Sales).Error; err != nil {
+		return errors.New("获取数据失败")
+	}
+
+	return nil
+}
+
+func (l *SalesLogic) getRefund(onlyself bool) error {
+	db := model.DB.Model(&model.OrderRefund{})
+	db = db.Where(&model.OrderRefund{
+		StoreId: l.Req.StoreId,
+	})
+	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
+
+	if onlyself {
+		db = db.Where("operator_id = ?", l.Staff.Id)
+	}
+
+	db = model.OrderRefund{}.Preloads(db)
+	if err := db.Find(&l.Refund).Error; err != nil {
+		return errors.New("获取数据失败")
+	}
+
+	return nil
+}
+
 // 获取金价
-func (l *SalesLogic) getGoldPrice() error {
+func (l *SalesLogic) get_gold_price() error {
 	price, _ := model.GetGoldPrice(&types.GoldPriceOptions{
 		StoreId: l.Req.StoreId,
 	})
@@ -87,133 +135,40 @@ func (l *SalesLogic) getGoldPrice() error {
 	return nil
 }
 
-// 获取销售数据
-func (l *SalesLogic) getSales() error {
-	var (
-		sales_amount sql.NullFloat64
-		db           = l.Db.Model(&model.OrderSales{})
-	)
-
-	// 如果是店员，则仅查询该店员的订单
-	if l.clerk_query != nil {
-		db = db.Where("id IN (?)", l.clerk_query)
-	}
-
-	// 查询订单
-	db = db.Where(&model.OrderSales{
-		StoreId: l.Req.StoreId,
-		Status:  enums.OrderSalesStatusComplete,
-	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
-
-	// 查询销售金额
-	if err := db.Select("sum(price_pay) as sales_amount").Scan(&sales_amount).Error; err != nil {
-		return errors.New("获取销售数据失败")
-	}
-
-	// 判断金额
-	if sales_amount.Valid {
-		l.Res.SalesAmount = decimal.NewFromFloat(sales_amount.Float64)
-	} else {
-		l.Res.SalesAmount = decimal.Zero
+func (l *SalesLogic) get_sales_amount() error {
+	for _, o := range l.Sales {
+		l.Res.SalesAmount = l.Res.SalesAmount.Add(o.ProductFinishedPrice)
 	}
 
 	return nil
 }
 
 // 获取销售件数
-func (l *SalesLogic) getSalesCount() error {
-	var (
-		db = l.Db.Model(&model.OrderSalesProduct{})
-	)
-
-	// 如果是店员，则仅查询该店员的订单
-	if l.clerk_query != nil {
-		db = db.Where("order_id IN (?)", l.clerk_query)
-	}
-
-	// 查询订单
-	order_query := l.Db.Model(&model.OrderSales{}).Where(&model.OrderSales{
-		StoreId: l.Req.StoreId,
-		Status:  enums.OrderSalesStatusComplete,
-	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime)).Select("id").Group("id")
-	db = db.Where("order_id IN (?)", order_query)
-
-	// 查询销售件数
-	db = db.Where(&model.OrderSalesProduct{
-		Type:   enums.ProductTypeFinished,
-		Status: enums.OrderSalesStatusComplete,
-	}).Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
-	if err := db.Count(&l.Res.SalesCount).Error; err != nil {
-		return errors.New("获取销售件数失败")
+func (l *SalesLogic) get_sales_count() error {
+	for _, o := range l.Sales {
+		for _, p := range o.Products {
+			if p.Type == enums.ProductTypeFinished {
+				l.Res.SalesCount++
+			}
+		}
 	}
 
 	return nil
 }
 
-// 获取旧货抵值
-func (l *SalesLogic) getOldGoodsAmount() error {
-	var (
-		old_goods_amount sql.NullFloat64
-		db               = l.Db.Model(&model.OrderSales{})
-	)
-
-	// 如果是店员，则仅查询该店员的订单
-	if l.clerk_query != nil {
-		db = db.Where("id IN (?)", l.clerk_query)
-	}
-
-	// 查询订单
-	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
-
-	// 查询本门店已完成的订单
-	db = db.Where(&model.OrderSales{
-		StoreId: l.Req.StoreId,
-		Status:  enums.OrderSalesStatusComplete,
-	})
-
-	// 查询销售金额
-	if err := db.Select("sum(product_old_price) as sales_amount").Scan(&old_goods_amount).Error; err != nil {
-		return errors.New("获取销售数据失败")
-	}
-
-	// 判断金额
-	if old_goods_amount.Valid {
-		l.Res.OldGoodsAmount = decimal.NewFromFloat(old_goods_amount.Float64)
-	} else {
-		l.Res.OldGoodsAmount = decimal.Zero
+// 获取旧料抵值
+func (l *SalesLogic) get_old_goods_amount() error {
+	for _, o := range l.Sales {
+		l.Res.OldGoodsAmount = l.Res.OldGoodsAmount.Add(o.ProductOldPrice)
 	}
 
 	return nil
 }
 
 // 获取退货金额
-func (l *SalesLogic) getReturnAmount() error {
-	var (
-		return_amount sql.NullFloat64
-		db            = l.Db.Model(&model.OrderRefund{})
-	)
-
-	// 如果是店员，则仅查询该店员的订单
-	if l.clerk_query != nil {
-		db = db.Where("order_id IN (?)", l.clerk_query)
-	}
-
-	// 查询订单
-	db = db.Scopes(model.DurationCondition(l.Req.Duration, "created_at", l.Req.StartTime, l.Req.EndTime))
-	// 查询本门店销售单的退货订单
-	db = db.Where(&model.OrderRefund{
-		StoreId:   l.Req.StoreId,
-		OrderType: enums.OrderTypeSales,
-	})
-
-	if err := db.Select("sum(price) as return_amount").Scan(&return_amount).Error; err != nil {
-		return errors.New("获取退货金额失败")
-	}
-
-	if return_amount.Valid {
-		l.Res.ReturnAmount = decimal.NewFromFloat(return_amount.Float64)
-	} else {
-		l.Res.ReturnAmount = decimal.Zero
+func (l *SalesLogic) get_return_amount() error {
+	for _, o := range l.Refund {
+		l.Res.ReturnAmount = l.Res.ReturnAmount.Add(o.Price)
 	}
 
 	return nil

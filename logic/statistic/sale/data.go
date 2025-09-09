@@ -317,6 +317,10 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 
 	for _, order := range l.Sales {
 		for _, product := range order.Products {
+			if product.Type != enums.ProductTypeFinished {
+				continue
+			}
+
 			c := product.Finished.Product.Class.String()
 			if c == "" {
 				c = "其他"

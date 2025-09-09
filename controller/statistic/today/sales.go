@@ -12,6 +12,8 @@ func (con ToDayController) Sales(ctx *gin.Context) {
 	var (
 		req   today.SalesReq
 		logic = today.ToDayLogic{}
+
+		onlyself bool
 	)
 
 	// 校验参数
@@ -37,9 +39,13 @@ func (con ToDayController) Sales(ctx *gin.Context) {
 			con.Exception(ctx, "参数错误")
 			return
 		}
+
+		if staff.Identity < enums.IdentityShopkeeper {
+			onlyself = true
+		}
 	}
 
-	res, err := logic.Sales(&req)
+	res, err := logic.Sales(&req, onlyself)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return

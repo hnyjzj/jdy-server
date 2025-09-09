@@ -46,7 +46,7 @@ func (l *OrderRepairLogic) Create(req *types.OrderRepairCreateReq) (*model.Order
 			data := model.OrderRepairProduct{
 				Status:      enums.OrderRepairStatusWaitPay,
 				IsOur:       p.IsOur,
-				Code:        strings.ToUpper(p.Code),
+				Code:        strings.TrimSpace(strings.ToUpper(p.Code)),
 				Name:        p.Name,
 				LabelPrice:  p.LabelPrice,
 				Brand:       p.Brand,

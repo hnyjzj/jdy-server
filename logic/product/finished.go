@@ -123,7 +123,7 @@ func (p *ProductFinishedLogic) Info(req *types.ProductFinishedInfoReq) (*model.P
 	db := model.DB.Model(&model.ProductFinished{})
 
 	db = db.Where(model.ProductFinished{
-		Code: strings.ToUpper(req.Code),
+		Code: strings.TrimSpace(strings.ToUpper(req.Code)),
 	})
 	db = product.Preloads(db)
 
@@ -143,7 +143,7 @@ func (p *ProductFinishedLogic) Retrieval(req *types.ProductFinishedRetrievalReq)
 	db := model.DB.Model(&model.ProductFinished{})
 
 	db = db.Where(model.ProductFinished{
-		Code: strings.ToUpper(req.Code),
+		Code: strings.TrimSpace(strings.ToUpper(req.Code)),
 	})
 	if req.StoreId != "" {
 		db = db.Where(model.ProductFinished{
@@ -190,7 +190,7 @@ func (p *ProductFinishedLogic) Update(req *types.ProductFinishedUpdateReq) error
 		data.Class = data.GetClass()
 		// 统一 code 大小写
 		if data.Code != "" {
-			data.Code = strings.ToUpper(data.Code)
+			data.Code = strings.TrimSpace(strings.ToUpper(data.Code))
 		}
 
 		// 若 code 发生变更，则同步更新旧料的 code_finished，保持关联一致

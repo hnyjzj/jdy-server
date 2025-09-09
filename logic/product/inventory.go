@@ -58,7 +58,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 				// 添加产品
 				data.ShouldProducts = append(data.ShouldProducts, model.ProductInventoryProduct{
 					ProductType: enums.ProductTypeUsedFinished,
-					ProductCode: strings.ToUpper(product.Code),
+					ProductCode: strings.TrimSpace(strings.ToUpper(product.Code)),
 					Status:      enums.ProductInventoryProductStatusShould,
 				})
 				// 产品总数
@@ -103,7 +103,7 @@ func (l *ProductInventoryLogic) Create(req *types.ProductInventoryCreateReq) (*m
 				// 添加产品
 				data.ShouldProducts = append(data.ShouldProducts, model.ProductInventoryProduct{
 					ProductType: enums.ProductTypeUsedOld,
-					ProductCode: strings.ToUpper(product.Code),
+					ProductCode: strings.TrimSpace(strings.ToUpper(product.Code)),
 					Status:      enums.ProductInventoryProductStatusShould,
 				})
 				// 产品总数
@@ -211,17 +211,13 @@ func (l *ProductInventoryLogic) Info(req *types.ProductInventoryInfoReq) (*model
 		ProductStatus: req.ProductStatus,
 	}
 
-	db = inventory.Preloads(db, &where, false)
-
 	if err := db.First(&res).Error; err != nil {
 		return nil, errors.New("获取失败")
 	}
 
-	if res.Status.IsOver() {
-		db = inventory.Preloads(db, &where, true)
-		if err := db.First(&res).Error; err != nil {
-			return nil, errors.New("获取失败")
-		}
+	db = inventory.Preloads(db, &where, res.Status.IsOver())
+	if err := db.First(&res).Error; err != nil {
+		return nil, errors.New("获取失败")
 	}
 
 	for _, staff := range res.InventoryPersons {
@@ -260,13 +256,14 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 	now := time.Now()
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		code := strings.TrimSpace(strings.ToUpper(req.Code))
 		// 计算并添加产品
-		if strings.TrimSpace(req.Code) == "" {
+		if code == "" {
 			return errors.New("产品条码不能为空")
 		}
 		for _, product := range inventory.ActualProducts {
-			if product.ProductCode == strings.ToUpper(req.Code) {
-				return errors.New(req.Code + "产品已存在")
+			if product.ProductCode == code {
+				return errors.New(code + "产品已存在")
 			}
 		}
 
@@ -274,38 +271,38 @@ func (l *ProductInventoryLogic) Add(req *types.ProductInventoryAddReq) error {
 		case enums.ProductTypeUsedFinished:
 			var finished model.ProductFinished
 			if err := tx.Unscoped().Where(&model.ProductFinished{
-				Code:    req.Code,
+				Code:    code,
 				StoreId: inventory.StoreId,
 			}).First(&finished).Error; err != nil {
 				if err == gorm.ErrRecordNotFound {
-					return errors.New("[" + req.Code + "] 不存在")
+					return errors.New("[" + code + "] 不存在")
 				}
 
-				return errors.New("[" + req.Code + "] 查询失败")
+				return errors.New("[" + code + "] 查询失败")
 			}
 
 		case enums.ProductTypeUsedOld:
 			var old model.ProductOld
 			if err := tx.Unscoped().Where(&model.ProductOld{
-				Code:    req.Code,
+				Code:    code,
 				StoreId: inventory.StoreId,
 			}).First(&old).Error; err != nil {
 				if err == gorm.ErrRecordNotFound {
-					return errors.New("[" + req.Code + "] 不存在")
+					return errors.New("[" + code + "] 不存在")
 				}
 
-				return errors.New("[" + req.Code + "] 查询失败")
+				return errors.New("[" + code + "] 查询失败")
 			}
 
 		default:
-			return errors.New("[" + req.Code + "]不存在")
+			return errors.New("[" + code + "]不存在")
 		}
 
 		// 添加产品
 		if err := tx.Create(&model.ProductInventoryProduct{
 			ProductInventoryId: req.Id,
 			ProductType:        inventory.Type,
-			ProductCode:        strings.ToUpper(req.Code),
+			ProductCode:        code,
 			Status:             enums.ProductInventoryProductStatusActual,
 			InventoryTime:      &now,
 		}).Error; err != nil {
@@ -357,11 +354,12 @@ func (l *ProductInventoryLogic) AddBatch(req *types.ProductInventoryAddBatchReq)
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 计算并添加产品
 		for _, code := range req.Codes {
-			if strings.TrimSpace(code) == "" {
+			code = strings.TrimSpace(strings.ToUpper(code))
+			if code == "" {
 				return errors.New("产品条码不能为空")
 			}
 			for _, product := range inventory.ActualProducts {
-				if product.ProductCode == strings.ToUpper(code) {
+				if product.ProductCode == code {
 					return errors.New(code + "产品已存在")
 				}
 			}
@@ -401,7 +399,7 @@ func (l *ProductInventoryLogic) AddBatch(req *types.ProductInventoryAddBatchReq)
 			if err := tx.Create(&model.ProductInventoryProduct{
 				ProductInventoryId: req.Id,
 				ProductType:        inventory.Type,
-				ProductCode:        strings.ToUpper(code),
+				ProductCode:        code,
 				Status:             enums.ProductInventoryProductStatusActual,
 				InventoryTime:      &now,
 			}).Error; err != nil {
@@ -515,10 +513,10 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 			for _, product := range products {
 				switch product.Status {
 				case enums.ProductInventoryProductStatusShould:
-					ShouldCodes = append(ShouldCodes, strings.ToUpper(product.ProductCode))
+					ShouldCodes = append(ShouldCodes, strings.TrimSpace(strings.ToUpper(product.ProductCode)))
 					ShouldProducts = append(ShouldProducts, product)
 				case enums.ProductInventoryProductStatusActual:
-					ActualCodes = append(ActualCodes, strings.ToUpper(product.ProductCode))
+					ActualCodes = append(ActualCodes, strings.TrimSpace(strings.ToUpper(product.ProductCode)))
 					ActualProducts = append(ActualProducts, product)
 				}
 			}
@@ -528,7 +526,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 					loss := model.ProductInventoryProduct{
 						ProductInventoryId: req.Id,
 						ProductType:        inventory.Type,
-						ProductCode:        strings.ToUpper(actual.ProductCode),
+						ProductCode:        strings.TrimSpace(strings.ToUpper(actual.ProductCode)),
 						Status:             enums.ProductInventoryProductStatusLoss,
 					}
 					data = append(data, loss)
@@ -540,7 +538,7 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 					extra := model.ProductInventoryProduct{
 						ProductInventoryId: req.Id,
 						ProductType:        inventory.Type,
-						ProductCode:        strings.ToUpper(actual.ProductCode),
+						ProductCode:        strings.TrimSpace(strings.ToUpper(actual.ProductCode)),
 						Status:             enums.ProductInventoryProductStatusExtra,
 					}
 					data = append(data, extra)

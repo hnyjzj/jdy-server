@@ -364,7 +364,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			data.Type = enums.ProductTypeFinished
-			data.Code = strings.ToUpper(p.Finished.Product.Code)
+			data.Code = strings.TrimSpace(strings.ToUpper(p.Finished.Product.Code))
 			data.Name = p.Finished.Product.Name
 			data.Quantity = 1
 			data.Price = req.Price
@@ -410,7 +410,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			}
 
 			data.Type = enums.ProductTypeOld
-			data.Code = strings.ToUpper(p.Old.Product.Code)
+			data.Code = strings.TrimSpace(strings.ToUpper(p.Old.Product.Code))
 			data.Name = p.Old.Product.Name
 			data.Quantity = 1
 			data.Price = req.Price

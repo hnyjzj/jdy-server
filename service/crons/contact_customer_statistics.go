@@ -11,6 +11,7 @@ import (
 
 	"github.com/ArtisanCloud/PowerLibs/v3/object"
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/work/externalContact/statistics/request"
+	"gorm.io/gorm"
 )
 
 func init() {
@@ -50,7 +51,7 @@ func CustomerStatistics() {
 		// 查询个人客户统计信息
 		res, err := wxwork.ExternalContactStatistics.GetUserBehaviorData(ctx, &request.RequestGetUserBehaviorData{
 			StartTime: strat.Unix(),
-			EndTime:   end.Unix(),
+			EndTime:   end.Add(time.Nanosecond).Unix(),
 			UserID:    []string{staff.Username},
 		})
 		if err != nil || (res != nil && res.ErrCode != 0) {
@@ -64,9 +65,24 @@ func CustomerStatistics() {
 				continue
 			}
 			data.StaffId = staff.Id
-			if err := model.DB.Create(&data).Error; err != nil {
-				log.Printf("保存个人客户统计信息失败：%s", err.Error())
-				continue
+
+			var logs model.StaffCustomerStatistics
+			if err := model.DB.Where("staff_id = ? and stat_time = ?", staff.Id, data.StatTime).First(&logs).Error; err != nil {
+				if err != gorm.ErrRecordNotFound {
+					log.Printf("查询个人客户统计信息失败：%s", err.Error())
+					continue
+				}
+			}
+			if logs.Id == "" {
+				if err := model.DB.Create(&data).Error; err != nil {
+					log.Printf("保存个人客户统计信息失败：%s", err.Error())
+					continue
+				}
+			} else {
+				if err := model.DB.Model(&logs).Updates(&data).Error; err != nil {
+					log.Printf("更新个人客户统计信息失败：%s", err.Error())
+					continue
+				}
 			}
 		}
 	}

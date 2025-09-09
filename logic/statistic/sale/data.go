@@ -106,13 +106,13 @@ func (l *dataLogic) get_overview() map[string]any {
 
 	if len(l.Sales) == 0 {
 		data["销售金额"] = decimal.Zero
-		data["销售件数"] = decimal.Zero
+		data["销售件数"] = 0
 		data["旧料抵值"] = decimal.Zero
 		data["配件礼品"] = decimal.Zero
 	}
 	if len(l.Refund) == 0 {
 		data["退款金额"] = decimal.Zero
-		data["退款件数"] = decimal.Zero
+		data["退款件数"] = 0
 	}
 
 	for _, s := range l.Sales {
@@ -309,9 +309,9 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 
 	for _, class := range enums.ProductClassFinishedMap {
 		data[class] = map[string]any{
-			"件数": map[string]any{},
-			"金重": map[string]any{},
-			"标价": map[string]any{},
+			"件数":  map[string]any{},
+			"销售额": map[string]any{},
+			"金重":  map[string]any{},
 		}
 	}
 

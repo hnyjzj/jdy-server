@@ -137,9 +137,9 @@ type OrderSalesProduct struct {
 
 	Status enums.OrderSalesStatus `json:"status" gorm:"index;type:int(11);not NULL;comment:状态;"` // 状态
 
-	Type enums.ProductType `json:"type" gorm:"index;type:int(11);not NULL;comment:类型;"` // 类型
-	Code string            `json:"code" gorm:"type:varchar(255);NULL;comment:条码;"`      // 条码
-	Name string            `json:"name" gorm:"type:varchar(255);NULL;comment:名称;"`      // 名称
+	Type enums.ProductType `json:"type" gorm:"index;type:int(11);not NULL;comment:类型;"`  // 类型
+	Code string            `json:"code" gorm:"index;type:varchar(255);NULL;comment:条码;"` // 条码
+	Name string            `json:"name" gorm:"type:varchar(255);NULL;comment:名称;"`       // 名称
 
 	Finished   OrderSalesProductFinished   `json:"finished,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:成品;"`
 	Old        OrderSalesProductOld        `json:"old,omitempty" gorm:"foreignKey:OrderProductId;references:Id;comment:旧料;"`

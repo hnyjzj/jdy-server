@@ -11,8 +11,8 @@ import (
 type ProductOld struct {
 	SoftDelete
 
-	Code         string                `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
-	CodeFinished string                `json:"code_finished" gorm:"type:varchar(255);comment:成品条码;"`        // 成品条码
+	Code         string                `json:"code" gorm:"index;type:varchar(255);comment:条码;"`             // 条码
+	CodeFinished string                `json:"code_finished" gorm:"index;type:varchar(255);comment:成品条码;"`  // 成品条码
 	Name         string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
 	Images       []string              `json:"images" gorm:"type:text;serializer:json;comment:图片;"`         // 图片
 	Status       enums.ProductStatus   `json:"status" gorm:"type:int(11);comment:状态;"`                      // 状态
@@ -35,10 +35,10 @@ type ProductOld struct {
 	NumOther     int                   `json:"num_other" gorm:"type:int(11);comment:杂料数;"`                  // 杂料数
 	Remark       string                `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);comment:门店ID;"`                     // 门店ID
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);comment:门店ID;"`               // 门店ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 
-	IsOur                   bool                       `json:"is_our" gorm:"comment:是否本司货品;"`                                                        // 是否本司货品
+	IsOur                   bool                       `json:"is_our" gorm:"index;comment:是否本司货品;"`                                                  // 是否本司货品
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:int(11);comment:回收方式;"`                           // 回收方式
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:int(11);comment:回收类型;"`                             // 回收类型
 	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                           // 回收金价

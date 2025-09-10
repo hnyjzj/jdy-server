@@ -13,15 +13,15 @@ import (
 type ProductAccessorieAllocate struct {
 	SoftDelete
 
-	Method enums.ProductAccessorieAllocateMethod `json:"method" gorm:"type:int(11);not NULL;comment:调拨类型;"` // 调拨类型
-	Status enums.ProductAllocateStatus           `json:"status" gorm:"type:int(11);comment:状态;"`            // 状态
-	Remark string                                `json:"remark" gorm:"type:text;comment:备注;"`               // 备注
+	Method enums.ProductAccessorieAllocateMethod `json:"method" gorm:"index;type:int(11);not NULL;comment:调拨类型;"` // 调拨类型
+	Status enums.ProductAllocateStatus           `json:"status" gorm:"index;type:int(11);comment:状态;"`            // 状态
+	Remark string                                `json:"remark" gorm:"type:text;comment:备注;"`                     // 备注
 
-	FromStoreId string  `json:"from_store_id" gorm:"type:varchar(255);comment:调出门店;"` // 调出门店
+	FromStoreId string  `json:"from_store_id" gorm:"index;type:varchar(255);comment:调出门店;"` // 调出门店
 	FromStore   *Store  `json:"from_store" gorm:"foreignKey:FromStoreId;references:Id;comment:调出门店;"`
-	ToStoreId   string  `json:"to_store_id" gorm:"type:varchar(255);comment:调入门店;"` // 调入门店
+	ToStoreId   string  `json:"to_store_id" gorm:"index;type:varchar(255);comment:调入门店;"` // 调入门店
 	ToStore     *Store  `json:"to_store" gorm:"foreignKey:ToStoreId;references:Id;comment:调入门店;"`
-	ToRegionId  string  `json:"to_region_id" gorm:"type:varchar(255);comment:调入区域;"` // 调入区域
+	ToRegionId  string  `json:"to_region_id" gorm:"index;type:varchar(255);comment:调入区域;"` // 调入区域
 	ToRegion    *Region `json:"to_region" gorm:"foreignKey:ToRegionId;references:Id;comment:调入区域;"`
 
 	Product      ProductAccessorieAllocateProduct   `json:"product" gorm:"-"`
@@ -29,15 +29,15 @@ type ProductAccessorieAllocate struct {
 	ProductCount int64                              `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类数;"`       // 入库种类数
 	ProductTotal int64                              `json:"product_total" gorm:"type:int(11);not NULL;comment:入库总件数;"`       // 入库总件数
 
-	OperatorId string `json:"operator_id" gorm:"type:varchar(255);NULL;comment:操作人ID;"`         // 操作人ID
+	OperatorId string `json:"operator_id" gorm:"index;type:varchar(255);NULL;comment:操作人ID;"`   // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人
 	IP         string `json:"-" gorm:"type:varchar(255);NULL;comment:IP;"`                      // IP
 
-	InitiatorId string `json:"initiator_id" gorm:"type:varchar(255);NULL;comment:发起人ID;"`          // 发起人ID
+	InitiatorId string `json:"initiator_id" gorm:"index;type:varchar(255);NULL;comment:发起人ID;"`    // 发起人ID
 	InitiatorIP string `json:"-" gorm:"type:varchar(255);NULL;comment:发起人IP;"`                     // 发起人IP
 	Initiator   *Staff `json:"initiator" gorm:"foreignKey:InitiatorId;references:Id;comment:发起人;"` // 发起人
 
-	ReceiverId string `json:"receiver_id" gorm:"type:varchar(255);NULL;comment:接收人ID;"`         // 接收人ID
+	ReceiverId string `json:"receiver_id" gorm:"index;type:varchar(255);NULL;comment:接收人ID;"`   // 接收人ID
 	ReceiverIP string `json:"-" gorm:"type:varchar(255);NULL;comment:接收人IP;"`                   // 接收人IP
 	Receiver   *Staff `json:"receiver" gorm:"foreignKey:ReceiverId;references:Id;comment:接收人;"` // 接收人
 }

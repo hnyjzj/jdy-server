@@ -28,7 +28,7 @@ type Staff struct {
 	LastLoginAt *time.Time `json:"last_login_at" gorm:"comment:最后登录时间"` // 最后登录时间
 	LastLoginIp string     `json:"-" gorm:"size:255;comment:最后登录IP"`    // 最后登录IP
 
-	Identity enums.Identity `json:"identity" gorm:"type:int(11);not null;comment:身份"` // 身份
+	Identity enums.Identity `json:"identity" gorm:"index;type:int(11);not null;comment:身份"` // 身份
 
 	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID
 	Role   *Role  `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"`     // 角色

@@ -11,10 +11,10 @@ import (
 type GoldPrice struct {
 	SoftDelete
 
-	StoreId         string                 `json:"store_id" gorm:"type:varchar(255);comment:店铺ID;"`                // 店铺ID
+	StoreId         string                 `json:"store_id" gorm:"index;type:varchar(255);comment:店铺ID;"`          // 店铺ID
 	Price           decimal.Decimal        `json:"price" gorm:"type:decimal(10,2);comment:金价;"`                    // 金价
-	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"type:int(11);comment:产品材质;"`             // 产品材质
-	ProductType     enums.ProductTypeUsed  `json:"product_type" gorm:"type:int(11);comment:产品类型;"`                 // 产品类型
+	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"index;type:int(11);comment:产品材质;"`       // 产品材质
+	ProductType     enums.ProductTypeUsed  `json:"product_type" gorm:"index;type:int(11);comment:产品类型;"`           // 产品类型
 	ProductBrand    []enums.ProductBrand   `json:"product_brand" gorm:"type:text;serializer:json;comment:产品品牌;"`   // 产品品牌
 	ProductQuality  []enums.ProductQuality `json:"product_quality" gorm:"type:text;serializer:json;comment:产品成色;"` // 产品成色
 }
@@ -54,7 +54,7 @@ func GetGoldPrice(req *types.GoldPriceOptions) (decimal.Decimal, error) {
 type OpenOrder struct {
 	SoftDelete
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);comment:店铺ID;"`                     // 店铺ID
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);comment:店铺ID;"`               // 店铺ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:店铺;"` // 店铺
 
 	DiscountRate decimal.Decimal    `json:"discount_rate" gorm:"type:decimal(10,2);comment:积分抵扣比例;"` // 积分抵扣比例

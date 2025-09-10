@@ -15,7 +15,7 @@ type ProductFinished struct {
 
 	Code        string                     `json:"code" gorm:"uniqueIndex;type:varchar(255);comment:条码;"`       // 条码
 	Name        string                     `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
-	Status      enums.ProductStatus        `json:"status" gorm:"type:int(11);comment:状态;"`                      // 状态
+	Status      enums.ProductStatus        `json:"status" gorm:"index;type:int(11);comment:状态;"`                // 状态
 	Images      []string                   `json:"images" gorm:"type:text;serializer:json;comment:图片;"`         // 图片
 	Class       enums.ProductClassFinished `json:"class" gorm:"type:int(11);comment:大类;"`                       // 大类
 	AccessFee   decimal.Decimal            `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"`  // 入网费
@@ -44,13 +44,13 @@ type ProductFinished struct {
 	Series      string                     `json:"series" gorm:"type:varchar(255);comment:系列;"`                 // 系列
 	Remark      string                     `json:"remark" gorm:"type:text;comment:备注;"`                         // 备注
 
-	StoreId        string `json:"store_id" gorm:"type:varchar(255);comment:门店ID;"`                     // 门店ID
+	StoreId        string `json:"store_id" gorm:"index;type:varchar(255);comment:门店ID;"`               // 门店ID
 	Store          Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
 	IsSpecialOffer bool   `json:"is_special_offer" gorm:"comment:是否特价;"`                               // 是否特价
 
 	EnterId   string                `json:"enter_id" gorm:"type:varchar(255);not NULL;comment:成品入库单ID;"`                    // 成品入库单ID
 	Enter     *ProductFinishedEnter `json:"product_enter,omitempty" gorm:"foreignKey:EnterId;references:Id;comment:成品入库单;"` // 成品入库单
-	EnterTime time.Time             `json:"enter_time" gorm:"comment:入库时间;"`                                                // 入库时间
+	EnterTime time.Time             `json:"enter_time" gorm:"index;comment:入库时间;"`                                          // 入库时间
 }
 
 func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedWhere) *gorm.DB {
@@ -267,11 +267,11 @@ func (p *ProductFinished) IsUnsalable(t time.Time) bool {
 type ProductFinishedEnter struct {
 	SoftDelete
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
-	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);not NULL;comment:门店ID;"` // 门店ID
+	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"`      // 门店
 
-	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`             // 备注
-	Status enums.ProductEnterStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
+	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`                   // 备注
+	Status enums.ProductEnterStatus `json:"status" gorm:"index;type:int(11);not NULL;comment:状态;"` // 状态
 
 	Products                []ProductFinished `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:成品;"`                 // 成品
 	ProductCount            int64             `json:"product_count" gorm:"type:int(11);not NULL;comment:成品数量;"`                     // 成品数量

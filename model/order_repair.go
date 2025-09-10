@@ -12,18 +12,18 @@ import (
 type OrderRepair struct {
 	SoftDelete
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
-	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);not NULL;comment:门店ID;"` // 门店ID
+	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"`      // 门店
 
-	Status enums.OrderRepairStatus `json:"status" gorm:"type:int(11);not NULL;comment:订单状态;"` // 订单状态
+	Status enums.OrderRepairStatus `json:"status" gorm:"index;type:int(11);not NULL;comment:订单状态;"` // 订单状态
 
-	ReceptionistId string `json:"receptionist_id" gorm:"type:varchar(255);not NULL;comment:接待人ID;"`         // 接待人ID
+	ReceptionistId string `json:"receptionist_id" gorm:"index;type:varchar(255);not NULL;comment:接待人ID;"`   // 接待人ID
 	Receptionist   Staff  `json:"receptionist" gorm:"foreignKey:ReceptionistId;references:Id;comment:接待人;"` // 接待人
-	CashierId      string `json:"cashier_id" gorm:"type:varchar(255);not NULL;comment:收银员ID;"`              // 收银员ID
+	CashierId      string `json:"cashier_id" gorm:"index;type:varchar(255);not NULL;comment:收银员ID;"`        // 收银员ID
 	Cashier        Staff  `json:"cashier" gorm:"foreignKey:CashierId;references:Id;comment:收银员;"`           // 收银员
 
-	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
-	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
+	MemberId string `json:"member_id" gorm:"index;type:varchar(255);not NULL;comment:会员ID;"` // 会员ID
+	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"`     // 会员
 
 	Name string `json:"name" gorm:"type:varchar(255);not NULL;comment:维修项目;"` // 维修项目
 	Desc string `json:"desc" gorm:"type:text;not NULL;comment:描述;"`           // 问题描述

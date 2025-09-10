@@ -12,11 +12,11 @@ import (
 type ProductAccessorieEnter struct {
 	SoftDelete
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
-	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);not NULL;comment:门店ID;"` // 门店ID
+	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"`      // 门店
 
-	Status enums.ProductEnterStatus `json:"status" gorm:"type:int(11);not NULL;comment:状态;"` // 状态
-	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`             // 备注
+	Status enums.ProductEnterStatus `json:"status" gorm:"index;type:int(11);not NULL;comment:状态;"` // 状态
+	Remark string                   `json:"remark" gorm:"type:text;comment:备注;"`                   // 备注
 
 	Products     []ProductAccessorieEnterProduct `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:产品;"` // 产品
 	ProductCount int64                           `json:"product_count" gorm:"type:int(11);not NULL;comment:入库种类;"`     // 入库种类

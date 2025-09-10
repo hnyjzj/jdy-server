@@ -28,15 +28,15 @@ type Member struct {
 	Source   enums.MemberSource `json:"source" gorm:"column:source;type:int(11);not NULL;default:0;comment:来源;"` // 来源
 	SourceId string             `json:"source_id" gorm:"column:source_id;size:255;not NULL;comment:来源id;"`       // 来源id
 
-	ConsultantId string `json:"consultant_id" gorm:"column:consultant_id;size:255;not NULL;comment:顾问id;"` // 顾问id
-	Consultant   Staff  `json:"consultant,omitempty" gorm:"foreignKey:ConsultantId;references:Id;"`        // 顾问
+	ConsultantId string `json:"consultant_id" gorm:"index;column:consultant_id;size:255;not NULL;comment:顾问id;"` // 顾问id
+	Consultant   Staff  `json:"consultant,omitempty" gorm:"foreignKey:ConsultantId;references:Id;"`              // 顾问
 
-	StoreId string `json:"store_id" gorm:"column:store_id;size:255;not NULL;comment:入会门店id;"` // 入会门店id
-	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;"`          // 门店
+	StoreId string `json:"store_id" gorm:"index;column:store_id;size:255;not NULL;comment:入会门店id;"` // 入会门店id
+	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;"`                // 门店
 
 	Status enums.MemberStatus `json:"status" gorm:"column:status;type:int(11);not NULL;default:0;comment:状态;"` // 状态
 
-	ExternalUserId string `json:"external_user_id" gorm:"column:external_user_id;size:255;not NULL;comment:外部用户id;"` // 外部用户id
+	ExternalUserId string `json:"external_user_id" gorm:"index;column:external_user_id;size:255;not NULL;comment:外部用户id;"` // 外部用户id
 }
 
 func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {

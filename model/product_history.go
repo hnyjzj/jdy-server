@@ -11,16 +11,16 @@ import (
 type ProductHistory struct {
 	Model
 
-	Type   enums.ProductType   `json:"type" gorm:"type:int(11);comment:产品类型;"` // 产品类型
-	Action enums.ProductAction `json:"action" gorm:"type:int(11);comment:操作;"` // 操作
+	Type   enums.ProductType   `json:"type" gorm:"index;type:int(11);comment:产品类型;"` // 产品类型
+	Action enums.ProductAction `json:"action" gorm:"index;type:int(11);comment:操作;"` // 操作
 
 	OldValue any `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
 	NewValue any `json:"new_value" gorm:"type:text;serializer:json;comment:新值;"` // 新值
 
-	ProductId string `json:"product_id" gorm:"type:varchar(255);not NULL;comment:产品ID;"` // 产品ID
+	ProductId string `json:"product_id" gorm:"index;type:varchar(255);not NULL;comment:产品ID;"` // 产品ID
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
-	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);not NULL;comment:门店ID;"` // 门店ID
+	Store   *Store `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"`      // 门店
 
 	SourceId string `json:"source_id" gorm:"column:source_id;size:255;not NULL;comment:来源id;"` // 来源id
 

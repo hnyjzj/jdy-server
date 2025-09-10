@@ -10,7 +10,7 @@ import (
 type Print struct {
 	SoftDelete
 
-	StoreId string `json:"store_id" gorm:"column:store_id;type:varchar(255);not null;comment:店铺id"` // 店铺id
+	StoreId string `json:"store_id" gorm:"index;column:store_id;type:varchar(255);not null;comment:店铺id"` // 店铺id
 	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id"`
 
 	Name      string            `json:"name" gorm:"column:name;type:varchar(255);not null;comment:模板名称"`          // 模板名称

@@ -495,7 +495,7 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSales() {
 	l.resp.FinishedSales = res
 }
 
-// 获取旧料销售
+// 获取旧料回收
 func (l *StatisticSalesDetailDailyLogic) getOldSales() {
 	res := map[string][]types.StatisticSalesDetailDailyOldSales{}
 

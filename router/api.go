@@ -120,10 +120,10 @@ func Api(g *gin.Engine) {
 						old_stock.POST("/data", boos.BoosController{}.OldStockData)  // 旧料库存列表
 					}
 
-					old_sales := bosses.Group("/old_sales") // 旧料销售
+					old_sales := bosses.Group("/old_sales") // 旧料回收
 					{
-						old_sales.GET("/where", boos.BoosController{}.OldSalesWhere) // 旧料销售筛选
-						old_sales.POST("/data", boos.BoosController{}.OldSalesData)  // 旧料销售列表
+						old_sales.GET("/where", boos.BoosController{}.OldSalesWhere) // 旧料回收筛选
+						old_sales.POST("/data", boos.BoosController{}.OldSalesData)  // 旧料回收列表
 					}
 
 					payments := bosses.Group("/payments") // 订单收支统计

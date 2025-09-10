@@ -135,7 +135,7 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			todays := statistics.Group("/today") // 今日数据
+			todays := statistics.Group("/today") // 今日统计
 			{
 				todays.Use(middlewares.JWTMiddleware())
 				{
@@ -145,7 +145,7 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			payments := statistics.Group("/payment") // 收支数据
+			payments := statistics.Group("/payment") // 收支统计
 			{
 				payments.GET("/where", payment.PaymentController{}.Where) // 筛选
 				payments.Use(middlewares.JWTMiddleware())
@@ -154,16 +154,16 @@ func Api(g *gin.Engine) {
 				}
 			}
 
-			stocks := statistics.Group("/stock") // 库存数据
+			stocks := statistics.Group("/stock") // 库存统计
 			{
-				stocks.GET("/where", stock.StockController{}.Where) // 库存数据筛选
+				stocks.GET("/where", stock.StockController{}.Where) // 库存统计筛选
 				stocks.Use(middlewares.JWTMiddleware())
 				{
-					stocks.POST("/data", stock.StockController{}.Data) // 库存数据列表
+					stocks.POST("/data", stock.StockController{}.Data) // 库存统计列表
 				}
 			}
 
-			sales := statistics.Group("/sales") // 销售数据
+			sales := statistics.Group("/sales") // 销售统计
 			{
 				sales.GET("/where", sale.SaleController{}.Where) // 筛选
 				sales.Use(middlewares.JWTMiddleware())

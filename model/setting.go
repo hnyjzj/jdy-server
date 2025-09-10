@@ -11,12 +11,12 @@ import (
 type GoldPrice struct {
 	SoftDelete
 
-	StoreId         string                 `json:"store_id" gorm:"index;type:varchar(255);comment:店铺ID;"`          // 店铺ID
-	Price           decimal.Decimal        `json:"price" gorm:"type:decimal(10,2);comment:金价;"`                    // 金价
-	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"index;type:int(11);comment:产品材质;"`       // 产品材质
-	ProductType     enums.ProductTypeUsed  `json:"product_type" gorm:"index;type:int(11);comment:产品类型;"`           // 产品类型
-	ProductBrand    []enums.ProductBrand   `json:"product_brand" gorm:"type:text;serializer:json;comment:产品品牌;"`   // 产品品牌
-	ProductQuality  []enums.ProductQuality `json:"product_quality" gorm:"type:text;serializer:json;comment:产品成色;"` // 产品成色
+	StoreId         string                 `json:"store_id" gorm:"index:idx_gold_price_smt,priority:1;type:varchar(255);comment:店铺ID;"`    // 店铺ID
+	Price           decimal.Decimal        `json:"price" gorm:"type:decimal(10,2);comment:金价;"`                                            // 金价
+	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"index:idx_gold_price_smt,priority:2;type:int(11);comment:产品材质;"` // 产品材质
+	ProductType     enums.ProductTypeUsed  `json:"product_type" gorm:"index:idx_gold_price_smt,priority:3;type:int(11);comment:产品类型;"`     // 产品类型
+	ProductBrand    []enums.ProductBrand   `json:"product_brand" gorm:"type:text;serializer:json;comment:产品品牌;"`                           // 产品品牌
+	ProductQuality  []enums.ProductQuality `json:"product_quality" gorm:"type:text;serializer:json;comment:产品成色;"`                         // 产品成色
 }
 
 func (GoldPrice) WhereCondition(db *gorm.DB, req *types.GoldPriceOptions) *gorm.DB {

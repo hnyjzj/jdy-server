@@ -12,20 +12,20 @@ import (
 type OrderOther struct {
 	SoftDelete
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
-	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);not NULL;comment:门店ID;"` // 门店ID
+	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"`      // 门店
 
-	Type    enums.FinanceType        `json:"type" gorm:"type:int(11);not NULL;comment:订单类型;"`         // 订单类型
+	Type    enums.FinanceType        `json:"type" gorm:"index;type:int(11);not NULL;comment:订单类型;"`   // 订单类型
 	Content string                   `json:"content" gorm:"type:varchar(500);not NULL;comment:订单内容;"` // 订单内容
-	Source  enums.FinanceSourceOther `json:"source" gorm:"type:int(11);not NULL;comment:订单来源;"`       // 订单来源
+	Source  enums.FinanceSourceOther `json:"source" gorm:"index;type:int(11);not NULL;comment:订单来源;"` // 订单来源
 
-	ClerkId string `json:"clerk_id" gorm:"type:varchar(255);not NULL;comment:导购员ID;"`  // 导购员ID
-	Clerk   Staff  `json:"clerk" gorm:"foreignKey:ClerkId;references:Id;comment:导购员;"` // 导购员
+	ClerkId string `json:"clerk_id" gorm:"index;type:varchar(255);not NULL;comment:导购员ID;"` // 导购员ID
+	Clerk   Staff  `json:"clerk" gorm:"foreignKey:ClerkId;references:Id;comment:导购员;"`      // 导购员
 
-	MemberId string `json:"member_id" gorm:"type:varchar(255);not NULL;comment:会员ID;"`   // 会员ID
-	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"` // 会员
+	MemberId string `json:"member_id" gorm:"index;type:varchar(255);not NULL;comment:会员ID;"` // 会员ID
+	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"`     // 会员
 
-	OrderId string     `json:"order_id" gorm:"type:varchar(255);comment:销售单ID;"`             // 销售单ID
+	OrderId string     `json:"order_id" gorm:"index;type:varchar(255);comment:销售单ID;"`       // 销售单ID
 	Order   OrderSales `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:关联销售单;"` // 关联销售单
 
 	Amount   decimal.Decimal `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:金额;"`          // 金额

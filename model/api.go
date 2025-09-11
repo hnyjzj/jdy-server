@@ -6,7 +6,7 @@ type Api struct {
 	Title    string  `json:"title" gorm:"column:title;size:255;comment:标题"`                            // 标题
 	Path     string  `json:"path" gorm:"uniqueIndex:unique_api;column:path;size:255;comment:接口地址"`     // 接口地址
 	Method   string  `json:"method" gorm:"uniqueIndex:unique_api;column:method;size:255;comment:请求方式"` // 请求方式
-	ParentId *string `json:"parent_id" gorm:"size:255;comment:父级ID"`                                   // 父级ID
+	ParentId *string `json:"parent_id" gorm:"index;size:255;comment:父级ID"`                             // 父级ID
 
 	Children []*Api `json:"children,omitempty" gorm:"-"`
 }

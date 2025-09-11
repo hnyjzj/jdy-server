@@ -31,7 +31,7 @@ type StatisticSalesDetailDailyResp struct {
 	PaymentTotal StatisticSalesDetailDailyPayment   `json:"payment_total"` // 支付项汇总
 
 	FinishedSales       map[string]map[string]StatisticSalesDetailDailyFinishedSales       `json:"finished_sales"`        // 成品销售
-	OldSales            map[string][]StatisticSalesDetailDailyOldSales                     `json:"old_sales"`             // 旧料销售
+	OldSales            map[string][]StatisticSalesDetailDailyOldSales                     `json:"old_sales"`             // 旧料回收
 	AccessorieSales     map[string]StatisticSalesDetailDailyAccessorieSales                `json:"accessorie_sales"`      // 配件销售
 	FinishedSalesRefund map[string]map[string]StatisticSalesDetailDailyFinishedSalesRefund `json:"finished_sales_refund"` // 成品退货
 }

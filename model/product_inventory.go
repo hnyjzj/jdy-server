@@ -13,20 +13,20 @@ import (
 type ProductInventory struct {
 	SoftDelete
 
-	StoreId string `json:"store_id" gorm:"type:varchar(255);not NULL;comment:门店ID;"`  // 门店ID
-	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"` // 门店
+	StoreId string `json:"store_id" gorm:"index;type:varchar(255);not NULL;comment:门店ID;"` // 门店ID
+	Store   Store  `json:"store" gorm:"foreignKey:StoreId;references:Id;comment:门店;"`      // 门店
 
 	InventoryPersonIds []string `json:"inventory_person_ids" gorm:"-"`                                              // 盘点人员ID
 	InventoryPersons   []Staff  `json:"inventory_persons" gorm:"many2many:product_inventory_persons;comment:盘点人员;"` // 盘点人员
 
-	InspectorId string `json:"inspector_id" gorm:"type:varchar(255);not NULL;comment:监盘人ID;"`      // 监盘人ID
-	Inspector   Staff  `json:"inspector" gorm:"foreignKey:InspectorId;references:Id;comment:监盘人;"` // 监盘人
+	InspectorId string `json:"inspector_id" gorm:"index;type:varchar(255);not NULL;comment:监盘人ID;"` // 监盘人ID
+	Inspector   Staff  `json:"inspector" gorm:"foreignKey:InspectorId;references:Id;comment:监盘人;"`  // 监盘人
 
 	CreatorId string `json:"creator_id" gorm:"type:varchar(255);not NULL;comment:创建人ID;"`    // 创建人ID
 	Creator   Staff  `json:"creator" gorm:"foreignKey:CreatorId;references:Id;comment:创建人;"` // 创建人
 
-	Type  enums.ProductTypeUsed       `json:"type" gorm:"type:int(11);comment:产品类型;"`  // 仓库类型
-	Range enums.ProductInventoryRange `json:"range" gorm:"type:int(11);comment:盘点范围;"` // 盘点范围
+	Type  enums.ProductTypeUsed       `json:"type" gorm:"index;type:int(11);comment:产品类型;"` // 仓库类型
+	Range enums.ProductInventoryRange `json:"range" gorm:"type:int(11);comment:盘点范围;"`      // 盘点范围
 
 	Brand         []enums.ProductBrand         `json:"brand" gorm:"type:text;serializer:json;comment:产品品牌;"`          // 产品品牌
 	ClassFinished []enums.ProductClassFinished `json:"class_finished" gorm:"type:text;serializer:json;comment:成品大类;"` // 成品大类
@@ -37,8 +37,8 @@ type ProductInventory struct {
 	Quality       []enums.ProductQuality       `json:"quality" gorm:"type:text;serializer:json;comment:产品成色;"`        // 产品成色
 	Gem           []enums.ProductGem           `json:"gem" gorm:"type:text;serializer:json;comment:宝石种类;"`            // 宝石种类
 
-	Remark string                       `json:"remark" gorm:"type:text;comment:备注;"`      // 备注
-	Status enums.ProductInventoryStatus `json:"status" gorm:"type:int(11);comment:盘点状态;"` // 盘点状态
+	Remark string                       `json:"remark" gorm:"type:text;comment:备注;"`            // 备注
+	Status enums.ProductInventoryStatus `json:"status" gorm:"index;type:int(11);comment:盘点状态;"` // 盘点状态
 
 	ShouldCount    int64                     `json:"should_count" gorm:"type:int(11);comment:应盘数量;"`                                   // 应盘数量
 	ShouldProducts []ProductInventoryProduct `json:"should_products" gorm:"foreignKey:ProductInventoryId;references:Id;comment:应盘产品;"` // 应盘产品

@@ -21,7 +21,7 @@ type ProductAccessorie struct {
 	RetailType enums.ProductAccessorieRetailType `json:"retail_type" gorm:"type:int(11);not NULL;comment:零售方式;"`               // 零售方式
 	Price      decimal.Decimal                   `json:"price" gorm:"type:decimal(10,2);comment:单价;"`                          // 单价
 	Remark     string                            `json:"remark" gorm:"type:text;comment:备注;"`                                  // 备注
-	Stock      int64                             `json:"stock" gorm:"type:int(9);default:1;comment:库存;"`                       // 库存
+	Stock      int64                             `json:"stock" gorm:"index;type:int(9);default:1;comment:库存;"`                 // 库存
 
 	Status enums.ProductAccessorieStatus `json:"status" gorm:"type:int(11);default:1;comment:状态;"` // 状态
 }

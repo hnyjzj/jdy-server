@@ -22,7 +22,7 @@ type Model struct {
 // 软删除模型
 type SoftDelete struct {
 	Model
-	DeletedAt gorm.DeletedAt `json:"-" sql:"index" gorm:"type:datetime;comment:删除时间"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"type:datetime;index;comment:删除时间"`
 }
 
 // 创建雪花节点

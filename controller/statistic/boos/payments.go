@@ -13,7 +13,6 @@ func (con BoosController) PaymentsWhere(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
-// 订单收支统计
 func (con BoosController) PaymentsData(ctx *gin.Context) {
 	var (
 		req   payments.DataReq
@@ -28,7 +27,7 @@ func (con BoosController) PaymentsData(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.Exception(ctx, "无法获取")
+		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff

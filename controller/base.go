@@ -67,7 +67,7 @@ func (con BaseController) Verify_permission(ctx *gin.Context, staff *model.Staff
 
 	// 检查权限
 	if err := staff.HasPermissionApi(ctx.FullPath()); err != nil {
-		log.Printf("员工[%v] %v", staff.Id, err.Error())
+		log.Printf("%s[%v] %v", staff.Nickname, staff.Id, err.Error())
 		return err
 	}
 

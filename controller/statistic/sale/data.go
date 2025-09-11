@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 成品库存统计
 func (con SaleController) Data(ctx *gin.Context) {
 	var (
 		req   sale.DataReq
@@ -24,7 +23,7 @@ func (con SaleController) Data(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.Exception(ctx, "无法获取")
+		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff

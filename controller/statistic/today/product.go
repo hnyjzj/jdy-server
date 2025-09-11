@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 今日货品
 func (con ToDayController) Product(ctx *gin.Context) {
 	var (
 		req   today.ProductReq

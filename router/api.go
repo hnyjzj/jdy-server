@@ -99,37 +99,37 @@ func Api(g *gin.Engine) {
 					performance := bosses.Group("/performance") // 业绩统计
 					{
 						performance.GET("/where", boos.BoosController{}.PerformanceWhere) // 业绩统计筛选
-						performance.POST("/data", boos.BoosController{}.PerformanceData)  // 业绩统计列表
+						performance.POST("/data", boos.BoosController{}.PerformanceData)  // 业绩统计数据
 					}
 
 					finished_sales := bosses.Group("/finished_sales") // 成品销售
 					{
 						finished_sales.GET("/where", boos.BoosController{}.FinishedSalesWhere) // 成品销售筛选
-						finished_sales.POST("/data", boos.BoosController{}.FinishedSalesData)  // 成品销售列表
+						finished_sales.POST("/data", boos.BoosController{}.FinishedSalesData)  // 成品销售数据
 					}
 
 					finished_stock := bosses.Group("/finished_stock") // 成品库存
 					{
 						finished_stock.GET("/where", boos.BoosController{}.FinishedStockWhere) // 成品库存筛选
-						finished_stock.POST("/data", boos.BoosController{}.FinishedStockData)  // 成品库存列表
+						finished_stock.POST("/data", boos.BoosController{}.FinishedStockData)  // 成品库存数据
 					}
 
 					old_stock := bosses.Group("/old_stock") // 旧料库存
 					{
 						old_stock.GET("/where", boos.BoosController{}.OldStockWhere) // 旧料库存筛选
-						old_stock.POST("/data", boos.BoosController{}.OldStockData)  // 旧料库存列表
+						old_stock.POST("/data", boos.BoosController{}.OldStockData)  // 旧料库存数据
 					}
 
 					old_sales := bosses.Group("/old_sales") // 旧料回收
 					{
 						old_sales.GET("/where", boos.BoosController{}.OldSalesWhere) // 旧料回收筛选
-						old_sales.POST("/data", boos.BoosController{}.OldSalesData)  // 旧料回收列表
+						old_sales.POST("/data", boos.BoosController{}.OldSalesData)  // 旧料回收数据
 					}
 
-					payments := bosses.Group("/payments") // 订单收支统计
+					payments := bosses.Group("/payments") // 收支统计
 					{
-						payments.GET("/where", boos.BoosController{}.PaymentsWhere) // 订单收支统计筛选
-						payments.POST("/data", boos.BoosController{}.PaymentsData)  // 订单收支统计列表
+						payments.GET("/where", boos.BoosController{}.PaymentsWhere) // 收支统计筛选
+						payments.POST("/data", boos.BoosController{}.PaymentsData)  // 收支统计数据
 					}
 
 				}
@@ -147,10 +147,10 @@ func Api(g *gin.Engine) {
 
 			payments := statistics.Group("/payment") // 收支统计
 			{
-				payments.GET("/where", payment.PaymentController{}.Where) // 筛选
+				payments.GET("/where", payment.PaymentController{}.Where) // 收支统计筛选
 				payments.Use(middlewares.JWTMiddleware())
 				{
-					payments.POST("/data", payment.PaymentController{}.Data) // 概览
+					payments.POST("/data", payment.PaymentController{}.Data) // 收支统计数据
 				}
 			}
 
@@ -159,16 +159,16 @@ func Api(g *gin.Engine) {
 				stocks.GET("/where", stock.StockController{}.Where) // 库存统计筛选
 				stocks.Use(middlewares.JWTMiddleware())
 				{
-					stocks.POST("/data", stock.StockController{}.Data) // 库存统计列表
+					stocks.POST("/data", stock.StockController{}.Data) // 库存统计数据
 				}
 			}
 
 			sales := statistics.Group("/sales") // 销售统计
 			{
-				sales.GET("/where", sale.SaleController{}.Where) // 筛选
+				sales.GET("/where", sale.SaleController{}.Where) // 销售统计筛选
 				sales.Use(middlewares.JWTMiddleware())
 				{
-					sales.POST("/data", sale.SaleController{}.Data) // 概览
+					sales.POST("/data", sale.SaleController{}.Data) // 销售统计数据
 				}
 			}
 

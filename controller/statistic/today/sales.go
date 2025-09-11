@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 今日销售统计
 func (con ToDayController) Sales(ctx *gin.Context) {
 	var (
 		req   today.SalesReq

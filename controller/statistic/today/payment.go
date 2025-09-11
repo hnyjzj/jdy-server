@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 今日收支
 func (con ToDayController) Payment(ctx *gin.Context) {
 	var (
 		req   today.PaymentReq

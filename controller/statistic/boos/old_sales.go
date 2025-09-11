@@ -13,7 +13,6 @@ func (con BoosController) OldSalesWhere(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
-// 旧料库存统计
 func (con BoosController) OldSalesData(ctx *gin.Context) {
 	var (
 		req   old_sales.DataReq
@@ -28,7 +27,7 @@ func (con BoosController) OldSalesData(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.Exception(ctx, "无法获取")
+		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff

@@ -27,7 +27,7 @@ func (con BoosController) FinishedSalesData(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.Exception(ctx, "无法获取")
+		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff

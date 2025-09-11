@@ -14,14 +14,6 @@ type SalesReq struct {
 	StoreId string `json:"store_id"`
 }
 
-type SalesRes struct {
-	GoldPrice      decimal.Decimal `json:"gold_price"`       // 金价
-	SalesAmount    decimal.Decimal `json:"sales_amount"`     // 销售金额
-	SalesCount     int64           `json:"sales_count"`      // 销售件数
-	OldGoodsAmount decimal.Decimal `json:"old_goods_amount"` // 旧料抵值
-	ReturnAmount   decimal.Decimal `json:"return_amount"`    // 退货金额
-}
-
 type SalesLogic struct {
 	*ToDayLogic
 
@@ -29,14 +21,14 @@ type SalesLogic struct {
 	Sales  []model.OrderSales
 	Refund []model.OrderRefund
 
-	Res *SalesRes
+	Res map[string]any
 }
 
-func (l *ToDayLogic) Sales(req *SalesReq, onlyself bool) (*SalesRes, error) {
+func (l *ToDayLogic) Sales(req *SalesReq, onlyself bool) (map[string]any, error) {
 	logic := &SalesLogic{
 		ToDayLogic: l,
 		Req:        req,
-		Res:        &SalesRes{},
+		Res:        make(map[string]any),
 	}
 
 	// 获取销售数据
@@ -130,46 +122,66 @@ func (l *SalesLogic) get_gold_price() error {
 	price, _ := model.GetGoldPrice(&types.GoldPriceOptions{
 		StoreId: l.Req.StoreId,
 	})
-	l.Res.GoldPrice = price
+	l.Res["金价"] = price
 
 	return nil
 }
 
 func (l *SalesLogic) get_sales_amount() error {
-	for _, o := range l.Sales {
-		l.Res.SalesAmount = l.Res.SalesAmount.Add(o.ProductFinishedPrice)
+	price, ok := l.Res["销售金额"].(decimal.Decimal)
+	if !ok {
+		price = decimal.Zero
 	}
+	for _, o := range l.Sales {
+		price = price.Add(o.ProductFinishedPrice)
+	}
+	l.Res["销售金额"] = price
 
 	return nil
 }
 
 // 获取销售件数
 func (l *SalesLogic) get_sales_count() error {
+	count, ok := l.Res["销售件数"].(int)
+	if !ok {
+		count = 0
+	}
 	for _, o := range l.Sales {
 		for _, p := range o.Products {
 			if p.Type == enums.ProductTypeFinished {
-				l.Res.SalesCount++
+				count++
 			}
 		}
 	}
+	l.Res["销售件数"] = count
 
 	return nil
 }
 
 // 获取旧料抵值
 func (l *SalesLogic) get_old_goods_amount() error {
-	for _, o := range l.Sales {
-		l.Res.OldGoodsAmount = l.Res.OldGoodsAmount.Add(o.ProductOldPrice)
+	price, ok := l.Res["旧料抵值"].(decimal.Decimal)
+	if !ok {
+		price = decimal.Zero
 	}
+	for _, o := range l.Sales {
+		price = price.Add(o.ProductOldPrice)
+	}
+	l.Res["旧料抵值"] = price
 
 	return nil
 }
 
 // 获取退货金额
 func (l *SalesLogic) get_return_amount() error {
-	for _, o := range l.Refund {
-		l.Res.ReturnAmount = l.Res.ReturnAmount.Add(o.Price)
+	price, ok := l.Res["退货金额"].(decimal.Decimal)
+	if !ok {
+		price = decimal.Zero
 	}
+	for _, o := range l.Refund {
+		price = price.Add(o.Price)
+	}
+	l.Res["退货金额"] = price
 
 	return nil
 }

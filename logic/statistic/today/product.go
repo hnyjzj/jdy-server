@@ -7,7 +7,6 @@ import (
 	"jdy/model"
 	"time"
 
-	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -16,26 +15,19 @@ type ProductReq struct {
 	StoreId string `json:"store_id"` // 门店ID
 }
 
-type ProductRes struct {
-	ProductStockCount int64           `json:"product_stock_count"` // 成品库存件数
-	OldStockCount     int64           `json:"old_stock_count"`     // 旧料库存件数
-	OldStockWeight    decimal.Decimal `json:"old_stock_weight"`    // 旧料库存金重
-	UnsalableCount    int64           `json:"unsalable_count"`     // 滞销货品件数
-}
-
 type ProductLogic struct {
 	Req *ProductReq
 	Db  *gorm.DB
-	Res *ProductRes
+	Res map[string]any
 
 	endtime time.Time
 }
 
-func (l *ToDayLogic) Product(req *ProductReq) (*ProductRes, error) {
+func (l *ToDayLogic) Product(req *ProductReq) (map[string]any, error) {
 	logic := &ProductLogic{
-		Req: req,
-		Res: &ProductRes{},
 		Db:  model.DB,
+		Req: req,
+		Res: make(map[string]any),
 	}
 
 	_, endtime, err := req.Duration.GetTime(time.Now(), req.StartTime, req.EndTime)
@@ -79,7 +71,7 @@ func (l *ProductLogic) getProductStockCount() error {
 		return errors.New("获取成品库存件数失败")
 	}
 
-	l.Res.ProductStockCount = count
+	l.Res["成品库存件数"] = count
 
 	return nil
 }
@@ -107,17 +99,8 @@ func (l *ProductLogic) getOldStock() error {
 		return errors.New("获取旧料库存件数失败")
 	}
 
-	if res.Count.Valid {
-		l.Res.OldStockCount = res.Count.Int64
-	} else {
-		l.Res.OldStockCount = 0
-	}
-
-	if res.Weight.Valid {
-		l.Res.OldStockWeight = decimal.NewFromFloat(res.Weight.Float64)
-	} else {
-		l.Res.OldStockWeight = decimal.Zero
-	}
+	l.Res["旧料库存件数"] = res.Count.Int64
+	l.Res["旧料库存金重"] = res.Weight.Float64
 
 	return nil
 }
@@ -147,11 +130,7 @@ func (l *ProductLogic) getUnsalableCount() error {
 		return errors.New("获取滞销货品件数失败")
 	}
 
-	if product_count.Valid {
-		l.Res.UnsalableCount = product_count.Int64
-	} else {
-		l.Res.UnsalableCount = 0
-	}
+	l.Res["滞销货品件数"] = product_count.Int64
 
 	return nil
 }

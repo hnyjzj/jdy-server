@@ -123,7 +123,7 @@ func (p *ProductAllocateLogic) List(req *types.ProductAllocateListReq) (*types.P
 	)
 
 	db := model.DB.Model(&allocate)
-	db = allocate.WhereCondition(db, &req.Where)
+	db = allocate.WhereCondition(db, &req.Where, p.Staff)
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
@@ -149,7 +149,7 @@ func (p *ProductAllocateLogic) Details(req *types.ProductAllocateDetailsReq) (*[
 	)
 
 	db := model.DB.Model(&allocates)
-	db = model.ProductAllocate{}.WhereCondition(db, &req.Where)
+	db = model.ProductAllocate{}.WhereCondition(db, &req.Where, p.Staff)
 
 	// 获取列表
 	db = model.ProductAllocate{}.Preloads(db)

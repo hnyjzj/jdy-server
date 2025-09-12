@@ -33,6 +33,7 @@ type Staff struct {
 	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID
 	Role   *Role  `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"`     // 角色
 
+	StoreIds        []string `json:"store_ids" gorm:"-"`                                  // 店铺ID
 	Stores          []Store  `json:"stores" gorm:"many2many:store_staffs;"`               // 店铺
 	StoreSuperiors  []Store  `json:"store_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
 	Regions         []Region `json:"regions" gorm:"many2many:region_staffs;"`             // 区域
@@ -84,6 +85,23 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 		return nil, err
 	}
 
+	for _, store := range staff.Stores {
+		staff.StoreIds = append(staff.StoreIds, store.Id)
+	}
+	for _, store := range staff.StoreSuperiors {
+		staff.StoreIds = append(staff.StoreIds, store.Id)
+	}
+	for _, region := range staff.Regions {
+		for _, store := range region.Stores {
+			staff.StoreIds = append(staff.StoreIds, store.Id)
+		}
+	}
+	for _, region := range staff.RegionSuperiors {
+		for _, store := range region.Stores {
+			staff.StoreIds = append(staff.StoreIds, store.Id)
+		}
+	}
+
 	if staff.Role == nil {
 		role, err := Role{}.Default(staff.Identity)
 		if err != nil {
@@ -93,6 +111,34 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 	}
 
 	return &staff, nil
+}
+
+func (staff *Staff) GetStore(store_id string) *Store {
+	for _, store := range staff.Stores {
+		if store.Id == store_id {
+			return &store
+		}
+	}
+	for _, store := range staff.StoreSuperiors {
+		if store.Id == store_id {
+			return &store
+		}
+	}
+	for _, region := range staff.Regions {
+		for _, store := range region.Stores {
+			if store.Id == store_id {
+				return &store
+			}
+		}
+	}
+	for _, region := range staff.RegionSuperiors {
+		for _, store := range region.Stores {
+			if store.Id == store_id {
+				return &store
+			}
+		}
+	}
+	return nil
 }
 
 func (S *Staff) HasPermissionApi(path string) error {

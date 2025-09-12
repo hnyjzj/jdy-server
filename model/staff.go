@@ -114,30 +114,35 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 }
 
 func (staff *Staff) GetStore(store_id string) *Store {
-	for _, store := range staff.Stores {
-		if store.Id == store_id {
-			return &store
+	if staff == nil || store_id == "" {
+		return nil
+	}
+
+	for i := range staff.Stores {
+		if staff.Stores[i].Id == store_id {
+			return &staff.Stores[i]
 		}
 	}
-	for _, store := range staff.StoreSuperiors {
-		if store.Id == store_id {
-			return &store
+	for i := range staff.StoreSuperiors {
+		if staff.StoreSuperiors[i].Id == store_id {
+			return &staff.StoreSuperiors[i]
 		}
 	}
-	for _, region := range staff.Regions {
-		for _, store := range region.Stores {
-			if store.Id == store_id {
-				return &store
+	for ri := range staff.Regions {
+		for si := range staff.Regions[ri].Stores {
+			if staff.Regions[ri].Stores[si].Id == store_id {
+				return &staff.Regions[ri].Stores[si]
 			}
 		}
 	}
-	for _, region := range staff.RegionSuperiors {
-		for _, store := range region.Stores {
-			if store.Id == store_id {
-				return &store
+	for ri := range staff.RegionSuperiors {
+		for si := range staff.RegionSuperiors[ri].Stores {
+			if staff.RegionSuperiors[ri].Stores[si].Id == store_id {
+				return &staff.RegionSuperiors[ri].Stores[si]
 			}
 		}
 	}
+
 	return nil
 }
 

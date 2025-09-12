@@ -6,6 +6,7 @@ import (
 	"jdy/message"
 	"jdy/model"
 	"log"
+	"sort"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -136,7 +137,16 @@ func SendReportStatistic() {
 			}
 		}
 
-		for _, store := range stores {
+		// 将门店按名称排序
+		keys := make([]string, 0, len(stores))
+		for k := range stores {
+			keys = append(keys, stores[k].Name)
+		}
+		sort.Strings(keys)
+
+		// 发送消息
+		for _, k := range keys {
+			store := stores[k]
 			msg := message.NewMessage(context.Background())
 			req := allData[store.Id]
 			req.ToUser = []string{staff.Username}

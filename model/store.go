@@ -82,6 +82,13 @@ func (Store) Headquarters() (*Store, error) {
 	return &store, nil
 }
 
+func (store *Store) IsHeadquarters() bool {
+	if store == nil {
+		return false
+	}
+	return store.Name == HeaderquartersName
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

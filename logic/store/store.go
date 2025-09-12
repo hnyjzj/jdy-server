@@ -41,45 +41,15 @@ func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) (*types.Pag
 func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 
 	var (
-		staff model.Staff
-	)
-
-	db := model.DB.Model(&staff)
-	db = db.Where("id = ?", l.Staff.Id)
-	db = staff.Preloads(db)
-
-	if err := db.First(&staff).Error; err != nil {
-		return nil, errors.New("获取门店列表失败")
-	}
-
-	var store_ids []string
-	for _, v := range staff.Stores {
-		store_ids = append(store_ids, v.Id)
-	}
-	for _, v := range staff.StoreSuperiors {
-		store_ids = append(store_ids, v.Id)
-	}
-	for _, v := range staff.Regions {
-		for _, store := range v.Stores {
-			store_ids = append(store_ids, store.Id)
-		}
-	}
-	for _, v := range staff.RegionSuperiors {
-		for _, store := range v.Stores {
-			store_ids = append(store_ids, store.Id)
-		}
-	}
-
-	var (
 		stores []model.Store
-		sdb    = model.DB.Model(&model.Store{})
+		db     = model.DB.Model(&model.Store{})
 	)
 	if l.Staff.Identity < enums.IdentityAdmin {
-		sdb = sdb.Where("id in (?)", store_ids)
+		db = db.Where("id in (?)", l.Staff.StoreIds)
 	}
 
-	sdb = sdb.Order("name desc")
-	if err := sdb.Find(&stores).Error; err != nil {
+	db = db.Order("name desc")
+	if err := db.Find(&stores).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
 	}
 

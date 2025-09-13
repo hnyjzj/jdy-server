@@ -355,7 +355,7 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	}
 	// 计算总金额
 	l.Order.Price = l.Order.Price.Add(order_product.Accessorie.Price)
-	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(accessory.Price.Mul(decimal.NewFromInt(order_product.Accessorie.Quantity)))
+	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Accessorie.Price)
 	l.Order.Integral = l.Order.Integral.Add(order_product.Accessorie.Integral)
 
 	return nil

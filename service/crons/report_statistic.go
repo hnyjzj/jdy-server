@@ -108,7 +108,7 @@ func SendReportStatistic() {
 			}
 		}
 
-		allData[store.Id] = req
+		allData[store.Name] = req
 	}
 
 	for _, staff := range staffs {
@@ -116,39 +116,41 @@ func SendReportStatistic() {
 		stores := make(map[string]model.Store, 0)
 		if staff.Identity == enums.IdentitySuperAdmin {
 			for _, store := range allStore {
-				stores[store.Id] = store
+				stores[store.Name] = store
 			}
 		} else {
 			for _, store := range staff.Stores {
-				stores[store.Id] = store
+				stores[store.Name] = store
 			}
 			for _, store := range staff.StoreSuperiors {
-				stores[store.Id] = store
+				stores[store.Name] = store
 			}
-			for _, store := range staff.Regions {
-				for _, s := range store.Stores {
-					stores[s.Id] = s
+			for _, region := range staff.Regions {
+				for _, store := range region.Stores {
+					stores[store.Name] = store
 				}
 			}
-			for _, store := range staff.RegionSuperiors {
-				for _, s := range store.Stores {
-					stores[s.Id] = s
+			for _, region := range staff.RegionSuperiors {
+				for _, store := range region.Stores {
+					stores[store.Name] = store
 				}
 			}
 		}
 
 		// 将门店按名称排序
-		keys := make([]string, 0, len(stores))
+		names := make([]string, 0, len(stores))
 		for k := range stores {
-			keys = append(keys, stores[k].Name)
+			names = append(names, stores[k].Name)
 		}
-		sort.Strings(keys)
+		sort.Strings(names)
 
 		// 发送消息
-		for _, k := range keys {
-			store := stores[k]
+		for _, name := range names {
 			msg := message.NewMessage(context.Background())
-			req := allData[store.Id]
+			req, ok := allData[name]
+			if !ok {
+				continue
+			}
 			req.ToUser = []string{staff.Username}
 			msg.SendReportStatisticMessage(&req)
 		}

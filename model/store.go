@@ -83,6 +83,21 @@ func (store *Store) IsHeadquarters() bool {
 	return strings.Contains(store.Name, HeaderquartersPrefix)
 }
 
+func (store *Store) InStore(staff_id string) bool {
+	for _, staff := range store.Staffs {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
+	for _, staff := range store.Superiors {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
+
+	return false
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(

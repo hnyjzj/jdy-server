@@ -47,9 +47,9 @@ func (l *EventChangeContactEvent) CreateParty() error {
 	}
 
 	switch {
-	case strings.Contains(party.Department.Name, "店"):
+	case strings.HasSuffix(party.Department.Name, "店"):
 		return create_handle.isStore(l)
-	case strings.Contains(party.Department.Name, "区域"):
+	case strings.HasSuffix(party.Department.Name, "区域"):
 		return create_handle.isRegion(l)
 	default:
 		return nil
@@ -134,7 +134,7 @@ func (h *PartyCreateHandle) isStore(l *EventChangeContactEvent) error {
 				return err
 			}
 			// 判断父级部门是否为区域
-			if strings.Contains(parent.Department.Name, "区域") {
+			if strings.HasSuffix(parent.Department.Name, "区域") {
 				// 获取父级部门ID
 				var region model.Region
 				if err := tx.Where(&model.Region{

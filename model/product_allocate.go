@@ -74,7 +74,9 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 		db = db.Where("created_at <= ?", query.EndTime)
 	}
 	if query.StoreId != "" {
-		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
+		db = db.Where(
+			db.Where("from_store_id = ?", query.StoreId).Or("to_store_id = ?", query.StoreId),
+		)
 	}
 	if query.InitiatorId != "" {
 		db = db.Where("initiator_id = ?", query.InitiatorId)

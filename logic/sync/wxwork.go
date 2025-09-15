@@ -58,7 +58,7 @@ func (l *WxWorkLogic) Contacts() error {
 			}
 
 			switch {
-			case strings.Contains(department.Department.Name, model.StorePrefix): // 如果是门店
+			case strings.HasSuffix(department.Department.Name, model.StorePrefix): // 如果是门店
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
@@ -67,7 +67,7 @@ func (l *WxWorkLogic) Contacts() error {
 				if err := logic.getStore(store); err != nil {
 					return err
 				}
-			case strings.Contains(department.Department.Name, model.RegionPrefix): // 如果是区域
+			case strings.HasSuffix(department.Department.Name, model.RegionPrefix): // 如果是区域
 				region := model.Region{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
@@ -76,7 +76,7 @@ func (l *WxWorkLogic) Contacts() error {
 				if err := logic.getRegion(region); err != nil {
 					return err
 				}
-			case strings.Contains(department.Department.Name, model.HeaderquartersPrefix): // 如果是总部
+			case strings.HasSuffix(department.Department.Name, model.HeaderquartersPrefix): // 如果是总部
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
@@ -176,7 +176,7 @@ func (l *WxWorkLogic) syncRegionStore() error {
 
 		var ids []string
 		for _, dept := range list.Departments {
-			if strings.Contains(dept.Name, "店") {
+			if strings.HasSuffix(dept.Name, "店") {
 				ids = append(ids, fmt.Sprintf("%d", dept.ID))
 			}
 		}
@@ -287,13 +287,13 @@ func (s *SyncWxWorkContacts) appendSuperior(name string, ids []string) error {
 	// 设置员工为门店/区域负责人
 	if strings.Contains(strings.Join(ids, " "), s.staff.Username) {
 		switch {
-		case strings.Contains(name, "店"): // 如果是门店
+		case strings.HasSuffix(name, "店"): // 如果是门店
 			if err := s.db.Model(&s.store).Association("Superiors").Append(&s.staff); err != nil {
 				log.Printf("关联负责人与门店失败: %+v", err)
 				return errors.New("关联负责人与门店失败")
 			}
 			s.staff.Identity = enums.IdentityShopkeeper
-		case strings.Contains(name, "区域"): // 如果是区域
+		case strings.HasSuffix(name, "区域"): // 如果是区域
 			if err := s.db.Model(&s.region).Association("Superiors").Append(&s.staff); err != nil {
 				log.Printf("关联负责人与区域失败: %+v", err)
 				return errors.New("关联负责人与区域失败")

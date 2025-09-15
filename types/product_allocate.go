@@ -22,6 +22,9 @@ func (req *ProductAllocateCreateReq) Validate() error {
 	if req.Method == enums.ProductAllocateMethodStore && req.ToStoreId == "" {
 		return errors.New("调拨门店不能为空")
 	}
+	if req.Method == enums.ProductAllocateMethodOut && req.ToHeadquartersId == "" {
+		return errors.New("调拨总部不能为空")
+	}
 
 	return nil
 }

@@ -80,7 +80,7 @@ func (store *Store) IsHeadquarters() bool {
 		return false
 	}
 
-	return strings.Contains(store.Name, HeaderquartersPrefix)
+	return strings.HasSuffix(store.Name, HeaderquartersPrefix)
 }
 
 func (store *Store) InStore(staff_id string) bool {

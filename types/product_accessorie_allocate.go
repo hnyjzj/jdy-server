@@ -19,8 +19,8 @@ func (req *ProductAccessorieAllocateCreateReq) Validate() error {
 	if req.Method == enums.ProductAccessorieAllocateMethodStore && req.ToStoreId == "" {
 		return errors.New("调拨门店不能为空")
 	}
-	if req.Method == enums.ProductAccessorieAllocateMethodOut && req.ToHeadquartersId == "" && req.Remark == "" {
-		return errors.New("调拨备注不能为空")
+	if req.Method == enums.ProductAccessorieAllocateMethodOut && req.ToHeadquartersId == "" {
+		return errors.New("调拨总部不能为空")
 	}
 	if req.Method == enums.ProductAccessorieAllocateMethodRegion && req.ToRegionId == "" {
 		return errors.New("调拨门店不能为空")

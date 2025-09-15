@@ -58,7 +58,7 @@ func (l *WxWorkLogic) Contacts() error {
 			}
 
 			switch {
-			case strings.Contains(department.Department.Name, "店"): // 如果是门店
+			case strings.Contains(department.Department.Name, model.StorePrefix): // 如果是门店
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
@@ -67,7 +67,7 @@ func (l *WxWorkLogic) Contacts() error {
 				if err := logic.getStore(store); err != nil {
 					return err
 				}
-			case strings.Contains(department.Department.Name, "区域"): // 如果是区域
+			case strings.Contains(department.Department.Name, model.RegionPrefix): // 如果是区域
 				region := model.Region{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
@@ -76,7 +76,7 @@ func (l *WxWorkLogic) Contacts() error {
 				if err := logic.getRegion(region); err != nil {
 					return err
 				}
-			case department.Department.Name == model.HeaderquartersName: // 如果是总部
+			case strings.Contains(department.Department.Name, model.HeaderquartersPrefix): // 如果是总部
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,

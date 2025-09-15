@@ -74,12 +74,7 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 		db = db.Where("created_at <= ?", query.EndTime)
 	}
 	if query.StoreId != "" {
-		if store := staff.GetStore(query.StoreId); store.IsHeadquarters() {
-			// 总部
-			db = db.Where("from_store_id IN (?) AND to_store_id = ?", staff.StoreIds, query.StoreId)
-		} else {
-			db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
-		}
+		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
 	}
 	if query.InitiatorId != "" {
 		db = db.Where("initiator_id = ?", query.InitiatorId)

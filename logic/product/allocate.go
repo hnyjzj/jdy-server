@@ -43,11 +43,7 @@ func (l *ProductAllocateLogic) Create(req *types.ProductAllocateCreateReq) *erro
 			data.ToStoreId = req.ToStoreId
 		}
 		if req.Method == enums.ProductAllocateMethodOut {
-			store, err := model.Store{}.Headquarters()
-			if err != nil {
-				return err
-			}
-			data.ToStoreId = store.Id
+			data.ToStoreId = req.ToHeadquartersId
 		}
 
 		// 创建调拨单

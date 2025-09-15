@@ -42,7 +42,7 @@ type ProductAccessorieAllocate struct {
 	Receiver   *Staff `json:"receiver" gorm:"foreignKey:ReceiverId;references:Id;comment:接收人;"` // 接收人
 }
 
-func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.ProductAccessorieAllocateWhere) *gorm.DB {
+func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.ProductAccessorieAllocateWhere, staff *Staff) *gorm.DB {
 	if query.Id != "" {
 		db = db.Where("id = ?", query.Id)
 	}

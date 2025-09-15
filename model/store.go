@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"jdy/enums"
 	"jdy/types"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -70,23 +71,16 @@ func (Store) Default(identity enums.Identity) *Store {
 	return def
 }
 
-const HeaderquartersName = "总部"
-
-func (Store) Headquarters() (*Store, error) {
-	var store Store
-	if err := DB.Where(&Store{
-		Name: HeaderquartersName,
-	}).First(&store).Error; err != nil {
-		return nil, err
-	}
-	return &store, nil
-}
+const StorePrefix = "店"
+const RegionPrefix = "区域"
+const HeaderquartersPrefix = "总部"
 
 func (store *Store) IsHeadquarters() bool {
 	if store == nil {
 		return false
 	}
-	return store.Name == HeaderquartersName
+
+	return strings.Contains(store.Name, HeaderquartersPrefix)
 }
 
 func init() {

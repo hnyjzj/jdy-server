@@ -36,6 +36,21 @@ func (Region) Preloads(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+func (region *Region) InRegion(staff_id string) bool {
+	for _, staff := range region.Staffs {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
+	for _, staff := range region.Superiors {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (Region) Default(identity enums.Identity) *Region {
 	if identity < enums.IdentityAdmin {
 		return nil

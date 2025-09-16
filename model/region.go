@@ -25,6 +25,9 @@ func (Region) WhereCondition(db *gorm.DB, query *types.RegionWhere) *gorm.DB {
 	if query.Name != "" {
 		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
+	if query.Alias != "" {
+		db = db.Where("alias = ?", query.Alias)
+	}
 
 	return db
 }

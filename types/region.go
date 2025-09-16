@@ -1,7 +1,8 @@
 package types
 
 type RegionCreateReq struct {
-	Name string `json:"name" binding:"required"` // 区域名称
+	Name  string `json:"name" binding:"required"`  // 名称
+	Alias string `json:"alias" binding:"required"` // 别名
 }
 
 type RegionUpdateReq struct {
@@ -28,7 +29,8 @@ type RegionListMyReq struct {
 }
 
 type RegionWhere struct {
-	Name string `json:"name" label:"区域名称" find:"true" sort:"1" type:"string" input:"text"`
+	Name  string `json:"name" label:"区域名称" find:"true" sort:"1" type:"string" input:"text"`  // 名称
+	Alias string `json:"alias" label:"区域别名" find:"true" sort:"1" type:"string" input:"text"` // 别名
 }
 
 type RegionStoreListReq struct {

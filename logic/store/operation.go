@@ -12,14 +12,9 @@ import (
 
 func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 	store := &model.Store{
-		Name:     req.Name,
-		Address:  req.Address,
-		Contact:  req.Contact,
-		Logo:     req.Logo,
-		Order:    req.Order,
-		Province: req.Province,
-		City:     req.City,
-		District: req.District,
+		Name:  req.Name,
+		Alias: req.Alias,
+		Order: req.Order,
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {

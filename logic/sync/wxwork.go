@@ -179,7 +179,7 @@ func (l *WxWorkLogic) syncRegionStore() error {
 
 		var ids []string
 		for _, dept := range list.Departments {
-			if strings.HasSuffix(dept.Name, "店") {
+			if strings.HasSuffix(dept.Name, model.StorePrefix) {
 				ids = append(ids, fmt.Sprintf("%d", dept.ID))
 			}
 		}
@@ -261,7 +261,7 @@ func (s *SyncWxWorkContacts) getStaff(where model.Staff) error {
 
 // 关联门店
 func (s *SyncWxWorkContacts) appendStore() error {
-	// 关联员工与门店/区域
+	// 关联员工与门店
 	if s.store.IdWx != "" {
 		if err := s.db.Model(&s.staff).Association("Stores").Append(&s.store); err != nil {
 			log.Printf("关联员工与门店失败: %+v", err)
@@ -275,7 +275,7 @@ func (s *SyncWxWorkContacts) appendStore() error {
 
 // 关联区域
 func (s *SyncWxWorkContacts) appendRegion() error {
-	// 关联员工与门店/区域
+	// 关联员工与区域
 	if s.region.IdWx != "" {
 		if err := s.db.Model(&s.staff).Association("Regions").Append(&s.region); err != nil {
 			log.Printf("关联员工与区域失败: %+v", err)
@@ -292,13 +292,13 @@ func (s *SyncWxWorkContacts) appendSuperior(name string, ids []string) error {
 	// 设置员工为门店/区域负责人
 	if strings.Contains(strings.Join(ids, " "), s.staff.Username) {
 		switch {
-		case strings.HasSuffix(name, "店"): // 如果是门店
+		case strings.HasSuffix(name, model.StorePrefix): // 如果是门店
 			if err := s.db.Model(&s.store).Association("Superiors").Append(&s.staff); err != nil {
 				log.Printf("关联负责人与门店失败: %+v", err)
 				return errors.New("关联负责人与门店失败")
 			}
 			s.staff.Identity = enums.IdentityShopkeeper
-		case strings.HasSuffix(name, "区域"): // 如果是区域
+		case strings.HasSuffix(name, model.RegionPrefix): // 如果是区域
 			if err := s.db.Model(&s.region).Association("Superiors").Append(&s.staff); err != nil {
 				log.Printf("关联负责人与区域失败: %+v", err)
 				return errors.New("关联负责人与区域失败")

@@ -47,10 +47,12 @@ func (l *EventChangeContactEvent) CreateParty() error {
 	}
 
 	switch {
-	case strings.HasSuffix(party.Department.Name, "店"):
+	case strings.HasSuffix(party.Department.Name, model.StorePrefix):
 		return create_handle.isStore(l)
-	case strings.HasSuffix(party.Department.Name, "区域"):
+	case strings.HasSuffix(party.Department.Name, model.RegionPrefix):
 		return create_handle.isRegion(l)
+	case strings.HasSuffix(party.Department.Name, model.HeaderquartersPrefix):
+		return create_handle.isStore(l)
 	default:
 		return nil
 	}
@@ -72,16 +74,21 @@ func (l *EventChangeContactEvent) DeleteParty() error {
 		if err := tx.Where(&model.Store{
 			IdWx: msg.PartyDelete.ID,
 		}).Delete(&model.Store{}).Error; err != nil {
-			return err
+			if err != gorm.ErrRecordNotFound {
+				return err
+			}
 		}
 		if err := tx.Where(&model.Region{
 			IdWx: msg.PartyDelete.ID,
 		}).Delete(&model.Region{}).Error; err != nil {
-			return err
+			if err != gorm.ErrRecordNotFound {
+				return err
+			}
 		}
 
 		return nil
 	}); err != nil {
+		fmt.Printf("删除门店失败：%s\n", err.Error())
 		return err
 	}
 	return nil
@@ -135,7 +142,7 @@ func (h *PartyCreateHandle) isStore(l *EventChangeContactEvent) error {
 				return err
 			}
 			// 判断父级部门是否为区域
-			if strings.HasSuffix(parent.Department.Name, "区域") {
+			if strings.HasSuffix(parent.Department.Name, model.RegionPrefix) {
 				// 获取父级部门ID
 				var region model.Region
 				if err := tx.Where(&model.Region{
@@ -188,6 +195,7 @@ func (h *PartyCreateHandle) isRegion(l *EventChangeContactEvent) error {
 		region := model.Region{
 			IdWx:  fmt.Sprint(h.Party.ID),
 			Name:  h.Party.Name,
+			Alias: h.Party.NameEN,
 			Order: h.Party.Order,
 		}
 

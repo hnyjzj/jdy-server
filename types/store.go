@@ -36,7 +36,8 @@ type StoreListMyReq struct {
 }
 
 type StoreWhere struct {
-	Name     string `json:"name" label:"门店名称" find:"true" sort:"1" type:"string" input:"text"`
+	Name     string `json:"name" label:"名称" find:"true" sort:"1" type:"string" input:"text"`
+	Alias    string `json:"alias" label:"别名" find:"true" sort:"1" type:"string" input:"text"`
 	Field    Field  `json:"field" label:"区域" find:"false" sort:"2" type:"object" input:"region"`
 	Address  string `json:"address" label:"门店地址" find:"true" sort:"5" type:"string" input:"text"`
 	Contact  string `json:"contact" label:"联系方式" find:"true" sort:"6" type:"string" input:"text"`

@@ -106,6 +106,7 @@ func (h *PartyCreateHandle) isStore(l *EventChangeContactEvent) error {
 		// 创建部门
 		store := model.Store{
 			IdWx:  fmt.Sprint(h.Party.ID),
+			Alias: h.Party.NameEN,
 			Name:  h.Party.Name,
 			Order: h.Party.Order,
 		}

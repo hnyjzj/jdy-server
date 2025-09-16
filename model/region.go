@@ -13,6 +13,7 @@ type Region struct {
 
 	IdWx  string `json:"id_wx" gorm:"size:255;comment:微信ID"` // 微信ID
 	Name  string `json:"name" gorm:"size:255;comment:名称"`    // 名称
+	Alias string `json:"alias" gorm:"size:255;comment:别名"`   // 别名
 	Order int    `json:"order" gorm:"comment:排序"`            // 排序
 
 	Stores    []Store `json:"stores" gorm:"many2many:region_stores;"`       // 门店

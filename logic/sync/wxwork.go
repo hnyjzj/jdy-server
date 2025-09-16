@@ -62,6 +62,7 @@ func (l *WxWorkLogic) Contacts() error {
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
+					Alias: department.Department.NameEN,
 					Order: department.Department.Order,
 				}
 				if err := logic.getStore(store); err != nil {
@@ -71,6 +72,7 @@ func (l *WxWorkLogic) Contacts() error {
 				region := model.Region{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
+					Alias: department.Department.NameEN,
 					Order: department.Department.Order,
 				}
 				if err := logic.getRegion(region); err != nil {
@@ -80,6 +82,7 @@ func (l *WxWorkLogic) Contacts() error {
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
+					Alias: department.Department.NameEN,
 					Order: department.Department.Order,
 				}
 				if err := logic.getStore(store); err != nil {
@@ -203,6 +206,7 @@ func (s *SyncWxWorkContacts) getStore(where model.Store) error {
 	if err := s.db.Where("id_wx = ?", where.IdWx).Attrs(model.Store{
 		IdWx:  where.IdWx,
 		Name:  where.Name,
+		Alias: where.Alias,
 		Order: where.Order,
 	}).FirstOrCreate(&store).Error; err != nil {
 		log.Printf("获取门店失败: %+v", err)
@@ -221,6 +225,7 @@ func (s *SyncWxWorkContacts) getRegion(where model.Region) error {
 	if err := s.db.Where("id_wx = ?", where.IdWx).Attrs(model.Region{
 		IdWx:  where.IdWx,
 		Name:  where.Name,
+		Alias: where.Alias,
 		Order: where.Order,
 	}).FirstOrCreate(&region).Error; err != nil {
 		log.Printf("获取区域失败: %+v", err)

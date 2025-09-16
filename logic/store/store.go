@@ -29,7 +29,7 @@ func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) (*types.Pag
 	}
 
 	db = model.PageCondition(db, &req.PageReq)
-
+	db = store.Preloads(db)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
 	}

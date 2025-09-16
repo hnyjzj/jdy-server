@@ -203,14 +203,28 @@ func (l *WxWorkLogic) syncRegionStore() error {
 func (s *SyncWxWorkContacts) getStore(where model.Store) error {
 	var store model.Store
 	// 获取及创建门店
-	if err := s.db.Where("id_wx = ?", where.IdWx).Attrs(model.Store{
-		IdWx:  where.IdWx,
-		Name:  where.Name,
-		Alias: where.Alias,
-		Order: where.Order,
-	}).FirstOrCreate(&store).Error; err != nil {
-		log.Printf("获取门店失败: %+v", err)
-		return errors.New("获取门店失败")
+	if err := s.db.Where("id_wx = ?", where.IdWx).First(&store).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			log.Printf("获取门店失败: %+v", err)
+			return errors.New("获取门店失败")
+		}
+	}
+	if store.Id == "" {
+		store = model.Store{
+			IdWx:  where.IdWx,
+			Name:  where.Name,
+			Alias: where.Alias,
+			Order: where.Order,
+		}
+		if err := s.db.Create(&store).Error; err != nil {
+			log.Printf("创建门店失败: %+v", err)
+			return errors.New("创建门店失败")
+		}
+	} else {
+		if err := s.db.Model(&model.Store{}).Where("id = ?", store.Id).Updates(where).Error; err != nil {
+			log.Printf("更新门店信息失败: %+v", err)
+			return errors.New("更新门店信息失败")
+		}
 	}
 
 	s.store = store
@@ -222,14 +236,27 @@ func (s *SyncWxWorkContacts) getStore(where model.Store) error {
 func (s *SyncWxWorkContacts) getRegion(where model.Region) error {
 	var region model.Region
 	// 获取及创建区域
-	if err := s.db.Where("id_wx = ?", where.IdWx).Attrs(model.Region{
-		IdWx:  where.IdWx,
-		Name:  where.Name,
-		Alias: where.Alias,
-		Order: where.Order,
-	}).FirstOrCreate(&region).Error; err != nil {
-		log.Printf("获取区域失败: %+v", err)
-		return errors.New("获取区域失败")
+	if err := s.db.Where("id_wx = ?", where.IdWx).First(&region).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			log.Printf("获取区域失败: %+v", err)
+			return errors.New("获取区域失败")
+		}
+	}
+	if region.Id == "" {
+		region = model.Region{
+			IdWx:  where.IdWx,
+			Name:  where.Name,
+			Alias: where.Alias,
+			Order: where.Order,
+		}
+		if err := s.db.Create(&region).Error; err != nil {
+			log.Printf("创建区域失败: %+v", err)
+		}
+	} else {
+		if err := s.db.Model(&model.Region{}).Where("id = ?", region.Id).Updates(where).Error; err != nil {
+			log.Printf("更新区域信息失败: %+v", err)
+			return errors.New("更新区域信息失败")
+		}
 	}
 
 	s.region = region

@@ -39,6 +39,7 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 }
 
 func (Store) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Region")
 	db = db.Preload("Staffs")
 	db = db.Preload("Superiors")
 

@@ -8,7 +8,8 @@ type RegionCreateReq struct {
 type RegionUpdateReq struct {
 	Id string `json:"id" binding:"required"`
 
-	RegionCreateReq
+	Name  string `json:"name"`  // 名称
+	Alias string `json:"alias"` // 别名
 }
 
 type RegionDeleteReq struct {

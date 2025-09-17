@@ -251,6 +251,7 @@ func (s *SyncWxWorkContacts) getRegion(where model.Region) error {
 		}
 		if err := s.db.Create(&region).Error; err != nil {
 			log.Printf("创建区域失败: %+v", err)
+			return errors.New("创建区域失败")
 		}
 	} else {
 		if err := s.db.Model(&model.Region{}).Where("id = ?", region.Id).Updates(where).Error; err != nil {

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"jdy/enums"
 	"jdy/types"
 
@@ -58,11 +59,28 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 	if query.Reason != 0 {
 		db = db.Where("reason = ?", query.Reason)
 	}
-	if query.FromStoreId != "" {
-		db = db.Where("from_store_id = ?", query.FromStoreId)
-	}
-	if query.ToStoreId != "" {
-		db = db.Where("to_store_id = ?", query.ToStoreId)
+	switch {
+	case query.FromStoreId == "" && query.ToStoreId == "" && query.StoreId != "":
+		{
+			db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
+		}
+	case query.FromStoreId != "" && query.ToStoreId != "":
+		{
+			db = db.Where("from_store_id = ?", query.FromStoreId).Where("to_store_id = ?", query.ToStoreId)
+		}
+	case query.FromStoreId != "" && query.ToStoreId == "" && query.StoreId != "":
+		{
+			db = db.Where("from_store_id = ?", query.FromStoreId).Where("to_store_id = ?", query.StoreId)
+		}
+	case query.FromStoreId == "" && query.ToStoreId != "" && query.StoreId != "":
+		{
+			db = db.Where("to_store_id = ?", query.ToStoreId).Where("from_store_id = ?", query.StoreId)
+		}
+	default:
+		{
+			_ = db.AddError(errors.New("查询门店不能为空"))
+			return db
+		}
 	}
 	if query.Status != 0 {
 		db = db.Where("status = ?", query.Status)
@@ -72,11 +90,6 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 	}
 	if query.EndTime != nil {
 		db = db.Where("created_at <= ?", query.EndTime)
-	}
-	if query.StoreId != "" {
-		db = db.Where(
-			db.Where("from_store_id = ?", query.StoreId).Or("to_store_id = ?", query.StoreId),
-		)
 	}
 	if query.InitiatorId != "" {
 		db = db.Where("initiator_id = ?", query.InitiatorId)

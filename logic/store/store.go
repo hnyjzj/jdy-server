@@ -48,8 +48,9 @@ func (l *StoreLogic) Alias(ctx *gin.Context, req *types.StoreAliasReq) ([]model.
 	db := model.DB.Model(&store)
 
 	if req.IsHeadquarters {
-		db = db.Where("name like ?", "%"+model.HeaderquartersPrefix+"%")
+		db = db.Where("name LIKE ?", "%"+model.HeaderquartersPrefix+"%")
 	} else {
+		db = db.Where("name NOT LIKE ?", "%"+model.HeaderquartersPrefix+"%")
 		db = db.Where("`alias` <> '' OR `alias` IS NOT NULL")
 		db = db.Omit("name")
 	}

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"jdy/enums"
 	"jdy/types"
@@ -55,11 +56,28 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	if query.Remark != "" {
 		db = db.Where("remark LIKE ?", fmt.Sprintf("%%%s%%", query.Remark))
 	}
-	if query.FromStoreId != "" {
-		db = db.Where("from_store_id = ?", query.FromStoreId)
-	}
-	if query.ToStoreId != "" {
-		db = db.Where("to_store_id = ?", query.ToStoreId)
+	switch {
+	case query.FromStoreId == "" && query.ToStoreId == "" && query.StoreId != "":
+		{
+			db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
+		}
+	case query.FromStoreId != "" && query.ToStoreId != "":
+		{
+			db = db.Where("from_store_id = ?", query.FromStoreId).Where("to_store_id = ?", query.ToStoreId)
+		}
+	case query.FromStoreId != "" && query.ToStoreId == "" && query.StoreId != "":
+		{
+			db = db.Where("from_store_id = ?", query.FromStoreId).Where("to_store_id = ?", query.StoreId)
+		}
+	case query.FromStoreId == "" && query.ToStoreId != "" && query.StoreId != "":
+		{
+			db = db.Where("to_store_id = ?", query.ToStoreId).Where("from_store_id = ?", query.StoreId)
+		}
+	default:
+		{
+			_ = db.AddError(errors.New("查询门店不能为空"))
+			return db
+		}
 	}
 	if query.ToRegionId != "" {
 		db = db.Where("to_region_id = ?", query.ToRegionId)
@@ -69,9 +87,6 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	}
 	if query.EndTime != nil {
 		db = db.Where("created_at <= ?", query.EndTime)
-	}
-	if query.StoreId != "" {
-		db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
 	}
 	if query.InitiatorId != "" {
 		db = db.Where("initiator_id = ?", query.InitiatorId)

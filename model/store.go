@@ -51,7 +51,8 @@ func (Store) Default(identity enums.Identity) *Store {
 		return nil
 	}
 	def := &Store{
-		Name: "全部",
+		Name:  "全部",
+		Alias: "全部",
 	}
 
 	return def

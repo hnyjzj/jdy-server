@@ -203,6 +203,7 @@ func Api(g *gin.Engine) {
 					root.PUT("/update", store.StoreController{}.Update)    // 门店更新
 					root.DELETE("/delete", store.StoreController{}.Delete) // 门店删除
 					root.POST("/list", store.StoreController{}.List)       // 门店列表
+					root.POST("/alias", store.StoreController{}.Alias)     // 门店别名
 					root.POST("/my", store.StoreController{}.My)           // 我的门店
 					root.POST("/info", store.StoreController{}.Info)       // 门店详情
 				}

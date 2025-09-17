@@ -51,6 +51,36 @@ func (con StoreController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", list)
 }
 
+// 门店别名列表
+func (con StoreController) Alias(ctx *gin.Context) {
+	var (
+		req   types.StoreAliasReq
+		logic = store.StoreLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 查询门店别名列表
+	list, err := logic.Alias(ctx, &req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", list)
+}
+
 // 我的门店列表
 func (con StoreController) My(ctx *gin.Context) {
 	var (

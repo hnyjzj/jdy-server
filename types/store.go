@@ -10,7 +10,9 @@ type StoreCreateReq struct {
 type StoreUpdateReq struct {
 	Id string `json:"id" binding:"required"`
 
-	StoreCreateReq
+	Order int    `json:"order" binding:"min=0"` // 排序
+	Name  string `json:"name"`                  // 名称
+	Alias string `json:"alias"`                 // 别名
 }
 
 type StoreDeleteReq struct {
@@ -24,6 +26,10 @@ type StoreInfoReq struct {
 type StoreListReq struct {
 	PageReq
 	Where StoreWhere `json:"where"`
+}
+
+type StoreAliasReq struct {
+	IsHeadquarters bool `json:"is_headquarters"` // 是否是总部
 }
 
 type StoreListMyReq struct {

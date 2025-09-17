@@ -36,6 +36,7 @@ type Staff struct {
 	StoreIds        []string `json:"store_ids" gorm:"-"`                                  // 店铺ID
 	Stores          []Store  `json:"stores" gorm:"many2many:store_staffs;"`               // 店铺
 	StoreSuperiors  []Store  `json:"store_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
+	RegionIds       []string `json:"region_ids" gorm:"-"`                                 // 区域ID
 	Regions         []Region `json:"regions" gorm:"many2many:region_staffs;"`             // 区域
 	RegionSuperiors []Region `json:"region_superiors" gorm:"many2many:region_superiors;"` // 负责的区域
 }
@@ -92,11 +93,13 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 		staff.StoreIds = append(staff.StoreIds, store.Id)
 	}
 	for _, region := range staff.Regions {
+		staff.RegionIds = append(staff.RegionIds, region.Id)
 		for _, store := range region.Stores {
 			staff.StoreIds = append(staff.StoreIds, store.Id)
 		}
 	}
 	for _, region := range staff.RegionSuperiors {
+		staff.RegionIds = append(staff.RegionIds, region.Id)
 		for _, store := range region.Stores {
 			staff.StoreIds = append(staff.StoreIds, store.Id)
 		}
@@ -140,6 +143,25 @@ func (staff *Staff) GetStore(store_id string) *Store {
 			if staff.RegionSuperiors[ri].Stores[si].Id == store_id {
 				return &staff.RegionSuperiors[ri].Stores[si]
 			}
+		}
+	}
+
+	return nil
+}
+
+func (staff *Staff) GetRegion(region_id string) *Region {
+	if staff == nil || region_id == "" {
+		return nil
+	}
+
+	for ri := range staff.Regions {
+		if staff.Regions[ri].Id == region_id {
+			return &staff.Regions[ri]
+		}
+	}
+	for ri := range staff.RegionSuperiors {
+		if staff.RegionSuperiors[ri].Id == region_id {
+			return &staff.RegionSuperiors[ri]
 		}
 	}
 

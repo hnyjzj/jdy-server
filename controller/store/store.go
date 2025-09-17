@@ -34,8 +34,45 @@ func (con StoreController) List(ctx *gin.Context) {
 		return
 	}
 
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
 	// 查询门店列表
 	list, err := logic.List(ctx, &req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", list)
+}
+
+// 门店别名列表
+func (con StoreController) Alias(ctx *gin.Context) {
+	var (
+		req   types.StoreAliasReq
+		logic = store.StoreLogic{}
+	)
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 查询门店别名列表
+	list, err := logic.Alias(ctx, &req)
 	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
@@ -53,17 +90,17 @@ func (con StoreController) My(ctx *gin.Context) {
 		}
 	)
 
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
 	if staff, err := con.GetStaff(ctx); err != nil {
 		con.ExceptionWithAuth(ctx, err)
 		return
 	} else {
 		logic.Staff = staff
-	}
-
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
 	}
 
 	// 查询门店列表
@@ -92,6 +129,13 @@ func (con StoreController) Info(ctx *gin.Context) {
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
+	}
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
 	}
 
 	// 查询门店详情

@@ -12,7 +12,8 @@ import (
 
 func (l *RegionLogic) Create(ctx *gin.Context, req *types.RegionCreateReq) error {
 	region := &model.Region{
-		Name: req.Name,
+		Name:  req.Name,
+		Alias: req.Alias,
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {

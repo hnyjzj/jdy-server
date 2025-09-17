@@ -39,7 +39,7 @@ func SendReportStatistic() {
 	// 获取所有门店
 	var allStore []model.Store
 	sdb := model.DB.Model(&model.Store{})
-	sdb = sdb.Where("name <> ?", model.HeaderquartersName)
+	sdb = sdb.Where("name NOT LIKE (?)", "%"+model.HeaderquartersPrefix+"%")
 	sdb = sdb.Order("name desc")
 	if err := sdb.Find(&allStore).Error; err != nil {
 		log.Printf("SendReportStatistic error: %v", err.Error())

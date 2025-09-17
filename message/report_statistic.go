@@ -32,37 +32,34 @@ type ReportStatisticMessage struct {
 func (M *BaseMessage) SendReportStatisticMessage(req *ReportStatisticMessage) {
 
 	content := []string{
-		fmt.Sprintf("###### %s(%s)", req.StoreName, req.StatisticalTime.Format("01-02")),
-		"",
-		fmt.Sprintf("销售业绩：**%s**", req.TodayFinished.StringFixed(2)),
-		fmt.Sprintf("旧料抵扣：**%s**", req.TodayOld.StringFixed(2)),
-		fmt.Sprintf("配件收款：**%s**", req.TodayAcciessorie.StringFixed(2)),
-		"",
+		fmt.Sprintf("%s(%s)", req.StoreName, req.StatisticalTime.Format("01-02")),
+		fmt.Sprintf("销售业绩：%s", req.TodayFinished.StringFixed(2)),
+		fmt.Sprintf("旧料抵扣：%s", req.TodayOld.StringFixed(2)),
+		fmt.Sprintf("配件收款：%s", req.TodayAcciessorie.StringFixed(2)),
 	}
 	for class, total := range req.TodayFinisheds {
 		content = append(content,
-			fmt.Sprintf("> %s ：**%s**", class, total.StringFixed(2)),
+			fmt.Sprintf("%s ：%s", class, total.StringFixed(2)),
 		)
 	}
 	content = append(content, []string{
-		"",
-		fmt.Sprintf("月度销售：**%s**", req.MonthFinished.StringFixed(2)),
-		fmt.Sprintf("月度抵扣：**%s**", req.MonthOld.StringFixed(2)),
-		fmt.Sprintf("月度配件：**%s**", req.MonthAcciessorie.StringFixed(2)),
+		fmt.Sprintf("月度销售：%s", req.MonthFinished.StringFixed(2)),
+		fmt.Sprintf("月度抵扣：%s", req.MonthOld.StringFixed(2)),
+		fmt.Sprintf("月度配件：%s", req.MonthAcciessorie.StringFixed(2)),
 	}...)
 
-	messages := &request.RequestMessageSendMarkdown{
+	messages := &request.RequestMessageSendText{
 		RequestMessageSend: request.RequestMessageSend{
 			ToUser:  strings.Join(req.ToUser, "|"),
-			MsgType: "markdown",
+			MsgType: "text",
 			AgentID: M.Config.Jdy.Id,
 		},
-		Markdown: &request.RequestMarkdown{
+		Text: &request.RequestText{
 			Content: strings.Join(content, "\n"),
 		},
 	}
 
-	if res, err := M.WXWork.Message.SendMarkdown(M.Ctx, messages); err != nil || (res != nil && res.ErrCode != 0) {
+	if res, err := M.WXWork.Message.SendText(M.Ctx, messages); err != nil || (res != nil && res.ErrCode != 0) {
 		log.Println("发送消息失败:", err)
 		log.Printf("res: %+v\n", res)
 	}

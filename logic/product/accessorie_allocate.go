@@ -38,11 +38,7 @@ func (l *ProductAccessorieAllocateLogic) Create(req *types.ProductAccessorieAllo
 			data.ToStoreId = req.ToStoreId
 		}
 		if req.Method == enums.ProductAccessorieAllocateMethodOut {
-			store, err := model.Store{}.Headquarters()
-			if err != nil {
-				return err
-			}
-			data.ToStoreId = store.Id
+			data.ToStoreId = req.ToHeadquartersId
 		}
 		if req.Method == enums.ProductAccessorieAllocateMethodRegion {
 			data.ToRegionId = req.ToRegionId
@@ -68,7 +64,7 @@ func (l *ProductAccessorieAllocateLogic) List(req *types.ProductAccessorieAlloca
 	)
 
 	db := model.DB.Model(&allocate)
-	db = allocate.WhereCondition(db, &req.Where)
+	db = allocate.WhereCondition(db, &req.Where, l.Staff)
 
 	// 获取总数
 	if err := db.Count(&res.Total).Error; err != nil {
@@ -96,7 +92,7 @@ func (l *ProductAccessorieAllocateLogic) Details(req *types.ProductAccessorieAll
 	)
 
 	db := model.DB.Model(&allocates)
-	db = model.ProductAccessorieAllocate{}.WhereCondition(db, &req.Where)
+	db = model.ProductAccessorieAllocate{}.WhereCondition(db, &req.Where, l.Staff)
 
 	// 获取列表
 	db = db.Order("created_at desc")

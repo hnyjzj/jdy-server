@@ -2,6 +2,7 @@ package region
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
@@ -17,8 +18,7 @@ type RegionStaffLogic struct {
 func (l *RegionStaffLogic) List(req *types.RegionStaffListReq) (*[]model.Staff, error) {
 	// 查询区域
 	var (
-		region   model.Region
-		inRegion = false
+		region model.Region
 	)
 
 	db := model.DB.Model(&model.Region{})
@@ -27,15 +27,10 @@ func (l *RegionStaffLogic) List(req *types.RegionStaffListReq) (*[]model.Staff, 
 		return nil, errors.New("区域不存在")
 	}
 
-	for _, staff := range region.Staffs {
-		if staff.Id == l.Staff.Id {
-			inRegion = true
-			break
+	if l.Staff.Identity < enums.IdentityAdmin {
+		if inRegion := region.InRegion(l.Staff.Id); !inRegion {
+			return nil, errors.New("无权查看该门店员工列表")
 		}
-	}
-
-	if !inRegion {
-		return nil, errors.New("未入职该区域，无法查看员工列表")
 	}
 
 	return &region.Staffs, nil

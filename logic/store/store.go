@@ -29,12 +29,36 @@ func (l *StoreLogic) List(ctx *gin.Context, req *types.StoreListReq) (*types.Pag
 	}
 
 	db = model.PageCondition(db, &req.PageReq)
-
+	db = store.Preloads(db)
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
 	}
 
 	return &res, nil
+}
+
+// 门店别名列表
+func (l *StoreLogic) Alias(ctx *gin.Context, req *types.StoreAliasReq) ([]model.Store, error) {
+	var (
+		store model.Store
+
+		res []model.Store
+	)
+
+	db := model.DB.Model(&store)
+
+	if req.IsHeadquarters {
+		db = db.Where("name like ?", "%"+model.HeaderquartersPrefix+"%")
+	} else {
+		db = db.Where("`alias` <> '' OR `alias` IS NOT NULL")
+		db = db.Omit("name")
+	}
+
+	if err := db.Find(&res).Error; err != nil {
+		return nil, errors.New("获取门店列表失败")
+	}
+
+	return res, nil
 }
 
 // 门店列表

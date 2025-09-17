@@ -58,28 +58,31 @@ func (l *WxWorkLogic) Contacts() error {
 			}
 
 			switch {
-			case strings.Contains(department.Department.Name, "店"): // 如果是门店
+			case strings.HasSuffix(department.Department.Name, model.StorePrefix): // 如果是门店
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
+					Alias: department.Department.NameEN,
 					Order: department.Department.Order,
 				}
 				if err := logic.getStore(store); err != nil {
 					return err
 				}
-			case strings.Contains(department.Department.Name, "区域"): // 如果是区域
+			case strings.HasSuffix(department.Department.Name, model.RegionPrefix): // 如果是区域
 				region := model.Region{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
+					Alias: department.Department.NameEN,
 					Order: department.Department.Order,
 				}
 				if err := logic.getRegion(region); err != nil {
 					return err
 				}
-			case department.Department.Name == model.HeaderquartersName: // 如果是总部
+			case strings.HasSuffix(department.Department.Name, model.HeaderquartersPrefix): // 如果是总部
 				store := model.Store{
 					IdWx:  fmt.Sprintf("%d", department.Department.ID),
 					Name:  department.Department.Name,
+					Alias: department.Department.NameEN,
 					Order: department.Department.Order,
 				}
 				if err := logic.getStore(store); err != nil {
@@ -176,7 +179,7 @@ func (l *WxWorkLogic) syncRegionStore() error {
 
 		var ids []string
 		for _, dept := range list.Departments {
-			if strings.Contains(dept.Name, "店") {
+			if strings.HasSuffix(dept.Name, model.StorePrefix) {
 				ids = append(ids, fmt.Sprintf("%d", dept.ID))
 			}
 		}
@@ -200,13 +203,28 @@ func (l *WxWorkLogic) syncRegionStore() error {
 func (s *SyncWxWorkContacts) getStore(where model.Store) error {
 	var store model.Store
 	// 获取及创建门店
-	if err := s.db.Where("id_wx = ?", where.IdWx).Attrs(model.Store{
-		IdWx:  where.IdWx,
-		Name:  where.Name,
-		Order: where.Order,
-	}).FirstOrCreate(&store).Error; err != nil {
-		log.Printf("获取门店失败: %+v", err)
-		return errors.New("获取门店失败")
+	if err := s.db.Where("id_wx = ?", where.IdWx).First(&store).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			log.Printf("获取门店失败: %+v", err)
+			return errors.New("获取门店失败")
+		}
+	}
+	if store.Id == "" {
+		store = model.Store{
+			IdWx:  where.IdWx,
+			Name:  where.Name,
+			Alias: where.Alias,
+			Order: where.Order,
+		}
+		if err := s.db.Create(&store).Error; err != nil {
+			log.Printf("创建门店失败: %+v", err)
+			return errors.New("创建门店失败")
+		}
+	} else {
+		if err := s.db.Model(&model.Store{}).Where("id = ?", store.Id).Updates(where).Error; err != nil {
+			log.Printf("更新门店信息失败: %+v", err)
+			return errors.New("更新门店信息失败")
+		}
 	}
 
 	s.store = store
@@ -218,13 +236,28 @@ func (s *SyncWxWorkContacts) getStore(where model.Store) error {
 func (s *SyncWxWorkContacts) getRegion(where model.Region) error {
 	var region model.Region
 	// 获取及创建区域
-	if err := s.db.Where("id_wx = ?", where.IdWx).Attrs(model.Region{
-		IdWx:  where.IdWx,
-		Name:  where.Name,
-		Order: where.Order,
-	}).FirstOrCreate(&region).Error; err != nil {
-		log.Printf("获取区域失败: %+v", err)
-		return errors.New("获取区域失败")
+	if err := s.db.Where("id_wx = ?", where.IdWx).First(&region).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			log.Printf("获取区域失败: %+v", err)
+			return errors.New("获取区域失败")
+		}
+	}
+	if region.Id == "" {
+		region = model.Region{
+			IdWx:  where.IdWx,
+			Name:  where.Name,
+			Alias: where.Alias,
+			Order: where.Order,
+		}
+		if err := s.db.Create(&region).Error; err != nil {
+			log.Printf("创建区域失败: %+v", err)
+			return errors.New("创建区域失败")
+		}
+	} else {
+		if err := s.db.Model(&model.Region{}).Where("id = ?", region.Id).Updates(where).Error; err != nil {
+			log.Printf("更新区域信息失败: %+v", err)
+			return errors.New("更新区域信息失败")
+		}
 	}
 
 	s.region = region
@@ -256,7 +289,7 @@ func (s *SyncWxWorkContacts) getStaff(where model.Staff) error {
 
 // 关联门店
 func (s *SyncWxWorkContacts) appendStore() error {
-	// 关联员工与门店/区域
+	// 关联员工与门店
 	if s.store.IdWx != "" {
 		if err := s.db.Model(&s.staff).Association("Stores").Append(&s.store); err != nil {
 			log.Printf("关联员工与门店失败: %+v", err)
@@ -270,7 +303,7 @@ func (s *SyncWxWorkContacts) appendStore() error {
 
 // 关联区域
 func (s *SyncWxWorkContacts) appendRegion() error {
-	// 关联员工与门店/区域
+	// 关联员工与区域
 	if s.region.IdWx != "" {
 		if err := s.db.Model(&s.staff).Association("Regions").Append(&s.region); err != nil {
 			log.Printf("关联员工与区域失败: %+v", err)
@@ -287,13 +320,13 @@ func (s *SyncWxWorkContacts) appendSuperior(name string, ids []string) error {
 	// 设置员工为门店/区域负责人
 	if strings.Contains(strings.Join(ids, " "), s.staff.Username) {
 		switch {
-		case strings.Contains(name, "店"): // 如果是门店
+		case strings.HasSuffix(name, model.StorePrefix): // 如果是门店
 			if err := s.db.Model(&s.store).Association("Superiors").Append(&s.staff); err != nil {
 				log.Printf("关联负责人与门店失败: %+v", err)
 				return errors.New("关联负责人与门店失败")
 			}
 			s.staff.Identity = enums.IdentityShopkeeper
-		case strings.Contains(name, "区域"): // 如果是区域
+		case strings.HasSuffix(name, model.RegionPrefix): // 如果是区域
 			if err := s.db.Model(&s.region).Association("Superiors").Append(&s.staff); err != nil {
 				log.Printf("关联负责人与区域失败: %+v", err)
 				return errors.New("关联负责人与区域失败")

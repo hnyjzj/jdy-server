@@ -3,19 +3,16 @@ package types
 type StoreCreateReq struct {
 	Order int `json:"order" binding:"min=0"` // 排序
 
-	Name     string `json:"name" binding:"required"`     // 门店名称
-	Province string `json:"province" binding:"required"` // 省份
-	City     string `json:"city" binding:"required"`     // 城市
-	District string `json:"district" binding:"required"` // 区域
-	Address  string `json:"address" binding:"required"`  // 门店地址
-	Contact  string `json:"contact" binding:"required"`  // 联系方式
-	Logo     string `json:"logo"`                        // 门店logo
+	Name  string `json:"name" binding:"required"`  // 名称
+	Alias string `json:"alias" binding:"required"` // 别名
 }
 
 type StoreUpdateReq struct {
 	Id string `json:"id" binding:"required"`
 
-	StoreCreateReq
+	Order int    `json:"order" binding:"min=0"` // 排序
+	Name  string `json:"name"`                  // 名称
+	Alias string `json:"alias"`                 // 别名
 }
 
 type StoreDeleteReq struct {
@@ -31,23 +28,18 @@ type StoreListReq struct {
 	Where StoreWhere `json:"where"`
 }
 
+type StoreAliasReq struct {
+	IsHeadquarters bool `json:"is_headquarters"` // 是否是总部
+}
+
 type StoreListMyReq struct {
 	Where StoreWhere `json:"where"`
 }
 
 type StoreWhere struct {
-	Name     string `json:"name" label:"门店名称" find:"true" sort:"1" type:"string" input:"text"`
-	Field    Field  `json:"field" label:"区域" find:"false" sort:"2" type:"object" input:"region"`
-	Address  string `json:"address" label:"门店地址" find:"true" sort:"5" type:"string" input:"text"`
-	Contact  string `json:"contact" label:"联系方式" find:"true" sort:"6" type:"string" input:"text"`
-	Logo     string `json:"logo" label:"门店logo" find:"false" sort:"7" type:"string" input:"upload"`
-	RegionId string `json:"region_id" label:"区域" find:"false" sort:"3" type:"string" input:"text"`
-}
-
-type Field struct {
-	Province *string `json:"province"`
-	City     *string `json:"city"`
-	District *string `json:"district"`
+	Name     string `json:"name" label:"名称" find:"true" sort:"1" type:"string" input:"text"`      // 名称
+	Alias    string `json:"alias" label:"别名" find:"true" sort:"1" type:"string" input:"text"`     // 别名
+	RegionId string `json:"region_id" label:"区域" find:"true" sort:"3" type:"string" input:"text"` // 区域
 }
 
 type StoreStaffListReq struct {

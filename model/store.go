@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"jdy/enums"
 	"jdy/types"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -11,16 +12,13 @@ import (
 type Store struct {
 	SoftDelete
 
-	IdWx  string `json:"id_wx" gorm:"size:255;comment:微信ID"` // 微信ID
-	Name  string `json:"name" gorm:"size:255;comment:名称"`    // 名称
-	Order int    `json:"order" gorm:"comment:排序"`            // 排序
+	IdWx  string `json:"id_wx" gorm:"index;size:255;comment:微信ID"` // 微信ID
+	Name  string `json:"name" gorm:"index;size:255;comment:名称"`    // 名称
+	Alias string `json:"alias" gorm:"index;size:255;comment:别名"`   // 别名
+	Order int    `json:"order" gorm:"index;comment:排序"`            // 排序
 
-	Logo     string `json:"logo" gorm:"size:255;comment:logo"`    // logo
-	Contact  string `json:"contact" gorm:"size:255;comment:联系方式"` // 联系方式
-	Province string `json:"province" gorm:"size:255;comment:省份"`  // 省份
-	City     string `json:"city" gorm:"size:255;comment:城市"`      // 城市
-	District string `json:"district" gorm:"size:255;comment:区域"`  // 区域
-	Address  string `json:"address" gorm:"size:500;comment:地址"`   // 地址
+	RegionId string `json:"region_id" gorm:"index;size:255;comment:区域ID"`               // 区域ID
+	Region   Region `json:"region" gorm:"foreignKey:RegionId;references:Id;comment:区域"` // 区域
 
 	Staffs    []Staff `json:"staffs" gorm:"many2many:store_staffs;"`       // 员工
 	Superiors []Staff `json:"superiors" gorm:"many2many:store_superiors;"` // 负责人
@@ -30,29 +28,18 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	if query.Name != "" {
 		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
-	if query.Address != "" {
-		db = db.Where("address LIKE ?", fmt.Sprintf("%%%s%%", query.Address))
-	}
-	if query.Contact != "" {
-		db = db.Where("contact LIKE ?", fmt.Sprintf("%%%s%%", query.Contact))
-	}
-	if query.Field.Province != nil {
-		db = db.Where("province LIKE ?", fmt.Sprintf("%%%s%%", *query.Field.Province))
-	}
-	if query.Field.City != nil {
-		db = db.Where("city LIKE ?", fmt.Sprintf("%%%s%%", *query.Field.City))
-	}
-	if query.Field.District != nil {
-		db = db.Where("district LIKE ?", fmt.Sprintf("%%%s%%", *query.Field.District))
+	if query.Alias != "" {
+		db = db.Where("alias = ?", query.Alias)
 	}
 	if query.RegionId != "" {
-		db = db.Where("id IN (SELECT store_id FROM region_stores WHERE region_id = ?)", query.RegionId)
+		db = db.Where("region_id = ?", query.RegionId)
 	}
 
 	return db
 }
 
 func (Store) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Region")
 	db = db.Preload("Staffs")
 	db = db.Preload("Superiors")
 
@@ -64,29 +51,38 @@ func (Store) Default(identity enums.Identity) *Store {
 		return nil
 	}
 	def := &Store{
-		Name: "全部",
+		Name:  "全部",
+		Alias: "全部",
 	}
 
 	return def
 }
 
-const HeaderquartersName = "总部"
-
-func (Store) Headquarters() (*Store, error) {
-	var store Store
-	if err := DB.Where(&Store{
-		Name: HeaderquartersName,
-	}).First(&store).Error; err != nil {
-		return nil, err
-	}
-	return &store, nil
-}
+const StorePrefix = "店"
+const RegionPrefix = "区域"
+const HeaderquartersPrefix = "总部"
 
 func (store *Store) IsHeadquarters() bool {
 	if store == nil {
 		return false
 	}
-	return store.Name == HeaderquartersName
+
+	return strings.HasSuffix(store.Name, HeaderquartersPrefix)
+}
+
+func (store *Store) InStore(staff_id string) bool {
+	for _, staff := range store.Staffs {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
+	for _, staff := range store.Superiors {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
+
+	return false
 }
 
 func init() {

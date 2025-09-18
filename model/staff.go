@@ -116,58 +116,6 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 	return &staff, nil
 }
 
-func (staff *Staff) GetStore(store_id string) *Store {
-	if staff == nil || store_id == "" {
-		return nil
-	}
-
-	for i := range staff.Stores {
-		if staff.Stores[i].Id == store_id {
-			return &staff.Stores[i]
-		}
-	}
-	for i := range staff.StoreSuperiors {
-		if staff.StoreSuperiors[i].Id == store_id {
-			return &staff.StoreSuperiors[i]
-		}
-	}
-	for ri := range staff.Regions {
-		for si := range staff.Regions[ri].Stores {
-			if staff.Regions[ri].Stores[si].Id == store_id {
-				return &staff.Regions[ri].Stores[si]
-			}
-		}
-	}
-	for ri := range staff.RegionSuperiors {
-		for si := range staff.RegionSuperiors[ri].Stores {
-			if staff.RegionSuperiors[ri].Stores[si].Id == store_id {
-				return &staff.RegionSuperiors[ri].Stores[si]
-			}
-		}
-	}
-
-	return nil
-}
-
-func (staff *Staff) GetRegion(region_id string) *Region {
-	if staff == nil || region_id == "" {
-		return nil
-	}
-
-	for ri := range staff.Regions {
-		if staff.Regions[ri].Id == region_id {
-			return &staff.Regions[ri]
-		}
-	}
-	for ri := range staff.RegionSuperiors {
-		if staff.RegionSuperiors[ri].Id == region_id {
-			return &staff.RegionSuperiors[ri]
-		}
-	}
-
-	return nil
-}
-
 func (S *Staff) HasPermissionApi(path string) error {
 	if S.Role == nil {
 		return nil
@@ -187,27 +135,6 @@ func (S *Staff) HasPermissionApi(path string) error {
 	}
 
 	return fmt.Errorf("暂无权限: %v", api.Title)
-}
-
-func (S *Staff) HasPermissionStore(storeId string) bool {
-	if S.Role == nil {
-		return false
-	}
-
-	for _, store := range S.StoreSuperiors {
-		if store.Id == storeId {
-			return true
-		}
-	}
-	for _, region := range S.RegionSuperiors {
-		for _, store := range region.Stores {
-			if store.Id == storeId {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 func (Staff) WhereCondition(db *gorm.DB, query *types.StaffWhere) *gorm.DB {

@@ -69,6 +69,7 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		stores []model.Store
 		db     = model.DB.Model(&model.Store{})
 	)
+
 	if l.Staff.Identity < enums.IdentityAdmin {
 		db = db.Where("id in (?)", l.Staff.StoreIds)
 	}
@@ -94,10 +95,11 @@ func (l *StoreLogic) Info(ctx *gin.Context, req *types.StoreInfoReq) (*model.Sto
 		store model.Store
 	)
 
-	if err := model.DB.
-		Preload("Staffs").
-		Preload("Superiors").
-		First(&store, "id = ?", req.Id).Error; err != nil {
+	db := model.DB.Model(&model.Store{})
+
+	db = store.Preloads(db)
+
+	if err := db.First(&store, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取门店详情失败")
 	}
 

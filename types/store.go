@@ -79,3 +79,22 @@ type StoreSuperiorIsInReq struct {
 	StoreId string `json:"id" binding:"required"` // 门店ID
 	StaffId string `json:"staff_id"`              // 员工ID
 }
+
+type StoreAdminListReq struct {
+	StoreId string `json:"id" binding:"required"` // 门店ID
+}
+
+type StoreAdminAddReq struct {
+	StoreId string   `json:"id" binding:"required"`       // 门店ID
+	AdminId []string `json:"admin_id" binding:"required"` // 负责人ID
+}
+
+type StoreAdminDelReq struct {
+	StoreId string   `json:"id" binding:"required"`       // 门店ID
+	AdminId []string `json:"admin_id" binding:"required"` // 负责人ID
+}
+
+type StoreAdminIsInReq struct {
+	StoreId string `json:"id" binding:"required"` // 门店ID
+	StaffId string `json:"staff_id"`              // 员工ID
+}

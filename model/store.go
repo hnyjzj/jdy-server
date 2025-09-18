@@ -22,6 +22,7 @@ type Store struct {
 
 	Staffs    []Staff `json:"staffs" gorm:"many2many:store_staffs;"`       // 员工
 	Superiors []Staff `json:"superiors" gorm:"many2many:store_superiors;"` // 负责人
+	Admins    []Staff `json:"admins" gorm:"many2many:store_admins;"`       // 管理员
 }
 
 func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
@@ -42,6 +43,7 @@ func (Store) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Region")
 	db = db.Preload("Staffs")
 	db = db.Preload("Superiors")
+	db = db.Preload("Admins")
 
 	return db
 }
@@ -77,6 +79,11 @@ func (store *Store) InStore(staff_id string) bool {
 		}
 	}
 	for _, staff := range store.Superiors {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
+	for _, staff := range store.Admins {
 		if staff.Id == staff_id {
 			return true
 		}

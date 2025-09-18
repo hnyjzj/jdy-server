@@ -75,3 +75,17 @@ type RegionSuperiorDelReq struct {
 	RegionId   string   `json:"id" binding:"required"`          // 区域id
 	SuperiorId []string `json:"superior_id" binding:"required"` // 上级id
 }
+
+type RegionAdminListReq struct {
+	RegionId string `json:"id" binding:"required"` // 区域id
+}
+
+type RegionAdminAddReq struct {
+	RegionId string   `json:"id" binding:"required"`       // 区域id
+	AdminId  []string `json:"admin_id" binding:"required"` // 管理员 ID
+}
+
+type RegionAdminDelReq struct {
+	RegionId string   `json:"id" binding:"required"`       // 区域id
+	AdminId  []string `json:"admin_id" binding:"required"` // 管理员 ID
+}

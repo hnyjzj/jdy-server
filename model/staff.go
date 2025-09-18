@@ -36,9 +36,11 @@ type Staff struct {
 	StoreIds        []string `json:"store_ids" gorm:"-"`                                  // 店铺ID
 	Stores          []Store  `json:"stores" gorm:"many2many:store_staffs;"`               // 店铺
 	StoreSuperiors  []Store  `json:"store_superiors" gorm:"many2many:store_superiors;"`   // 负责的店铺
+	StoreAdmins     []Store  `json:"store_admins" gorm:"many2many:store_admins;"`         // 管理的店铺
 	RegionIds       []string `json:"region_ids" gorm:"-"`                                 // 区域ID
 	Regions         []Region `json:"regions" gorm:"many2many:region_staffs;"`             // 区域
 	RegionSuperiors []Region `json:"region_superiors" gorm:"many2many:region_superiors;"` // 负责的区域
+	RegionAdmins    []Region `json:"region_admins" gorm:"many2many:region_admins;"`       // 管理的区域
 }
 
 // 加密密码
@@ -85,11 +87,22 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 	if err := db.First(&staff).Error; err != nil {
 		return nil, err
 	}
+	if staff.Identity >= enums.IdentityAdmin {
+		if err := DB.Model(Store{}).Find(&staff.StoreAdmins).Error; err != nil {
+			return nil, err
+		}
+		if err := DB.Model(Region{}).Find(&staff.RegionAdmins).Error; err != nil {
+			return nil, err
+		}
+	}
 
 	for _, store := range staff.Stores {
 		staff.StoreIds = append(staff.StoreIds, store.Id)
 	}
 	for _, store := range staff.StoreSuperiors {
+		staff.StoreIds = append(staff.StoreIds, store.Id)
+	}
+	for _, store := range staff.StoreAdmins {
 		staff.StoreIds = append(staff.StoreIds, store.Id)
 	}
 	for _, region := range staff.Regions {
@@ -99,6 +112,12 @@ func (Staff) Get(Id, Username *string) (*Staff, error) {
 		}
 	}
 	for _, region := range staff.RegionSuperiors {
+		staff.RegionIds = append(staff.RegionIds, region.Id)
+		for _, store := range region.Stores {
+			staff.StoreIds = append(staff.StoreIds, store.Id)
+		}
+	}
+	for _, region := range staff.RegionAdmins {
 		staff.RegionIds = append(staff.RegionIds, region.Id)
 		for _, store := range region.Stores {
 			staff.StoreIds = append(staff.StoreIds, store.Id)
@@ -172,10 +191,14 @@ func (Staff) Preloads(db *gorm.DB) *gorm.DB {
 	})
 	db = db.Preload("Stores")
 	db = db.Preload("StoreSuperiors")
+	db = db.Preload("StoreAdmins")
 	db = db.Preload("Regions", func(tx *gorm.DB) *gorm.DB {
 		return tx.Preload("Stores")
 	})
 	db = db.Preload("RegionSuperiors", func(tx *gorm.DB) *gorm.DB {
+		return tx.Preload("Stores")
+	})
+	db = db.Preload("RegionAdmins", func(tx *gorm.DB) *gorm.DB {
 		return tx.Preload("Stores")
 	})
 

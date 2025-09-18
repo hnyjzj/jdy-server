@@ -128,12 +128,18 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 		if err := tx.Model(&staff).Association("StoreSuperiors").Replace(StoreSuperiors); err != nil {
 			return err
 		}
+		if err := tx.Model(&staff).Association("StoreAdmins").Replace(StoreSuperiors); err != nil {
+			return err
+		}
 		// 关联区域负责人
 		var RegionSuperiors []model.Region
 		if err := tx.Where("id_wx in (?)", StoreSuperiorsIds).Find(&RegionSuperiors).Error; err != nil {
 			return err
 		}
 		if err := tx.Model(&staff).Association("RegionSuperiors").Replace(RegionSuperiors); err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("RegionAdmins").Replace(RegionSuperiors); err != nil {
 			return err
 		}
 

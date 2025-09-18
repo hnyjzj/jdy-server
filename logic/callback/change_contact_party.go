@@ -127,6 +127,7 @@ func (h *PartyCreateHandle) isStore(l *EventChangeContactEvent) error {
 			}
 			if len(superiors) > 0 {
 				store.Superiors = append(store.Superiors, superiors...)
+				store.Admins = append(store.Admins, superiors...)
 			}
 		}
 

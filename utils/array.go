@@ -34,3 +34,12 @@ func ArrayDeleteOfIndex[T any](array []T, index int) []T {
 	}
 	return append(array[:index], array[index+1:]...)
 }
+
+// 合并多个数组
+func ArrayMerge[T any](slices ...[]T) []T {
+	var result []T
+	for _, slice := range slices {
+		result = append(result, slice...)
+	}
+	return result
+}

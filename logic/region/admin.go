@@ -27,10 +27,6 @@ func (l *RegionAdminLogic) List(req *types.RegionAdminListReq) (*[]model.Staff, 
 		return nil, errors.New("区域不存在")
 	}
 
-	if in := region.InRegion(l.Staff.Id); in {
-		return nil, errors.New("未入职该区域，无法查看员工列表")
-	}
-
 	return &region.Admins, nil
 }
 

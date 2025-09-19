@@ -296,9 +296,9 @@ func Api(g *gin.Engine) {
 			{
 				admins.Use(middlewares.JWTMiddleware())
 				{
-					admins.POST("/list", region.RegionAdminController{}.List) // 区域负责人列表
-					admins.POST("/add", region.RegionAdminController{}.Add)   // 添加区域负责人
-					admins.DELETE("/del", region.RegionAdminController{}.Del) // 删除区域负责人
+					admins.POST("/list", region.RegionAdminController{}.List) // 区域管理员列表
+					admins.POST("/add", region.RegionAdminController{}.Add)   // 添加区域管理员
+					admins.DELETE("/del", region.RegionAdminController{}.Del) // 删除区域管理员
 				}
 			}
 		}

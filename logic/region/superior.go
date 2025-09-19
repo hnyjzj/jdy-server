@@ -2,6 +2,7 @@ package region
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
@@ -27,8 +28,8 @@ func (l *RegionSuperiorLogic) List(req *types.RegionSuperiorListReq) (*[]model.S
 		return nil, errors.New("区域不存在")
 	}
 
-	if in := region.InRegion(l.Staff.Id); in {
-		return nil, errors.New("未入职该区域，无法查看员工列表")
+	if l.Staff.Identity < enums.IdentityAdmin && !region.InRegion(l.Staff.Id) {
+		return nil, errors.New("未入职该区域，无法查看负责人列表")
 	}
 
 	return &region.Superiors, nil

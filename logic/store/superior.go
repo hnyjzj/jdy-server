@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
@@ -27,7 +28,7 @@ func (l *StoreSuperiorLogic) List(req *types.StoreSuperiorListReq) (*[]model.Sta
 		return nil, errors.New("门店不存在")
 	}
 
-	if in := store.InStore(l.Staff.Id); !in {
+	if l.Staff.Identity < enums.IdentityAdmin && !store.InStore(l.Staff.Id) {
 		return nil, errors.New("未入职该门店，无法查看员工列表")
 	}
 

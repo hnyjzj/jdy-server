@@ -15,6 +15,7 @@ type Store struct {
 	IdWx  string `json:"id_wx" gorm:"index;size:255;comment:微信ID"` // 微信ID
 	Name  string `json:"name" gorm:"index;size:255;comment:名称"`    // 名称
 	Alias string `json:"alias" gorm:"index;size:255;comment:别名"`   // 别名
+	Phone string `json:"phone" gorm:"index;size:255;comment:电话"`   // 电话
 	Order int    `json:"order" gorm:"index;comment:排序"`            // 排序
 
 	RegionId string `json:"region_id" gorm:"index;size:255;comment:区域ID"`               // 区域ID
@@ -31,6 +32,9 @@ func (Store) WhereCondition(db *gorm.DB, query *types.StoreWhere) *gorm.DB {
 	}
 	if query.Alias != "" {
 		db = db.Where("alias = ?", query.Alias)
+	}
+	if query.Phone != "" {
+		db = db.Where("phone = ?", query.Phone)
 	}
 	if query.RegionId != "" {
 		db = db.Where("region_id = ?", query.RegionId)

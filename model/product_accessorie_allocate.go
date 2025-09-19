@@ -64,11 +64,11 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 		{
 			db = db.Where("(from_store_id = ? AND to_store_id = ?)", query.FromStoreId, query.ToStoreId)
 		}
-	case query.FromStoreId != "" && query.ToStoreId == "" && query.StoreId != "":
+	case query.FromStoreId != "" && query.ToStoreId == "":
 		{
 			db = db.Where("from_store_id = ?", query.FromStoreId)
 		}
-	case query.FromStoreId == "" && query.ToStoreId != "" && query.StoreId != "":
+	case query.FromStoreId == "" && query.ToStoreId != "":
 		{
 			db = db.Where("to_store_id = ?", query.ToStoreId)
 		}

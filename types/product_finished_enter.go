@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"jdy/enums"
+	"strings"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -38,10 +39,14 @@ type ProductFinishedEnterAddProductReq struct {
 }
 
 func (req *ProductFinishedEnterAddProductReq) Validate() error {
+	productErrors := make([]string, 0)
 	for _, product := range req.Products {
 		if err := product.Validate(); err != nil {
-			return errors.New(product.Code + "信息错误:" + err.Error())
+			productErrors = append(productErrors, product.Code+"信息错误:"+err.Error())
 		}
+	}
+	if len(productErrors) > 0 {
+		return errors.New(strings.Join(productErrors, "\n"))
 	}
 
 	return nil
@@ -128,6 +133,20 @@ func (req *ProductFinishedEnterReqProduct) Validate() error {
 	}
 	if req.RetailType == 0 {
 		return errors.New("零售方式不能为空")
+	}
+	switch req.RetailType {
+	case enums.ProductRetailTypePiece:
+		{
+			if req.LabelPrice.Cmp(decimal.Zero) <= 0 {
+				return errors.New("零售方式为计件时，标签价必须大于 0")
+			}
+		}
+	case enums.ProductRetailTypeGoldKg, enums.ProductRetailTypeGoldPiece:
+		{
+			if req.WeightMetal.Cmp(decimal.Zero) <= 0 {
+				return errors.New("零售方式为计重时，金重必须大于 0")
+			}
+		}
 	}
 	if req.Supplier == 0 {
 		return errors.New("供应商不能为空")

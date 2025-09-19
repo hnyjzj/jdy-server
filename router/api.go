@@ -231,6 +231,17 @@ func Api(g *gin.Engine) {
 					superiors.POST("/is_in", store.StoreSuperiorController{}.IsIn) // 是否是负责人
 				}
 			}
+
+			admins := stores.Group("/admin")
+			{
+				admins.Use(middlewares.JWTMiddleware())
+				{
+					admins.POST("/list", store.StoreAdminController{}.List)  // 门店管理员列表
+					admins.POST("/add", store.StoreAdminController{}.Add)    // 添加门店管理员
+					admins.DELETE("/del", store.StoreAdminController{}.Del)  // 删除门店管理员
+					admins.POST("/is_in", store.StoreAdminController{}.IsIn) // 是否是管理员
+				}
+			}
 		}
 
 		// 区域
@@ -278,6 +289,16 @@ func Api(g *gin.Engine) {
 					superiors.POST("/list", region.RegionSuperiorController{}.List) // 区域负责人列表
 					superiors.POST("/add", region.RegionSuperiorController{}.Add)   // 添加区域负责人
 					superiors.DELETE("/del", region.RegionSuperiorController{}.Del) // 删除区域负责人
+				}
+			}
+
+			admins := regions.Group("/admin")
+			{
+				admins.Use(middlewares.JWTMiddleware())
+				{
+					admins.POST("/list", region.RegionAdminController{}.List) // 区域管理员列表
+					admins.POST("/add", region.RegionAdminController{}.Add)   // 添加区域管理员
+					admins.DELETE("/del", region.RegionAdminController{}.Del) // 删除区域管理员
 				}
 			}
 		}

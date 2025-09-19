@@ -2,6 +2,7 @@ package region
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
@@ -27,9 +28,9 @@ func (l *RegionLogic) List(ctx *gin.Context, req *types.RegionListReq) (*types.P
 		return nil, errors.New("获取区域列表数量失败")
 	}
 
-	db = db.Order("created_at desc")
 	db = region.Preloads(db)
 	db = model.PageCondition(db, &req.PageReq)
+	db = db.Order("name desc")
 
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取区域列表失败")
@@ -42,37 +43,24 @@ func (l *RegionLogic) List(ctx *gin.Context, req *types.RegionListReq) (*types.P
 func (l *RegionLogic) My(req *types.RegionListMyReq) (*[]model.Region, error) {
 
 	var (
-		staff model.Staff
+		regions []model.Region
+		db      = model.DB.Model(&model.Region{})
 	)
 
-	db := model.DB.Model(&staff)
-	db = db.Where("id = ?", l.Staff.Id)
-	db = db.Preload("Regions")
-	db = db.Preload("RegionSuperiors")
+	if l.Staff.Identity < enums.IdentityAdmin {
+		db = db.Where("id in (?)", l.Staff.RegionIds)
+	}
 
-	if err := db.First(&staff).Error; err != nil {
+	db = db.Order("name desc")
+	if err := db.Find(&regions).Error; err != nil {
 		return nil, errors.New("获取区域列表失败")
 	}
 
-	var region_ids []string
-	for _, v := range staff.Regions {
-		region_ids = append(region_ids, v.Id)
-	}
-	for _, v := range staff.RegionSuperiors {
-		region_ids = append(region_ids, v.Id)
-	}
-
-	var regions []model.Region
-	rdb := model.DB.Model(&model.Region{})
-	rdb = rdb.Where("id in (?)", region_ids)
-	rdb = rdb.Order("name desc")
-	if err := rdb.Find(&regions).Error; err != nil {
-		return nil, errors.New("获取区域列表失败")
-	}
-
-	def := model.Region{}.Default(l.Staff.Identity)
-	if def != nil {
-		regions = append([]model.Region{*def}, regions...)
+	if len(regions) >= 2 {
+		def := model.Region{}.Default(l.Staff.Identity)
+		if def != nil {
+			regions = append([]model.Region{*def}, regions...)
+		}
 	}
 
 	return &regions, nil

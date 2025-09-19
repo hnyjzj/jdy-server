@@ -52,12 +52,21 @@ func (l *StaffLogic) StaffEdit(req *types.StaffEditReq) error {
 			return err
 		}
 
-		// 关联负责门店
+		// 关联负责的门店
 		var store_superiors []model.Store
 		if err := tx.Where("id in (?)", req.StoreSuperiorIds).Find(&store_superiors).Error; err != nil {
 			return err
 		}
 		if err := tx.Model(&staff).Association("StoreSuperiors").Replace(store_superiors); err != nil {
+			return err
+		}
+
+		// 关联管理的门店
+		var store_admins []model.Store
+		if err := tx.Where("id in (?)", req.StoreAdminIds).Find(&store_admins).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("StoreAdmins").Replace(store_admins); err != nil {
 			return err
 		}
 
@@ -76,6 +85,15 @@ func (l *StaffLogic) StaffEdit(req *types.StaffEditReq) error {
 			return err
 		}
 		if err := tx.Model(&staff).Association("RegionSuperiors").Replace(region_superiors); err != nil {
+			return err
+		}
+
+		// 关联管理的区域
+		var region_admins []model.Region
+		if err := tx.Where("id in (?)", req.RegionAdminIds).Find(&region_admins).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&staff).Association("RegionAdmins").Replace(region_admins); err != nil {
 			return err
 		}
 

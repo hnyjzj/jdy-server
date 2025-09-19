@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"jdy/enums"
 	"jdy/types"
 
@@ -62,24 +61,35 @@ func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateW
 	switch {
 	case query.FromStoreId == "" && query.ToStoreId == "" && query.StoreId != "":
 		{
-			db = db.Where("from_store_id = ? OR to_store_id = ?", query.StoreId, query.StoreId)
+			db = db.Where(
+				"(from_store_id = ? AND to_store_id IN (?)) OR (to_store_id = ? AND from_store_id IN (?))",
+				query.StoreId, staff.StoreIds, query.StoreId, staff.StoreIds,
+			)
 		}
 	case query.FromStoreId != "" && query.ToStoreId != "":
 		{
-			db = db.Where("from_store_id = ?", query.FromStoreId).Where("to_store_id = ?", query.ToStoreId)
+			db = db.Where(
+				"(from_store_id = ? AND to_store_id = ?)",
+				query.FromStoreId, query.ToStoreId,
+			)
 		}
 	case query.FromStoreId != "" && query.ToStoreId == "" && query.StoreId != "":
 		{
-			db = db.Where("from_store_id = ?", query.FromStoreId).Where("to_store_id = ?", query.StoreId)
+			db = db.Where(
+				"(from_store_id = ? AND to_store_id = ?)",
+				query.FromStoreId, query.StoreId,
+			)
 		}
 	case query.FromStoreId == "" && query.ToStoreId != "" && query.StoreId != "":
 		{
-			db = db.Where("to_store_id = ?", query.ToStoreId).Where("from_store_id = ?", query.StoreId)
+			db = db.Where(
+				"(from_store_id = ? AND to_store_id = ?)",
+				query.StoreId, query.ToStoreId,
+			)
 		}
 	default:
 		{
-			_ = db.AddError(errors.New("查询门店不能为空"))
-			return db
+			db = db.Where("from_store_id IN (?) OR to_store_id IN (?)", staff.StoreIds, staff.StoreIds)
 		}
 	}
 	if query.Status != 0 {

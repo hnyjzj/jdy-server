@@ -19,6 +19,7 @@ type Region struct {
 	Stores    []Store `json:"stores" gorm:"foreignKey:RegionId;references:Id;comment:门店"` // 门店
 	Staffs    []Staff `json:"staffs" gorm:"many2many:region_staffs;"`                     // 员工
 	Superiors []Staff `json:"superiors" gorm:"many2many:region_superiors;"`               // 负责人
+	Admins    []Staff `json:"admins" gorm:"many2many:region_admins;"`                     // 管理员
 }
 
 func (Region) WhereCondition(db *gorm.DB, query *types.RegionWhere) *gorm.DB {
@@ -36,6 +37,7 @@ func (Region) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Stores")
 	db = db.Preload("Staffs")
 	db = db.Preload("Superiors")
+	db = db.Preload("Admins")
 
 	return db
 }
@@ -51,6 +53,11 @@ func (region *Region) InRegion(staff_id string) bool {
 			return true
 		}
 	}
+	for _, staff := range region.Admins {
+		if staff.Id == staff_id {
+			return true
+		}
+	}
 
 	return false
 }
@@ -60,7 +67,8 @@ func (Region) Default(identity enums.Identity) *Region {
 		return nil
 	}
 	def := &Region{
-		Name: "全部",
+		Name:  "全部",
+		Alias: "全部",
 	}
 
 	return def

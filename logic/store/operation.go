@@ -11,15 +11,13 @@ import (
 )
 
 func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
-	store := &model.Store{
-		Name:  req.Name,
-		Alias: req.Alias,
-		Order: req.Order,
+	store, err := utils.StructToStruct[model.Store](req)
+	if err != nil {
+		return errors.New("验证信息失败")
 	}
-
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(store).Error; err != nil {
-			return err
+		if err := tx.Create(&store).Error; err != nil {
+			return errors.New("创建失败")
 		}
 
 		return nil

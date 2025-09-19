@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 
@@ -17,19 +18,17 @@ type StoreSuperiorLogic struct {
 func (l *StoreSuperiorLogic) List(req *types.StoreSuperiorListReq) (*[]model.Staff, error) {
 	// 查询门店
 	var (
-		store   model.Store
-		inStore = false
+		store model.Store
 	)
-	if err := model.DB.Preload("Superiors").First(&store, "id = ?", req.StoreId).Error; err != nil {
+
+	db := model.DB.Model(&model.Store{})
+	db = store.Preloads(db)
+
+	if err := db.First(&store, "id = ?", req.StoreId).Error; err != nil {
 		return nil, errors.New("门店不存在")
 	}
-	for _, staff := range store.Superiors {
-		if staff.Id == l.Staff.Id {
-			inStore = true
-			break
-		}
-	}
-	if !inStore {
+
+	if l.Staff.Identity < enums.IdentityAdmin && !store.InStore(l.Staff.Id) {
 		return nil, errors.New("未入职该门店，无法查看员工列表")
 	}
 

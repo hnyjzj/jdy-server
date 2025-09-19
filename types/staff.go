@@ -48,8 +48,10 @@ type StaffEditReq struct {
 
 	StoreIds          []string `json:"store_ids" binding:"required"`           // 店铺
 	StoreSuperiorIds  []string `json:"store_superior_ids" binding:"required"`  // 负责的店铺
+	StoreAdminIds     []string `json:"store_admin_ids" binding:"required"`     // 店铺管理员
 	RegionIds         []string `json:"region_ids" binding:"required"`          // 区域
 	RegionSuperiorIds []string `json:"region_superior_ids" binding:"required"` // 负责的区域
+	RegionAdminIds    []string `json:"region_admin_ids" binding:"required"`    // 区域管理员
 }
 
 // 更新请求

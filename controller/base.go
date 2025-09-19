@@ -73,17 +73,3 @@ func (con BaseController) Verify_permission(ctx *gin.Context, staff *model.Staff
 
 	return nil
 }
-
-func (con BaseController) Verify_store(ctx *gin.Context, staff *model.Staff, storeId string) error {
-	if staff.Identity == enums.IdentitySuperAdmin {
-		return nil
-	}
-
-	// 检查权限
-	if !staff.HasPermissionStore(storeId) {
-		log.Printf("员工[%v] 无权限访问: %v", staff.Id, storeId)
-		return errors.ErrStaffUnauthorized
-	}
-
-	return nil
-}

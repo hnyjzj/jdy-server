@@ -6,14 +6,14 @@ import (
 )
 
 /* 产品状态 */
-// 草稿、正常、已报损、已调拨、已出售、已定出、盘点中、无库存
+// 草稿、在库、已报损、调拨中、已出售、已定出、盘点中、无库存
 type ProductStatus int
 
 const (
 	ProductStatusDraft    ProductStatus = iota + 1 // 草稿
-	ProductStatusNormal                            // 正常
+	ProductStatusNormal                            // 在库
 	ProductStatusDamage                            // 已报损
-	ProductStatusAllocate                          // 已调拨
+	ProductStatusAllocate                          // 调拨中
 	ProductStatusSold                              // 已出售
 	ProductStatusReturn                            // 已定出
 	ProductStatusCheck                             // 盘点中
@@ -22,9 +22,9 @@ const (
 
 var ProductStatusMap = map[ProductStatus]string{
 	ProductStatusDraft:    "草稿",
-	ProductStatusNormal:   "正常",
+	ProductStatusNormal:   "在库",
 	ProductStatusDamage:   "已报损",
-	ProductStatusAllocate: "已调拨",
+	ProductStatusAllocate: "调拨中",
 	ProductStatusSold:     "已出售",
 	ProductStatusReturn:   "已定出",
 	ProductStatusCheck:    "盘点中",
@@ -34,10 +34,10 @@ var ProductStatusMap = map[ProductStatus]string{
 // 判断状态是否可以转换
 func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
 	transitions := map[ProductStatus][]ProductStatus{
-		// 正常
+		// 在库
 		ProductStatusNormal: {
 			ProductStatusDamage,   // 已报损
-			ProductStatusAllocate, // 已调拨
+			ProductStatusAllocate, // 调拨中
 			ProductStatusSold,     // 已出售
 			ProductStatusReturn,   // 已定出
 			ProductStatusCheck,    // 盘点中
@@ -45,27 +45,27 @@ func (p ProductStatus) CanTransitionTo(newStatus ProductStatus) error {
 		},
 		// 已报损
 		ProductStatusDamage: {
-			ProductStatusNormal,   // 正常
-			ProductStatusAllocate, // 已调拨
+			ProductStatusNormal,   // 在库
+			ProductStatusAllocate, // 调拨中
 		},
-		// 已调拨
+		// 调拨中
 		ProductStatusAllocate: {
-			ProductStatusNormal, // 正常
+			ProductStatusNormal, // 在库
 			ProductStatusDamage, // 已报损
 		},
 		// 已出售
 		ProductStatusSold: {
-			ProductStatusNormal, // 正常
+			ProductStatusNormal, // 在库
 			ProductStatusReturn, // 已定出
 		},
 		// 已定出
 		ProductStatusReturn: {
-			ProductStatusNormal, // 正常
+			ProductStatusNormal, // 在库
 			ProductStatusDamage, // 已报损
 		},
 		// 盘点中
 		ProductStatusCheck: {
-			ProductStatusNormal, // 正常
+			ProductStatusNormal, // 在库
 		},
 	}
 	if allowed, ok := transitions[p]; ok {

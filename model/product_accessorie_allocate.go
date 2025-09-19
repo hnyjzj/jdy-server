@@ -58,35 +58,23 @@ func (ProductAccessorieAllocate) WhereCondition(db *gorm.DB, query *types.Produc
 	switch {
 	case query.FromStoreId == "" && query.ToStoreId == "" && query.StoreId != "":
 		{
-			db = db.Where(
-				"(from_store_id = ? AND to_store_id IN (?)) OR (to_store_id = ? AND from_store_id IN (?))",
-				query.StoreId, staff.StoreIds, query.StoreId, staff.StoreIds,
-			)
+			db = db.Where("(from_store_id = ? OR to_store_id = ?)", query.StoreId, query.StoreId)
 		}
 	case query.FromStoreId != "" && query.ToStoreId != "":
 		{
-			db = db.Where(
-				"(from_store_id = ? AND to_store_id = ?)",
-				query.FromStoreId, query.ToStoreId,
-			)
+			db = db.Where("(from_store_id = ? AND to_store_id = ?)", query.FromStoreId, query.ToStoreId)
 		}
-	case query.FromStoreId != "" && query.ToStoreId == "" && query.StoreId != "":
+	case query.FromStoreId != "" && query.ToStoreId == "":
 		{
-			db = db.Where(
-				"(from_store_id = ? AND to_store_id = ?)",
-				query.FromStoreId, query.StoreId,
-			)
+			db = db.Where("from_store_id = ?", query.FromStoreId)
 		}
-	case query.FromStoreId == "" && query.ToStoreId != "" && query.StoreId != "":
+	case query.FromStoreId == "" && query.ToStoreId != "":
 		{
-			db = db.Where(
-				"(from_store_id = ? AND to_store_id = ?)",
-				query.StoreId, query.ToStoreId,
-			)
+			db = db.Where("to_store_id = ?", query.ToStoreId)
 		}
 	default:
 		{
-			db = db.Where("from_store_id IN (?) OR to_store_id IN (?)", staff.StoreIds, staff.StoreIds)
+			db = db.Where("(from_store_id IN (?) OR to_store_id IN (?))", staff.StoreIds, staff.StoreIds)
 		}
 	}
 	if query.ToRegionId != "" {

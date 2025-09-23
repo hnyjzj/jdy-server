@@ -30,20 +30,23 @@ type StatisticSalesDetailDailyResp struct {
 	Payment      []StatisticSalesDetailDailyPayment `json:"payment"`       // 支付项
 	PaymentTotal StatisticSalesDetailDailyPayment   `json:"payment_total"` // 支付项汇总
 
-	FinishedSales       map[string]map[string]StatisticSalesDetailDailyFinishedSales       `json:"finished_sales"`        // 成品销售
-	OldSales            map[string][]StatisticSalesDetailDailyOldSales                     `json:"old_sales"`             // 旧料回收
-	AccessorieSales     map[string]StatisticSalesDetailDailyAccessorieSales                `json:"accessorie_sales"`      // 配件销售
-	FinishedSalesRefund map[string]map[string]StatisticSalesDetailDailyFinishedSalesRefund `json:"finished_sales_refund"` // 成品退货
+	FinishedSales         map[string]map[string]StatisticSalesDetailDailyFinishedSales       `json:"finished_sales"`          // 成品销售
+	OldSales              map[string][]StatisticSalesDetailDailyOldSales                     `json:"old_sales"`               // 旧料回收
+	AccessorieSales       map[string]StatisticSalesDetailDailyAccessorieSales                `json:"accessorie_sales"`        // 配件销售
+	FinishedSalesRefund   map[string]map[string]StatisticSalesDetailDailyFinishedSalesRefund `json:"finished_sales_refund"`   // 成品退货
+	OldSalesRefund        map[string][]StatisticSalesDetailDailyOldSalesRefund               `json:"old_sales_refund"`        // 旧料退货
+	AccessorieSalesRefund map[string]StatisticSalesDetailDailyAccessorieSalesRefund          `json:"accessorie_sales_refund"` // 配件退货
 }
 
 type StatisticSalesDetailDailySummary struct {
 	SalesReceivable decimal.Decimal `json:"sales_receivable"` // 销售应收
 	SalesRefund     decimal.Decimal `json:"sales_refund"`     // 销售退款
 	SalesReceived   decimal.Decimal `json:"sales_received"`   // 销售实收
-	OtherIncome     decimal.Decimal `json:"other_income"`     // 其他收入
-	OtherExpense    decimal.Decimal `json:"other_expense"`    // 其他支出
+	SalesDiscount   decimal.Decimal `json:"sales_discount"`   // 销售优惠
 	DepositIncome   decimal.Decimal `json:"deposit_income"`   // 定金收入
 	DepositRefund   decimal.Decimal `json:"deposit_refund"`   // 定金退款
+	OtherIncome     decimal.Decimal `json:"other_income"`     // 其他收入
+	OtherExpense    decimal.Decimal `json:"other_expense"`    // 其他支出
 }
 
 type StatisticSalesDetailDailyItemized struct {
@@ -89,11 +92,27 @@ type StatisticSalesDetailDailyOldSales struct {
 	SurplusWeight         *decimal.Decimal `json:"surplus_weight,omitempty"`           // 剩余金重
 }
 
+type StatisticSalesDetailDailyOldSalesRefund struct {
+	Name        string          `json:"name"`         // 名称
+	Refunded    decimal.Decimal `json:"refunded"`     // 退款
+	WeightMetal decimal.Decimal `json:"weight_metal"` // 金重
+	WeightGem   decimal.Decimal `json:"weight_gem"`   // 主石重
+	LaborFee    decimal.Decimal `json:"labor_fee"`    // 工费
+	LabelPrice  decimal.Decimal `json:"label_price"`  // 标签价
+	Quantity    int64           `json:"quantity"`     // 件数
+	Code        string          `json:"code"`         // 旧料编码
+}
+
 type StatisticSalesDetailDailyAccessorieSales struct {
 	Received   decimal.Decimal `json:"received"`   // 实收
 	Receivable decimal.Decimal `json:"receivable"` // 应收
 	Price      decimal.Decimal `json:"price"`      // 单价
 	Quantity   int64           `json:"quantity"`   // 件数
+}
+
+type StatisticSalesDetailDailyAccessorieSalesRefund struct {
+	Refunded decimal.Decimal `json:"refunded"` // 退款
+	Quantity int64           `json:"quantity"` // 件数
 }
 
 type StatisticSalesDetailDailyFinishedSalesRefund struct {

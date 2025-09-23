@@ -472,20 +472,44 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			return errors.New("创建退货单失败")
 		}
 
-		// 添加退款方式
-		for _, payment := range req.Payments {
-			payment := model.OrderPayment{
-				Status:        true,
-				StoreId:       order.StoreId,
-				OrderId:       data.Id,
-				Type:          enums.FinanceTypeExpense,
-				Source:        enums.FinanceSourceSaleRefund,
-				OrderType:     enums.OrderTypeReturn,
-				PaymentMethod: payment.PaymentMethod,
-				Amount:        payment.Amount,
+		switch req.ProductType {
+		case enums.ProductTypeOld:
+			{
+				// 添加退款方式
+				for _, payment := range req.Payments {
+					payment := model.OrderPayment{
+						Status:        true,
+						StoreId:       order.StoreId,
+						OrderId:       data.Id,
+						Type:          enums.FinanceTypeIncome,
+						Source:        enums.FinanceSourceSaleRefund,
+						OrderType:     enums.OrderTypeReturn,
+						PaymentMethod: payment.PaymentMethod,
+						Amount:        payment.Amount,
+					}
+					if err := tx.Create(&payment).Error; err != nil {
+						return errors.New("添加退款方式失败")
+					}
+				}
 			}
-			if err := tx.Create(&payment).Error; err != nil {
-				return errors.New("添加退款方式失败")
+		default:
+			{
+				// 添加退款方式
+				for _, payment := range req.Payments {
+					payment := model.OrderPayment{
+						Status:        true,
+						StoreId:       order.StoreId,
+						OrderId:       data.Id,
+						Type:          enums.FinanceTypeExpense,
+						Source:        enums.FinanceSourceSaleRefund,
+						OrderType:     enums.OrderTypeReturn,
+						PaymentMethod: payment.PaymentMethod,
+						Amount:        payment.Amount,
+					}
+					if err := tx.Create(&payment).Error; err != nil {
+						return errors.New("添加退款方式失败")
+					}
+				}
 			}
 		}
 

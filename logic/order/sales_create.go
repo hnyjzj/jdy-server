@@ -583,6 +583,7 @@ func (l *OrderSalesCreateLogic) setPayment() error {
 	// 添加支付记录
 	for _, p := range l.Req.Payments {
 		payment := model.OrderPayment{
+			Status:        false,
 			StoreId:       l.Req.StoreId,
 			Type:          enums.FinanceTypeIncome,
 			Source:        enums.FinanceSourceSaleReceive,

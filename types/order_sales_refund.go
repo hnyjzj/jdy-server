@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type OrderSalesRefundWhere struct {
 	OrderId string `json:"order_id" label:"订单号" find:"true" sort:"2" type:"string" input:"search" required:"true"` // 订单号

@@ -42,14 +42,14 @@ type OrderRepairWhereProduct struct {
 	Gem         enums.ProductGem      `json:"gem" label:"主石" create:"true" sort:"5" input:"select" type:"number" preset:"typeMap"`            // 主石
 	Category    enums.ProductCategory `json:"category" label:"品类" create:"true" sort:"6" input:"select" type:"number" preset:"typeMap"`       // 品类
 	Craft       enums.ProductCraft    `json:"craft" label:"工艺" create:"true" sort:"7" input:"select" type:"number" preset:"typeMap"`          // 工艺
-	WeightMetal decimal.Decimal       `json:"weight_metal" label:"金重" create:"true" sort:"8" input:"number" type:"string"`                    // 金重
-	LabelPrice  decimal.Decimal       `json:"label_price" label:"标签价" create:"true" sort:"9" input:"number" type:"string"`                    // 标签价
+	WeightMetal decimal.Decimal       `json:"weight_metal" label:"金重" create:"true" sort:"8" input:"number" type:"float"`                     // 金重
+	LabelPrice  decimal.Decimal       `json:"label_price" label:"标签价" create:"true" sort:"9" input:"number" type:"float"`                     // 标签价
 	Brand       enums.ProductBrand    `json:"brand" label:"品牌" create:"true" sort:"10" input:"select" type:"number" preset:"typeMap"`         // 品牌
-	WeightGem   decimal.Decimal       `json:"weight_gem" label:"主石重" create:"true" sort:"11" input:"number" type:"string"`                    // 主石重
+	WeightGem   decimal.Decimal       `json:"weight_gem" label:"主石重" create:"true" sort:"11" input:"number" type:"float"`                     // 主石重
 	ColorGem    enums.ProductColor    `json:"color_gem" label:"主石颜色" create:"true" sort:"12" input:"select" type:"number" preset:"typeMap"`   // 主石颜色
 	ClarityGem  enums.ProductClarity  `json:"clarity_gem" label:"主石净度" create:"true" sort:"13" input:"select" type:"number" preset:"typeMap"` // 主石净度
 	Cut         enums.ProductCut      `json:"cut" label:"主石切工" create:"true" sort:"14" input:"select" type:"number" preset:"typeMap"`         // 主石切工
-	WeightTotal decimal.Decimal       `json:"weight_total" label:"总重" create:"true" sort:"15" input:"number" type:"string"`                   // 总重
+	WeightTotal decimal.Decimal       `json:"weight_total" label:"总重" create:"true" sort:"15" input:"number" type:"float"`                    // 总重
 	Remark      string                `json:"remark" label:"备注" create:"true" sort:"16" input:"text" type:"string"`                           // 备注
 	Name        string                `json:"name" label:"名称" create:"true" sort:"17" input:"text" type:"string"`                             // 名称
 }

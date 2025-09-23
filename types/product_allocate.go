@@ -4,6 +4,8 @@ import (
 	"errors"
 	"jdy/enums"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type ProductAllocateCreateReq struct {
@@ -46,6 +48,11 @@ type ProductAllocateWhere struct {
 
 	InitiatorId string `json:"initiator_id" label:"发起人" input:"search" type:"string" find:"true" sort:"11" required:"false"` // 发起人
 	ReceiverId  string `json:"receiver_id" label:"接收人" input:"search" type:"string" find:"true" sort:"12" required:"false"`  // 接收人
+
+	ProductCount            int64           `json:"product_count" label:"总数量" input:"number" type:"number" find:"false" info:"true" sort:"13" required:"false"`             // 总数量
+	ProductTotalWeightMetal decimal.Decimal `json:"product_total_weight_metal" label:"总金重" input:"number" type:"float" find:"false" info:"true" sort:"14" required:"false"` // 总金重
+	ProductTotalLabelPrice  decimal.Decimal `json:"product_total_label_price" label:"总标价" input:"number" type:"float" find:"false" info:"true" sort:"15" required:"false"`  // 总标价
+	ProductTotalAccessFee   decimal.Decimal `json:"product_total_access_fee" label:"总工费" input:"number" type:"float" find:"false" info:"true" sort:"16" required:"false"`   // 总工费
 }
 
 func (req *ProductAllocateWhere) Validate() error {

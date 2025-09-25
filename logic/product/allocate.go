@@ -229,7 +229,7 @@ func (p *ProductAllocateLogic) InfoOverview(req *types.ProductAllocateInfoOvervi
 	})
 
 	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
-		return nil, errors.New("获取调拨单详情失败")
+		return nil, errors.New("获取调拨单概览失败")
 	}
 
 	switch allocate.Type {
@@ -539,7 +539,7 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 			data.ProductCount--
 			data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Sub(product.WeightMetal)
 			data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Sub(product.LabelPrice)
-			data.ProductTotalRecyclePrice = data.ProductTotalRecyclePrice.Add(product.RecyclePrice)
+			data.ProductTotalRecyclePrice = data.ProductTotalRecyclePrice.Sub(product.RecyclePrice)
 
 			// 移除产品
 			if err := tx.Model(&allocate).Association("ProductOlds").Delete(&product); err != nil {

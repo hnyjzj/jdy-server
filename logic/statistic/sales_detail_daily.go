@@ -302,11 +302,11 @@ func (l *StatisticSalesDetailDailyLogic) getSummary() {
 		switch refund.Type {
 		case enums.ProductTypeOld:
 			{
-				res.SalesRefund = res.SalesRefund.Sub(refund.Price)
+				res.SalesRefund = res.SalesRefund.Add(refund.Price)
 			}
 		default:
 			{
-				res.SalesRefund = res.SalesRefund.Add(refund.Price)
+				res.SalesRefund = res.SalesRefund.Sub(refund.Price)
 			}
 		}
 	}
@@ -375,7 +375,7 @@ func (l *StatisticSalesDetailDailyLogic) getItemized() {
 			case enums.ProductTypeOld:
 				{
 					// 旧料抵值
-					res.OldDeduction = res.OldDeduction.Add(product.Old.RecyclePrice)
+					res.OldDeduction = res.OldDeduction.Sub(product.Old.RecyclePrice)
 					// 旧料件数
 					res.OldQuantity++
 					// 旧料金重
@@ -394,7 +394,7 @@ func (l *StatisticSalesDetailDailyLogic) getItemized() {
 						}
 
 						// 旧料抵值
-						res.OldDeduction = res.OldDeduction.Sub(product.Old.RecyclePrice)
+						res.OldDeduction = res.OldDeduction.Add(product.Old.RecyclePrice)
 						// 旧料件数
 						res.OldQuantity--
 						// 旧料重量
@@ -465,7 +465,7 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 					}
 				case enums.FinanceTypeExpense:
 					{
-						payment.Expense = payment.Expense.Add(order.Amount)
+						payment.Expense = payment.Expense.Sub(order.Amount)
 					}
 				}
 				res[name] = payment
@@ -478,7 +478,7 @@ func (l *StatisticSalesDetailDailyLogic) getPayment() {
 	}
 	for n, i := range res {
 		i.Name = n
-		i.Received = i.Income.Sub(i.Expense)
+		i.Received = i.Income.Add(i.Expense)
 		l.resp.Payment = append(l.resp.Payment, i)
 
 		total.Income = total.Income.Add(i.Income)
@@ -762,15 +762,11 @@ func (l *StatisticSalesDetailDailyLogic) getAccessorieSales() {
 			}
 
 			name := product.Accessorie.Product.Name
-			toolName := "合计"
 			if name == "" {
 				name = "其他"
 			}
 			if _, ok := res[name]; !ok {
 				res[name] = types.StatisticSalesDetailDailyAccessorieSales{}
-			}
-			if _, ok := res[toolName]; !ok {
-				res[toolName] = types.StatisticSalesDetailDailyAccessorieSales{}
 			}
 
 			accessorie := res[name]
@@ -779,17 +775,26 @@ func (l *StatisticSalesDetailDailyLogic) getAccessorieSales() {
 			accessorie.Price = accessorie.Price.Add(product.Accessorie.Product.Price)
 			accessorie.Quantity += product.Accessorie.Quantity
 
-			accessorieTotal := res[toolName]
-			accessorieTotal.Received = accessorieTotal.Received.Add(product.Accessorie.Price)
-			accessorieTotal.Receivable = accessorieTotal.Receivable.Add(product.Accessorie.PriceOriginal)
-			accessorieTotal.Price = accessorieTotal.Price.Add(product.Accessorie.Product.Price)
-			accessorieTotal.Quantity += product.Accessorie.Quantity
-			res[toolName] = accessorieTotal
-
 			res[name] = accessorie
 
 		}
 	}
+
+	toolName := "合计"
+	if _, ok := res[toolName]; !ok {
+		res[toolName] = types.StatisticSalesDetailDailyAccessorieSales{}
+	}
+	total := res[toolName]
+	for name, accessorie := range res {
+		if name == toolName {
+			continue
+		}
+		total.Received = total.Received.Add(accessorie.Received)
+		total.Receivable = total.Receivable.Add(accessorie.Receivable)
+		total.Price = total.Price.Add(accessorie.Price)
+		total.Quantity += accessorie.Quantity
+	}
+	res[toolName] = total
 
 	l.resp.AccessorieSales = res
 }
@@ -834,8 +839,8 @@ func (l *StatisticSalesDetailDailyLogic) getFinishedSalesRefund() {
 		rowTotal := block[rowTotalName]
 
 		// 退款
-		row.Refunded = row.Refunded.Add(order.Price)
-		rowTotal.Refunded = rowTotal.Refunded.Add(order.Price)
+		row.Refunded = row.Refunded.Add(order.Price.Neg())
+		rowTotal.Refunded = rowTotal.Refunded.Add(order.Price.Neg())
 		// 标签价
 		row.Price = row.Price.Add(product.LabelPrice)
 		rowTotal.Price = rowTotal.Price.Add(product.LabelPrice)
@@ -943,8 +948,8 @@ func (l *StatisticSalesDetailDailyLogic) getOldSalesRefund() {
 		}
 
 		// 退款
-		row.Refunded = refund.Price
-		total.Refunded = total.Refunded.Add(refund.Price)
+		row.Refunded = refund.Price.Neg()
+		total.Refunded = total.Refunded.Add(refund.Price.Neg())
 		// 金重
 		row.WeightMetal = product.WeightMetal
 		total.WeightMetal = total.WeightMetal.Add(product.WeightMetal)
@@ -1013,29 +1018,34 @@ func (l *StatisticSalesDetailDailyLogic) getAccessorieSalesRefund() {
 		}
 
 		name := refund.Name
-		toolName := "合计"
 		if name == "" {
 			name = "其他"
 		}
 		if _, ok := res[name]; !ok {
 			res[name] = types.StatisticSalesDetailDailyAccessorieSalesRefund{}
 		}
-		if _, ok := res[toolName]; !ok {
-			res[toolName] = types.StatisticSalesDetailDailyAccessorieSalesRefund{}
-		}
-
 		accessorie := res[name]
-		accessorie.Refunded = accessorie.Refunded.Add(refund.Price)
-		accessorie.Quantity += refund.Quantity
 
-		accessorieTotal := res[toolName]
-		accessorieTotal.Refunded = accessorieTotal.Refunded.Add(refund.Price)
-		accessorieTotal.Quantity += refund.Quantity
-		res[toolName] = accessorieTotal
+		accessorie.Refunded = accessorie.Refunded.Add(refund.Price.Neg())
+		accessorie.Quantity += refund.Quantity
 
 		res[name] = accessorie
 
 	}
+
+	toolName := "合计"
+	if _, ok := res[toolName]; !ok {
+		res[toolName] = types.StatisticSalesDetailDailyAccessorieSalesRefund{}
+	}
+	total := res[toolName]
+	for name, accessorie := range res {
+		if name == toolName {
+			continue
+		}
+		total.Refunded = total.Refunded.Add(accessorie.Refunded)
+		total.Quantity += accessorie.Quantity
+	}
+	res[toolName] = total
 
 	l.resp.AccessorieSalesRefund = res
 }

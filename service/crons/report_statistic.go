@@ -85,7 +85,7 @@ func SendReportStatistic() {
 				switch product.Type {
 				case enums.ProductTypeFinished:
 					{
-						price := req.TodayFinished.Add(product.Finished.Price)
+						price := product.Finished.Price
 
 						for _, refund := range today_refunds {
 							if refund.Type != enums.ProductTypeFinished {
@@ -111,7 +111,7 @@ func SendReportStatistic() {
 					}
 				case enums.ProductTypeOld:
 					{
-						price := req.TodayOld.Add(product.Old.RecyclePrice)
+						price := product.Old.RecyclePrice
 
 						for _, refund := range today_refunds {
 							if refund.Type != enums.ProductTypeOld {
@@ -131,7 +131,7 @@ func SendReportStatistic() {
 					}
 				case enums.ProductTypeAccessorie:
 					{
-						price := req.TodayAcciessorie.Add(product.Accessorie.Price)
+						price := product.Accessorie.Price
 
 						for _, refund := range today_refunds {
 							if refund.Type != enums.ProductTypeAccessorie {
@@ -158,7 +158,7 @@ func SendReportStatistic() {
 				switch product.Type {
 				case enums.ProductTypeFinished:
 					{
-						price := req.MonthFinished.Add(product.Finished.Price)
+						price := product.Finished.Price
 
 						for _, refund := range month_refunds {
 							if refund.Type != enums.ProductTypeFinished {
@@ -178,7 +178,7 @@ func SendReportStatistic() {
 					}
 				case enums.ProductTypeOld:
 					{
-						price := req.MonthOld.Add(product.Old.RecyclePrice)
+						price := product.Old.RecyclePrice
 
 						for _, refund := range month_refunds {
 							if refund.Type != enums.ProductTypeOld {
@@ -198,7 +198,7 @@ func SendReportStatistic() {
 					}
 				case enums.ProductTypeAccessorie:
 					{
-						price := req.MonthAcciessorie.Add(product.Accessorie.Price)
+						price := product.Accessorie.Price
 
 						for _, refund := range month_refunds {
 							if refund.Type != enums.ProductTypeAccessorie {
@@ -263,7 +263,7 @@ func SendReportStatistic() {
 			if !ok {
 				continue
 			}
-			req.ToUser = []string{staff.Username}
+			req.ToUser = []string{"ZhangMingShuai"}
 			msg.SendReportStatisticMessage(&req)
 		}
 	}

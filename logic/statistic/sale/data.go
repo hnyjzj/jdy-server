@@ -432,7 +432,7 @@ func (l *dataLogic) get_finished_class() map[string]any {
 				}
 
 				num = num - 1
-				price = price.Sub(product.Finished.Price)
+				price = price.Sub(refund.Price)
 			}
 
 			if price.Cmp(decimal.Zero) == 0 && num == 0 {
@@ -497,7 +497,7 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 			}
 			total_num, ok := total_num_item[k].(int64)
 			if !ok {
-				num = 0
+				total_num = 0
 			}
 			price_item, ok := data[c]["销售额"].(map[string]any)
 			if !ok {
@@ -553,9 +553,9 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 
 				num = num - 1
 				total_num = total_num - 1
-				price = price.Sub(product.Finished.Price)
+				price = price.Sub(refund.Price)
+				total_price = total_price.Sub(refund.Price)
 
-				total_price = total_price.Sub(product.Finished.Price)
 				weight = weight.Sub(product.Finished.Product.WeightMetal)
 				total_weight = total_weight.Sub(product.Finished.Product.WeightMetal)
 			}

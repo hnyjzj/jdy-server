@@ -367,7 +367,7 @@ func (l *StatisticSalesDetailDailyLogic) getItemized() {
 						}
 
 						// 成品应收
-						res.FinishedReceivable = res.FinishedReceivable.Sub(product.Finished.Price)
+						res.FinishedReceivable = res.FinishedReceivable.Sub(refund.Price)
 						// 成品件数
 						res.FinishedQuantity--
 					}

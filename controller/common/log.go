@@ -30,6 +30,7 @@ func (con LogController) OnCaptureScreen(ctx *gin.Context) {
 		Username:  req.Username,
 		Storename: req.Storename,
 		Url:       req.Url,
+		Title:     req.Title,
 	}); err != nil {
 		con.Exception(ctx, "记录失败")
 		return

@@ -4,4 +4,5 @@ type OnCaptureScreenReq struct {
 	Username  string `json:"username" binding:"required"`
 	Storename string `json:"storename"`
 	Url       string `json:"url" binding:"required"`
+	Title     string `json:"title" binding:"required"`
 }

@@ -29,7 +29,7 @@ type ProductFinished struct {
 	Quality     enums.ProductQuality       `json:"quality" gorm:"type:int(11);not NULL;comment:成色;"`                                 // 成色
 	Gem         enums.ProductGem           `json:"gem" gorm:"type:int(11);not NULL;comment:主石;"`                                     // 主石
 	Category    enums.ProductCategory      `json:"category" gorm:"type:int(11);not NULL;comment:品类;"`                                // 品类
-	Craft       enums.ProductCraft         `json:"craft" gorm:"type:int(11);comment:工艺;"`                                            // 工艺
+	Craft       enums.ProductCraft         `json:"craft" gorm:"type:int(11);default:1;comment:工艺;"`                                  // 工艺
 	WeightMetal decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(15,4);comment:金重;"`                               // 金重
 	WeightTotal decimal.Decimal            `json:"weight_total" gorm:"type:decimal(15,4);comment:总重;"`                               // 总重
 	Size        string                     `json:"size" gorm:"type:varchar(255);comment:手寸;"`                                        // 手寸

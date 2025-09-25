@@ -228,6 +228,12 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 			"标价": map[string]any{},
 		}
 	}
+	t := "全部"
+	data[t] = map[string]any{
+		"件数": map[string]any{},
+		"金重": map[string]any{},
+		"标价": map[string]any{},
+	}
 
 	for _, finished := range l.Finisheds {
 		c := finished.Class.String()
@@ -247,10 +253,14 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 		if !ok {
 			num = decimal.Zero
 		}
-		num = num.Add(decimal.NewFromInt(1))
-		num_item[k] = num
-		data[c]["件数"] = num_item
-
+		total_num_item, ok := data[t]["件数"].(map[string]any)
+		if !ok {
+			total_num_item = make(map[string]any, 0)
+		}
+		total_num, ok := total_num_item[k].(decimal.Decimal)
+		if !ok {
+			total_num = decimal.Zero
+		}
 		weight_item, ok := data[c]["金重"].(map[string]any)
 		if !ok {
 			weight_item = make(map[string]any, 0)
@@ -259,10 +269,14 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 		if !ok {
 			weight = decimal.Zero
 		}
-		weight = weight.Add(finished.WeightMetal)
-		weight_item[k] = weight
-		data[c]["金重"] = weight_item
-
+		total_weight_item, ok := data[t]["金重"].(map[string]any)
+		if !ok {
+			total_weight_item = make(map[string]any, 0)
+		}
+		total_weight, ok := total_weight_item[k].(decimal.Decimal)
+		if !ok {
+			total_weight = decimal.Zero
+		}
 		price_item, ok := data[c]["标价"].(map[string]any)
 		if !ok {
 			price_item = make(map[string]any, 0)
@@ -271,9 +285,34 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 		if !ok {
 			price = decimal.Zero
 		}
+		total_price_item, ok := data[t]["标价"].(map[string]any)
+		if !ok {
+			total_price_item = make(map[string]any, 0)
+		}
+		total_price, ok := total_price_item[k].(decimal.Decimal)
+		if !ok {
+			total_price = decimal.Zero
+		}
+
+		num = num.Add(decimal.NewFromInt(1))
+		total_num = total_num.Add(decimal.NewFromInt(1))
+		weight = weight.Add(finished.WeightMetal)
+		total_weight = total_weight.Add(finished.WeightMetal)
 		price = price.Add(finished.LabelPrice)
+		total_price = total_price.Add(finished.LabelPrice)
+
+		num_item[k] = num
+		total_num_item[k] = total_num
+		data[c]["件数"] = num_item
+		data[t]["件数"] = total_num_item
+		weight_item[k] = weight
+		total_weight_item[k] = total_weight
+		data[c]["金重"] = weight_item
+		data[t]["金重"] = total_weight_item
 		price_item[k] = price
+		total_price_item[k] = total_price
 		data[c]["标价"] = price_item
+		data[t]["标价"] = total_price_item
 	}
 
 	return data
@@ -289,6 +328,12 @@ func (l *dataLogic) get_finished_age() map[string]map[string]any {
 			"金重": map[string]any{},
 			"标价": map[string]any{},
 		}
+	}
+	t := "全部"
+	data[t] = map[string]any{
+		"件数": map[string]any{},
+		"金重": map[string]any{},
+		"标价": map[string]any{},
 	}
 
 	for _, finished := range l.Finisheds {
@@ -320,10 +365,14 @@ func (l *dataLogic) get_finished_age() map[string]map[string]any {
 		if !ok {
 			num = decimal.Zero
 		}
-		num = num.Add(decimal.NewFromInt(1))
-		num_item[k] = num
-		data[c]["件数"] = num_item
-
+		total_num_item, ok := data[t]["件数"].(map[string]any)
+		if !ok {
+			total_num_item = make(map[string]any, 0)
+		}
+		total_num, ok := total_num_item[k].(decimal.Decimal)
+		if !ok {
+			total_num = decimal.Zero
+		}
 		weight_item, ok := data[c]["金重"].(map[string]any)
 		if !ok {
 			weight_item = make(map[string]any, 0)
@@ -332,10 +381,14 @@ func (l *dataLogic) get_finished_age() map[string]map[string]any {
 		if !ok {
 			weight = decimal.Zero
 		}
-		weight = weight.Add(finished.WeightMetal)
-		weight_item[k] = weight
-		data[c]["金重"] = weight_item
-
+		total_weight_item, ok := data[t]["金重"].(map[string]any)
+		if !ok {
+			total_weight_item = make(map[string]any, 0)
+		}
+		total_weight, ok := total_weight_item[k].(decimal.Decimal)
+		if !ok {
+			total_weight = decimal.Zero
+		}
 		price_item, ok := data[c]["标价"].(map[string]any)
 		if !ok {
 			price_item = make(map[string]any, 0)
@@ -344,9 +397,34 @@ func (l *dataLogic) get_finished_age() map[string]map[string]any {
 		if !ok {
 			price = decimal.Zero
 		}
+		total_price_item, ok := data[t]["标价"].(map[string]any)
+		if !ok {
+			total_price_item = make(map[string]any, 0)
+		}
+		total_price, ok := total_price_item[k].(decimal.Decimal)
+		if !ok {
+			total_price = decimal.Zero
+		}
+
 		price = price.Add(finished.LabelPrice)
+		total_price = total_price.Add(finished.LabelPrice)
+		num = num.Add(decimal.NewFromInt(1))
+		total_num = total_num.Add(decimal.NewFromInt(1))
+		weight = weight.Add(finished.WeightMetal)
+		total_weight = total_weight.Add(finished.WeightMetal)
+
 		price_item[k] = price
+		total_price_item[k] = total_price
 		data[c]["标价"] = price_item
+		data[t]["标价"] = total_price_item
+		num_item[k] = num
+		total_num_item[k] = total_num
+		data[c]["件数"] = num_item
+		data[t]["件数"] = total_num_item
+		weight_item[k] = weight
+		total_weight_item[k] = total_weight
+		data[c]["金重"] = weight_item
+		data[t]["金重"] = total_weight_item
 	}
 
 	return data

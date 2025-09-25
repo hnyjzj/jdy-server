@@ -9,13 +9,13 @@ type Types int
 const (
 	TypesCount        Types = iota + 1 // 件数
 	TypesWeightMetal                   // 金重
-	TypesRecyclePrice                  // 回收价
+	TypesRecyclePrice                  // 抵值
 )
 
 var TypesMap = map[Types]string{
 	TypesCount:        "件数",
 	TypesWeightMetal:  "金重",
-	TypesRecyclePrice: "回收价",
+	TypesRecyclePrice: "抵值",
 }
 
 func (p Types) ToMap() any {

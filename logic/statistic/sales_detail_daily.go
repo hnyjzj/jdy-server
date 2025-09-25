@@ -394,7 +394,7 @@ func (l *StatisticSalesDetailDailyLogic) getItemized() {
 						}
 
 						// 旧料抵值
-						res.OldDeduction = res.OldDeduction.Add(product.Old.RecyclePrice)
+						res.OldDeduction = res.OldDeduction.Add(refund.Price)
 						// 旧料件数
 						res.OldQuantity--
 						// 旧料重量

@@ -310,12 +310,12 @@ func (l *dataLogic) get_trend() map[string]map[string]any {
 		data[k]["件数"] = num
 	}
 
-	for _, order := range l.Refunds {
-		if order.Type != enums.ProductTypeFinished {
+	for _, refund := range l.Refunds {
+		if refund.Type != enums.ProductTypeFinished {
 			continue
 		}
 
-		k, _ := get_date_format(start, end, *order.CreatedAt)
+		k, _ := get_date_format(start, end, *refund.CreatedAt)
 		if _, ok := data[k]; !ok {
 			data[k] = make(map[string]any)
 		}
@@ -329,7 +329,7 @@ func (l *dataLogic) get_trend() map[string]map[string]any {
 			num = 0
 		}
 
-		price = price.Sub(order.Price)
+		price = price.Sub(refund.Price)
 		num = num - 1
 
 		data[k]["销售额"] = price
@@ -641,7 +641,7 @@ func (l *dataLogic) get_old_class() map[string]any {
 					continue
 				}
 
-				price = price.Sub(product.Old.RecyclePrice)
+				price = price.Sub(refund.Price)
 				weight = weight.Sub(product.Old.WeightMetal)
 				num = num - 1
 			}

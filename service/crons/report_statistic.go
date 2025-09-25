@@ -263,7 +263,7 @@ func SendReportStatistic() {
 			if !ok {
 				continue
 			}
-			req.ToUser = []string{"ZhangMingShuai"}
+			req.ToUser = []string{staff.Username}
 			msg.SendReportStatisticMessage(&req)
 		}
 	}

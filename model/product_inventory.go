@@ -143,6 +143,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 		// 应盘产品
 		db = db.Preload("ShouldProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusShould})
+			pdb = pdb.Order("created_at desc")
 			if req != nil && req.Page != 0 && req.Limit != 0 {
 				pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 			}
@@ -160,6 +161,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 		// 盘盈产品
 		db = db.Preload("ExtraProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusExtra})
+			pdb = pdb.Order("created_at desc")
 			if req != nil && req.Page != 0 && req.Limit != 0 {
 				pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 			}
@@ -177,6 +179,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 		// 盘亏产品
 		db = db.Preload("LossProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusLoss})
+			pdb = pdb.Order("created_at desc")
 			if req != nil && req.Page != 0 && req.Limit != 0 {
 				pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 			}
@@ -197,6 +200,7 @@ func (ProductInventory) Preloads(db *gorm.DB, req *types.ProductInventoryWhere, 
 	if req != nil && req.Page != 0 && req.Limit != 0 {
 		db = db.Preload("ActualProducts", func(tx *gorm.DB) *gorm.DB {
 			pdb := tx.Where(&ProductInventoryProduct{Status: enums.ProductInventoryProductStatusActual})
+			pdb = pdb.Order("created_at desc")
 			pdb = PageCondition(pdb, &types.PageReq{Page: req.Page, Limit: req.Limit})
 			pdb = pdb.Preload("ProductFinished", func(finished *gorm.DB) *gorm.DB {
 				finished = ProductFinished{}.Preloads(finished)

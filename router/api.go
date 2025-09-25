@@ -445,16 +445,17 @@ func Api(g *gin.Engine) {
 				allocate.GET("/where", product.ProductAllocateController{}.Where) // 调拨单筛选
 				allocate.Use(middlewares.JWTMiddleware())
 				{
-					allocate.POST("/create", product.ProductAllocateController{}.Create)    // 创建调拨单
-					allocate.POST("/list", product.ProductAllocateController{}.List)        // 调拨单列表
-					allocate.POST("/details", product.ProductAllocateController{}.Details)  // 调拨单明细
-					allocate.POST("/info", product.ProductAllocateController{}.Info)        // 调拨单详情
-					allocate.PUT("/add", product.ProductAllocateController{}.Add)           // 添加产品
-					allocate.DELETE("/remove", product.ProductAllocateController{}.Remove)  // 移除产品
-					allocate.DELETE("/clear", product.ProductAllocateController{}.Clear)    // 清空产品
-					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)   // 确认调拨
-					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)     // 取消调拨
-					allocate.PUT("/complete", product.ProductAllocateController{}.Complete) // 完成调拨
+					allocate.POST("/create", product.ProductAllocateController{}.Create)              // 创建调拨单
+					allocate.POST("/list", product.ProductAllocateController{}.List)                  // 调拨单列表
+					allocate.POST("/details", product.ProductAllocateController{}.Details)            // 调拨单明细
+					allocate.POST("/info", product.ProductAllocateController{}.Info)                  // 调拨单详情
+					allocate.POST("/info_overview", product.ProductAllocateController{}.InfoOverview) // 调拨单概览
+					allocate.PUT("/add", product.ProductAllocateController{}.Add)                     // 添加产品
+					allocate.DELETE("/remove", product.ProductAllocateController{}.Remove)            // 移除产品
+					allocate.DELETE("/clear", product.ProductAllocateController{}.Clear)              // 清空产品
+					allocate.PUT("/confirm", product.ProductAllocateController{}.Confirm)             // 确认调拨
+					allocate.PUT("/cancel", product.ProductAllocateController{}.Cancel)               // 取消调拨
+					allocate.PUT("/complete", product.ProductAllocateController{}.Complete)           // 完成调拨
 				}
 			}
 

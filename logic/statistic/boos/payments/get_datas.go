@@ -116,7 +116,7 @@ func (r *dataLogic) get_expense(req *DataReq) (any, error) {
 		if err := db_total.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 			return nil, err
 		}
-		item["total"] = total
+		item["total"] = total.Neg()
 
 		// 按支付方式
 		for k := range enums.OrderPaymentMethodMap {
@@ -133,7 +133,7 @@ func (r *dataLogic) get_expense(req *DataReq) (any, error) {
 			if err := db.Select("SUM(amount) as total").Having("total <> 0").Scan(&total).Error; err != nil {
 				return nil, err
 			}
-			item[k.String()] = total
+			item[k.String()] = total.Neg()
 		}
 
 		data = append(data, item)

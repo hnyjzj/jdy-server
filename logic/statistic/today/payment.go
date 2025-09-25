@@ -56,18 +56,11 @@ func (l *PaymentLogic) get_data() error {
 	if len(l.Payments) == 0 {
 		l.Res["收入金额"] = decimal.Decimal{}
 		l.Res["收入笔数"] = decimal.Decimal{}
-		l.Res["收入订单数"] = decimal.Decimal{}
 		l.Res["支出金额"] = decimal.Decimal{}
 		l.Res["支出笔数"] = decimal.Decimal{}
-		l.Res["支出订单数"] = decimal.Decimal{}
 
 		return nil
 	}
-
-	// 收入订单号
-	incomeNum := make(map[string]bool)
-	// 支出订单号
-	expenseNum := make(map[string]bool)
 
 	for _, payment := range l.Payments {
 		switch payment.Type {
@@ -86,8 +79,6 @@ func (l *PaymentLogic) get_data() error {
 				}
 				num = num.Add(decimal.NewFromInt(1))
 				l.Res["收入笔数"] = num
-
-				incomeNum[payment.OrderId] = true
 			}
 		case enums.FinanceTypeExpense: // 支出
 			{
@@ -95,7 +86,7 @@ func (l *PaymentLogic) get_data() error {
 				if !ok {
 					price = decimal.Decimal{}
 				}
-				price = price.Add(payment.Amount)
+				price = price.Add(payment.Amount.Neg())
 				l.Res["支出金额"] = price
 
 				num, ok := l.Res["支出笔数"].(decimal.Decimal)
@@ -104,14 +95,9 @@ func (l *PaymentLogic) get_data() error {
 				}
 				num = num.Add(decimal.NewFromInt(1))
 				l.Res["支出笔数"] = num
-
-				expenseNum[payment.OrderId] = true
 			}
 		}
 	}
-
-	l.Res["收入订单数"] = decimal.NewFromInt(int64(len(incomeNum)))
-	l.Res["支出订单数"] = decimal.NewFromInt(int64(len(expenseNum)))
 
 	return nil
 }

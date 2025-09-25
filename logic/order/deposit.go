@@ -78,6 +78,7 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 		for _, p := range req.Payments {
 			order.PricePay = order.PricePay.Add(p.Amount)
 			order.Payments = append(order.Payments, model.OrderPayment{
+				Status:        false,
 				StoreId:       order.StoreId,
 				Type:          enums.FinanceTypeIncome,
 				Source:        enums.FinanceSourceDepositReceive,

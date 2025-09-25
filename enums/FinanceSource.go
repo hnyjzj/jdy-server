@@ -15,6 +15,7 @@ const (
 	FinanceSourceOtherDeposit                            // 其他收支-定金
 	FinanceSourceOtherFee                                // 其他收支-手续费
 	FinanceSourceOtherReturn                             // 其他收支-汇回公司
+	FinanceSourceRepairRefund                            // 维修退款
 )
 
 var FinanceSourceMap = map[FinanceSource]string{
@@ -26,6 +27,7 @@ var FinanceSourceMap = map[FinanceSource]string{
 	FinanceSourceOtherDeposit:   "其他收支-定金",
 	FinanceSourceOtherFee:       "其他收支-手续费",
 	FinanceSourceOtherReturn:    "其他收支-汇回公司",
+	FinanceSourceRepairRefund:   "维修退款",
 }
 
 func (p FinanceSource) ToMap() any {
@@ -37,4 +39,8 @@ func (p FinanceSource) InMap() error {
 		return errors.New("not in enum")
 	}
 	return nil
+}
+
+func (p FinanceSource) String() string {
+	return FinanceSourceMap[p]
 }

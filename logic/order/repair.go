@@ -82,6 +82,7 @@ func (l *OrderRepairLogic) Create(req *types.OrderRepairCreateReq) (*model.Order
 		for _, p := range req.Payments {
 			expense = expense.Add(p.Amount)
 			order.Payments = append(order.Payments, model.OrderPayment{
+				Status:        false,
 				StoreId:       order.StoreId,
 				Type:          enums.FinanceTypeIncome,
 				Source:        enums.FinanceSourceOtherReturn,
@@ -355,7 +356,6 @@ func (l *OrderRepairLogic) Refund(req *types.OrderRepairRefundReq) error {
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-
 		for _, product := range order.Products {
 			// 更新订单状态
 			if err := tx.Model(&model.OrderRepairProduct{}).Where("id = ?", product.Id).Updates(&model.OrderRepairProduct{
@@ -373,6 +373,19 @@ func (l *OrderRepairLogic) Refund(req *types.OrderRepairRefundReq) error {
 
 		if err := tx.Create(&data).Error; err != nil {
 			return errors.New("创建退款记录失败")
+		}
+
+		if err := tx.Create(&model.OrderPayment{
+			Status:        true,
+			StoreId:       order.StoreId,
+			OrderId:       data.Id,
+			Type:          enums.FinanceTypeExpense,
+			Source:        enums.FinanceSourceOtherReturn,
+			PaymentMethod: enums.OrderPaymentMethodOther,
+			Amount:        order.Expense,
+			OrderType:     enums.OrderTypeRepair,
+		}).Error; err != nil {
+			return errors.New("创建退款支付记录失败")
 		}
 
 		return nil

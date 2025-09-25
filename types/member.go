@@ -16,7 +16,7 @@ type MemberWhere struct {
 	Nickname    string       `json:"nickname" label:"昵称" find:"true" sort:"6" type:"string" input:"text"`
 
 	Level      enums.MemberLevel `json:"level" label:"等级" find:"true" sort:"8" type:"number" input:"select" preset:"typeMap"`
-	Integral   decimal.Decimal   `json:"integral" label:"积分" find:"false" sort:"9" type:"number" input:"text"`
+	Integral   decimal.Decimal   `json:"integral" label:"积分" find:"false" sort:"9" type:"float" input:"text"`
 	BuyCount   int               `json:"buy_count" label:"购买次数" find:"false" sort:"10" type:"number" input:"text"`
 	EventCount int               `json:"event_count" label:"活动次数" find:"false" sort:"11" type:"number" input:"text"`
 

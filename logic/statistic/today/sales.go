@@ -31,10 +31,11 @@ func (l *ToDayLogic) Sales(req *SalesReq, onlyself bool) (map[string]any, error)
 		Res:        make(map[string]any),
 	}
 
-	// 获取销售数据
+	// 获取成品数据
 	if err := logic.getSales(onlyself); err != nil {
 		return nil, err
 	}
+	// 获取退款数据
 	if err := logic.getRefund(onlyself); err != nil {
 		return nil, err
 	}
@@ -44,18 +45,18 @@ func (l *ToDayLogic) Sales(req *SalesReq, onlyself bool) (map[string]any, error)
 		return nil, err
 	}
 
-	// 获取销售数据
-	if err := logic.get_sales_amount(); err != nil {
-		return nil, err
-	}
-
-	// 获取销售件数
-	if err := logic.get_sales_count(); err != nil {
+	// 获取成品数据
+	if err := logic.get_finisheds(); err != nil {
 		return nil, err
 	}
 
 	// 获取旧料抵值
-	if err := logic.get_old_goods_amount(); err != nil {
+	if err := logic.get_olds(); err != nil {
+		return nil, err
+	}
+
+	// 获取配件礼品
+	if err := logic.get_accessories(); err != nil {
 		return nil, err
 	}
 
@@ -67,7 +68,7 @@ func (l *ToDayLogic) Sales(req *SalesReq, onlyself bool) (map[string]any, error)
 	return logic.Res, nil
 }
 
-// 获取销售数据
+// 获取成品数据
 func (l *SalesLogic) getSales(onlyself bool) error {
 	db := model.DB.Model(&model.OrderSales{})
 	db = db.Where(&model.OrderSales{
@@ -98,6 +99,7 @@ func (l *SalesLogic) getSales(onlyself bool) error {
 	return nil
 }
 
+// 获取退款数据
 func (l *SalesLogic) getRefund(onlyself bool) error {
 	db := model.DB.Model(&model.OrderRefund{})
 	db = db.Where(&model.OrderRefund{
@@ -127,47 +129,104 @@ func (l *SalesLogic) get_gold_price() error {
 	return nil
 }
 
-func (l *SalesLogic) get_sales_amount() error {
-	price, ok := l.Res["销售金额"].(decimal.Decimal)
+func (l *SalesLogic) get_finisheds() error {
+	price, ok := l.Res["成品金额"].(decimal.Decimal)
 	if !ok {
 		price = decimal.Zero
 	}
-	for _, o := range l.Sales {
-		price = price.Add(o.ProductFinishedPrice)
-	}
-	l.Res["销售金额"] = price
-
-	return nil
-}
-
-// 获取销售件数
-func (l *SalesLogic) get_sales_count() error {
-	count, ok := l.Res["销售件数"].(int)
+	num, ok := l.Res["成品件数"].(int)
 	if !ok {
-		count = 0
+		num = 0
 	}
-	for _, o := range l.Sales {
-		for _, p := range o.Products {
-			if p.Type == enums.ProductTypeFinished {
-				count++
+
+	for _, sale := range l.Sales {
+		for _, product := range sale.Products {
+			if product.Type == enums.ProductTypeFinished {
+				price = price.Add(product.Finished.Price)
+				num++
+			}
+			for _, refund := range l.Refund {
+				if refund.Type != enums.ProductTypeFinished {
+					continue
+				}
+				if refund.OrderId != sale.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+				price = price.Sub(refund.Price)
+				num--
 			}
 		}
 	}
-	l.Res["销售件数"] = count
+
+	l.Res["成品金额"] = price
+	l.Res["成品件数"] = num
 
 	return nil
 }
 
 // 获取旧料抵值
-func (l *SalesLogic) get_old_goods_amount() error {
+func (l *SalesLogic) get_olds() error {
 	price, ok := l.Res["旧料抵值"].(decimal.Decimal)
 	if !ok {
 		price = decimal.Zero
 	}
-	for _, o := range l.Sales {
-		price = price.Add(o.ProductOldPrice)
+
+	for _, sale := range l.Sales {
+		for _, product := range sale.Products {
+			if product.Type == enums.ProductTypeOld {
+				price = price.Add(product.Old.RecyclePrice.Neg())
+			}
+			for _, refund := range l.Refund {
+				if refund.Type != enums.ProductTypeOld {
+					continue
+				}
+				if refund.OrderId != sale.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+				price = price.Sub(refund.Price.Neg())
+			}
+		}
 	}
+
 	l.Res["旧料抵值"] = price
+
+	return nil
+}
+
+// 获取配件礼品
+func (l *SalesLogic) get_accessories() error {
+	price, ok := l.Res["配件礼品"].(decimal.Decimal)
+	if !ok {
+		price = decimal.Zero
+	}
+
+	for _, sale := range l.Sales {
+		for _, product := range sale.Products {
+			if product.Type == enums.ProductTypeAccessorie {
+				price = price.Add(product.Accessorie.Price)
+			}
+			for _, refund := range l.Refund {
+				if refund.Type != enums.ProductTypeAccessorie {
+					continue
+				}
+				if refund.OrderId != sale.Id {
+					continue
+				}
+				if refund.Name != product.Name {
+					continue
+				}
+				price = price.Sub(refund.Price)
+			}
+		}
+	}
+
+	l.Res["配件礼品"] = price
 
 	return nil
 }
@@ -178,8 +237,17 @@ func (l *SalesLogic) get_return_amount() error {
 	if !ok {
 		price = decimal.Zero
 	}
-	for _, o := range l.Refund {
-		price = price.Add(o.Price)
+	for _, refund := range l.Refund {
+		switch refund.Type {
+		case enums.ProductTypeFinished, enums.ProductTypeAccessorie:
+			{
+				price = price.Sub(refund.Price)
+			}
+		case enums.ProductTypeOld:
+			{
+				price = price.Add(refund.Price)
+			}
+		}
 	}
 	l.Res["退货金额"] = price
 

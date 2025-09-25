@@ -17,7 +17,7 @@ type OrderOtherWhere struct {
 	ClerkId   string                   `json:"clerk_id" label:"导购员" find:"false" create:"true" sort:"6" type:"string" input:"search" required:"true"`                // 导购员
 	MemberId  string                   `json:"member_id" label:"会员" find:"false" create:"true" sort:"7" type:"string" input:"search" required:"true"`                // 会员
 	OrderId   string                   `json:"order_id" label:"销售单" find:"false" create:"true" sort:"8" type:"string" input:"search" required:"false"`               // 销售单
-	Amount    decimal.Decimal          `json:"amount" label:"收支金额" find:"false" create:"true" sort:"9" type:"number" input:"number" required:"true"`
+	Amount    decimal.Decimal          `json:"amount" label:"收支金额" find:"false" create:"true" sort:"9" type:"float" input:"number" required:"true"`
 	StartDate *time.Time               `json:"start_date" label:"开始日期" find:"true" create:"true" sort:"10" type:"string" input:"date"` // 开始日期
 	EndDate   *time.Time               `json:"end_date" label:"结束日期" find:"true" create:"true" sort:"11" type:"string" input:"date"`   // 结束日期
 }

@@ -208,6 +208,146 @@ func (p *ProductAllocateLogic) Info(req *types.ProductAllocateInfoReq) (*model.P
 	return &allocate, nil
 }
 
+// 获取产品调拨单概览
+func (p *ProductAllocateLogic) InfoOverview(req *types.ProductAllocateInfoOverviewReq) (any, error) {
+	var (
+		res      = make(map[string]map[string]any)
+		allocate model.ProductAllocate
+	)
+
+	db := model.DB.Model(&allocate)
+
+	db = allocate.Preloads(db)
+
+	db = db.Preload("ProductFinisheds", func(tx *gorm.DB) *gorm.DB {
+		tx = model.ProductFinished{}.Preloads(tx)
+		return tx
+	})
+	db = db.Preload("ProductOlds", func(tx *gorm.DB) *gorm.DB {
+		tx = model.ProductOld{}.Preloads(tx)
+		return tx
+	})
+
+	if err := db.First(&allocate, "id = ?", req.Id).Error; err != nil {
+		return nil, errors.New("获取调拨单详情失败")
+	}
+
+	switch allocate.Type {
+	case enums.ProductTypeFinished:
+		{
+			for _, product := range allocate.ProductFinisheds {
+				c := product.Class.String()
+				if c == "" {
+					c = "其他"
+				}
+				block, ok := res[c]
+				if !ok {
+					block = make(map[string]any, 0)
+				}
+
+				k := product.Category.String()
+				if k == "" {
+					k = "其他"
+				}
+				row, ok := block[k].(map[string]any)
+				if !ok {
+					row = make(map[string]any, 0)
+				}
+				t := "合计"
+				total, ok := block[t].(map[string]any)
+				if !ok {
+					total = make(map[string]any, 0)
+				}
+
+				for _, v := range []string{"件数", "金重", "总标价"} {
+					iv, ok := row[v].(decimal.Decimal)
+					if !ok {
+						row[v] = decimal.Zero
+					}
+					it, ok := total[v].(decimal.Decimal)
+					if !ok {
+						total[v] = decimal.Zero
+					}
+
+					switch v {
+					case "件数":
+						iv = iv.Add(decimal.NewFromInt(1))
+						it = it.Add(decimal.NewFromInt(1))
+					case "金重":
+						iv = iv.Add(product.WeightMetal)
+						it = it.Add(product.WeightMetal)
+					case "总标价":
+						iv = iv.Add(product.LabelPrice)
+						it = it.Add(product.LabelPrice)
+					}
+					row[v] = iv
+					total[v] = it
+				}
+				block[k] = row
+				block[t] = total
+				res[c] = block
+			}
+		}
+	case enums.ProductTypeOld:
+		{
+			for _, product := range allocate.ProductOlds {
+				c := product.Class.String()
+				if c == "" {
+					c = "其他"
+				}
+				block, ok := res[c]
+				if !ok {
+					block = make(map[string]any, 0)
+				}
+
+				k := product.Category.String()
+				if k == "" {
+					k = "其他"
+				}
+				row, ok := block[k].(map[string]any)
+				if !ok {
+					row = make(map[string]any, 0)
+				}
+				t := "合计"
+				total, ok := block[t].(map[string]any)
+				if !ok {
+					total = make(map[string]any, 0)
+				}
+
+				for _, v := range []string{"件数", "金重", "抵值"} {
+					iv, ok := row[v].(decimal.Decimal)
+					if !ok {
+						row[v] = decimal.Zero
+					}
+					it, ok := total[v].(decimal.Decimal)
+					if !ok {
+						total[v] = decimal.Zero
+					}
+
+					switch v {
+					case "件数":
+						iv = iv.Add(decimal.NewFromInt(1))
+						it = it.Add(decimal.NewFromInt(1))
+					case "金重":
+						iv = iv.Add(product.WeightMetal)
+						it = it.Add(product.WeightMetal)
+					case "抵值":
+						iv = iv.Add(product.RecyclePrice)
+						it = it.Add(product.RecyclePrice)
+					}
+					row[v] = iv
+					total[v] = it
+				}
+				block[k] = row
+				block[t] = total
+				res[c] = block
+			}
+		}
+	}
+
+	return res, nil
+}
+
 // 添加产品调拨单产品
 func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Errors {
 	var (
@@ -224,10 +364,11 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 	}
 
 	data := model.ProductAllocate{
-		ProductCount:            allocate.ProductCount,
-		ProductTotalWeightMetal: allocate.ProductTotalWeightMetal,
-		ProductTotalLabelPrice:  allocate.ProductTotalLabelPrice,
-		ProductTotalAccessFee:   allocate.ProductTotalAccessFee,
+		ProductCount:             allocate.ProductCount,
+		ProductTotalWeightMetal:  allocate.ProductTotalWeightMetal,
+		ProductTotalLabelPrice:   allocate.ProductTotalLabelPrice,
+		ProductTotalAccessFee:    allocate.ProductTotalAccessFee,
+		ProductTotalRecyclePrice: allocate.ProductTotalRecyclePrice,
 	}
 	// 添加产品
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
@@ -299,6 +440,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 				data.ProductCount++
 				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
 				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
+				data.ProductTotalRecyclePrice = data.ProductTotalRecyclePrice.Add(p.RecyclePrice)
 
 				// 更新产品状态
 				if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Id).Updates(&model.ProductOld{
@@ -325,6 +467,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 			"product_total_weight_metal",
 			"product_total_label_price",
 			"product_total_access_fee",
+			"product_total_recycle_price",
 		}).Updates(data).Error; err != nil {
 			return errors.New("更新调拨单失败")
 		}
@@ -353,10 +496,11 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 	}
 
 	data := model.ProductAllocate{
-		ProductCount:            allocate.ProductCount,
-		ProductTotalWeightMetal: allocate.ProductTotalWeightMetal,
-		ProductTotalLabelPrice:  allocate.ProductTotalLabelPrice,
-		ProductTotalAccessFee:   allocate.ProductTotalAccessFee,
+		ProductCount:             allocate.ProductCount,
+		ProductTotalWeightMetal:  allocate.ProductTotalWeightMetal,
+		ProductTotalLabelPrice:   allocate.ProductTotalLabelPrice,
+		ProductTotalAccessFee:    allocate.ProductTotalAccessFee,
+		ProductTotalRecyclePrice: allocate.ProductTotalRecyclePrice,
 	}
 	// 添加产品
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
@@ -395,6 +539,7 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 			data.ProductCount--
 			data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Sub(product.WeightMetal)
 			data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Sub(product.LabelPrice)
+			data.ProductTotalRecyclePrice = data.ProductTotalRecyclePrice.Add(product.RecyclePrice)
 
 			// 移除产品
 			if err := tx.Model(&allocate).Association("ProductOlds").Delete(&product); err != nil {
@@ -415,6 +560,7 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 			"product_total_weight_metal",
 			"product_total_label_price",
 			"product_total_access_fee",
+			"product_total_recycle_price",
 		}).Updates(data).Error; err != nil {
 			return err
 		}
@@ -479,10 +625,11 @@ func (p *ProductAllocateLogic) Clear(req *types.ProductAllocateClearReq) *errors
 			"product_total_label_price",
 			"product_total_access_fee",
 		}).Updates(&model.ProductAllocate{
-			ProductCount:            0,
-			ProductTotalWeightMetal: decimal.Zero,
-			ProductTotalLabelPrice:  decimal.Zero,
-			ProductTotalAccessFee:   decimal.Zero,
+			ProductCount:             0,
+			ProductTotalWeightMetal:  decimal.Zero,
+			ProductTotalLabelPrice:   decimal.Zero,
+			ProductTotalAccessFee:    decimal.Zero,
+			ProductTotalRecyclePrice: decimal.Zero,
 		}).Error; err != nil {
 			return err
 		}

@@ -174,6 +174,39 @@ func (con ProductAllocateController) Info(ctx *gin.Context) {
 	con.Success(ctx, "ok", res)
 }
 
+// 获取产品调拨单概览
+func (con ProductAllocateController) InfoOverview(ctx *gin.Context) {
+	var (
+		req types.ProductAllocateInfoOverviewReq
+
+		logic = product.ProductAllocateLogic{
+			Ctx: ctx,
+		}
+	)
+
+	// 绑定请求参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 获取产品调拨单概览
+	res, err := logic.InfoOverview(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", res)
+}
+
 // 添加调拨单产品
 func (con ProductAllocateController) Add(ctx *gin.Context) {
 	var (

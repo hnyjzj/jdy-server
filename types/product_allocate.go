@@ -70,6 +70,10 @@ type ProductAllocateInfoReq struct {
 	Id string `json:"id" binding:"required"`
 }
 
+type ProductAllocateInfoOverviewReq struct {
+	Id string `json:"id" binding:"required"`
+}
+
 type ProductAllocateAddReq struct {
 	Id    string   `json:"id" binding:"required"`    // 调拨单ID
 	Codes []string `json:"codes" binding:"required"` // 商品编码

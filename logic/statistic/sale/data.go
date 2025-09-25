@@ -13,8 +13,8 @@ type dataLogic struct {
 	*StatisticSaleLogic
 	req *DataReq
 
-	Sales  []model.OrderSales
-	Refund []model.OrderRefund
+	Sales   []model.OrderSales
+	Refunds []model.OrderRefund
 }
 
 type DataRes struct {
@@ -94,80 +94,174 @@ func (l *dataLogic) get_refund(onlyself bool) error {
 	}
 
 	db = model.OrderRefund{}.Preloads(db)
-	if err := db.Find(&l.Refund).Error; err != nil {
+	if err := db.Find(&l.Refunds).Error; err != nil {
 		return errors.New("获取数据失败")
 	}
 
 	return nil
 }
 
+// 获取总览
 func (l *dataLogic) get_overview() map[string]any {
 	data := make(map[string]any)
 
 	if len(l.Sales) == 0 {
-		data["销售金额"] = decimal.Zero
-		data["销售件数"] = 0
+		data["成品金额"] = decimal.Zero
+		data["成品件数"] = 0
 		data["旧料抵值"] = decimal.Zero
 		data["配件礼品"] = decimal.Zero
 	}
-	if len(l.Refund) == 0 {
+	if len(l.Refunds) == 0 {
 		data["退款金额"] = decimal.Zero
 		data["退款件数"] = 0
 	}
 
-	for _, s := range l.Sales {
-		price, ok := data["销售金额"].(decimal.Decimal)
+	for _, sales := range l.Sales {
+		price, ok := data["成品金额"].(decimal.Decimal)
 		if !ok {
 			price = decimal.Zero
 		}
-		price = price.Add(s.ProductFinishedPrice)
-		data["销售金额"] = price
+		for _, product := range sales.Products {
+			if product.Type == enums.ProductTypeFinished {
+				price = price.Add(product.Finished.Price)
+			}
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeFinished {
+					continue
+				}
+				if refund.OrderId != sales.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+				price = price.Sub(refund.Price)
+			}
+		}
+		data["成品金额"] = price
 
-		count, ok := data["销售件数"].(int64)
+		count, ok := data["成品件数"].(int64)
 		if !ok {
 			count = 0
 		}
-		for _, p := range s.Products {
+		for _, p := range sales.Products {
 			if p.Type == enums.ProductTypeFinished {
 				count = count + 1
 			}
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeFinished {
+					continue
+				}
+				if refund.OrderId != sales.Id {
+					continue
+				}
+				if refund.Code != p.Code {
+					continue
+				}
+				count = count - 1
+			}
 		}
-		data["销售件数"] = count
+		data["成品件数"] = count
 
 		old, ok := data["旧料抵值"].(decimal.Decimal)
 		if !ok {
 			old = decimal.Zero
 		}
-		old = old.Add(s.ProductOldPrice)
+		for _, product := range sales.Products {
+			if product.Type == enums.ProductTypeOld {
+				old = old.Sub(product.Old.RecyclePrice)
+			}
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeOld {
+					continue
+				}
+				if refund.OrderId != sales.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+				old = old.Add(refund.Price)
+			}
+		}
 		data["旧料抵值"] = old
 
 		accessorie, ok := data["配件礼品"].(decimal.Decimal)
 		if !ok {
 			accessorie = decimal.Zero
 		}
-		accessorie = accessorie.Add(s.ProductAccessoriePrice)
+		for _, product := range sales.Products {
+			if product.Type == enums.ProductTypeAccessorie {
+				accessorie = accessorie.Add(product.Accessorie.Price)
+			}
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeAccessorie {
+					continue
+				}
+				if refund.OrderId != sales.Id {
+					continue
+				}
+				if refund.Name != product.Name {
+					continue
+				}
+				accessorie = accessorie.Sub(refund.Price)
+			}
+		}
 		data["配件礼品"] = accessorie
 	}
 
-	for _, r := range l.Refund {
+	for _, r := range l.Refunds {
 		price, ok := data["退款金额"].(decimal.Decimal)
 		if !ok {
 			price = decimal.Zero
 		}
-		price = price.Add(r.Price)
+		switch r.Type {
+		case enums.ProductTypeFinished, enums.ProductTypeAccessorie:
+			{
+				price = price.Sub(r.Price)
+			}
+		case enums.ProductTypeOld:
+			{
+				price = price.Add(r.Price)
+			}
+		}
 		data["退款金额"] = price
 
-		count, ok := data["退款件数"].(int64)
+		fcount, ok := data["退款件数(成)"].(int64)
 		if !ok {
-			count = 0
+			fcount = 0
 		}
-		count = count + 1
-		data["退款件数"] = count
+		ocount, ok := data["退款件数(旧)"].(int64)
+		if !ok {
+			ocount = 0
+		}
+		acount, ok := data["退款件数(配)"].(int64)
+		if !ok {
+			acount = 0
+		}
+		switch r.Type {
+		case enums.ProductTypeFinished:
+			{
+				fcount = fcount - 1
+			}
+		case enums.ProductTypeOld:
+			{
+				ocount = ocount - 1
+			}
+		case enums.ProductTypeAccessorie:
+			{
+				acount = acount - r.Quantity
+			}
+		}
+		data["退款件数(成)"] = fcount
+		data["退款件数(旧)"] = ocount
+		data["退款件数(配)"] = acount
 	}
 
 	return data
 }
 
+// 获取趋势
 func (l *dataLogic) get_trend() map[string]map[string]any {
 	data := make(map[string]map[string]any)
 
@@ -197,23 +291,55 @@ func (l *dataLogic) get_trend() map[string]map[string]any {
 		if !ok {
 			price = decimal.Zero
 		}
-		price = price.Add(order.ProductFinishedPrice)
-		data[k]["销售额"] = price
-		num, ok := data[k]["件数"].(int)
+		num, ok := data[k]["件数"].(int64)
 		if !ok {
 			num = 0
 		}
+
 		for _, product := range order.Products {
-			if product.Type == enums.ProductTypeFinished {
-				num = num + 1
+			switch product.Type {
+			case enums.ProductTypeFinished:
+				{
+					price = price.Add(product.Finished.Price)
+					num = num + 1
+				}
 			}
 		}
+
+		data[k]["销售额"] = price
+		data[k]["件数"] = num
+	}
+
+	for _, order := range l.Refunds {
+		if order.Type != enums.ProductTypeFinished {
+			continue
+		}
+
+		k, _ := get_date_format(start, end, *order.CreatedAt)
+		if _, ok := data[k]; !ok {
+			data[k] = make(map[string]any)
+		}
+
+		price, ok := data[k]["销售额"].(decimal.Decimal)
+		if !ok {
+			price = decimal.Zero
+		}
+		num, ok := data[k]["件数"].(int64)
+		if !ok {
+			num = 0
+		}
+
+		price = price.Sub(order.Price)
+		num = num - 1
+
+		data[k]["销售额"] = price
 		data[k]["件数"] = num
 	}
 
 	return data
 }
 
+// 获取时间周期
 func get_date_format(start, end, field time.Time) (string, []string) {
 	var (
 		k    string
@@ -263,8 +389,8 @@ func get_date_format(start, end, field time.Time) (string, []string) {
 func (l *dataLogic) get_finished_class() map[string]any {
 	data := make(map[string]any)
 
-	for _, order := range l.Sales {
-		for _, product := range order.Products {
+	for _, sales := range l.Sales {
+		for _, product := range sales.Products {
 			if product.Type != enums.ProductTypeFinished {
 				continue
 			}
@@ -281,9 +407,6 @@ func (l *dataLogic) get_finished_class() map[string]any {
 			if !ok {
 				num = 0
 			}
-			num = num + 1
-			num_row[k] = num
-			data["件数"] = num_row
 
 			price_row, ok := data["销售额"].(map[string]any)
 			if !ok {
@@ -293,8 +416,32 @@ func (l *dataLogic) get_finished_class() map[string]any {
 			if !ok {
 				price = decimal.NewFromInt(0)
 			}
+
+			num = num + 1
 			price = price.Add(product.Finished.Price)
+
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeFinished {
+					continue
+				}
+				if refund.OrderId != sales.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+
+				num = num - 1
+				price = price.Sub(product.Finished.Price)
+			}
+
+			if price.Cmp(decimal.Zero) == 0 && num == 0 {
+				continue
+			}
+
 			price_row[k] = price
+			num_row[k] = num
+			data["件数"] = num_row
 			data["销售额"] = price_row
 		}
 	}
@@ -307,12 +454,18 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 
 	data := make(map[string]map[string]any)
 
+	t := "全部"
 	for _, class := range enums.ProductClassFinishedMap {
 		data[class] = map[string]any{
 			"件数":  map[string]any{},
 			"销售额": map[string]any{},
 			"金重":  map[string]any{},
 		}
+	}
+	data[t] = map[string]any{
+		"件数":  map[string]any{},
+		"销售额": map[string]any{},
+		"金重":  map[string]any{},
 	}
 
 	for _, order := range l.Sales {
@@ -338,10 +491,14 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 			if !ok {
 				num = 0
 			}
-			num = num + 1
-			num_item[k] = num
-			data[c]["件数"] = num_item
-
+			total_num_item, ok := data[t]["件数"].(map[string]any)
+			if !ok {
+				total_num_item = make(map[string]any, 0)
+			}
+			total_num, ok := total_num_item[k].(int64)
+			if !ok {
+				num = 0
+			}
 			price_item, ok := data[c]["销售额"].(map[string]any)
 			if !ok {
 				price_item = make(map[string]any, 0)
@@ -350,10 +507,14 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 			if !ok {
 				price = decimal.Zero
 			}
-			price = price.Add(product.Finished.Price)
-			price_item[k] = price
-			data[c]["销售额"] = price_item
-
+			total_price_item, ok := data[t]["销售额"].(map[string]any)
+			if !ok {
+				total_price_item = make(map[string]any, 0)
+			}
+			total_price, ok := total_price_item[k].(decimal.Decimal)
+			if !ok {
+				total_price = decimal.Zero
+			}
 			weight_item, ok := data[c]["金重"].(map[string]any)
 			if !ok {
 				weight_item = make(map[string]any, 0)
@@ -362,9 +523,63 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 			if !ok {
 				weight = decimal.Zero
 			}
+			total_weight_item, ok := data[t]["金重"].(map[string]any)
+			if !ok {
+				total_weight_item = make(map[string]any, 0)
+			}
+			total_weight, ok := total_weight_item[k].(decimal.Decimal)
+			if !ok {
+				total_weight = decimal.Zero
+			}
+
+			num = num + 1
+			price = price.Add(product.Finished.Price)
 			weight = weight.Add(product.Finished.Product.WeightMetal)
+
+			total_num = total_num + 1
+			total_price = total_price.Add(product.Finished.Price)
+			total_weight = total_weight.Add(product.Finished.Product.WeightMetal)
+
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeFinished {
+					continue
+				}
+				if refund.OrderId != order.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+
+				num = num - 1
+				total_num = total_num - 1
+				price = price.Sub(product.Finished.Price)
+
+				total_price = total_price.Sub(product.Finished.Price)
+				weight = weight.Sub(product.Finished.Product.WeightMetal)
+				total_weight = total_weight.Sub(product.Finished.Product.WeightMetal)
+			}
+
+			if price.Cmp(decimal.Zero) == 0 && num == 0 && weight.Cmp(decimal.Zero) == 0 {
+				continue
+			}
+
+			if total_price.Cmp(decimal.Zero) == 0 && total_num == 0 && total_weight.Cmp(decimal.Zero) == 0 {
+				continue
+			}
+
+			num_item[k] = num
+			total_num_item[k] = total_num
+			price_item[k] = price
+			total_price_item[k] = total_price
 			weight_item[k] = weight
+			total_weight_item[k] = total_weight
+			data[c]["件数"] = num_item
+			data[c]["销售额"] = price_item
 			data[c]["金重"] = weight_item
+			data[t]["件数"] = total_num_item
+			data[t]["销售额"] = total_price_item
+			data[t]["金重"] = total_weight_item
 		}
 	}
 
@@ -393,9 +608,6 @@ func (l *dataLogic) get_old_class() map[string]any {
 			if !ok {
 				price = decimal.NewFromInt(0)
 			}
-			price = price.Add(product.Old.RecyclePrice)
-			price_row[k] = price
-			data["抵值"] = price_row
 
 			weight_item, ok := data["金重"].(map[string]any)
 			if !ok {
@@ -405,10 +617,6 @@ func (l *dataLogic) get_old_class() map[string]any {
 			if !ok {
 				weight = decimal.Zero
 			}
-			weight = weight.Add(product.Old.WeightMetal)
-			weight_item[k] = weight
-			data["金重"] = weight_item
-
 			num_row, ok := data["件数"].(map[string]any)
 			if !ok {
 				num_row = make(map[string]any, 0)
@@ -417,8 +625,36 @@ func (l *dataLogic) get_old_class() map[string]any {
 			if !ok {
 				num = 0
 			}
+
+			price = price.Add(product.Old.RecyclePrice)
+			weight = weight.Add(product.Old.WeightMetal)
 			num = num + 1
+
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeOld {
+					continue
+				}
+				if refund.OrderId != order.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+
+				price = price.Sub(product.Old.RecyclePrice)
+				weight = weight.Sub(product.Old.WeightMetal)
+				num = num - 1
+			}
+
+			if price.Cmp(decimal.Zero) == 0 && num == 0 && weight.Cmp(decimal.Zero) == 0 {
+				continue
+			}
+
+			price_row[k] = price
+			weight_item[k] = weight
 			num_row[k] = num
+			data["抵值"] = price_row
+			data["金重"] = weight_item
 			data["件数"] = num_row
 
 		}
@@ -446,10 +682,6 @@ func (l *dataLogic) get_accessorie() map[string]any {
 			if !ok {
 				price = decimal.NewFromInt(0)
 			}
-			price = price.Add(product.Accessorie.Price)
-			price_row[k] = price
-			data["销售额"] = price_row
-
 			num_row, ok := data["件数"].(map[string]any)
 			if !ok {
 				num_row = make(map[string]any, 0)
@@ -458,10 +690,33 @@ func (l *dataLogic) get_accessorie() map[string]any {
 			if !ok {
 				num = 0
 			}
-			num = num + product.Accessorie.Quantity
-			num_row[k] = num
-			data["件数"] = num_row
 
+			price = price.Add(product.Accessorie.Price)
+			num = num + product.Accessorie.Quantity
+
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeAccessorie {
+					continue
+				}
+				if refund.OrderId != order.Id {
+					continue
+				}
+				if refund.Name != product.Name {
+					continue
+				}
+
+				price = price.Sub(product.Accessorie.Price)
+				num = num - product.Accessorie.Quantity
+			}
+
+			if price.Cmp(decimal.Zero) == 0 && num == 0 {
+				continue
+			}
+
+			price_row[k] = price
+			num_row[k] = num
+			data["销售额"] = price_row
+			data["件数"] = num_row
 		}
 	}
 
@@ -503,11 +758,42 @@ func (l *dataLogic) get_list() map[string]any {
 			for _, product := range order.Products {
 				switch product.Type {
 				case enums.ProductTypeFinished:
-					finished_price = finished_price.Add(product.Finished.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
-					finished_num = finished_num + 1
+					{
+						finished_price = finished_price.Add(product.Finished.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
+						finished_num = finished_num + 1
+
+						for _, refund := range l.Refunds {
+							if refund.Type != enums.ProductTypeFinished {
+								continue
+							}
+							if refund.OrderId != order.Id {
+								continue
+							}
+							if refund.Code != product.Code {
+								continue
+							}
+							finished_price = finished_price.Sub(refund.Price)
+							finished_num = finished_num - 1
+						}
+					}
 				case enums.ProductTypeAccessorie:
-					accessorie_price = accessorie_price.Add(product.Accessorie.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
-					accessorie_num = accessorie_num + product.Accessorie.Quantity
+					{
+						accessorie_price = accessorie_price.Add(product.Accessorie.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
+						accessorie_num = accessorie_num + product.Accessorie.Quantity
+						for _, refund := range l.Refunds {
+							if refund.Type != enums.ProductTypeAccessorie {
+								continue
+							}
+							if refund.OrderId != order.Id {
+								continue
+							}
+							if refund.Name != product.Name {
+								continue
+							}
+							accessorie_price = accessorie_price.Sub(refund.Price)
+							accessorie_num = accessorie_num - product.Accessorie.Quantity
+						}
+					}
 				}
 			}
 			row["成品销售额"] = finished_price

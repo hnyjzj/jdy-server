@@ -15,8 +15,10 @@ type datawLogic struct {
 }
 
 type DataRes struct {
-	Overview map[string]any `json:"overview"`
-	List     map[string]any `json:"list"`
+	Overview    map[string]any   `json:"overview"`
+	List        map[string]any   `json:"list"`
+	Details     []map[string]any `json:"details"`
+	DetailTitle []string         `json:"detail_title"`
 }
 
 func (l *StatisticPaymentLogic) Data(req *DataReq) (any, error) {
@@ -32,6 +34,14 @@ func (l *StatisticPaymentLogic) Data(req *DataReq) (any, error) {
 	res := DataRes{
 		Overview: logic.get_overview(),
 		List:     logic.get_list(),
+		DetailTitle: []string{
+			"来源",
+			"方式",
+			"金额",
+			"时间",
+			"单号",
+		},
+		Details: logic.get_details(),
 	}
 
 	return res, nil
@@ -45,6 +55,7 @@ func (l *datawLogic) get_payments() error {
 	})
 	db = db.Scopes(model.DurationCondition(l.req.Duration, "created_at", l.req.StartTime, l.req.EndTime))
 
+	db = db.Order("created_at desc")
 	if err := db.Find(&l.Payments).Error; err != nil {
 		return errors.New("获取数据失败")
 	}
@@ -58,16 +69,9 @@ func (l *datawLogic) get_overview() map[string]any {
 	if len(l.Payments) == 0 {
 		data["收入金额"] = decimal.Decimal{}
 		data["收入笔数"] = decimal.Decimal{}
-		data["收入订单数"] = decimal.Decimal{}
 		data["支出金额"] = decimal.Decimal{}
 		data["支出笔数"] = decimal.Decimal{}
-		data["支出订单数"] = decimal.Decimal{}
 	}
-
-	// 收入订单号
-	incomeNum := make(map[string]bool)
-	// 支出订单号
-	expenseNum := make(map[string]bool)
 
 	for _, payment := range l.Payments {
 		switch payment.Type {
@@ -86,8 +90,6 @@ func (l *datawLogic) get_overview() map[string]any {
 				}
 				num = num.Add(decimal.NewFromInt(1))
 				data["收入笔数"] = num
-
-				incomeNum[payment.OrderId] = true
 			}
 		case enums.FinanceTypeExpense: // 支出
 			{
@@ -95,7 +97,7 @@ func (l *datawLogic) get_overview() map[string]any {
 				if !ok {
 					price = decimal.Decimal{}
 				}
-				price = price.Add(payment.Amount)
+				price = price.Add(payment.Amount.Neg())
 				data["支出金额"] = price
 
 				num, ok := data["支出笔数"].(decimal.Decimal)
@@ -104,14 +106,9 @@ func (l *datawLogic) get_overview() map[string]any {
 				}
 				num = num.Add(decimal.NewFromInt(1))
 				data["支出笔数"] = num
-
-				expenseNum[payment.OrderId] = true
 			}
 		}
 	}
-
-	data["收入订单数"] = decimal.NewFromInt(int64(len(incomeNum)))
-	data["支出订单数"] = decimal.NewFromInt(int64(len(expenseNum)))
 
 	return data
 }
@@ -164,4 +161,27 @@ func (l *datawLogic) get_list() map[string]any {
 	}
 
 	return data
+}
+
+func (l *datawLogic) get_details() []map[string]any {
+	res := []map[string]any{}
+
+	for _, payment := range l.Payments {
+		data := map[string]any{
+			"来源": payment.Source.String(),
+			"方式": payment.PaymentMethod.String(),
+			"时间": payment.CreatedAt.Format("2006-01-02 15:04:05"),
+			"单号": payment.OrderId,
+		}
+		switch payment.Type {
+		case enums.FinanceTypeIncome:
+			data["金额"] = payment.Amount
+		case enums.FinanceTypeExpense:
+			data["金额"] = payment.Amount.Neg()
+		}
+
+		res = append(res, data)
+	}
+
+	return res
 }

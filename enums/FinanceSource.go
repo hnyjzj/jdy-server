@@ -38,3 +38,7 @@ func (p FinanceSource) InMap() error {
 	}
 	return nil
 }
+
+func (p FinanceSource) String() string {
+	return FinanceSourceMap[p]
+}

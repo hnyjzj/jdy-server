@@ -48,14 +48,26 @@ func SendReportStatistic() {
 
 	allData := make(map[string]message.ReportStatisticMessage)
 	for _, store := range allStore {
-		// 今日订单
-		orders_today, err := get_orders(store.Id, enums.DurationToday)
+		// 今日销售
+		today_sales, err := get_sales(store.Id, enums.DurationToday)
 		if err != nil {
 			log.Printf("SendReportStatistic error: %v", err.Error())
 			continue
 		}
-		// 本月订单
-		orders_month, err := get_orders(store.Id, enums.DurationMonth)
+		// 今日退货
+		today_refunds, err := get_refunds(store.Id, enums.DurationToday)
+		if err != nil {
+			log.Printf("SendReportStatistic error: %v", err.Error())
+			continue
+		}
+		// 本月销售
+		month_sales, err := get_sales(store.Id, enums.DurationMonth)
+		if err != nil {
+			log.Printf("SendReportStatistic error: %v", err.Error())
+			continue
+		}
+		// 本月退货
+		month_refunds, err := get_refunds(store.Id, enums.DurationMonth)
 		if err != nil {
 			log.Printf("SendReportStatistic error: %v", err.Error())
 			continue
@@ -68,41 +80,141 @@ func SendReportStatistic() {
 			TodayFinisheds:  make(map[string]decimal.Decimal),
 		}
 
-		for _, order := range orders_today {
-			for _, product := range order.Products {
+		for _, sale := range today_sales {
+			for _, product := range sale.Products {
 				switch product.Type {
 				case enums.ProductTypeFinished:
 					{
-						req.TodayFinished = req.TodayFinished.Add(product.Finished.Price)
+						price := req.TodayFinished.Add(product.Finished.Price)
+
+						for _, refund := range today_refunds {
+							if refund.Type != enums.ProductTypeFinished {
+								continue
+							}
+							if refund.OrderId != sale.Id {
+								continue
+							}
+							if refund.Code != product.Code {
+								continue
+							}
+
+							price = price.Sub(refund.Price)
+						}
+
+						if price.Equal(decimal.Zero) {
+							continue
+						}
+
+						req.TodayFinished = req.TodayFinished.Add(price)
 						class := product.Finished.Product.Class.String()
-						req.TodayFinisheds[class] = req.TodayFinisheds[class].Add(product.Finished.Price)
+						req.TodayFinisheds[class] = req.TodayFinisheds[class].Add(price)
 					}
 				case enums.ProductTypeOld:
 					{
-						req.TodayOld = req.TodayOld.Add(product.Old.RecyclePrice)
+						price := req.TodayOld.Add(product.Old.RecyclePrice)
+
+						for _, refund := range today_refunds {
+							if refund.Type != enums.ProductTypeOld {
+								continue
+							}
+							if refund.OrderId != sale.Id {
+								continue
+							}
+							if refund.Code != product.Code {
+								continue
+							}
+
+							price = price.Sub(refund.Price)
+						}
+
+						req.TodayOld = req.TodayOld.Add(price)
 					}
 				case enums.ProductTypeAccessorie:
 					{
-						req.TodayAcciessorie = req.TodayAcciessorie.Add(product.Accessorie.Price)
+						price := req.TodayAcciessorie.Add(product.Accessorie.Price)
+
+						for _, refund := range today_refunds {
+							if refund.Type != enums.ProductTypeAccessorie {
+								continue
+							}
+							if refund.OrderId != sale.Id {
+								continue
+							}
+							if refund.Name != product.Name {
+								continue
+							}
+
+							price = price.Sub(refund.Price)
+						}
+
+						req.TodayAcciessorie = req.TodayAcciessorie.Add(price)
 					}
 				}
 			}
 		}
 
-		for _, order := range orders_month {
-			for _, product := range order.Products {
+		for _, sale := range month_sales {
+			for _, product := range sale.Products {
 				switch product.Type {
 				case enums.ProductTypeFinished:
 					{
-						req.MonthFinished = req.MonthFinished.Add(product.Finished.Price)
+						price := req.MonthFinished.Add(product.Finished.Price)
+
+						for _, refund := range month_refunds {
+							if refund.Type != enums.ProductTypeFinished {
+								continue
+							}
+							if refund.OrderId != sale.Id {
+								continue
+							}
+							if refund.Code != product.Code {
+								continue
+							}
+
+							price = price.Sub(refund.Price)
+						}
+
+						req.MonthFinished = req.MonthFinished.Add(price)
 					}
 				case enums.ProductTypeOld:
 					{
-						req.MonthOld = req.MonthOld.Add(product.Old.RecyclePrice)
+						price := req.MonthOld.Add(product.Old.RecyclePrice)
+
+						for _, refund := range month_refunds {
+							if refund.Type != enums.ProductTypeOld {
+								continue
+							}
+							if refund.OrderId != sale.Id {
+								continue
+							}
+							if refund.Code != product.Code {
+								continue
+							}
+
+							price = price.Sub(refund.Price)
+						}
+
+						req.MonthOld = req.MonthOld.Add(price)
 					}
 				case enums.ProductTypeAccessorie:
 					{
-						req.MonthAcciessorie = req.MonthAcciessorie.Add(product.Accessorie.Price)
+						price := req.MonthAcciessorie.Add(product.Accessorie.Price)
+
+						for _, refund := range month_refunds {
+							if refund.Type != enums.ProductTypeAccessorie {
+								continue
+							}
+							if refund.OrderId != sale.Id {
+								continue
+							}
+							if refund.Name != product.Name {
+								continue
+							}
+
+							price = price.Sub(refund.Price)
+						}
+
+						req.MonthAcciessorie = req.MonthAcciessorie.Add(price)
 					}
 				}
 			}
@@ -157,8 +269,8 @@ func SendReportStatistic() {
 	}
 }
 
-func get_orders(store_id string, duration enums.Duration) ([]model.OrderSales, error) {
-	var orders []model.OrderSales
+func get_sales(store_id string, duration enums.Duration) ([]model.OrderSales, error) {
+	var sales []model.OrderSales
 	db := model.DB.Model(&model.OrderSales{})
 	db = db.Where(&model.OrderSales{StoreId: store_id})
 	db = db.Where("status IN (?)", []enums.OrderSalesStatus{
@@ -166,9 +278,21 @@ func get_orders(store_id string, duration enums.Duration) ([]model.OrderSales, e
 		enums.OrderSalesStatusRefund,
 	})
 	db = model.OrderSales{}.Preloads(db)
-	if err := db.Scopes(model.DurationCondition(duration)).Find(&orders).Error; err != nil {
+	if err := db.Scopes(model.DurationCondition(duration)).Find(&sales).Error; err != nil {
 		return nil, err
 	}
 
-	return orders, nil
+	return sales, nil
+}
+
+func get_refunds(store_id string, duration enums.Duration) ([]model.OrderRefund, error) {
+	var refunds []model.OrderRefund
+	db := model.DB.Model(&model.OrderRefund{})
+	db = db.Where(&model.OrderRefund{StoreId: store_id})
+	db = model.OrderRefund{}.Preloads(db)
+	if err := db.Scopes(model.DurationCondition(duration)).Find(&refunds).Error; err != nil {
+		return nil, err
+	}
+
+	return refunds, nil
 }

@@ -237,8 +237,17 @@ func (l *SalesLogic) get_return_amount() error {
 	if !ok {
 		price = decimal.Zero
 	}
-	for _, o := range l.Refund {
-		price = price.Add(o.Price.Neg())
+	for _, refund := range l.Refund {
+		switch refund.Type {
+		case enums.ProductTypeFinished, enums.ProductTypeAccessorie:
+			{
+				price = price.Sub(refund.Price)
+			}
+		case enums.ProductTypeOld:
+			{
+				price = price.Add(refund.Price)
+			}
+		}
 	}
 	l.Res["退货金额"] = price
 

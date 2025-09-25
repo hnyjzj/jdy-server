@@ -378,7 +378,8 @@ func (l *OrderRepairLogic) Refund(req *types.OrderRepairRefundReq) error {
 		if err := tx.Create(&model.OrderPayment{
 			Status:        true,
 			StoreId:       order.StoreId,
-			Type:          enums.FinanceTypeIncome,
+			OrderId:       data.Id,
+			Type:          enums.FinanceTypeExpense,
 			Source:        enums.FinanceSourceOtherReturn,
 			PaymentMethod: enums.OrderPaymentMethodOther,
 			Amount:        order.Expense,

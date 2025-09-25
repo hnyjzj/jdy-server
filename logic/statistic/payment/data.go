@@ -145,19 +145,19 @@ func (l *datawLogic) get_list() map[string]any {
 			row["收入"] = row["收入"].(decimal.Decimal).Add(payment.Amount)
 			totalIncome = totalIncome.Add(payment.Amount)
 		case enums.FinanceTypeExpense:
-			row["支出"] = row["支出"].(decimal.Decimal).Add(payment.Amount)
-			totalOutcome = totalOutcome.Add(payment.Amount)
+			row["支出"] = row["支出"].(decimal.Decimal).Add(payment.Amount.Neg())
+			totalOutcome = totalOutcome.Add(payment.Amount.Neg())
 		}
 
 		// Update this row’s balance
-		row["结余"] = row["收入"].(decimal.Decimal).Sub(row["支出"].(decimal.Decimal))
+		row["结余"] = row["收入"].(decimal.Decimal).Add(row["支出"].(decimal.Decimal))
 		data[k] = row
 	}
 
 	data["合计"] = map[string]any{
 		"收入": totalIncome,
 		"支出": totalOutcome,
-		"结余": totalIncome.Sub(totalOutcome),
+		"结余": totalIncome.Add(totalOutcome),
 	}
 
 	return data

@@ -432,9 +432,9 @@ func (l *StatisticSalesDetailDailyLogic) getItemized() {
 						}
 
 						// 配件金额
-						res.AccessoriePrice = res.AccessoriePrice.Sub(product.Accessorie.Price)
+						res.AccessoriePrice = res.AccessoriePrice.Sub(refund.Price)
 						// 配件件数
-						res.AccessorieQuantity -= product.Accessorie.Quantity
+						res.AccessorieQuantity -= refund.Quantity
 					}
 				}
 			}

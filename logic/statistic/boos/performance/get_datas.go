@@ -237,7 +237,7 @@ func (r *dataLogic) get_data() (any, error) {
 									if refund.Code != product.Code {
 										continue
 									}
-									total = total.Add(refund.Price.Neg())
+									total = total.Sub(refund.Price.Neg())
 								}
 							}
 						}

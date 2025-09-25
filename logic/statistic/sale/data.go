@@ -705,8 +705,8 @@ func (l *dataLogic) get_accessorie() map[string]any {
 					continue
 				}
 
-				price = price.Sub(product.Accessorie.Price)
-				num = num - product.Accessorie.Quantity
+				price = price.Sub(refund.Price)
+				num = num - refund.Quantity
 			}
 
 			if price.Cmp(decimal.Zero) == 0 && num == 0 {
@@ -772,7 +772,8 @@ func (l *dataLogic) get_list() map[string]any {
 							if refund.Code != product.Code {
 								continue
 							}
-							finished_price = finished_price.Sub(refund.Price)
+							refundShare := refund.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+							finished_price = finished_price.Sub(refundShare)
 							finished_num = finished_num - 1
 						}
 					}
@@ -790,8 +791,9 @@ func (l *dataLogic) get_list() map[string]any {
 							if refund.Name != product.Name {
 								continue
 							}
-							accessorie_price = accessorie_price.Sub(refund.Price)
-							accessorie_num = accessorie_num - product.Accessorie.Quantity
+							refundShare := refund.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+							accessorie_price = accessorie_price.Sub(refundShare)
+							accessorie_num = accessorie_num - refund.Quantity
 						}
 					}
 				}

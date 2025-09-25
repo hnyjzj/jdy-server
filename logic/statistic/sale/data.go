@@ -626,7 +626,7 @@ func (l *dataLogic) get_old_class() map[string]any {
 				num = 0
 			}
 
-			price = price.Add(product.Old.RecyclePrice)
+			price = price.Add(product.Old.RecyclePrice.Neg())
 			weight = weight.Add(product.Old.WeightMetal)
 			num = num + 1
 
@@ -641,7 +641,7 @@ func (l *dataLogic) get_old_class() map[string]any {
 					continue
 				}
 
-				price = price.Sub(product.Old.RecyclePrice)
+				price = price.Sub(product.Old.RecyclePrice.Neg())
 				weight = weight.Sub(product.Old.WeightMetal)
 				num = num - 1
 			}

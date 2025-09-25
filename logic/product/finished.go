@@ -30,10 +30,14 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	db := model.DB.Model(&model.ProductFinished{})
 	db = product.WhereCondition(db, &req.Where)
 
-	db = db.Where("status IN (?)", []enums.ProductStatus{
-		enums.ProductStatusNormal,
-		enums.ProductStatusAllocate,
-	})
+	if req.Where.Status != 0 {
+		db = db.Where("status = ?", req.Where.Status)
+	} else {
+		db = db.Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusNormal,
+			enums.ProductStatusAllocate,
+		})
+	}
 
 	if err := db.Count(&res.Total).Error; err != nil {
 		return nil, errors.New("获取成品列表数量失败")
@@ -53,10 +57,14 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	// 获取入网费
 	adb := model.DB.Model(&model.ProductFinished{})
 	adb = product.WhereCondition(adb, &req.Where)
-	adb = adb.Where("status IN (?)", []enums.ProductStatus{
-		enums.ProductStatusNormal,
-		enums.ProductStatusAllocate,
-	})
+	if req.Where.Status != 0 {
+		adb = adb.Where("status = ?", req.Where.Status)
+	} else {
+		adb = adb.Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusNormal,
+			enums.ProductStatusAllocate,
+		})
+	}
 	if err := adb.Select("SUM(access_fee) as access_fee").Scan(&res.AccessFee).Error; err != nil {
 		return nil, errors.New("获取成品列表入网费失败")
 	}
@@ -64,10 +72,14 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	// 获取标签价
 	ldb := model.DB.Model(&model.ProductFinished{})
 	ldb = product.WhereCondition(ldb, &req.Where)
-	ldb = ldb.Where("status IN (?)", []enums.ProductStatus{
-		enums.ProductStatusNormal,
-		enums.ProductStatusAllocate,
-	})
+	if req.Where.Status != 0 {
+		ldb = ldb.Where("status = ?", req.Where.Status)
+	} else {
+		ldb = ldb.Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusNormal,
+			enums.ProductStatusAllocate,
+		})
+	}
 	if err := ldb.Select("SUM(label_price) as label_price").Scan(&res.LabelPrice).Error; err != nil {
 		return nil, errors.New("获取成品列表标签价失败")
 	}
@@ -75,10 +87,14 @@ func (p *ProductFinishedLogic) List(req *types.ProductFinishedListReq) (*types.P
 	// 获取金重
 	wdb := model.DB.Model(&model.ProductFinished{})
 	wdb = product.WhereCondition(wdb, &req.Where)
-	wdb = wdb.Where("status IN (?)", []enums.ProductStatus{
-		enums.ProductStatusNormal,
-		enums.ProductStatusAllocate,
-	})
+	if req.Where.Status != 0 {
+		wdb = wdb.Where("status = ?", req.Where.Status)
+	} else {
+		wdb = wdb.Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusNormal,
+			enums.ProductStatusAllocate,
+		})
+	}
 	if err := wdb.Select("SUM(weight_metal) as weight_metal").Scan(&res.WeightMetal).Error; err != nil {
 		return nil, errors.New("获取成品列表金重失败")
 	}

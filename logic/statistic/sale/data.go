@@ -22,7 +22,8 @@ type DataRes struct {
 	Trend            map[string]map[string]any `json:"trend"`             // 趋势
 	FinishedClass    map[string]any            `json:"finished_class"`    // 成品大类
 	FinishedCategory map[string]map[string]any `json:"finished_category"` // 成品品类
-	OldClass         map[string]any            `json:"old_class"`         // 旧料大类
+	OldExchange      map[string]any            `json:"old_exchange"`      // 旧料兑换
+	OldRecycle       map[string]any            `json:"old_recycle"`       // 旧料回收
 	Accessorie       map[string]any            `json:"accessorie"`        // 配件
 	List             map[string]any            `json:"list"`              // 列表
 }
@@ -45,7 +46,8 @@ func (l *StatisticSaleLogic) Data(req *DataReq, onlyself bool) (any, error) {
 		Trend:            logic.get_trend(),
 		FinishedClass:    logic.get_finished_class(),
 		FinishedCategory: logic.get_finished_category(),
-		OldClass:         logic.get_old_class(),
+		OldExchange:      logic.get_old_exchange(),
+		OldRecycle:       logic.get_old_recycle(),
 		Accessorie:       logic.get_accessorie(),
 		List:             logic.get_list(),
 	}
@@ -586,8 +588,8 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 	return data
 }
 
-// 获取旧料大类数据
-func (l *dataLogic) get_old_class() map[string]any {
+// 获取旧料兑换数据
+func (l *dataLogic) get_old_exchange() map[string]any {
 	data := make(map[string]any)
 
 	for _, order := range l.Sales {
@@ -595,6 +597,10 @@ func (l *dataLogic) get_old_class() map[string]any {
 			if product.Type != enums.ProductTypeOld {
 				continue
 			}
+			if product.Old.Product.RecycleType != enums.ProductRecycleTypeExchange {
+				continue
+			}
+
 			k := product.Old.Product.Class.String()
 			if k == "" {
 				k = "其他"
@@ -656,7 +662,87 @@ func (l *dataLogic) get_old_class() map[string]any {
 			data["抵值"] = price_row
 			data["金重"] = weight_item
 			data["件数"] = num_row
+		}
+	}
 
+	return data
+}
+
+// 获取旧料回收数据
+func (l *dataLogic) get_old_recycle() map[string]any {
+
+	data := make(map[string]any)
+
+	for _, order := range l.Sales {
+		for _, product := range order.Products {
+			if product.Type != enums.ProductTypeOld {
+				continue
+			}
+			if product.Old.Product.RecycleType != enums.ProductRecycleTypeRecycle {
+				continue
+			}
+
+			k := product.Old.Product.Class.String()
+			if k == "" {
+				k = "其他"
+			}
+
+			price_row, ok := data["回收价"].(map[string]any)
+			if !ok {
+				price_row = make(map[string]any, 0)
+			}
+			price, ok := price_row[k].(decimal.Decimal)
+			if !ok {
+				price = decimal.NewFromInt(0)
+			}
+
+			weight_item, ok := data["金重"].(map[string]any)
+			if !ok {
+				weight_item = make(map[string]any, 0)
+			}
+			weight, ok := weight_item[k].(decimal.Decimal)
+			if !ok {
+				weight = decimal.Zero
+			}
+			num_row, ok := data["件数"].(map[string]any)
+			if !ok {
+				num_row = make(map[string]any, 0)
+			}
+			num, ok := num_row[k].(int64)
+			if !ok {
+				num = 0
+			}
+
+			price = price.Add(product.Old.RecyclePrice)
+			weight = weight.Add(product.Old.WeightMetal)
+			num = num + 1
+
+			for _, refund := range l.Refunds {
+				if refund.Type != enums.ProductTypeOld {
+					continue
+				}
+				if refund.OrderId != order.Id {
+					continue
+				}
+				if refund.Code != product.Code {
+					continue
+				}
+
+				price = price.Sub(refund.Price)
+				weight = weight.Sub(product.Old.WeightMetal)
+				num = num - 1
+			}
+
+			if price.Cmp(decimal.Zero) == 0 && num == 0 && weight.Cmp(decimal.Zero) == 0 {
+				continue
+			}
+
+			price_row[k] = price
+			weight_item[k] = weight
+			num_row[k] = num
+			data["回收价"] = price_row
+			data["金重"] = weight_item
+			data["件数"] = num_row
 		}
 	}
 

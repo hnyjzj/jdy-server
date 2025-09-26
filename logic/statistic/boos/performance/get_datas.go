@@ -186,21 +186,23 @@ func (r *dataLogic) get_data() (any, error) {
 							finished.RetailType = enums.ProductRetailTypePiece
 						}
 
-						k := finished.GetClass().String()
-						if k == "" {
-							k = "其他"
-						}
-
+						var k string
 						switch product.Old.Product.RecycleType {
-						case enums.ProductRecycleTypeRecycle:
-							{
-								k = k + "回收"
-							}
 						case enums.ProductRecycleTypeExchange:
 							{
 								k = k + "兑换旧料抵扣"
 							}
 						}
+
+						if k == "" {
+							continue
+						}
+
+						class := finished.GetClass().String()
+						if class == "" {
+							class = "其他"
+						}
+						k = class + k
 
 						item, ok := row[k].(decimal.Decimal)
 						if !ok {

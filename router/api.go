@@ -126,6 +126,12 @@ func Api(g *gin.Engine) {
 						old_exchanges.POST("/data", boos.BoosController{}.OldExchangeData)  // 旧料兑换数据
 					}
 
+					old_recycles := bosses.Group("/old_recycle") // 旧料回收
+					{
+						old_recycles.GET("/where", boos.BoosController{}.OldRecycleWhere) // 旧料回收筛选
+						old_recycles.POST("/data", boos.BoosController{}.OldRecycleData)  // 旧料回收数据
+					}
+
 					payments := bosses.Group("/payments") // 收支统计
 					{
 						payments.GET("/where", boos.BoosController{}.PaymentsWhere) // 收支统计筛选

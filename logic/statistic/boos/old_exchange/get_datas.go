@@ -1,4 +1,4 @@
-package old_sales
+package old_exchange
 
 import (
 	"jdy/enums"
@@ -12,7 +12,7 @@ import (
 type dataLogic struct {
 	*Logic
 
-	Orders map[string][]model.OrderSales
+	Sales  map[string][]model.OrderSales
 	Stores []model.Store
 }
 
@@ -25,7 +25,7 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 		return nil, err
 	}
 
-	if err := logic.get_orders(req); err != nil {
+	if err := logic.get_sales(req); err != nil {
 		return nil, err
 	}
 
@@ -62,10 +62,10 @@ func (r *dataLogic) get_stores() error {
 }
 
 // 获取订单列表
-func (r *dataLogic) get_orders(req *DataReq) error {
+func (r *dataLogic) get_sales(req *DataReq) error {
 	for _, store := range r.Stores {
 
-		orders, ok := r.Orders[store.Id]
+		orders, ok := r.Sales[store.Id]
 		if !ok {
 			orders = []model.OrderSales{}
 		}
@@ -87,10 +87,10 @@ func (r *dataLogic) get_orders(req *DataReq) error {
 			return err
 		}
 
-		if r.Orders == nil {
-			r.Orders = make(map[string][]model.OrderSales)
+		if r.Sales == nil {
+			r.Sales = make(map[string][]model.OrderSales)
 		}
-		r.Orders[store.Id] = orders
+		r.Sales[store.Id] = orders
 	}
 
 	return nil
@@ -109,16 +109,19 @@ func (r *dataLogic) get_recycle_price() (any, error) {
 		if !ok {
 			total = decimal.Decimal{}
 		}
-		for _, order := range r.Orders[store.Id] {
-			for _, p := range order.Products {
-				if p.Type != enums.ProductTypeOld {
+		for _, sale := range r.Sales[store.Id] {
+			for _, product := range sale.Products {
+				if product.Type != enums.ProductTypeOld {
 					continue
 				}
-				if p.Status != enums.OrderSalesStatusComplete {
+				if product.Status != enums.OrderSalesStatusComplete {
+					continue
+				}
+				if product.Old.Product.RecycleType != enums.ProductRecycleTypeExchange {
 					continue
 				}
 
-				total = total.Add(p.Old.RecyclePrice)
+				total = total.Add(product.Old.RecyclePrice)
 			}
 		}
 		item["total"] = total
@@ -128,19 +131,22 @@ func (r *dataLogic) get_recycle_price() (any, error) {
 			if !ok {
 				total = decimal.Decimal{}
 			}
-			for _, order := range r.Orders[store.Id] {
-				for _, p := range order.Products {
-					if p.Type != enums.ProductTypeOld {
+			for _, sale := range r.Sales[store.Id] {
+				for _, product := range sale.Products {
+					if product.Type != enums.ProductTypeOld {
 						continue
 					}
-					if p.Status != enums.OrderSalesStatusComplete {
+					if product.Status != enums.OrderSalesStatusComplete {
 						continue
 					}
-					if p.Old.Product.Class != k {
+					if product.Old.Product.RecycleType != enums.ProductRecycleTypeExchange {
+						continue
+					}
+					if product.Old.Product.Class != k {
 						continue
 					}
 
-					total = total.Add(p.Old.RecyclePrice)
+					total = total.Add(product.Old.RecyclePrice)
 				}
 			}
 			item[k.String()] = total
@@ -165,12 +171,15 @@ func (r *dataLogic) get_count() (any, error) {
 		if !ok {
 			total = 0
 		}
-		for _, order := range r.Orders[store.Id] {
-			for _, p := range order.Products {
-				if p.Type != enums.ProductTypeOld {
+		for _, sale := range r.Sales[store.Id] {
+			for _, product := range sale.Products {
+				if product.Type != enums.ProductTypeOld {
 					continue
 				}
-				if p.Status != enums.OrderSalesStatusComplete {
+				if product.Status != enums.OrderSalesStatusComplete {
+					continue
+				}
+				if product.Old.Product.RecycleType != enums.ProductRecycleTypeExchange {
 					continue
 				}
 
@@ -184,15 +193,18 @@ func (r *dataLogic) get_count() (any, error) {
 			if !ok {
 				total = 0
 			}
-			for _, order := range r.Orders[store.Id] {
-				for _, p := range order.Products {
-					if p.Type != enums.ProductTypeOld {
+			for _, sale := range r.Sales[store.Id] {
+				for _, product := range sale.Products {
+					if product.Type != enums.ProductTypeOld {
 						continue
 					}
-					if p.Status != enums.OrderSalesStatusComplete {
+					if product.Status != enums.OrderSalesStatusComplete {
 						continue
 					}
-					if p.Old.Product.Class != k {
+					if product.Old.Product.RecycleType != enums.ProductRecycleTypeExchange {
+						continue
+					}
+					if product.Old.Product.Class != k {
 						continue
 					}
 
@@ -221,16 +233,19 @@ func (r *dataLogic) get_weight_metal() (any, error) {
 		if !ok {
 			total = decimal.Decimal{}
 		}
-		for _, order := range r.Orders[store.Id] {
-			for _, p := range order.Products {
-				if p.Type != enums.ProductTypeOld {
+		for _, sale := range r.Sales[store.Id] {
+			for _, product := range sale.Products {
+				if product.Type != enums.ProductTypeOld {
 					continue
 				}
-				if p.Status != enums.OrderSalesStatusComplete {
+				if product.Status != enums.OrderSalesStatusComplete {
+					continue
+				}
+				if product.Old.Product.RecycleType != enums.ProductRecycleTypeExchange {
 					continue
 				}
 
-				total = total.Add(p.Old.Product.WeightMetal)
+				total = total.Add(product.Old.Product.WeightMetal)
 			}
 		}
 		item["total"] = total
@@ -240,19 +255,22 @@ func (r *dataLogic) get_weight_metal() (any, error) {
 			if !ok {
 				total = decimal.Decimal{}
 			}
-			for _, order := range r.Orders[store.Id] {
-				for _, p := range order.Products {
-					if p.Type != enums.ProductTypeOld {
+			for _, sale := range r.Sales[store.Id] {
+				for _, product := range sale.Products {
+					if product.Type != enums.ProductTypeOld {
 						continue
 					}
-					if p.Status != enums.OrderSalesStatusComplete {
+					if product.Status != enums.OrderSalesStatusComplete {
 						continue
 					}
-					if p.Old.Product.Class != k {
+					if product.Old.Product.RecycleType != enums.ProductRecycleTypeExchange {
+						continue
+					}
+					if product.Old.Product.Class != k {
 						continue
 					}
 
-					total = total.Add(p.Old.Product.WeightMetal)
+					total = total.Add(product.Old.Product.WeightMetal)
 				}
 			}
 			item[k.String()] = total

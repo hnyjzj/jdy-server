@@ -1,4 +1,4 @@
-package old_stock
+package old_exchange
 
 import (
 	"errors"
@@ -7,15 +7,15 @@ import (
 type Types int
 
 const (
-	TypesCount        Types = iota + 1 // 件数
+	TypesRecyclePrice Types = iota + 1 // 抵值
+	TypesCount                         // 件数
 	TypesWeightMetal                   // 金重
-	TypesRecyclePrice                  // 回收价
 )
 
 var TypesMap = map[Types]string{
+	TypesRecyclePrice: "抵值",
 	TypesCount:        "件数",
 	TypesWeightMetal:  "金重",
-	TypesRecyclePrice: "回收价",
 }
 
 func (p Types) ToMap() any {

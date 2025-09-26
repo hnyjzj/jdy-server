@@ -1,4 +1,4 @@
-package old_sales
+package old_recycle
 
 import (
 	"errors"
@@ -7,13 +7,13 @@ import (
 type Types int
 
 const (
-	TypesRecyclePrice Types = iota + 1 // 抵值
+	TypesRecyclePrice Types = iota + 1 // 回收价
 	TypesCount                         // 件数
 	TypesWeightMetal                   // 金重
 )
 
 var TypesMap = map[Types]string{
-	TypesRecyclePrice: "抵值",
+	TypesRecyclePrice: "回收价",
 	TypesCount:        "件数",
 	TypesWeightMetal:  "金重",
 }

@@ -1,22 +1,22 @@
 package boos
 
 import (
-	"jdy/logic/statistic/boos/old_sales"
+	"jdy/logic/statistic/boos/old_exchange"
 	"jdy/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (con BoosController) OldSalesWhere(ctx *gin.Context) {
-	where := utils.StructToWhere(old_sales.Where{})
+func (con BoosController) OldExchangeWhere(ctx *gin.Context) {
+	where := utils.StructToWhere(old_exchange.Where{})
 
 	con.Success(ctx, "ok", where)
 }
 
-func (con BoosController) OldSalesData(ctx *gin.Context) {
+func (con BoosController) OldExchangeData(ctx *gin.Context) {
 	var (
-		req   old_sales.DataReq
-		logic = old_sales.Logic{}
+		req   old_exchange.DataReq
+		logic = old_exchange.Logic{}
 	)
 
 	// 获取请求参数

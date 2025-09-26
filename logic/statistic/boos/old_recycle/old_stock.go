@@ -1,4 +1,4 @@
-package old_sales
+package old_recycle
 
 import "jdy/logic/statistic/boos"
 

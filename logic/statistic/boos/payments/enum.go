@@ -5,15 +5,15 @@ import "errors"
 type Types int
 
 const (
-	TypesIncome  Types = iota + 1 // 收入
+	TypesSurplus Types = iota + 1 // 结余
+	TypesIncome                   // 收入
 	TypesExpense                  // 支出
-	TypesSurplus                  // 结余
 )
 
 var TypesMap = map[Types]string{
+	TypesSurplus: "结余",
 	TypesIncome:  "收入",
 	TypesExpense: "支出",
-	TypesSurplus: "结余",
 }
 
 func (p Types) ToMap() any {

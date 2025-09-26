@@ -110,11 +110,13 @@ func (l *dataLogic) get_overview() map[string]any {
 	if len(l.Sales) == 0 {
 		data["成品金额"] = decimal.Zero
 		data["成品件数"] = 0
-		data["旧料抵值"] = decimal.Zero
+		data["旧料兑换"] = decimal.Zero
+		data["旧料回收"] = decimal.Zero
 		data["配件礼品"] = decimal.Zero
 	}
 	if len(l.Refunds) == 0 {
 		data["退款金额"] = decimal.Zero
+		data["退款单数"] = 0
 		data["退款件数"] = 0
 	}
 
@@ -165,28 +167,57 @@ func (l *dataLogic) get_overview() map[string]any {
 		}
 		data["成品件数"] = count
 
-		old, ok := data["旧料抵值"].(decimal.Decimal)
+		old_exchange, ok := data["旧料兑换"].(decimal.Decimal)
 		if !ok {
-			old = decimal.Zero
+			old_exchange = decimal.Zero
+		}
+		old_recycle, ok := data["旧料回收"].(decimal.Decimal)
+		if !ok {
+			old_recycle = decimal.Zero
 		}
 		for _, product := range sales.Products {
-			if product.Type == enums.ProductTypeOld {
-				old = old.Sub(product.Old.RecyclePrice)
+			if product.Type != enums.ProductTypeOld {
+				continue
 			}
-			for _, refund := range l.Refunds {
-				if refund.Type != enums.ProductTypeOld {
-					continue
+			switch product.Old.Product.RecycleType {
+			case enums.ProductRecycleTypeRecycle:
+				{
+					old_recycle = old_recycle.Sub(product.Old.RecyclePrice)
+
+					for _, refund := range l.Refunds {
+						if refund.Type != enums.ProductTypeOld {
+							continue
+						}
+						if refund.OrderId != sales.Id {
+							continue
+						}
+						if refund.Code != product.Code {
+							continue
+						}
+						old_recycle = old_recycle.Add(refund.Price)
+					}
 				}
-				if refund.OrderId != sales.Id {
-					continue
+			case enums.ProductRecycleTypeExchange:
+				{
+					old_exchange = old_exchange.Sub(product.Old.RecyclePrice)
+
+					for _, refund := range l.Refunds {
+						if refund.Type != enums.ProductTypeOld {
+							continue
+						}
+						if refund.OrderId != sales.Id {
+							continue
+						}
+						if refund.Code != product.Code {
+							continue
+						}
+						old_exchange = old_exchange.Add(refund.Price)
+					}
 				}
-				if refund.Code != product.Code {
-					continue
-				}
-				old = old.Add(refund.Price)
 			}
 		}
-		data["旧料抵值"] = old
+		data["旧料兑换"] = old_exchange
+		data["旧料回收"] = old_recycle
 
 		accessorie, ok := data["配件礼品"].(decimal.Decimal)
 		if !ok {
@@ -229,35 +260,32 @@ func (l *dataLogic) get_overview() map[string]any {
 		}
 		data["退款金额"] = price
 
-		fcount, ok := data["退款件数(成)"].(int64)
+		count, ok := data["退款件数"].(int64)
 		if !ok {
-			fcount = 0
-		}
-		ocount, ok := data["退款件数(旧)"].(int64)
-		if !ok {
-			ocount = 0
-		}
-		acount, ok := data["退款件数(配)"].(int64)
-		if !ok {
-			acount = 0
+			count = 0
 		}
 		switch r.Type {
 		case enums.ProductTypeFinished:
 			{
-				fcount = fcount - 1
+				count = count + 1
 			}
 		case enums.ProductTypeOld:
 			{
-				ocount = ocount - 1
+				count = count + 1
 			}
 		case enums.ProductTypeAccessorie:
 			{
-				acount = acount - r.Quantity
+				count = count + r.Quantity
 			}
 		}
-		data["退款件数(成)"] = fcount
-		data["退款件数(旧)"] = ocount
-		data["退款件数(配)"] = acount
+		data["退款件数"] = count
+
+		refund_count, ok := data["退款单数"].(int64)
+		if !ok {
+			refund_count = 0
+		}
+		refund_count = refund_count + 1
+		data["退款单数"] = refund_count
 	}
 
 	return data

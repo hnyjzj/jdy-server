@@ -49,6 +49,83 @@ type OrderSalesCreateReq struct {
 	Remarks []string `json:"remarks"` // 备注
 }
 
+func (req *OrderSalesCreateReq) Validate() error {
+	if !req.DiscountRate.IsZero() {
+		if req.DiscountRate.LessThan(decimal.NewFromFloat(0)) || req.DiscountRate.GreaterThan(decimal.NewFromFloat(100)) {
+			return errors.New("整单折扣错误")
+		}
+	} else {
+		req.DiscountRate = decimal.NewFromFloat(10)
+	}
+
+	// 检查导购员数量
+	if len(req.Clerks) == 0 {
+		return errors.New("导购员不能为空")
+	}
+	// 总佣金比例
+	var totalPerformanceRate decimal.Decimal
+	// 主导购数量
+	var mainSalesmanCount int
+	// 检查导购员
+	for i, salesman := range req.Clerks {
+		totalPerformanceRate = totalPerformanceRate.Add(salesman.PerformanceRate)
+		if salesman.IsMain {
+			mainSalesmanCount++
+		}
+
+		if !salesman.PerformanceRate.IsZero() {
+			if salesman.PerformanceRate.LessThan(decimal.NewFromFloat(0)) || salesman.PerformanceRate.GreaterThan(decimal.NewFromFloat(100)) {
+				return errors.New("佣金比例错误")
+			}
+		} else {
+			req.Clerks[i].PerformanceRate = decimal.NewFromFloat(10)
+		}
+	}
+	// 总佣金比例必须等于100
+	if totalPerformanceRate.Cmp(decimal.NewFromFloat(100)) != 0 {
+		return errors.New("总佣金比例必须等于100%")
+	}
+	// 主导购数量必须等于1
+	if mainSalesmanCount != 1 {
+		return errors.New("必须有且仅有一个主导购员")
+	}
+
+	// 检查旧料
+	for _, old := range req.ProductOlds {
+		if old.IsOur && old.ProductId == "" {
+			return errors.New("本司货品编号不能为空")
+		}
+
+		switch old.RecycleType {
+		case enums.ProductRecycleTypeExchange:
+			{
+				if len(req.ProductFinisheds) == 0 {
+					return errors.New("旧料兑换时，必须有且最少有一个成品")
+				}
+			}
+		case enums.ProductRecycleTypeRecycle:
+			{
+				if len(req.ProductFinisheds) != 0 {
+					return errors.New("旧料回收时，不能有成品")
+				}
+			}
+
+		}
+	}
+
+	// 检查支付方式
+	if len(req.Payments) == 0 {
+		return errors.New("支付方式不能为空")
+	}
+	for _, payment := range req.Payments {
+		if len(req.ProductOlds) == 0 && payment.Amount.LessThan(decimal.NewFromFloat(0)) {
+			return errors.New("支付金额错误")
+		}
+	}
+
+	return nil
+}
+
 type OrderCreateReqClerks struct {
 	SalesmanId      string          `json:"salesman_id" required:"true"`      // 导购员ID
 	PerformanceRate decimal.Decimal `json:"performance_rate" required:"true"` // 绩效比例
@@ -110,67 +187,6 @@ type OrderSalesCreateReqProductAccessorie struct {
 	Quantity int64           `json:"quantity" binding:"required"` // 数量
 	Price    decimal.Decimal `json:"price" binding:"required"`    // 应付金额
 	Integral decimal.Decimal `json:"integral" binding:"required"` // 积分
-}
-
-func (req *OrderSalesCreateReq) Validate() error {
-	if !req.DiscountRate.IsZero() {
-		if req.DiscountRate.LessThan(decimal.NewFromFloat(0)) || req.DiscountRate.GreaterThan(decimal.NewFromFloat(100)) {
-			return errors.New("整单折扣错误")
-		}
-	} else {
-		req.DiscountRate = decimal.NewFromFloat(10)
-	}
-
-	// 检查导购员数量
-	if len(req.Clerks) == 0 {
-		return errors.New("导购员不能为空")
-	}
-	// 总佣金比例
-	var totalPerformanceRate decimal.Decimal
-	// 主导购数量
-	var mainSalesmanCount int
-	// 检查导购员
-	for i, salesman := range req.Clerks {
-		totalPerformanceRate = totalPerformanceRate.Add(salesman.PerformanceRate)
-		if salesman.IsMain {
-			mainSalesmanCount++
-		}
-
-		if !salesman.PerformanceRate.IsZero() {
-			if salesman.PerformanceRate.LessThan(decimal.NewFromFloat(0)) || salesman.PerformanceRate.GreaterThan(decimal.NewFromFloat(100)) {
-				return errors.New("佣金比例错误")
-			}
-		} else {
-			req.Clerks[i].PerformanceRate = decimal.NewFromFloat(10)
-		}
-	}
-	// 总佣金比例必须等于100
-	if totalPerformanceRate.Cmp(decimal.NewFromFloat(100)) != 0 {
-		return errors.New("总佣金比例必须等于100%")
-	}
-	// 主导购数量必须等于1
-	if mainSalesmanCount != 1 {
-		return errors.New("必须有且仅有一个主导购员")
-	}
-
-	// 检查商品
-	for _, old := range req.ProductOlds {
-		if old.IsOur && old.ProductId == "" {
-			return errors.New("商品ID不能为空")
-		}
-	}
-
-	// 检查支付方式
-	if len(req.Payments) == 0 {
-		return errors.New("支付方式不能为空")
-	}
-	for _, payment := range req.Payments {
-		if len(req.ProductOlds) == 0 && payment.Amount.LessThan(decimal.NewFromFloat(0)) {
-			return errors.New("支付金额错误")
-		}
-	}
-
-	return nil
 }
 
 type OrderSalesListReq struct {

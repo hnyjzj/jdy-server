@@ -118,7 +118,7 @@ func (r *dataLogic) get_recycle_price() (any, error) {
 					continue
 				}
 
-				total = total.Add(p.Old.RecyclePrice.Neg())
+				total = total.Add(p.Old.RecyclePrice)
 			}
 		}
 		item["total"] = total
@@ -140,7 +140,7 @@ func (r *dataLogic) get_recycle_price() (any, error) {
 						continue
 					}
 
-					total = total.Add(p.Old.RecyclePrice.Neg())
+					total = total.Add(p.Old.RecyclePrice)
 				}
 			}
 			item[k.String()] = total

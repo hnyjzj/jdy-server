@@ -22,6 +22,7 @@ type DataRes struct {
 	Overview         map[string]any            `json:"overview"`          // 概览
 	FinishedClass    map[string]any            `json:"finished_class"`    // 成品分类
 	FinishedCategory map[string]map[string]any `json:"finished_category"` // 成品品类
+	FinishedCraft    map[string]map[string]any `json:"finished_craft"`    // 成品工艺
 	FinishedAge      map[string]map[string]any `json:"finished_age"`      // 成品件数
 	OldClass         map[string]any            `json:"old_class"`         // 旧料分类
 }
@@ -50,6 +51,7 @@ func (l *StatisticStockLogic) Data(req *DataReq) (any, error) {
 		Overview:         logic.get_overview(),
 		FinishedClass:    logic.get_finished_class(),
 		FinishedCategory: logic.get_finished_category(),
+		FinishedCraft:    logic.get_finished_craft(),
 		FinishedAge:      logic.get_finished_age(),
 		OldClass:         logic.get_old_class(),
 	}
@@ -241,6 +243,108 @@ func (l *dataLogic) get_finished_category() map[string]map[string]any {
 			c = "其他"
 		}
 		k := finished.Category.String()
+		if k == "" {
+			k = "其他"
+		}
+
+		num_item, ok := data[c]["件数"].(map[string]any)
+		if !ok {
+			num_item = make(map[string]any, 0)
+		}
+		num, ok := num_item[k].(decimal.Decimal)
+		if !ok {
+			num = decimal.Zero
+		}
+		total_num_item, ok := data[t]["件数"].(map[string]any)
+		if !ok {
+			total_num_item = make(map[string]any, 0)
+		}
+		total_num, ok := total_num_item[k].(decimal.Decimal)
+		if !ok {
+			total_num = decimal.Zero
+		}
+		weight_item, ok := data[c]["金重"].(map[string]any)
+		if !ok {
+			weight_item = make(map[string]any, 0)
+		}
+		weight, ok := weight_item[k].(decimal.Decimal)
+		if !ok {
+			weight = decimal.Zero
+		}
+		total_weight_item, ok := data[t]["金重"].(map[string]any)
+		if !ok {
+			total_weight_item = make(map[string]any, 0)
+		}
+		total_weight, ok := total_weight_item[k].(decimal.Decimal)
+		if !ok {
+			total_weight = decimal.Zero
+		}
+		price_item, ok := data[c]["标价"].(map[string]any)
+		if !ok {
+			price_item = make(map[string]any, 0)
+		}
+		price, ok := price_item[k].(decimal.Decimal)
+		if !ok {
+			price = decimal.Zero
+		}
+		total_price_item, ok := data[t]["标价"].(map[string]any)
+		if !ok {
+			total_price_item = make(map[string]any, 0)
+		}
+		total_price, ok := total_price_item[k].(decimal.Decimal)
+		if !ok {
+			total_price = decimal.Zero
+		}
+
+		num = num.Add(decimal.NewFromInt(1))
+		total_num = total_num.Add(decimal.NewFromInt(1))
+		weight = weight.Add(finished.WeightMetal)
+		total_weight = total_weight.Add(finished.WeightMetal)
+		price = price.Add(finished.LabelPrice)
+		total_price = total_price.Add(finished.LabelPrice)
+
+		num_item[k] = num
+		total_num_item[k] = total_num
+		data[c]["件数"] = num_item
+		data[t]["件数"] = total_num_item
+		weight_item[k] = weight
+		total_weight_item[k] = total_weight
+		data[c]["金重"] = weight_item
+		data[t]["金重"] = total_weight_item
+		price_item[k] = price
+		total_price_item[k] = total_price
+		data[c]["标价"] = price_item
+		data[t]["标价"] = total_price_item
+	}
+
+	return data
+}
+
+// 获取成品工艺数据
+func (l *dataLogic) get_finished_craft() map[string]map[string]any {
+
+	data := make(map[string]map[string]any)
+
+	for _, class := range enums.ProductClassFinishedMap {
+		data[class] = map[string]any{
+			"件数": map[string]any{},
+			"金重": map[string]any{},
+			"标价": map[string]any{},
+		}
+	}
+	t := "全部"
+	data[t] = map[string]any{
+		"件数": map[string]any{},
+		"金重": map[string]any{},
+		"标价": map[string]any{},
+	}
+
+	for _, finished := range l.Finisheds {
+		c := finished.Class.String()
+		if c == "" {
+			c = "其他"
+		}
+		k := finished.Craft.String()
 		if k == "" {
 			k = "其他"
 		}

@@ -97,8 +97,10 @@ func (OrderSales) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Member")
 	db = db.Preload("Store")
 	db = db.Preload("Cashier")
-	db = db.Preload("Clerks", func(tx *gorm.DB) *gorm.DB {
-		return tx.Preload("Salesman")
+	db = db.Preload("Clerks", func(tx1 *gorm.DB) *gorm.DB {
+		return tx1.Preload("Salesman", func(tx2 *gorm.DB) *gorm.DB {
+			return tx2.Unscoped()
+		})
 	})
 	db = db.Preload("Products", func(tx *gorm.DB) *gorm.DB {
 		tx = tx.Preload("Finished", func(tx1 *gorm.DB) *gorm.DB {
@@ -177,8 +179,11 @@ func (OrderSalesProduct) WhereCondition(db *gorm.DB, req *types.OrderSalesDetail
 
 func (OrderSalesProduct) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Order", func(tx *gorm.DB) *gorm.DB {
-		tx = tx.Preload("Clerks.Salesman")
-
+		tx = tx.Preload("Clerks", func(tx1 *gorm.DB) *gorm.DB {
+			return tx1.Preload("Salesman", func(tx2 *gorm.DB) *gorm.DB {
+				return tx2.Unscoped()
+			})
+		})
 		return tx
 	})
 	db = db.Preload("Store")

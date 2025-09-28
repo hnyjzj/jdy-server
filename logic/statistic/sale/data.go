@@ -849,21 +849,39 @@ func (l *dataLogic) get_list() map[string]any {
 			if !ok {
 				row = make(map[string]any, 0)
 			}
+
+			performance, ok := row["业绩"].(decimal.Decimal)
+			if !ok {
+				performance = decimal.NewFromInt(0)
+			}
 			finished_price, ok := row["成品销售额"].(decimal.Decimal)
 			if !ok {
 				finished_price = decimal.NewFromInt(0)
 			}
-
-			accessorie_price, ok := row["配件销售额"].(decimal.Decimal)
-			if !ok {
-				accessorie_price = decimal.NewFromInt(0)
-			}
-
 			finished_num, ok := row["成品件数"].(int64)
 			if !ok {
 				finished_num = 0
 			}
-
+			old_exchange_price, ok := row["旧料抵扣"].(decimal.Decimal)
+			if !ok {
+				old_exchange_price = decimal.NewFromInt(0)
+			}
+			old_exchange_num, ok := row["旧料抵扣件数"].(int64)
+			if !ok {
+				old_exchange_num = 0
+			}
+			old_recycle_price, ok := row["旧料回收"].(decimal.Decimal)
+			if !ok {
+				old_recycle_price = decimal.NewFromInt(0)
+			}
+			old_recycle_num, ok := row["旧料回收件数"].(int64)
+			if !ok {
+				old_recycle_num = 0
+			}
+			accessorie_price, ok := row["配件销售额"].(decimal.Decimal)
+			if !ok {
+				accessorie_price = decimal.NewFromInt(0)
+			}
 			accessorie_num, ok := row["配件件数"].(int64)
 			if !ok {
 				accessorie_num = 0
@@ -873,7 +891,9 @@ func (l *dataLogic) get_list() map[string]any {
 				switch product.Type {
 				case enums.ProductTypeFinished:
 					{
-						finished_price = finished_price.Add(product.Finished.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
+						price := product.Finished.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+						performance = performance.Add(price)
+						finished_price = finished_price.Add(price)
 						finished_num = finished_num + 1
 
 						for _, refund := range l.Refunds {
@@ -887,13 +907,64 @@ func (l *dataLogic) get_list() map[string]any {
 								continue
 							}
 							refundShare := refund.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+							performance = performance.Sub(refundShare)
 							finished_price = finished_price.Sub(refundShare)
 							finished_num = finished_num - 1
 						}
 					}
+				case enums.ProductTypeOld:
+					{
+						price := product.Old.RecyclePrice.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+						switch product.Old.Product.RecycleType {
+						case enums.ProductRecycleTypeExchange:
+							{
+								performance = performance.Sub(price)
+								old_exchange_price = old_exchange_price.Sub(price)
+								old_exchange_num = old_exchange_num + 1
+
+								for _, refund := range l.Refunds {
+									if refund.Type != enums.ProductTypeOld {
+										continue
+									}
+									if refund.OrderId != order.Id {
+										continue
+									}
+									if refund.Code != product.Code {
+										continue
+									}
+									refundShare := refund.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+									performance = performance.Add(refundShare)
+									old_exchange_price = old_exchange_price.Add(refundShare)
+									old_exchange_num = old_exchange_num - 1
+								}
+							}
+						case enums.ProductRecycleTypeRecycle:
+							{
+								old_recycle_price = old_recycle_price.Add(price)
+								old_recycle_num = old_recycle_num + 1
+
+								for _, refund := range l.Refunds {
+									if refund.Type != enums.ProductTypeOld {
+										continue
+									}
+									if refund.OrderId != order.Id {
+										continue
+									}
+									if refund.Code != product.Code {
+										continue
+									}
+									refundShare := refund.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+									old_recycle_price = old_recycle_price.Sub(refundShare)
+									old_recycle_num = old_recycle_num - 1
+								}
+							}
+						}
+					}
 				case enums.ProductTypeAccessorie:
 					{
-						accessorie_price = accessorie_price.Add(product.Accessorie.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
+						price := product.Accessorie.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+						performance = performance.Add(price)
+						accessorie_price = accessorie_price.Add(price)
 						accessorie_num = accessorie_num + product.Accessorie.Quantity
 						for _, refund := range l.Refunds {
 							if refund.Type != enums.ProductTypeAccessorie {
@@ -906,15 +977,21 @@ func (l *dataLogic) get_list() map[string]any {
 								continue
 							}
 							refundShare := refund.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+							performance = performance.Sub(refundShare)
 							accessorie_price = accessorie_price.Sub(refundShare)
 							accessorie_num = accessorie_num - refund.Quantity
 						}
 					}
 				}
 			}
+			row["业绩"] = performance
 			row["成品销售额"] = finished_price
-			row["配件销售额"] = accessorie_price
 			row["成品件数"] = finished_num
+			row["旧料抵扣"] = old_exchange_price
+			row["旧料抵扣件数"] = old_exchange_num
+			row["旧料回收"] = old_recycle_price
+			row["旧料回收件数"] = old_recycle_num
+			row["配件销售额"] = accessorie_price
 			row["配件件数"] = accessorie_num
 			data[k] = row
 		}

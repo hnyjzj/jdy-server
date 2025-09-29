@@ -56,7 +56,7 @@ func (l *RegionLogic) My(req *types.RegionListMyReq) (*[]model.Region, error) {
 		return nil, errors.New("获取区域列表失败")
 	}
 
-	if len(regions) >= 2 {
+	if len(regions) >= 2 && req.HasAll {
 		def := model.Region{}.Default(l.Staff.Identity)
 		if def != nil {
 			regions = append([]model.Region{*def}, regions...)

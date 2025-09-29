@@ -26,7 +26,8 @@ type RegionListReq struct {
 }
 
 type RegionListMyReq struct {
-	Where RegionWhere `json:"where"`
+	HasAll bool        `json:"has_all"` // 是否包含全部
+	Where  RegionWhere `json:"where"`
 }
 
 type RegionWhere struct {

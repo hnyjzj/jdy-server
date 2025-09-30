@@ -17,3 +17,10 @@ type PlatformJSSdkReq struct {
 type PlatformGetUserReq struct {
 	UserId string `json:"user_id" binding:"required"` // 用户ID
 }
+
+type PlatformDepartmentCreateReq struct {
+	Name     string `json:"name" binding:"required"`      // 部门名称
+	NameEn   string `json:"name_en" binding:"required"`   // 英文名称
+	ParentId int    `json:"parent_id" binding:"required"` // 父部门ID
+	Order    int    `json:"order" `                       // 部门排序
+}

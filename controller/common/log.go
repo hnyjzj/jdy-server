@@ -27,6 +27,7 @@ func (con LogController) OnCaptureScreen(ctx *gin.Context) {
 	// 发送消息
 	m := message.NewMessage(ctx)
 	if err := m.SendCaptureScreenMessage(&message.CaptureScreenMessage{
+		Type:      "截屏警告",
 		Username:  req.Username,
 		Storename: req.Storename,
 		Url:       req.Url,

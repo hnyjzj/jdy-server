@@ -43,7 +43,7 @@ func (ProductHistory) WhereCondition(db *gorm.DB, query *types.ProductHistoryWhe
 			"JSON_EXTRACT(new_value, '$.code') = ? OR JSON_EXTRACT(old_value, '$.code') = ?",
 			query.Code,
 			query.Code,
-		).Debug()
+		)
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)

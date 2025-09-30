@@ -48,9 +48,9 @@ func (l *StoreLogic) Alias(ctx *gin.Context, req *types.StoreAliasReq) ([]model.
 	db := model.DB.Model(&store)
 
 	if req.IsHeadquarters {
-		db = db.Where("name LIKE ?", "%"+model.HeaderquartersPrefix+"%")
+		db = db.Where("name LIKE ?", "%"+enums.DepartmentHeaderquarters.String()+"%")
 	} else {
-		db = db.Where("name NOT LIKE ?", "%"+model.HeaderquartersPrefix+"%")
+		db = db.Where("name NOT LIKE ?", "%"+enums.DepartmentHeaderquarters.String()+"%")
 		db = db.Where("`alias` <> '' OR `alias` IS NOT NULL")
 		db = db.Omit("name")
 	}
@@ -79,7 +79,7 @@ func (l *StoreLogic) My(req *types.StoreListMyReq) (*[]model.Store, error) {
 		return nil, errors.New("获取门店列表失败")
 	}
 
-	if len(stores) >= 2 {
+	if len(stores) >= 2 && req.HasAll {
 		def := model.Store{}.Default(l.Staff.Identity)
 		if def != nil {
 			stores = append([]model.Store{*def}, stores...)

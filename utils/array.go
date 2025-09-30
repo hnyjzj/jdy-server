@@ -43,3 +43,26 @@ func ArrayMerge[T any](slices ...[]T) []T {
 	}
 	return result
 }
+
+// ArrayUnique 对切片去重（保留原顺序，根据 fun 返回的 key 判断唯一性）
+// T：切片元素类型（需可比较）
+// K：用于判断唯一性的 key 类型（需可比较）
+// fun：从元素中提取用于去重的 key（例如：func(item User) int { return item.ID }）
+func ArrayUnique[T any, K comparable](array []T, fun func(item T) K) []T {
+	if len(array) == 0 {
+		return array
+	}
+
+	seen := make(map[K]struct{}, len(array)) // 记录已出现的 key
+	result := make([]T, 0, len(array))       // 结果切片（预分配容量）
+
+	for _, item := range array {
+		key := fun(item)             // 提取当前元素的 key
+		if _, ok := seen[key]; !ok { // 如果 key 未出现过
+			seen[key] = struct{}{}        // 标记为已出现
+			result = append(result, item) // 加入结果切片（保留原顺序）
+		}
+	}
+
+	return result
+}

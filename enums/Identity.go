@@ -24,6 +24,12 @@ var IdentityMap = map[Identity]string{
 	IdentitySuperAdmin:   "超级管理员",
 }
 
+var IdentityMapExternal = map[Identity]string{
+	IdentityClerk:       "销售顾问",
+	IdentityShopkeeper:  "店长",
+	IdentityAreaManager: "区域经理",
+}
+
 func (p Identity) ToMap() any {
 	return IdentityMap
 }
@@ -33,6 +39,17 @@ func (p Identity) InMap() error {
 		return errors.New("not in enum")
 	}
 	return nil
+}
+
+func (p Identity) String() string {
+	return IdentityMap[p]
+}
+func (p Identity) StringExternal() string {
+	if value, ok := IdentityMapExternal[p]; ok {
+		return value
+	} else {
+		return ""
+	}
 }
 
 // 获取比当前身份小的身份

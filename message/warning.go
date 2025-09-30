@@ -10,10 +10,13 @@ import (
 
 // 消息内容
 type CaptureScreenMessage struct {
+	Type string `json:"type"`
+
 	Username  string `json:"username"`
 	Storename string `json:"storename"`
 	Url       string `json:"url"`
 	Title     string `json:"title"`
+	Desc      string `json:"desc"`
 }
 
 // 发送截屏事件消息
@@ -21,11 +24,11 @@ func (M *BaseMessage) SendCaptureScreenMessage(req *CaptureScreenMessage) error 
 	if M.Config.Robot.Warning == "" {
 		return errors.New("请先配置机器人")
 	}
-	// 消息内容
-	if res, err := M.WXWork.GroupRobot.SendTemplateCard(M.Ctx, M.Config.Robot.Warning, &request.GroupRobotMsgTemplateCard{
+
+	data := &request.GroupRobotMsgTemplateCard{
 		CardType: "text_notice",
 		MainTitle: request.TemplateCardMainTitle{
-			Title: "截屏警告",
+			Title: req.Type,
 		},
 		EmphasisContent: request.TemplateCardEmphasisContent{
 			Title: req.Title,
@@ -45,7 +48,14 @@ func (M *BaseMessage) SendCaptureScreenMessage(req *CaptureScreenMessage) error 
 				Value:   req.Storename,
 			},
 		},
-	}); err != nil || (res != nil && res.ErrCode != 0) {
+	}
+
+	if req.Desc != "" {
+		data.SubTitleText = req.Desc
+	}
+
+	// 消息内容
+	if res, err := M.WXWork.GroupRobot.SendTemplateCard(M.Ctx, M.Config.Robot.Warning, data); err != nil || (res != nil && res.ErrCode != 0) {
 		log.Printf("发送消息失败: err=%v, response=%+v\n", err.Error(), res)
 		return errors.New("发送消息失败" + res.ErrMsg)
 	}

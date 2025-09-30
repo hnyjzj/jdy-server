@@ -30,6 +30,13 @@ type Staff struct {
 
 	Identity enums.Identity `json:"identity" gorm:"index;type:int(11);not null;comment:身份"` // 身份
 
+	LeaderId string `json:"leader_id" gorm:"index;type:varchar(255);default:null;comment:上级ID"` // 上级ID
+	Leader   *Staff `json:"leader" gorm:"foreignKey:LeaderId;references:Id;comment:上级"`         // 上级
+
+	TagId string     `json:"tag_id" gorm:"index;type:varchar(255);default:null;comment:标签ID"` // 标签ID
+	Tag   StaffTag   `json:"tag" gorm:"foreignKey:TagId;references:Id;comment:标签"`            // 标签
+	Logs  []StaffLog `json:"logs" gorm:"foreignKey:StaffId;references:Id;comment:日志"`         // 日志
+
 	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID
 	Role   *Role  `json:"role" gorm:"foreignKey:RoleId;references:Id;comment:角色"`     // 角色
 
@@ -189,6 +196,7 @@ func (Staff) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Role", func(tx *gorm.DB) *gorm.DB {
 		return tx.Preload("Apis").Preload("Routers")
 	})
+	db = db.Preload("Leader")
 	db = db.Preload("Stores")
 	db = db.Preload("StoreSuperiors")
 	db = db.Preload("StoreAdmins")
@@ -205,13 +213,38 @@ func (Staff) Preloads(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+// 员工标签
+type StaffTag struct {
+	Model
+
+	TagId int64  `json:"tag_id" gorm:"index;type:int(11);default:null;comment:标签ID;"` // 标签ID
+	Name  string `json:"name" gorm:"type:varchar(255);default:null;comment:标签名称;"`    // 标签名称
+}
+
+// 员工日志
+type StaffLog struct {
+	Model
+
+	Type enums.StaffLogType `json:"type" gorm:"type:tinyint(1);comment:类型;"` // 类型
+
+	StaffId string `json:"staff_id" gorm:"index;type:varchar(255);default:null;comment:员工ID;"` // 员工ID
+	Staff   Staff  `json:"staff" gorm:"foreignKey:StaffId;references:Id;comment:员工;"`          // 员工
+
+	OldValue Staff `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
+	NewValue Staff `json:"new_value" gorm:"type:text;serializer:json;comment:新值;"` // 新值
+}
+
 func init() {
 	// 注册模型
 	RegisterModels(
 		&Staff{},
+		&StaffTag{},
+		&StaffLog{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &Staff{},
+	// &StaffTag{},
+	// &StaffLog{},
 	)
 }

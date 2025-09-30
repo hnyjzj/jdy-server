@@ -12,7 +12,7 @@ import (
 // 创建员工
 func (con StaffController) Create(ctx *gin.Context) {
 	var (
-		req types.StaffReq
+		req types.StaffCreateReq
 
 		logic = staff.StaffLogic{}
 	)
@@ -67,13 +67,14 @@ func (con StaffController) Edit(ctx *gin.Context) {
 		logic.Staff = staff
 	}
 
-	if err := logic.StaffEdit(&req); err != nil {
+	res, err := logic.StaffEdit(&req)
+	if err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
 	// 返回结果
-	con.Success(ctx, "ok", logic.Staff)
+	con.Success(ctx, "ok", res)
 }
 
 func (con StaffController) Update(ctx *gin.Context) {

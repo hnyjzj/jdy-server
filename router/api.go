@@ -79,12 +79,13 @@ func Api(g *gin.Engine) {
 			staffs.GET("/where", staff.StaffController{}.Where) // 员工筛选
 			staffs.Use(middlewares.JWTMiddleware())
 			{
-				staffs.POST("/list", staff.StaffController{}.List)     // 员工列表
-				staffs.POST("/create", staff.StaffController{}.Create) // 创建账号
-				staffs.POST("/info", staff.StaffController{}.Info)     // 员工详情
-				staffs.GET("/my", staff.StaffController{}.My)          // 获取我的信息
-				staffs.PUT("/edit", staff.StaffController{}.Edit)      // 编辑员工信息
-				staffs.PUT("/update", staff.StaffController{}.Update)  // 更新员工信息
+				staffs.POST("/list", staff.StaffController{}.List)       // 员工列表
+				staffs.POST("/create", staff.StaffController{}.Create)   // 创建账号
+				staffs.POST("/info", staff.StaffController{}.Info)       // 员工详情
+				staffs.GET("/my", staff.StaffController{}.My)            // 获取我的信息
+				staffs.PUT("/edit", staff.StaffController{}.Edit)        // 编辑员工信息
+				staffs.PUT("/update", staff.StaffController{}.Update)    // 更新员工信息
+				staffs.DELETE("/delete", staff.StaffController{}.Delete) // 删除员工
 			}
 		}
 

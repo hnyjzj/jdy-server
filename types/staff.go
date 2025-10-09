@@ -85,12 +85,12 @@ type StaffWhere struct {
 	Email      string         `json:"email" label:"邮箱" find:"true"  create:"true" sort:"4" type:"string" input:"text"`
 	Gender     enums.Gender   `json:"gender" label:"性别" find:"true" create:"true" sort:"5" type:"number" input:"radio" preset:"typeMap"`
 	Avatar     string         `json:"avatar" label:"头像" create:"true" sort:"6" type:"string" input:"upload"`
-	Password   string         `json:"password" label:"密码" create:"true" sort:"7" type:"string" input:"password"`
+	Password   string         `json:"password" label:"密码" create:"false" sort:"7" type:"string" input:"password"`
 	IsDisabled bool           `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"8" type:"boolean" input:"switch"`
 	Identity   enums.Identity `json:"identity" label:"身份" find:"true" create:"false" sort:"9" type:"number" input:"select" preset:"typeMap"`
 
 	StoreId  string `json:"store_id" label:"店铺" find:"false" create:"false" sort:"10" type:"string" input:"select"`
-	LeaderId string `json:"leader_id" label:"上级" find:"true" create:"true" sort:"11" type:"string" input:"select"`
+	LeaderId string `json:"leader_id" label:"上级" find:"true" create:"true" sort:"11" type:"string" required:"true" input:"select"`
 }
 
 type StaffListReq struct {
@@ -99,5 +99,9 @@ type StaffListReq struct {
 }
 
 type StaffInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}
+
+type StaffDeleteReq struct {
 	Id string `json:"id" binding:"required"`
 }

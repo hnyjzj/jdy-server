@@ -232,6 +232,11 @@ type StaffLog struct {
 
 	OldValue Staff `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
 	NewValue Staff `json:"new_value" gorm:"type:text;serializer:json;comment:新值;"` // 新值
+
+	Remark string `json:"remark" gorm:"type:varchar(255);default:null;comment:备注;"` // 备注
+
+	OperatorId string `json:"operator_id" gorm:"index;type:varchar(255);default:null;comment:操作人ID;"` // 操作人ID
+	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"`       // 操作人
 }
 
 func init() {

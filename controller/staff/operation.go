@@ -106,3 +106,34 @@ func (con StaffController) Update(ctx *gin.Context) {
 	// 返回结果
 	con.Success(ctx, "ok", nil)
 }
+
+func (con StaffController) Delete(ctx *gin.Context) {
+	var (
+		req types.StaffDeleteReq
+
+		logic = staff.StaffLogic{}
+	)
+
+	// 解析参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取当前用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Ctx = ctx
+		logic.Staff = staff
+	}
+
+	if err := logic.StaffDelete(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	// 返回结果
+	con.Success(ctx, "ok", nil)
+}

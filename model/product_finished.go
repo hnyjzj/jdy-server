@@ -200,7 +200,7 @@ func (p *ProductFinished) GetClass() enums.ProductClassFinished {
 			return enums.ProductClassFinishedPlatinum
 		}
 	case p.Material == enums.ProductMaterialSilver &&
-		(p.Quality == enums.ProductQuality990 || p.Quality == enums.ProductQuality925) &&
+		(p.Quality == enums.ProductQuality9999 || p.Quality == enums.ProductQuality999 || p.Quality == enums.ProductQuality990 || p.Quality == enums.ProductQuality925) &&
 		p.Gem == enums.ProductGemGold:
 		{
 			return enums.ProductClassFinishedSilver

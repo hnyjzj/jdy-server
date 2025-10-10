@@ -1,6 +1,7 @@
 package staff
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/logic/auth"
 	"jdy/logic/platform/wxwork"
@@ -88,6 +89,14 @@ func (l *StaffUpdateLogic) update() error {
 		Email:    l.req.Email,
 		Gender:   l.req.Gender,
 	}
+	log := model.StaffLog{
+		Type:       enums.StaffLogTypeUpdate,
+		StaffId:    l.Staff.Id,
+		OldValue:   *l.Staff,
+		NewValue:   data,
+		Remark:     "自行更新账号信息",
+		OperatorId: l.Staff.Id,
+	}
 
 	// 加密密码
 	if l.req.Password != "" {
@@ -98,8 +107,11 @@ func (l *StaffUpdateLogic) update() error {
 		data.Password = password
 	}
 
-	if err := l.db.Model(&model.Staff{}).Where("id = ?", l.Staff.Id).Updates(&data).Error; err != nil { // 更新失败
+	if err := l.db.Model(&model.Staff{}).Where("id = ?", l.Staff.Id).Updates(&data).Error; err != nil {
 		return err
+	}
+	if err := l.db.Create(&log).Error; err != nil {
+		return errors.New("创建记录失败")
 	}
 
 	return nil

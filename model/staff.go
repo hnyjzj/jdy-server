@@ -34,7 +34,7 @@ type Staff struct {
 	Leader     *Staff `json:"leader" gorm:"foreignKey:LeaderName;references:Username;comment:上级"`   // 上级
 
 	TagId string     `json:"tag_id" gorm:"index;type:varchar(255);default:null;comment:标签ID"` // 标签ID
-	Tag   StaffTag   `json:"tag" gorm:"foreignKey:TagId;references:Id;comment:标签"`            // 标签
+	Tag   StaffTag   `json:"tag" gorm:"foreignKey:Id;references:TagId;comment:标签"`            // 标签
 	Logs  []StaffLog `json:"logs" gorm:"foreignKey:StaffId;references:Id;comment:日志"`         // 日志
 
 	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID

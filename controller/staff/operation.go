@@ -67,14 +67,13 @@ func (con StaffController) Edit(ctx *gin.Context) {
 		logic.Staff = staff
 	}
 
-	res, err := logic.StaffEdit(&req)
-	if err != nil {
+	if err := logic.StaffEdit(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}
 
 	// 返回结果
-	con.Success(ctx, "ok", res)
+	con.Success(ctx, "ok", nil)
 }
 
 func (con StaffController) Update(ctx *gin.Context) {

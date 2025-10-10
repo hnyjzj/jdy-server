@@ -55,9 +55,9 @@ type StaffEditReq struct {
 
 	IsDisabled bool `json:"is_disabled"` // 是否禁用
 
-	Identity   enums.Identity `json:"identity"`                       // 身份
-	RoleId     string         `json:"role_id"`                        // 角色ID
-	LeaderName string         `json:"leader_name" binding:"required"` // 上级ID
+	Identity   enums.Identity `json:"identity"`    // 身份
+	RoleId     string         `json:"role_id"`     // 角色ID
+	LeaderName string         `json:"leader_name"` // 上级ID
 
 	StoreIds          []string `json:"store_ids" binding:"required"`           // 店铺
 	StoreSuperiorIds  []string `json:"store_superior_ids" binding:"required"`  // 负责的店铺

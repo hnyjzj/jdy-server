@@ -30,8 +30,8 @@ type Staff struct {
 
 	Identity enums.Identity `json:"identity" gorm:"index;type:int(11);not null;comment:身份"` // 身份
 
-	LeaderId string `json:"leader_id" gorm:"index;type:varchar(255);default:null;comment:上级ID"` // 上级ID
-	Leader   *Staff `json:"leader" gorm:"foreignKey:LeaderId;references:Id;comment:上级"`         // 上级
+	LeaderName string `json:"leader_name" gorm:"index;type:varchar(255);default:null;comment:上级名称"` // 上级名称
+	Leader     *Staff `json:"leader" gorm:"foreignKey:LeaderName;references:Username;comment:上级"`   // 上级
 
 	TagId string     `json:"tag_id" gorm:"index;type:varchar(255);default:null;comment:标签ID"` // 标签ID
 	Tag   StaffTag   `json:"tag" gorm:"foreignKey:TagId;references:Id;comment:标签"`            // 标签

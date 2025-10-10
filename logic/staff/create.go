@@ -124,11 +124,13 @@ func (l *StaffCreateLogic) getLeader() error {
 		leader model.Staff
 	)
 
-	if l.Req.LeaderId == "" {
+	if l.Req.LeaderName == "" {
 		return nil
 	}
 
-	if err := l.Db.Unscoped().First(&leader, "id = ?", l.Req.LeaderId).Error; err != nil {
+	if err := l.Db.Unscoped().Where(&model.Staff{
+		Username: l.Req.LeaderName,
+	}).First(&leader).Error; err != nil {
 		return errors.New("查询上级失败")
 	}
 
@@ -174,16 +176,16 @@ func (l *StaffCreateLogic) getTag() error {
 func (l *StaffCreateLogic) buildStaff() error {
 	// 创建账号
 	l.Staff = &model.Staff{
-		Username: l.Req.Username,
-		Phone:    l.Req.Phone,
-		Nickname: l.Req.Nickname,
-		Avatar:   l.Req.Avatar,
-		Email:    l.Req.Email,
-		Gender:   l.Req.Gender,
-		Identity: l.Req.Identity,
-		LeaderId: l.Req.LeaderId,
-		TagId:    l.Tags.Id,
-		RoleId:   l.Req.RoleId,
+		Username:   l.Req.Username,
+		Phone:      l.Req.Phone,
+		Nickname:   l.Req.Nickname,
+		Avatar:     l.Req.Avatar,
+		Email:      l.Req.Email,
+		Gender:     l.Req.Gender,
+		Identity:   l.Req.Identity,
+		LeaderName: l.Req.LeaderName,
+		TagId:      l.Tags.Id,
+		RoleId:     l.Req.RoleId,
 	}
 
 	password, err := l.Staff.HashPassword(&l.Req.Password)

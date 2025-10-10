@@ -16,9 +16,9 @@ type StaffCreateReq struct {
 
 	IsDisabled bool `json:"is_disabled"` // 是否禁用
 
-	LeaderId string         `json:"leader_id" binding:"required"` // 上级ID
-	Identity enums.Identity `json:"identity"`                     // 身份
-	RoleId   string         `json:"role_id"`                      // 角色ID
+	LeaderName string         `json:"leader_name" binding:"required"` // 上级ID
+	Identity   enums.Identity `json:"identity"`                       // 身份
+	RoleId     string         `json:"role_id"`                        // 角色ID
 
 	StoreIds          []string `json:"store_ids"`           // 所属店铺
 	StoreSuperiorIds  []string `json:"store_superior_ids"`  // 负责的店铺
@@ -55,9 +55,9 @@ type StaffEditReq struct {
 
 	IsDisabled bool `json:"is_disabled"` // 是否禁用
 
-	Identity enums.Identity `json:"identity"`                     // 身份
-	RoleId   string         `json:"role_id"`                      // 角色ID
-	LeaderId string         `json:"leader_id" binding:"required"` // 上级ID
+	Identity   enums.Identity `json:"identity"`                       // 身份
+	RoleId     string         `json:"role_id"`                        // 角色ID
+	LeaderName string         `json:"leader_name" binding:"required"` // 上级ID
 
 	StoreIds          []string `json:"store_ids" binding:"required"`           // 店铺
 	StoreSuperiorIds  []string `json:"store_superior_ids" binding:"required"`  // 负责的店铺
@@ -89,8 +89,8 @@ type StaffWhere struct {
 	IsDisabled bool           `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"8" type:"boolean" input:"switch"`
 	Identity   enums.Identity `json:"identity" label:"身份" find:"true" create:"false" sort:"9" type:"number" input:"select" preset:"typeMap"`
 
-	StoreId  string `json:"store_id" label:"店铺" find:"false" create:"false" sort:"10" type:"string" input:"select"`
-	LeaderId string `json:"leader_id" label:"上级" find:"true" create:"true" sort:"11" type:"string" required:"true" input:"select"`
+	StoreId    string `json:"store_id" label:"店铺" find:"false" create:"false" sort:"10" type:"string" input:"select"`
+	LeaderName string `json:"leader_name" label:"上级" find:"true" create:"true" sort:"11" type:"string" required:"true" input:"select"`
 }
 
 type StaffListReq struct {

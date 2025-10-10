@@ -2,6 +2,7 @@ package staff
 
 import (
 	"jdy/config"
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/message"
 	"jdy/model"
@@ -17,56 +18,62 @@ import (
 )
 
 // 创建员工
-func (StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffCreateReq) error {
-	l := &StaffCreateLogic{
-		Ctx: ctx,
-		Req: req,
+func (l *StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffCreateReq) error {
+	logic := &StaffCreateLogic{
+		Ctx:      ctx,
+		Req:      req,
+		Operator: l.Staff,
 	}
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-		l.Db = tx
+		logic.Db = tx
 
 		// 查询员工是否存在
-		if err := l.getStaff(); err != nil {
+		if err := logic.getStaff(); err != nil {
 			return err
 		}
 
 		// 查询上级
-		if err := l.getLeader(); err != nil {
+		if err := logic.getLeader(); err != nil {
 			return err
 		}
 
 		// 查询标签
-		if err := l.getTag(); err != nil {
+		if err := logic.getTag(); err != nil {
 			return err
 		}
 
 		// 构建员工信息
-		if err := l.buildStaff(); err != nil {
+		if err := logic.buildStaff(); err != nil {
 			return err
 		}
 
 		// 查询门店
-		if err := l.getStore(); err != nil {
+		if err := logic.getStore(); err != nil {
 			return err
 		}
 
 		// 查询区域
-		if err := l.getRegion(); err != nil {
+		if err := logic.getRegion(); err != nil {
 			return err
 		}
 
 		// 创建账号
-		if err := l.createStaff(); err != nil {
+		if err := logic.createStaff(); err != nil {
 			return err
 		}
 
 		// 创建企业微信
-		if err := l.createWechat(); err != nil {
+		if err := logic.createWechat(); err != nil {
+			return err
+		}
+
+		// 添加记录
+		if err := logic.addlogs(); err != nil {
 			return err
 		}
 
 		// 发送消息
-		if err := l.sendMessage(); err != nil {
+		if err := logic.sendMessage(); err != nil {
 			return err
 		}
 
@@ -79,9 +86,10 @@ func (StaffLogic) StaffCreate(ctx *gin.Context, req *types.StaffCreateReq) error
 }
 
 type StaffCreateLogic struct {
-	Ctx *gin.Context
-	Req *types.StaffCreateReq
-	Db  *gorm.DB
+	Ctx      *gin.Context
+	Req      *types.StaffCreateReq
+	Db       *gorm.DB
+	Operator *model.Staff
 
 	Staff  *model.Staff
 	Leader *model.Staff
@@ -390,6 +398,21 @@ func (l *StaffCreateLogic) createWechat() error {
 	if err != nil || (tres != nil && tres.ErrCode != 0) {
 		log.Printf("更新标签失败: %+v, %+v", err, tres)
 		return errors.New("更新标签失败")
+	}
+
+	return nil
+}
+
+// 添加记录
+func (l *StaffCreateLogic) addlogs() error {
+	logs := model.StaffLog{
+		Type:       enums.StaffLogTypeCreate,
+		StaffId:    l.Staff.Id,
+		NewValue:   *l.Staff,
+		OperatorId: l.Operator.Id,
+	}
+	if err := l.Db.Create(&logs).Error; err != nil {
+		return errors.New("添加记录失败")
 	}
 
 	return nil

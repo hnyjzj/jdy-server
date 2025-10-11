@@ -126,6 +126,11 @@ func (con StaffController) Delete(ctx *gin.Context) {
 	} else {
 		logic.Ctx = ctx
 		logic.Staff = staff
+
+		if staff.Id == req.Id {
+			con.Exception(ctx, "不能删除自己")
+			return
+		}
 	}
 
 	if err := logic.StaffDelete(&req); err != nil {

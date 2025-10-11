@@ -128,7 +128,7 @@ func (l *SyncWxWorkContacts) getTags() (map[enums.Identity]model.StaffTag, error
 	for _, tag := range tags {
 		var data model.StaffTag
 		if err := l.db.Where(model.StaffTag{TagId: tag.TagId}).Assign(tag).FirstOrCreate(&data).Error; err != nil {
-			return nil, errors.New("获取区域失败")
+			return nil, errors.New("创建或更新标签失败")
 		}
 	}
 

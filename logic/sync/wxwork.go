@@ -240,6 +240,10 @@ func (l *SyncWxWorkContacts) getUsers(dept *kmodels.Department, users []*models.
 			data.IsDisabled = false
 		}
 
+		if len(user.DirectLeader) > 0 {
+			data.LeaderName = user.DirectLeader[0]
+		}
+
 		// 获取员工
 		staff, logs, err := l.getStaff(data)
 		if err != nil {

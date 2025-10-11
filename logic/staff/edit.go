@@ -345,7 +345,9 @@ func (l *StaffEditLogic) updateStaff() error {
 	}
 
 	// 查询更新完的员工信息
-	if err := l.Db.First(&l.Data, "id = ?", l.Staff.Id).Error; err != nil {
+	db := l.Db.Where("id = ?", l.Staff.Id)
+	db = model.Staff{}.Preloads(db)
+	if err := db.First(&l.Data).Error; err != nil {
 		return err
 	}
 

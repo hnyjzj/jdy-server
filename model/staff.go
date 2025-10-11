@@ -197,6 +197,7 @@ func (Staff) Preloads(db *gorm.DB) *gorm.DB {
 		return tx.Preload("Apis").Preload("Routers")
 	})
 	db = db.Preload("Leader")
+	db = db.Preload("Tag")
 	db = db.Preload("Stores")
 	db = db.Preload("StoreSuperiors")
 	db = db.Preload("StoreAdmins")

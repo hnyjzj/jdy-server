@@ -34,7 +34,7 @@ type Staff struct {
 	Leader     *Staff `json:"leader" gorm:"foreignKey:LeaderName;references:Username;comment:上级"`   // 上级
 
 	TagId string     `json:"tag_id" gorm:"index;type:varchar(255);default:null;comment:标签ID"` // 标签ID
-	Tag   StaffTag   `json:"tag" gorm:"foreignKey:Id;references:TagId;comment:标签"`            // 标签
+	Tag   *StaffTag  `json:"tag" gorm:"foreignKey:Id;references:TagId;comment:标签"`            // 标签
 	Logs  []StaffLog `json:"logs" gorm:"foreignKey:StaffId;references:Id;comment:日志"`         // 日志
 
 	RoleId string `json:"role_id" gorm:"type:varchar(255);default:null;comment:角色ID"` // 角色ID
@@ -228,7 +228,7 @@ type StaffLog struct {
 	Type enums.StaffLogType `json:"type" gorm:"type:tinyint(1);comment:类型;"` // 类型
 
 	StaffId string `json:"staff_id" gorm:"index;type:varchar(255);default:null;comment:员工ID;"` // 员工ID
-	Staff   Staff  `json:"staff" gorm:"foreignKey:StaffId;references:Id;comment:员工;"`          // 员工
+	Staff   *Staff `json:"staff" gorm:"foreignKey:StaffId;references:Id;comment:员工;"`          // 员工
 
 	OldValue Staff `json:"old_value" gorm:"type:text;serializer:json;comment:旧值;"` // 旧值
 	NewValue Staff `json:"new_value" gorm:"type:text;serializer:json;comment:新值;"` // 新值

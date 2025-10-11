@@ -152,6 +152,12 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 	if query.RecycleStoreId != "" {
 		db = db.Where("recycle_store_id = ?", query.RecycleStoreId)
 	}
+	if query.StartTime != nil {
+		db = db.Where("created_at >= ?", query.StartTime)
+	}
+	if query.EndTime != nil {
+		db = db.Where("created_at <= ?", query.EndTime)
+	}
 
 	return db
 }

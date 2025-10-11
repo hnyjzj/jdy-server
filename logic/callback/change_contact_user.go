@@ -91,7 +91,6 @@ func (l *EventChangeContactEvent) UpdateUser() error {
 		// 更新用户名
 		if err := tx.Model(&model.Staff{}).Where("id = ?", staff.Id).Updates(model.Staff{
 			Username: uid,
-			Identity: enums.IdentityClerk,
 		}).Error; err != nil {
 			return err
 		}

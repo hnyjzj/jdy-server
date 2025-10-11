@@ -72,7 +72,7 @@ func (l *StoreLogic) Create(ctx *gin.Context, req *types.StoreCreateReq) error {
 func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 	// 查询门店信息
 	var store model.Store
-	if err := model.DB.First(&store, "id = ?", req.Id).Error; err != nil {
+	if err := model.DB.Preload("Region").First(&store, "id = ?", req.Id).Error; err != nil {
 		return errors.New("门店不存在或已被删除")
 	}
 
@@ -95,10 +95,15 @@ func (l *StoreLogic) Update(ctx *gin.Context, req *types.StoreUpdateReq) error {
 		if err != nil {
 			return errors.New("门店ID转换失败")
 		}
+		rid, err := strconv.Atoi(store.Region.IdWx)
+		if err != nil {
+			return errors.New("区域ID转换失败")
+		}
 		params := &request.RequestDepartmentUpdate{
-			ID:     id,
-			Name:   data.Name,
-			NameEn: data.Alias,
+			ID:       id,
+			Name:     data.Name,
+			NameEn:   data.Alias,
+			ParentID: rid,
 		}
 		res, err := wxwork.Update(l.Ctx, params)
 		if err != nil || (res != nil && res.ErrCode != 0) {

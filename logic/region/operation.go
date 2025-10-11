@@ -115,7 +115,7 @@ func (l *RegionLogic) Delete(ctx *gin.Context, req *types.RegionDeleteReq) error
 	)
 	db := model.DB.Where("id = ?", req.Id)
 	db = region.Preloads(db)
-	if err := db.First(region).Error; err != nil {
+	if err := db.First(&region).Error; err != nil {
 		return errors.New("区域不存在或已被删除")
 	}
 	if len(region.Stores) > 0 {
@@ -140,7 +140,7 @@ func (l *RegionLogic) Delete(ctx *gin.Context, req *types.RegionDeleteReq) error
 			return errors.New("删除部门失败")
 		}
 		// 删除区域
-		if err := tx.Delete(region).Error; err != nil {
+		if err := tx.Delete(&region).Error; err != nil {
 			return err
 		}
 

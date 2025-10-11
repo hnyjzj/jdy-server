@@ -11,10 +11,10 @@ import (
 type Region struct {
 	SoftDelete
 
-	IdWx  string `json:"id_wx" gorm:"index;size:255;comment:微信ID"` // 微信ID
-	Name  string `json:"name" gorm:"index;size:255;comment:名称"`    // 名称
-	Alias string `json:"alias" gorm:"index;size:255;comment:别名"`   // 别名
-	Order int    `json:"order" gorm:"comment:排序"`                  // 排序
+	IdWx  string `json:"id_wx" gorm:"index;size:255;comment:微信ID"`    // 微信ID
+	Name  string `json:"name" gorm:"uniqueIndex;size:255;comment:名称"` // 名称
+	Alias string `json:"alias" gorm:"index;size:255;comment:别名"`      // 别名
+	Order int    `json:"order" gorm:"comment:排序"`                     // 排序
 
 	Stores    []Store `json:"stores" gorm:"foreignKey:RegionId;references:Id;comment:门店"` // 门店
 	Staffs    []Staff `json:"staffs" gorm:"many2many:region_staffs;"`                     // 员工

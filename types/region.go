@@ -39,54 +39,14 @@ type RegionStoreListReq struct {
 	RegionId string `json:"id" binding:"required"` // 区域id
 }
 
-type RegionStoreAddReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 区域id
-	StoreId  []string `json:"store_id" binding:"required"` // 店铺id
-}
-
-type RegionStoreDelReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 区域id
-	StoreId  []string `json:"store_id" binding:"required"` // 店铺id
-}
-
 type RegionStaffListReq struct {
 	RegionId string `json:"id" binding:"required"` // 区域id
-}
-
-type RegionStaffAddReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 区域id
-	StaffId  []string `json:"staff_id" binding:"required"` // 用户id
-}
-
-type RegionStaffDelReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 区域id
-	StaffId  []string `json:"staff_id" binding:"required"` // 用户id
 }
 
 type RegionSuperiorListReq struct {
 	RegionId string `json:"id" binding:"required"` // 区域id
 }
 
-type RegionSuperiorAddReq struct {
-	RegionId   string   `json:"id" binding:"required"`          // 区域id
-	SuperiorId []string `json:"superior_id" binding:"required"` // 上级id
-}
-
-type RegionSuperiorDelReq struct {
-	RegionId   string   `json:"id" binding:"required"`          // 区域id
-	SuperiorId []string `json:"superior_id" binding:"required"` // 上级id
-}
-
 type RegionAdminListReq struct {
 	RegionId string `json:"id" binding:"required"` // 区域id
-}
-
-type RegionAdminAddReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 区域id
-	AdminId  []string `json:"admin_id" binding:"required"` // 管理员 ID
-}
-
-type RegionAdminDelReq struct {
-	RegionId string   `json:"id" binding:"required"`       // 区域id
-	AdminId  []string `json:"admin_id" binding:"required"` // 管理员 ID
 }

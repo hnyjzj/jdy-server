@@ -346,7 +346,12 @@ func (l *StaffEditLogic) updateStaff() error {
 
 	// 查询更新完的员工信息
 	db := l.Db.Where("id = ?", l.Staff.Id)
-	db = model.Staff{}.Preloads(db)
+	db = db.Preload("Stores")
+	db = db.Preload("StoreSuperiors")
+	db = db.Preload("StoreAdmins")
+	db = db.Preload("Regions")
+	db = db.Preload("RegionSuperiors")
+	db = db.Preload("RegionAdmins")
 	if err := db.First(&l.Data).Error; err != nil {
 		return err
 	}
@@ -423,10 +428,12 @@ func (l *StaffEditLogic) updateWechat() error {
 		return errors.New("企业微信更新员工失败")
 	}
 
-	dres, err := jdy.UserTag.TagDelUsers(l.Ctx, l.Staff.Tag.TagId, []string{l.Staff.Username}, nil)
-	if err != nil || (dres != nil && dres.ErrCode != 0) {
-		log.Printf("删除标签失败: %+v, %+v", err, dres)
-		return errors.New("删除标签失败")
+	if l.Staff.Tag != nil {
+		dres, err := jdy.UserTag.TagDelUsers(l.Ctx, l.Staff.Tag.TagId, []string{l.Staff.Username}, nil)
+		if err != nil || (dres != nil && dres.ErrCode != 0) {
+			log.Printf("删除标签失败: %+v, %+v", err, dres)
+			return errors.New("删除标签失败")
+		}
 	}
 
 	tres, err := jdy.UserTag.TagUsers(l.Ctx, l.Tags.TagId, []string{user.Userid})

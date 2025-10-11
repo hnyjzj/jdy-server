@@ -44,66 +44,6 @@ func (con StoreAdminController) List(ctx *gin.Context) {
 	con.Success(ctx, "ok", list)
 }
 
-func (con StoreAdminController) Add(ctx *gin.Context) {
-	var (
-		req   types.StoreAdminAddReq
-		logic = store.StoreAdminLogic{
-			Ctx: ctx,
-		}
-	)
-
-	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
-		return
-	} else {
-		logic.Staff = staff
-	}
-
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
-	}
-
-	// 添加负责人
-	if err := logic.Add(&req); err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
-	con.Success(ctx, "ok", nil)
-}
-
-func (con StoreAdminController) Del(ctx *gin.Context) {
-	var (
-		req   types.StoreAdminDelReq
-		logic = store.StoreAdminLogic{
-			Ctx: ctx,
-		}
-	)
-
-	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
-		return
-	} else {
-		logic.Staff = staff
-	}
-
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
-	}
-
-	// 删除负责人
-	if err := logic.Del(&req); err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
-	con.Success(ctx, "ok", nil)
-}
-
 func (con StoreAdminController) IsIn(ctx *gin.Context) {
 	var (
 		req   types.StoreAdminIsInReq

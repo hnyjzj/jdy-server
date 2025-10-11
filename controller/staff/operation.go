@@ -12,7 +12,7 @@ import (
 // 创建员工
 func (con StaffController) Create(ctx *gin.Context) {
 	var (
-		req types.StaffReq
+		req types.StaffCreateReq
 
 		logic = staff.StaffLogic{}
 	)
@@ -73,7 +73,7 @@ func (con StaffController) Edit(ctx *gin.Context) {
 	}
 
 	// 返回结果
-	con.Success(ctx, "ok", logic.Staff)
+	con.Success(ctx, "ok", nil)
 }
 
 func (con StaffController) Update(ctx *gin.Context) {
@@ -98,6 +98,42 @@ func (con StaffController) Update(ctx *gin.Context) {
 	}
 
 	if err := logic.StaffUpdate(ctx, logic.Staff.Id, &req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	// 返回结果
+	con.Success(ctx, "ok", nil)
+}
+
+func (con StaffController) Delete(ctx *gin.Context) {
+	var (
+		req types.StaffDeleteReq
+
+		logic = staff.StaffLogic{}
+	)
+
+	// 解析参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取当前用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Ctx = ctx
+		logic.Staff = staff
+
+		if staff.Id == req.Id {
+			con.Exception(ctx, "不能删除自己")
+			return
+		}
+	}
+
+	if err := logic.StaffDelete(&req); err != nil {
 		con.Exception(ctx, err.Error())
 		return
 	}

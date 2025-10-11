@@ -12,8 +12,9 @@ type Wechat struct {
 }
 
 type WechatWork struct {
-	CorpID string `mapstructure:"corp_id"` // 企业ID
-	Secret string `mapstructure:"secret"`  // 通讯录秘钥
+	CorpID          string `mapstructure:"corp_id"`          // 企业ID
+	Secret          string `mapstructure:"secret"`           // 通讯录秘钥
+	MarketingCenter int    `mapstructure:"marketing_center"` // 营销中心
 
 	Jdy      Agent `mapstructure:"jdy"`      // 应用
 	Contacts Agent `mapstructure:"contacts"` // 通讯录

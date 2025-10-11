@@ -12,11 +12,11 @@ import (
 type Store struct {
 	SoftDelete
 
-	IdWx  string `json:"id_wx" gorm:"index;size:255;comment:微信ID"` // 微信ID
-	Name  string `json:"name" gorm:"index;size:255;comment:名称"`    // 名称
-	Alias string `json:"alias" gorm:"index;size:255;comment:别名"`   // 别名
-	Phone string `json:"phone" gorm:"index;size:255;comment:电话"`   // 电话
-	Order int    `json:"order" gorm:"index;comment:排序"`            // 排序
+	IdWx  string `json:"id_wx" gorm:"index;size:255;comment:微信ID"`     // 微信ID
+	Name  string `json:"name" gorm:"uniqueIndex;size:255;comment:名称"`  // 名称
+	Alias string `json:"alias" gorm:"uniqueIndex;size:255;comment:别名"` // 别名
+	Phone string `json:"phone" gorm:"index;size:255;comment:电话"`       // 电话
+	Order int    `json:"order" gorm:"index;comment:排序"`                // 排序
 
 	RegionId string `json:"region_id" gorm:"index;size:255;comment:区域ID"`               // 区域ID
 	Region   Region `json:"region" gorm:"foreignKey:RegionId;references:Id;comment:区域"` // 区域
@@ -64,16 +64,12 @@ func (Store) Default(identity enums.Identity) *Store {
 	return def
 }
 
-const StorePrefix = "店"
-const RegionPrefix = "区域"
-const HeaderquartersPrefix = "总部"
-
 func (store *Store) IsHeadquarters() bool {
 	if store == nil {
 		return false
 	}
 
-	return strings.HasSuffix(store.Name, HeaderquartersPrefix)
+	return strings.HasSuffix(store.Name, enums.DepartmentHeaderquarters.String())
 }
 
 func (store *Store) InStore(staff_id string) bool {

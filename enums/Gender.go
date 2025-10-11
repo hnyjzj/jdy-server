@@ -32,6 +32,10 @@ func (p Gender) InMap() error {
 	return nil
 }
 
+func (p Gender) String() string {
+	return GenderMap[p]
+}
+
 func (Gender) Convert(v any) Gender {
 	switch fmt.Sprintf("%v", v) {
 	case "男":

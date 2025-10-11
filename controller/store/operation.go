@@ -12,13 +12,23 @@ import (
 func (con StoreController) Create(ctx *gin.Context) {
 	var (
 		req   types.StoreCreateReq
-		logic = store.StoreLogic{}
+		logic = store.StoreLogic{
+			Ctx: ctx,
+		}
 	)
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
+	}
+
+	// 获取当前登录用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
 	}
 
 	// 创建门店
@@ -34,13 +44,23 @@ func (con StoreController) Create(ctx *gin.Context) {
 func (con StoreController) Update(ctx *gin.Context) {
 	var (
 		req   types.StoreUpdateReq
-		logic = store.StoreLogic{}
+		logic = store.StoreLogic{
+			Ctx: ctx,
+		}
 	)
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
+	}
+
+	// 获取当前登录用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
 	}
 
 	// 更新门店
@@ -56,13 +76,23 @@ func (con StoreController) Update(ctx *gin.Context) {
 func (con StoreController) Delete(ctx *gin.Context) {
 	var (
 		req   types.StoreDeleteReq
-		logic = store.StoreLogic{}
+		logic = store.StoreLogic{
+			Ctx: ctx,
+		}
 	)
 
 	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
 		return
+	}
+
+	// 获取当前登录用户
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
 	}
 
 	// 删除门店

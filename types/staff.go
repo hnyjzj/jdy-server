@@ -5,15 +5,27 @@ import (
 )
 
 // 员工请求
-type StaffReq struct {
-	Username string `json:"username" binding:"required"`                             // 用户名
-	Phone    string `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"` // 手机号
-	Password string `json:"password"`                                                // 密码
-
+type StaffCreateReq struct {
 	Nickname string       `json:"nickname" binding:"required,min=2,max=50,regex=^[\u4e00-\u9fa5]+$"` // 姓名
+	Phone    string       `json:"phone" binding:"required,min=11,max=11,regex=^1\\d{10}$"`           // 手机号
+	Username string       `json:"username" binding:"required"`                                       // 用户名
+	Password string       `json:"password"`                                                          // 密码
 	Avatar   string       `json:"avatar"`                                                            // 头像
 	Email    string       `json:"email"`                                                             // 邮箱
 	Gender   enums.Gender `json:"gender"`                                                            // 性别
+
+	IsDisabled bool `json:"is_disabled"` // 是否禁用
+
+	LeaderName string         `json:"leader_name" binding:"required"` // 上级ID
+	Identity   enums.Identity `json:"identity"`                       // 身份
+	RoleId     string         `json:"role_id"`                        // 角色ID
+
+	StoreIds          []string `json:"store_ids"`           // 所属店铺
+	StoreSuperiorIds  []string `json:"store_superior_ids"`  // 负责的店铺
+	StoreAdminIds     []string `json:"store_admin_ids"`     // 店铺管理员
+	RegionIds         []string `json:"region_ids"`          // 所属区域
+	RegionSuperiorIds []string `json:"region_superior_ids"` // 负责的区域
+	RegionAdminIds    []string `json:"region_admin_ids"`    // 区域管理员
 }
 
 // 员工响应
@@ -43,8 +55,9 @@ type StaffEditReq struct {
 
 	IsDisabled bool `json:"is_disabled"` // 是否禁用
 
-	Identity enums.Identity `json:"identity"` // 身份
-	RoleId   string         `json:"role_id"`  // 角色ID
+	Identity   enums.Identity `json:"identity"`    // 身份
+	RoleId     string         `json:"role_id"`     // 角色ID
+	LeaderName string         `json:"leader_name"` // 上级ID
 
 	StoreIds          []string `json:"store_ids" binding:"required"`           // 店铺
 	StoreSuperiorIds  []string `json:"store_superior_ids" binding:"required"`  // 负责的店铺
@@ -70,13 +83,14 @@ type StaffWhere struct {
 	Phone      string         `json:"phone" label:"手机号" find:"true" create:"true" required:"true" sort:"2" type:"string" input:"text"`
 	Username   string         `json:"username" label:"用户名" find:"true" create:"true" required:"true" sort:"3" type:"string" input:"text"`
 	Email      string         `json:"email" label:"邮箱" find:"true"  create:"true" sort:"4" type:"string" input:"text"`
-	Gender     enums.Gender   `json:"gender" label:"性别" find:"true" create:"true" sort:"5" type:"number" input:"select" preset:"typeMap"`
+	Gender     enums.Gender   `json:"gender" label:"性别" find:"true" create:"true" sort:"5" type:"number" input:"radio" preset:"typeMap"`
 	Avatar     string         `json:"avatar" label:"头像" create:"true" sort:"6" type:"string" input:"upload"`
-	Password   string         `json:"password" label:"密码" create:"true" sort:"7" type:"string" input:"password"`
+	Password   string         `json:"password" label:"密码" create:"false" sort:"7" type:"string" input:"password"`
 	IsDisabled bool           `json:"is_disabled" label:"是否禁用" find:"true" create:"true" sort:"8" type:"boolean" input:"switch"`
 	Identity   enums.Identity `json:"identity" label:"身份" find:"true" create:"false" sort:"9" type:"number" input:"select" preset:"typeMap"`
 
-	StoreId string `json:"store_id" label:"店铺" find:"false" create:"false" sort:"10" type:"string" input:"select"`
+	StoreId    string `json:"store_id" label:"店铺" find:"false" create:"false" sort:"10" type:"string" input:"select"`
+	LeaderName string `json:"leader_name" label:"上级" find:"true" create:"true" sort:"11" type:"string" required:"true" input:"select"`
 }
 
 type StaffListReq struct {
@@ -85,5 +99,9 @@ type StaffListReq struct {
 }
 
 type StaffInfoReq struct {
+	Id string `json:"id" binding:"required"`
+}
+
+type StaffDeleteReq struct {
 	Id string `json:"id" binding:"required"`
 }

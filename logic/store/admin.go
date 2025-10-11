@@ -34,49 +34,6 @@ func (l *StoreAdminLogic) List(req *types.StoreAdminListReq) (*[]model.Staff, er
 	return &store.Admins, nil
 }
 
-// 添加门店管理员
-func (l *StoreAdminLogic) Add(req *types.StoreAdminAddReq) error {
-	// 查询门店
-	var store model.Store
-	if err := model.DB.First(&store, "id = ?", req.StoreId).Error; err != nil {
-		return errors.New("门店不存在")
-	}
-
-	// 查询管理员
-	var Admins []model.Staff
-	if err := model.DB.Find(&Admins, "id IN (?)", req.AdminId).Error; err != nil {
-		return errors.New("管理员不存在")
-	}
-
-	// 添加门店管理员
-	if err := model.DB.Model(&store).Association("Admins").Append(&Admins); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// 删除门店管理员
-func (l *StoreAdminLogic) Del(req *types.StoreAdminDelReq) error {
-	// 查询门店
-	var store model.Store
-	if err := model.DB.First(&store, "id = ?", req.StoreId).Error; err != nil {
-		return errors.New("门店不存在")
-	}
-
-	// 查询管理员
-	var Admins []model.Staff
-	if err := model.DB.Find(&Admins, "id IN (?)", req.AdminId).Error; err != nil {
-		return errors.New("管理员不存在")
-	}
-
-	// 删除门店管理员
-	if err := model.DB.Model(&store).Association("Admins").Delete(&Admins); err != nil {
-		return err
-	}
-	return nil
-}
-
 // 是否在门店
 func (l *StoreAdminLogic) IsIn(req *types.StoreAdminIsInReq) (bool, error) {
 	var (

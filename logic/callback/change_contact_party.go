@@ -3,6 +3,7 @@ package callback
 import (
 	"errors"
 	"fmt"
+	"jdy/enums"
 	"jdy/model"
 	"log"
 	"strconv"
@@ -47,11 +48,11 @@ func (l *EventChangeContactEvent) CreateParty() error {
 	}
 
 	switch {
-	case strings.HasSuffix(party.Department.Name, model.StorePrefix):
+	case strings.HasSuffix(party.Department.Name, enums.DepartmentStore.String()):
 		return create_handle.isStore(l)
-	case strings.HasSuffix(party.Department.Name, model.RegionPrefix):
+	case strings.HasSuffix(party.Department.Name, enums.DepartmentRegion.String()):
 		return create_handle.isRegion(l)
-	case strings.HasSuffix(party.Department.Name, model.HeaderquartersPrefix):
+	case strings.HasSuffix(party.Department.Name, enums.DepartmentHeaderquarters.String()):
 		return create_handle.isStore(l)
 	default:
 		return nil
@@ -143,7 +144,7 @@ func (h *PartyCreateHandle) isStore(l *EventChangeContactEvent) error {
 				return err
 			}
 			// 判断父级部门是否为区域
-			if strings.HasSuffix(parent.Department.Name, model.RegionPrefix) {
+			if strings.HasSuffix(parent.Department.Name, enums.DepartmentRegion.String()) {
 				// 获取父级部门ID
 				var region model.Region
 				if err := tx.Where(&model.Region{

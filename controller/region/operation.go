@@ -12,7 +12,9 @@ import (
 func (con RegionController) Create(ctx *gin.Context) {
 	var (
 		req   types.RegionCreateReq
-		logic = region.RegionLogic{}
+		logic = region.RegionLogic{
+			Ctx: ctx,
+		}
 	)
 
 	// 校验参数
@@ -34,7 +36,9 @@ func (con RegionController) Create(ctx *gin.Context) {
 func (con RegionController) Update(ctx *gin.Context) {
 	var (
 		req   types.RegionUpdateReq
-		logic = region.RegionLogic{}
+		logic = region.RegionLogic{
+			Ctx: ctx,
+		}
 	)
 
 	// 校验参数
@@ -56,7 +60,9 @@ func (con RegionController) Update(ctx *gin.Context) {
 func (con RegionController) Delete(ctx *gin.Context) {
 	var (
 		req   types.RegionDeleteReq
-		logic = region.RegionLogic{}
+		logic = region.RegionLogic{
+			Ctx: ctx,
+		}
 	)
 
 	// 校验参数

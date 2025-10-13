@@ -18,9 +18,10 @@ func StructToStruct[Output any](input any) (Output, error) {
 	var dstStruct Output
 	config := &mapstructure.DecoderConfig{
 		Result:           &dstStruct,
-		WeaklyTypedInput: true, // 允许类型转换
-		ErrorUnused:      true, // 忽略未使用的字段
-		Squash:           true, // 合并嵌套结构体
+		WeaklyTypedInput: true,  // 支持弱类型转换（如字符串转数字）
+		ErrorUnused:      false, // 忽略未使用的字段
+		ZeroFields:       false, // 不将目标字段默认置零（保留目标类型的零值）
+		Squash:           true,  // 合并嵌套结构体
 	}
 	decoder, err := mapstructure.NewDecoder(config)
 	if err != nil {

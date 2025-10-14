@@ -17,6 +17,7 @@ import (
 	"jdy/controller/statistic/stock"
 	"jdy/controller/statistic/today"
 	"jdy/controller/store"
+	"jdy/controller/target"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
 
@@ -607,6 +608,18 @@ func Api(g *gin.Engine) {
 					other.PUT("/update", order.OrderOtherController{}.Update)    // 订单修改
 					other.DELETE("/delete", order.OrderOtherController{}.Delete) // 订单删除
 				}
+			}
+		}
+
+		// 销售目标
+		targets := r.Group("/target")
+		{
+			targets.GET("/where", target.TargetController{}.Where)                  // 销售目标筛选
+			targets.GET("/where_group", target.TargetController{}.WhereGroup)       // 销售目标分组筛选
+			targets.GET("/where_personal", target.TargetController{}.WherePersonal) // 销售目标个人筛选
+			targets.Use(middlewares.JWTMiddleware())
+			{
+				targets.POST("/create", target.TargetController{}.Create) // 创建销售目标
 			}
 		}
 

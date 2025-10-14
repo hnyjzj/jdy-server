@@ -90,10 +90,37 @@ func (req *OrderSalesCreateReq) Validate() error {
 		return errors.New("必须有且仅有一个主导购员")
 	}
 
+	// 检查成品
+	for _, finished := range req.ProductFinisheds {
+		// 应付金额不能小于0
+		if finished.Price.LessThan(decimal.NewFromFloat(0)) {
+			return errors.New("成品金额错误")
+		}
+		// 抹零不能大于应付金额
+		if finished.RoundOff.GreaterThan(finished.Price) {
+			return errors.New("抹零不能大于应付金额")
+		}
+		// 折扣不能小于 0
+		if finished.DiscountFinal.LessThan(decimal.NewFromFloat(0)) {
+			return errors.New("折扣错误")
+		}
+		if finished.DiscountFixed.LessThan(decimal.NewFromFloat(0)) {
+			return errors.New("固定折扣错误")
+		}
+		if finished.DiscountMember.LessThan(decimal.NewFromFloat(0)) {
+			return errors.New("会员折扣错误")
+		}
+	}
+
 	// 检查旧料
 	for _, old := range req.ProductOlds {
 		if old.IsOur && old.ProductId == "" {
 			return errors.New("本司货品编号不能为空")
+		}
+
+		// 回收金额不能小于等于0
+		if old.RecyclePrice.LessThanOrEqual(decimal.NewFromFloat(0)) {
+			return errors.New("回收金额不能小于等于0")
 		}
 
 		switch old.RecycleType {
@@ -110,6 +137,13 @@ func (req *OrderSalesCreateReq) Validate() error {
 				}
 			}
 
+		}
+	}
+
+	// 检查配件
+	for _, accessory := range req.ProductAccessories {
+		if accessory.Price.LessThan(decimal.NewFromFloat(0)) {
+			return errors.New("配件金额错误")
 		}
 	}
 

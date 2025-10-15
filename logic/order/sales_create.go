@@ -510,7 +510,7 @@ func (l *OrderSalesCreateLogic) getProductAccessory(product_id string, quantity 
 
 	// 判断商品状态
 	if product.Stock < quantity {
-		return nil, errors.New("配件库存不足")
+		return nil, errors.New(product.Name + "库存不足")
 	}
 
 	return &product, nil

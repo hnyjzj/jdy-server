@@ -182,7 +182,7 @@ func (l *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 				// 已存在，更新数量
 				// 检查配件库存
 				if accessorie.Stock < (rp.Quantity + paap.Stock) {
-					return errors.New("配件库存不足1")
+					return errors.New(accessorie.Name + "库存不足")
 				}
 				// 更新配件数量
 				if err := tx.Model(&model.ProductAccessorieAllocateProduct{}).
@@ -201,7 +201,7 @@ func (l *ProductAccessorieAllocateLogic) Add(req *types.ProductAccessorieAllocat
 				// 不存在，新增
 				// 检查配件库存
 				if accessorie.Stock < rp.Quantity {
-					return errors.New("配件库存不足2")
+					return errors.New(accessorie.Name + "库存不足")
 				}
 				data := model.ProductAccessorieAllocateProduct{
 					AllocateId: allocate.Id,

@@ -452,7 +452,7 @@ func (l *ProductAccessorieEnterLogic) Cancel(req *types.ProductAccessorieEnterCa
 					return errors.New("配件查询失败")
 				}
 				if accessorie.Stock < product.Stock || accessorie.Stock-product.Stock < 0 {
-					return errors.New("配件库存不足")
+					return errors.New(accessorie.Name + "库存不足")
 				}
 
 				accessorie.Stock -= product.Stock

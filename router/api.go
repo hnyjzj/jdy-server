@@ -621,6 +621,7 @@ func Api(g *gin.Engine) {
 			{
 				targets.POST("/create", target.TargetController{}.Create) // 创建销售目标
 				targets.POST("/list", target.TargetController{}.List)     // 销售目标列表
+				targets.POST("/info", target.TargetController{}.Info)     // 销售目标详情
 			}
 		}
 

@@ -34,3 +34,17 @@ func (l *Logic) List(req *types.TargetListReq) (*types.PageRes[model.Target], er
 
 	return &res, nil
 }
+
+func (l *Logic) Info(req *types.TargetInfoReq) (*model.Target, error) {
+	var (
+		target model.Target
+	)
+
+	db := model.DB.Model(&target)
+	db = target.Preloads(db)
+	if err := db.First(&target, "id = ?", req.Id).Error; err != nil {
+		return nil, errors.New("获取门店详情失败")
+	}
+
+	return &target, nil
+}

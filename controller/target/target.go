@@ -95,3 +95,34 @@ func (con TargetController) List(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", list)
 }
+
+// 详情
+func (con TargetController) Info(ctx *gin.Context) {
+	var (
+		req   types.TargetInfoReq
+		logic target.Logic
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+		logic.Ctx = ctx
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取详情
+	detail, err := logic.Info(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", detail)
+}

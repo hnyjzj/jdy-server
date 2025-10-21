@@ -174,3 +174,7 @@ type TargetListReq struct {
 
 	Where TargetWhere `json:"where" binding:"required"`
 }
+
+type TargetInfoReq struct {
+	Id string `json:"id" binding:"required"` // 目标编号
+}

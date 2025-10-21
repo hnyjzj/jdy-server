@@ -64,3 +64,34 @@ func (con TargetController) Create(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 列表
+func (con TargetController) List(ctx *gin.Context) {
+	var (
+		req   types.TargetListReq
+		logic target.Logic
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+		logic.Ctx = ctx
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 获取列表
+	list, err := logic.List(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", list)
+}

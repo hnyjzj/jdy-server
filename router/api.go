@@ -620,6 +620,7 @@ func Api(g *gin.Engine) {
 			targets.Use(middlewares.JWTMiddleware())
 			{
 				targets.POST("/create", target.TargetController{}.Create) // 创建销售目标
+				targets.POST("/list", target.TargetController{}.List)     // 销售目标列表
 			}
 		}
 

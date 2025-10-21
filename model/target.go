@@ -1,10 +1,13 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
+	"jdy/types"
 	"time"
 
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type Target struct {
@@ -28,6 +31,62 @@ type Target struct {
 	Category []enums.ProductCategory      `json:"category" gorm:"column:category;type:text;serializer:json;comment:产品品类;"` // 产品品类
 	Gem      []enums.ProductGem           `json:"gem" gorm:"column:gem;type:text;serializer:json;comment:产品主石;"`           // 产品主石
 	Craft    []enums.ProductCraft         `json:"craft" gorm:"column:craft;type:text;serializer:json;comment:产品工艺;"`       // 产品工艺
+
+	Groups    []TargetGroup    `json:"groups" gorm:"foreignKey:TargetId;references:Id;comment:分组;"`    // 分组
+	Personals []TargetPersonal `json:"personals" gorm:"foreignKey:TargetId;references:Id;comment:个人;"` // 个人
+}
+
+func (Target) WhereCondition(db *gorm.DB, query *types.TargetWhere) *gorm.DB {
+	if query.Name != "" {
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
+	}
+	if query.IsDefault != nil {
+		db = db.Where("is_default = ?", query.IsDefault)
+	}
+	if query.StartTime != nil {
+		db = db.Where("start_time >= ?", query.StartTime)
+	}
+	if query.EndTime != nil {
+		db = db.Where("end_time <= ?", query.EndTime)
+	}
+	if query.Method != 0 {
+		db = db.Where("method = ?", query.Method)
+	}
+	if query.Scope != 0 {
+		db = db.Where("scope = ?", query.Scope)
+	}
+	if query.Object != 0 {
+		db = db.Where("object = ?", query.Object)
+	}
+	if query.StoreId != "" {
+		db = db.Where("store_id = ?", query.StoreId)
+	}
+	if query.Class != 0 {
+		db = db.Where("FIND_IN_SET(?, class)", query.Class)
+	}
+	if query.Material != 0 {
+		db = db.Where("FIND_IN_SET(?, material)", query.Material)
+	}
+	if query.Quality != 0 {
+		db = db.Where("FIND_IN_SET(?, quality)", query.Quality)
+	}
+	if query.Category != 0 {
+		db = db.Where("FIND_IN_SET(?, category)", query.Category)
+	}
+	if query.Gem != 0 {
+		db = db.Where("FIND_IN_SET(?, gem)", query.Gem)
+	}
+	if query.Craft != 0 {
+		db = db.Where("FIND_IN_SET(?, craft)", query.Craft)
+	}
+
+	return db
+}
+
+func (Target) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Store")
+
+	return db
 }
 
 type TargetGroup struct {

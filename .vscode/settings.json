@@ -36,6 +36,13 @@
                 "false"
             ]
         },
+        "lust": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ]
+        },
         "info": {
             "cases": [],
             "options": [

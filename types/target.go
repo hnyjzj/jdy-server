@@ -38,32 +38,40 @@ type TargetWhereGroup struct {
 }
 
 type TargetWherePersonal struct {
-	StaffId  string           `json:"staff_id" label:"员工编号" sort:"1" find:"true" create:"true" update:"true" info:"false" input:"text" type:"string" required:"true"`     // 员工编号
+	StaffId  string           `json:"staff_id" label:"员工编号" sort:"1" find:"true" create:"true" update:"true" info:"false" input:"search" type:"string" required:"true"`   // 员工编号
 	GroupId  string           `json:"group_id" label:"组别编号" sort:"2" find:"false" create:"false" update:"true" info:"false" input:"search" type:"string" required:"true"` // 组别编号
 	IsLeader bool             `json:"is_leader" label:"是否组长" sort:"3" find:"true" create:"true" update:"true" info:"false" input:"switch" type:"boolean" required:"true"` // 是否组长
 	Purpose  *decimal.Decimal `json:"purpose" label:"目标" sort:"4" find:"true" create:"true" update:"true" info:"false" input:"text" type:"number" required:"true"`        // 目标
 }
 
 type TargetCreateReq struct {
-	StoreId   string                       `json:"store_id" binding:"required"`
-	Name      string                       `json:"name" binding:"required"`
-	IsDefault bool                         `json:"is_default"`
-	StartTime *time.Time                   `json:"start_time" binding:"required"`
-	EndTime   *time.Time                   `json:"end_time" binding:"required"`
-	Method    enums.TargetMethod           `json:"method" binding:"required"`
-	Scope     enums.TargetScope            `json:"scope" binding:"required"`
-	Class     []enums.ProductClassFinished `json:"class"`
-	Material  []enums.ProductMaterial      `json:"material"`
-	Quality   []enums.ProductQuality       `json:"quality"`
-	Category  []enums.ProductCategory      `json:"category"`
-	Gem       []enums.ProductGem           `json:"gem"`
-	Craft     []enums.ProductCraft         `json:"craft"`
-	Object    enums.TargetObject           `json:"object"`
-	Groups    []TargetWhereGroup           `json:"groups"`
-	Personals []TargetWherePersonal        `json:"personals"`
+	StoreId   string             `json:"store_id" binding:"required"`   // 店铺编号
+	Name      string             `json:"name" binding:"required"`       // 名称
+	IsDefault bool               `json:"is_default"`                    // 是否默认
+	StartTime *time.Time         `json:"start_time" binding:"required"` // 开始时间
+	EndTime   *time.Time         `json:"end_time" binding:"required"`   // 结束时间
+	Method    enums.TargetMethod `json:"method" binding:"required"`     // 统计方式
+	Scope     enums.TargetScope  `json:"scope" binding:"required"`      // 统计范围
+	Object    enums.TargetObject `json:"object"`                        // 统计对象
+
+	Class    []enums.ProductClassFinished `json:"class"`    // 产品大类
+	Material []enums.ProductMaterial      `json:"material"` // 产品材质
+	Quality  []enums.ProductQuality       `json:"quality"`  // 产品成色
+	Category []enums.ProductCategory      `json:"category"` // 产品品类
+	Gem      []enums.ProductGem           `json:"gem"`      // 产品主石
+	Craft    []enums.ProductCraft         `json:"craft"`    // 产品工艺
+
+	Groups    []TargetWhereGroup    `json:"groups"`    // 组别
+	Personals []TargetWherePersonal `json:"personals"` // 员工
 }
 
-func (req *TargetCreateReq) Validate() error {
+func (req *TargetCreateReq) Validate() error { // 验证时间范围
+	if req.StartTime != nil && req.EndTime != nil {
+		if req.EndTime.Before(*req.StartTime) {
+			return errors.New("结束时间必须晚于开始时间")
+		}
+	}
+
 	switch req.Scope {
 	case enums.TargetScopeClass:
 		{
@@ -120,6 +128,41 @@ func (req *TargetCreateReq) Validate() error {
 					}
 				}
 			}
+		}
+	}
+
+	// 验证组是否重复
+	groupNames := make(map[string]bool)
+	for _, group := range req.Groups {
+		if group.Name == "" {
+			return errors.New("组别名称不能为空")
+		}
+		if _, ok := groupNames[group.Name]; ok {
+			return errors.New("组别编号不能重复")
+		}
+		groupNames[group.Name] = true
+	}
+
+	// 验证员工是否重复
+	staffIds := make(map[string]bool)
+	// 验证组长是否重复
+	isLeaders := make(map[string]map[string]bool)
+	for _, personal := range req.Personals {
+		if personal.StaffId == "" {
+			return errors.New("员工编号不能为空")
+		}
+		if _, ok := staffIds[personal.StaffId]; ok {
+			return errors.New("员工不能重复")
+		}
+		staffIds[personal.StaffId] = true
+
+		if _, ok := isLeaders[personal.GroupId]; !ok {
+			isLeaders[personal.GroupId] = make(map[string]bool)
+		}
+		if _, ok := isLeaders[personal.GroupId][personal.StaffId]; ok {
+			return errors.New("组长不能重复")
+		} else if personal.IsLeader {
+			isLeaders[personal.GroupId][personal.StaffId] = true
 		}
 	}
 

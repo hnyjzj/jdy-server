@@ -1,0 +1,71 @@
+package model
+
+import (
+	"jdy/enums"
+	"time"
+
+	"github.com/shopspring/decimal"
+)
+
+type Target struct {
+	SoftDelete
+
+	StoreId string `json:"store_id" gorm:"index:idx_pf_store_status_time,priority:1;type:varchar(255);comment:门店ID;"` // 门店ID
+	Store   Store  `json:"store,omitzero" gorm:"foreignKey:StoreId;references:Id;comment:门店;"`                        // 门店
+
+	Name      string    `json:"name" gorm:"type:varchar(255);comment:名称;"`                    // 名称
+	IsDefault bool      `json:"is_default" gorm:"type:tinyint(1);comment:是否默认;"`              // 是否默认
+	StartTime time.Time `json:"start_time" gorm:"type:datetime;not null;index;comment:开始时间;"` // 开始时间
+	EndTime   time.Time `json:"end_time" gorm:"type:datetime;not null;index;comment:结束时间;"`   // 结束时间
+
+	Method enums.TargetMethod `json:"method" gorm:"type:tinyint(1);comment:统计方式;"` // 统计方式
+	Scope  enums.TargetScope  `json:"scope" gorm:"type:tinyint(1);comment:统计范围;"`  // 统计范围
+	Object enums.TargetObject `json:"object" gorm:"type:tinyint(1);comment:统计对象;"` // 统计对象
+
+	Class    []enums.ProductClassFinished `json:"class" gorm:"column:class;type:text;serializer:json;comment:产品大类;"`       // 产品大类
+	Material []enums.ProductMaterial      `json:"material" gorm:"column:material;type:text;serializer:json;comment:产品材质;"` // 产品材质
+	Quality  []enums.ProductQuality       `json:"quality" gorm:"column:quality;type:text;serializer:json;comment:产品成色;"`   // 产品成色
+	Category []enums.ProductCategory      `json:"category" gorm:"column:category;type:text;serializer:json;comment:产品品类;"` // 产品品类
+	Gem      []enums.ProductGem           `json:"gem" gorm:"column:gem;type:text;serializer:json;comment:产品主石;"`           // 产品主石
+	Craft    []enums.ProductCraft         `json:"craft" gorm:"column:craft;type:text;serializer:json;comment:产品工艺;"`       // 产品工艺
+}
+
+type TargetGroup struct {
+	Model
+
+	TargetId string `json:"target_id" gorm:"index;type:varchar(255);comment:目标ID;"`               // 目标ID
+	Target   Target `json:"target,omitzero" gorm:"foreignKey:TargetId;references:Id;comment:目标;"` // 目标
+
+	Name string `json:"name" gorm:"type:varchar(255);comment:名称;"` // 名称
+}
+
+type TargetPersonal struct {
+	Model
+
+	TargetId string `json:"target_id" gorm:"index;type:varchar(255);comment:目标ID;"`               // 目标ID
+	Target   Target `json:"target,omitzero" gorm:"foreignKey:TargetId;references:Id;comment:目标;"` // 目标
+
+	StaffId string `json:"staff_id" gorm:"index;type:varchar(255);comment:员工ID;"`              // 员工ID
+	Staff   Staff  `json:"staff,omitzero" gorm:"foreignKey:StaffId;references:Id;comment:员工;"` // 员工
+
+	GroupId string      `json:"group_id" gorm:"index;type:varchar(255);comment:分组ID;"`              // 分组ID
+	Group   TargetGroup `json:"group,omitzero" gorm:"foreignKey:GroupId;references:Id;comment:分组;"` // 分组
+
+	IsLeader bool            `json:"is_leader" gorm:"type:tinyint(1);comment:是否组长;"` // 是否组长
+	Purpose  decimal.Decimal `json:"purpose" gorm:"type:decimal(10,2);comment:目标量;"` // 目标量
+}
+
+func init() {
+	// 注册模型
+	RegisterModels(
+		&Target{},
+		&TargetGroup{},
+		&TargetPersonal{},
+	)
+	// 重置表
+	RegisterRefreshModels(
+	// &Target{},
+	// &TargetGroup{},
+	// &TargetPersonal{},
+	)
+}

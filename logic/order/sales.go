@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -218,18 +219,47 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 			}
 			switch product.Type {
 			case enums.ProductTypeFinished:
-				// 更新成品状态
-				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Finished.Product.Id).Updates(&model.ProductFinished{
-					Status: enums.ProductStatusSold,
-				}).Error; err != nil {
-					return errors.New("更新成品状态失败")
+				{
+					// 更新成品状态
+					if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Finished.Product.Id).Updates(&model.ProductFinished{
+						Status: enums.ProductStatusSold,
+					}).Error; err != nil {
+						return errors.New("更新成品状态失败")
+					}
+
+					for _, clerk := range order.Clerks {
+						achieve := product.Finished.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+						if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve, 1); err != nil {
+							return err
+						}
+					}
 				}
 			case enums.ProductTypeOld:
-				// 更新旧料状态
-				if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Product.Id).Updates(&model.ProductOld{
-					Status: enums.ProductStatusNormal,
-				}).Error; err != nil {
-					return errors.New("更新旧料状态失败")
+				{
+					// 更新旧料状态
+					if err := tx.Model(&model.ProductOld{}).Where("id = ?", product.Old.Product.Id).Updates(&model.ProductOld{
+						Status: enums.ProductStatusNormal,
+					}).Error; err != nil {
+						return errors.New("更新旧料状态失败")
+					}
+
+					if product.Old.Product.RecycleType == enums.ProductRecycleTypeExchange {
+						for _, clerk := range order.Clerks {
+							achieve := product.Old.RecyclePrice.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+							if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve.Neg(), 0); err != nil {
+								return err
+							}
+						}
+					}
+				}
+			case enums.ProductTypeAccessorie:
+				{
+					for _, clerk := range order.Clerks {
+						achieve := product.Accessorie.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+						if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve, 0); err != nil {
+							return err
+						}
+					}
 				}
 			}
 		}
@@ -276,7 +306,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 	)
 
 	db := model.DB.Model(&order)
-
+	db = order.Preloads(db)
 	db = db.Where("id = ?", req.Id)
 	if err := db.First(&order).Error; err != nil {
 		return errors.New("获取订单详情失败")
@@ -300,166 +330,194 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 		// 查询产品
 		switch req.ProductType {
 		case enums.ProductTypeFinished:
-			// 查询成品
-			var p model.OrderSalesProduct
-			if err := tx.Preload("Finished.Product").First(&p, "id = ?", req.ProductId).Error; err != nil {
-				return errors.New("获取成品订单详情失败")
+			{
+				// 查询成品
+				var p model.OrderSalesProduct
+				if err := tx.Preload("Finished.Product").First(&p, "id = ?", req.ProductId).Error; err != nil {
+					return errors.New("获取成品订单详情失败")
+				}
+
+				if p.Status != enums.OrderSalesStatusComplete {
+					return errors.New("成品订单状态不正确")
+				}
+
+				// 更新订单成品状态
+				if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
+					Status: enums.OrderSalesStatusReturn,
+				}).Error; err != nil {
+					return errors.New("更新订单成品状态失败")
+				}
+
+				// 根据入库类型更新成品
+				switch req.Method {
+				case enums.ProductTypeUsedFinished:
+					// 添加历史
+					log := model.ProductHistory{
+						Action:     enums.ProductActionReturn,
+						Type:       enums.ProductTypeFinished,
+						OldValue:   p.Finished.Product,
+						ProductId:  p.Finished.Product.Id,
+						StoreId:    p.Finished.Product.StoreId,
+						SourceId:   p.Finished.Product.Id,
+						OperatorId: l.Staff.Id,
+						IP:         l.Ctx.ClientIP(),
+					}
+					if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Finished.Product.Id).Updates(&model.ProductFinished{
+						Status: enums.ProductStatusNormal,
+					}).Error; err != nil {
+						return errors.New("更新成品状态失败")
+					}
+
+					log.NewValue = p.Finished.Product
+					if err := tx.Create(&log).Error; err != nil {
+						return errors.New("创建成品历史失败")
+					}
+
+				case enums.ProductTypeUsedOld:
+					if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Finished.Product.Id).Updates(&model.ProductFinished{
+						Status: enums.ProductStatusDamage,
+					}).Error; err != nil {
+						return errors.New("更新成品状态失败")
+					}
+
+					// 成品转旧料
+					damage := product.ProductFinishedDamageLogic{
+						Ctx:   l.Ctx,
+						Staff: l.Staff,
+					}
+					if err := damage.Conversion(&types.ProductConversionReq{
+						Id:     p.Finished.Product.Id,
+						Type:   enums.ProductTypeUsedOld,
+						Remark: fmt.Sprintf("销售单退货(%s): %s", order.Id, req.Remark),
+					}); err != nil {
+						return err
+					}
+				}
+
+				data.Type = enums.ProductTypeFinished
+				data.Code = strings.TrimSpace(strings.ToUpper(p.Finished.Product.Code))
+				data.Name = p.Finished.Product.Name
+				data.Quantity = 1
+				data.Price = req.Price
+				data.PriceOriginal = p.Finished.Price
+
+				for _, clerk := range order.Clerks {
+					achieve := req.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+					if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve.Neg(), -1); err != nil {
+						return err
+					}
+				}
 			}
 
-			if p.Status != enums.OrderSalesStatusComplete {
-				return errors.New("成品订单状态不正确")
-			}
+		case enums.ProductTypeOld:
+			{
+				// 查询旧料
+				var p model.OrderSalesProduct
+				if err := tx.Preload("Old.Product").First(&p, "id = ?", req.ProductId).Error; err != nil {
+					return errors.New("获取旧料订单详情失败")
+				}
+				if p.Status != enums.OrderSalesStatusComplete {
+					return errors.New("旧料订单状态不正确")
+				}
 
-			// 更新订单成品状态
-			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
-				Status: enums.OrderSalesStatusReturn,
-			}).Error; err != nil {
-				return errors.New("更新订单成品状态失败")
-			}
-
-			// 根据入库类型更新成品
-			switch req.Method {
-			case enums.ProductTypeUsedFinished:
+				// 更新订单旧料状态
+				if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
+					Status: enums.OrderSalesStatusReturn,
+				}).Error; err != nil {
+					return errors.New("更新订单旧料状态失败")
+				}
 				// 添加历史
 				log := model.ProductHistory{
 					Action:     enums.ProductActionReturn,
-					Type:       enums.ProductTypeFinished,
-					OldValue:   p.Finished.Product,
-					ProductId:  p.Finished.Product.Id,
-					StoreId:    p.Finished.Product.StoreId,
-					SourceId:   p.Finished.Product.Id,
+					Type:       enums.ProductTypeOld,
+					OldValue:   p.Old.Product,
+					ProductId:  p.Old.Product.Id,
+					StoreId:    p.Old.Product.StoreId,
+					SourceId:   p.Old.Product.Id,
 					OperatorId: l.Staff.Id,
 					IP:         l.Ctx.ClientIP(),
 				}
-				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Finished.Product.Id).Updates(&model.ProductFinished{
-					Status: enums.ProductStatusNormal,
+				// 更新旧料状态
+				if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Old.Product.Id).Updates(&model.ProductOld{
+					Status: enums.ProductStatusNoStock,
 				}).Error; err != nil {
-					return errors.New("更新成品状态失败")
+					return errors.New("更新旧料状态失败")
 				}
 
-				log.NewValue = p.Finished.Product
+				log.NewValue = p.Old.Product
 				if err := tx.Create(&log).Error; err != nil {
-					return errors.New("创建成品历史失败")
+					return errors.New("创建旧料历史失败")
 				}
 
-			case enums.ProductTypeUsedOld:
-				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Finished.Product.Id).Updates(&model.ProductFinished{
-					Status: enums.ProductStatusDamage,
-				}).Error; err != nil {
-					return errors.New("更新成品状态失败")
-				}
+				data.Type = enums.ProductTypeOld
+				data.Code = strings.TrimSpace(strings.ToUpper(p.Old.Product.Code))
+				data.Name = p.Old.Product.Name
+				data.Quantity = 1
+				data.Price = req.Price
+				data.PriceOriginal = p.Old.RecyclePrice
 
-				// 成品转旧料
-				damage := product.ProductFinishedDamageLogic{
-					Ctx:   l.Ctx,
-					Staff: l.Staff,
-				}
-				if err := damage.Conversion(&types.ProductConversionReq{
-					Id:     p.Finished.Product.Id,
-					Type:   enums.ProductTypeUsedOld,
-					Remark: fmt.Sprintf("销售单退货(%s): %s", order.Id, req.Remark),
-				}); err != nil {
-					return err
+				if p.Old.Product.RecycleType == enums.ProductRecycleTypeExchange {
+					for _, clerk := range order.Clerks {
+						achieve := req.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+						if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve, 0); err != nil {
+							return err
+						}
+					}
 				}
 			}
-
-			data.Type = enums.ProductTypeFinished
-			data.Code = strings.TrimSpace(strings.ToUpper(p.Finished.Product.Code))
-			data.Name = p.Finished.Product.Name
-			data.Quantity = 1
-			data.Price = req.Price
-			data.PriceOriginal = p.Finished.Price
-
-		case enums.ProductTypeOld:
-			// 查询旧料
-			var p model.OrderSalesProduct
-			if err := tx.Preload("Old.Product").First(&p, "id = ?", req.ProductId).Error; err != nil {
-				return errors.New("获取旧料订单详情失败")
-			}
-			if p.Status != enums.OrderSalesStatusComplete {
-				return errors.New("旧料订单状态不正确")
-			}
-
-			// 更新订单旧料状态
-			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
-				Status: enums.OrderSalesStatusReturn,
-			}).Error; err != nil {
-				return errors.New("更新订单旧料状态失败")
-			}
-			// 添加历史
-			log := model.ProductHistory{
-				Action:     enums.ProductActionReturn,
-				Type:       enums.ProductTypeOld,
-				OldValue:   p.Old.Product,
-				ProductId:  p.Old.Product.Id,
-				StoreId:    p.Old.Product.StoreId,
-				SourceId:   p.Old.Product.Id,
-				OperatorId: l.Staff.Id,
-				IP:         l.Ctx.ClientIP(),
-			}
-			// 更新旧料状态
-			if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Old.Product.Id).Updates(&model.ProductOld{
-				Status: enums.ProductStatusNoStock,
-			}).Error; err != nil {
-				return errors.New("更新旧料状态失败")
-			}
-
-			log.NewValue = p.Old.Product
-			if err := tx.Create(&log).Error; err != nil {
-				return errors.New("创建旧料历史失败")
-			}
-
-			data.Type = enums.ProductTypeOld
-			data.Code = strings.TrimSpace(strings.ToUpper(p.Old.Product.Code))
-			data.Name = p.Old.Product.Name
-			data.Quantity = 1
-			data.Price = req.Price
-			data.PriceOriginal = p.Old.RecyclePrice
-
 		case enums.ProductTypeAccessorie:
-			// 查询配件
-			var p model.OrderSalesProduct
-			if err := tx.Preload("Accessorie.Product").First(&p, "id = ?", req.ProductId).Error; err != nil {
-				return errors.New("获取配件订单详情失败")
-			}
-			if p.Status != enums.OrderSalesStatusComplete {
-				return errors.New("配件订单状态不正确")
-			}
+			{
+				// 查询配件
+				var p model.OrderSalesProduct
+				if err := tx.Preload("Accessorie.Product").First(&p, "id = ?", req.ProductId).Error; err != nil {
+					return errors.New("获取配件订单详情失败")
+				}
+				if p.Status != enums.OrderSalesStatusComplete {
+					return errors.New("配件订单状态不正确")
+				}
 
-			// 更新订单配件状态
-			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
-				Status: enums.OrderSalesStatusReturn,
-			}).Error; err != nil {
-				return errors.New("更新订单配件状态失败")
-			}
-			// 添加历史
-			log := model.ProductHistory{
-				Action:     enums.ProductActionReturn,
-				Type:       enums.ProductTypeAccessorie,
-				OldValue:   p.Accessorie.Product,
-				ProductId:  p.Accessorie.ProductId,
-				StoreId:    p.Accessorie.Product.StoreId,
-				SourceId:   p.Accessorie.ProductId,
-				OperatorId: l.Staff.Id,
-				IP:         l.Ctx.ClientIP(),
-			}
+				// 更新订单配件状态
+				if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
+					Status: enums.OrderSalesStatusReturn,
+				}).Error; err != nil {
+					return errors.New("更新订单配件状态失败")
+				}
+				// 添加历史
+				log := model.ProductHistory{
+					Action:     enums.ProductActionReturn,
+					Type:       enums.ProductTypeAccessorie,
+					OldValue:   p.Accessorie.Product,
+					ProductId:  p.Accessorie.ProductId,
+					StoreId:    p.Accessorie.Product.StoreId,
+					SourceId:   p.Accessorie.ProductId,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
+				}
 
-			// 更新配件状态
-			if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", p.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
-				Status: enums.ProductAccessorieStatusNormal,
-			}).Update("stock", gorm.Expr("stock + ?", p.Accessorie.Quantity)).Error; err != nil {
-				return errors.New("更新配件状态失败")
-			}
-			log.NewValue = p.Accessorie.Product
-			if err := tx.Create(&log).Error; err != nil {
-				return errors.New("创建配件历史失败")
-			}
+				// 更新配件状态
+				if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", p.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
+					Status: enums.ProductAccessorieStatusNormal,
+				}).Update("stock", gorm.Expr("stock + ?", p.Accessorie.Quantity)).Error; err != nil {
+					return errors.New("更新配件状态失败")
+				}
+				log.NewValue = p.Accessorie.Product
+				if err := tx.Create(&log).Error; err != nil {
+					return errors.New("创建配件历史失败")
+				}
 
-			data.Type = enums.ProductTypeAccessorie
-			data.Name = p.Accessorie.Product.Name
-			data.Quantity = p.Accessorie.Quantity
-			data.Price = req.Price
-			data.PriceOriginal = p.Accessorie.Price
+				data.Type = enums.ProductTypeAccessorie
+				data.Name = p.Accessorie.Product.Name
+				data.Quantity = p.Accessorie.Quantity
+				data.Price = req.Price
+				data.PriceOriginal = p.Accessorie.Price
+
+				for _, clerk := range order.Clerks {
+					achieve := req.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+					if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve.Neg(), 0); err != nil {
+						return err
+					}
+				}
+			}
 		}
 
 		if err := tx.Model(&model.OrderSales{}).Where("id = ?", order.Id).Updates(&model.OrderSales{

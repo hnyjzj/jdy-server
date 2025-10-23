@@ -8,14 +8,15 @@ import (
 	"jdy/utils"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
-func (l *Logic) Create(req *types.TargetCreateReq) error {
+func (l *Logic) Create(req *types.TargetCreateReq) (*model.Target, error) {
 
 	// 验证参数
 	data, err := utils.StructToStruct[model.Target](req)
 	if err != nil {
-		return errors.New("验证参数失败")
+		return nil, errors.New("验证参数失败")
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
@@ -29,76 +30,103 @@ func (l *Logic) Create(req *types.TargetCreateReq) error {
 			}
 		}
 
-		// 创建目标
-		if err := tx.Create(&data).Error; err != nil {
+		// 创建目标(跳过关联)
+		if err := tx.Omit(clause.Associations).Create(&data).Error; err != nil {
 			return errors.New("创建目标失败")
-		}
-
-		// 根据目标对象类型创建群组或个人
-		switch data.Object {
-		case enums.TargetObjectGroup:
-			{
-				// 创建群组
-				var groups []model.TargetGroup
-				for _, group := range req.Groups {
-					groups = append(groups, model.TargetGroup{
-						TargetId: data.Id,
-						Name:     group.Name,
-					})
-				}
-				if err := tx.Create(&groups).Error; err != nil {
-					return errors.New("创建群组失败")
-				}
-				// 创建员工
-				for _, group := range groups {
-					for _, rg := range req.Groups {
-						for i, personal := range req.Personals {
-							if personal.GroupId == rg.Id {
-								req.Personals[i].GroupId = group.Id
-							}
-						}
-					}
-				}
-				// 创建个人
-				var personal []model.TargetPersonal
-				for _, p := range req.Personals {
-					personal = append(personal, model.TargetPersonal{
-						TargetId: data.Id,
-						StaffId:  p.StaffId,
-						GroupId:  p.GroupId,
-						IsLeader: p.IsLeader,
-						Purpose:  *p.Purpose,
-					})
-				}
-				if err := tx.Create(&personal).Error; err != nil {
-					return errors.New("创建群组员工失败")
-				}
-			}
-		case enums.TargetObjectPersonal:
-			{
-				// 创建个人
-				var personal []model.TargetPersonal
-				for _, p := range req.Personals {
-					personal = append(personal, model.TargetPersonal{
-						TargetId: data.Id,
-						StaffId:  p.StaffId,
-						Purpose:  *p.Purpose,
-					})
-				}
-				if err := tx.Create(&personal).Error; err != nil {
-					return errors.New("创建个人失败")
-				}
-			}
-		default:
-			{
-				return errors.New("目标对象类型错误")
-			}
 		}
 
 		return nil
 	}); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &data, nil
+}
+
+func (l *Logic) CreateGroup(req *types.TargetGroupCreateReq) (*model.TargetGroup, error) {
+	// 验证参数
+	data, err := utils.StructToStruct[model.TargetGroup](req)
+	if err != nil {
+		return nil, errors.New("验证参数失败")
+	}
+	var (
+		target model.Target
+	)
+	if err := model.DB.Preload("Groups").First(&target, "id = ?", req.TargetId).Error; err != nil {
+		return nil, errors.New("目标不存在")
+	}
+	if target.Object != enums.TargetObjectGroup {
+		return nil, errors.New("非群组目标不能创建群组")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		for _, group := range target.Groups {
+			if group.Name == data.Name {
+				return errors.New("目标组名称已存在")
+			}
+		}
+
+		// 创建群组(跳过关联)
+		if err := tx.Omit(clause.Associations).Create(&data).Error; err != nil {
+			return errors.New("创建群组失败")
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return &data, nil
+}
+
+func (l *Logic) CreatePersonal(req *types.TargetPersonalCreateReq) (*model.TargetPersonal, error) {
+	data, err := utils.StructToStruct[model.TargetPersonal](req)
+	if err != nil {
+		return nil, errors.New("验证参数失败")
+	}
+	var (
+		target model.Target
+	)
+	if err := model.DB.Preload("Personals").First(&target, "id = ?", req.TargetId).Error; err != nil {
+		return nil, errors.New("目标不存在")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 如果目标类型为团队目标
+		if target.Object == enums.TargetObjectGroup {
+			// 获取目标组
+			var group model.TargetGroup
+			if err := tx.First(&group, "id = ?", req.GroupId).Error; err != nil {
+				return errors.New("群组不存在")
+			}
+			// 将目标设为组长时
+			if data.IsLeader {
+				// 将所有成员目标设为非组长
+				if err := tx.Model(model.TargetPersonal{}).Where(&model.TargetPersonal{
+					TargetId: target.Id,
+					GroupId:  group.Id,
+				}).Update("is_leader", false).Error; err != nil {
+					return errors.New("将所有成员设为非组长失败")
+				}
+			}
+		}
+
+		// 个人不能重复
+		for _, personal := range target.Personals {
+			if personal.StaffId == data.StaffId {
+				return errors.New("个人已存在")
+			}
+		}
+
+		// 创建个人(跳过关联)
+		if err := tx.Omit(clause.Associations).Create(&data).Error; err != nil {
+			return errors.New("创建个人失败")
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return &data, nil
 }

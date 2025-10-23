@@ -28,6 +28,7 @@ func (l *Logic) List(req *types.TargetListReq) (*types.PageRes[model.Target], er
 
 	db = model.PageCondition(db, &req.PageReq)
 	db = target.Preloads(db)
+	db = db.Order("created_at desc")
 	if err := db.Find(&res.List).Error; err != nil {
 		return nil, errors.New("获取门店列表失败")
 	}

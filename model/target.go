@@ -34,6 +34,7 @@ type Target struct {
 
 	Groups    []TargetGroup    `json:"groups" gorm:"foreignKey:TargetId;references:Id;comment:分组;"`    // 分组
 	Personals []TargetPersonal `json:"personals" gorm:"foreignKey:TargetId;references:Id;comment:个人;"` // 个人
+	Achieves  []TargetAchieve  `json:"achieves" gorm:"foreignKey:TargetId;references:Id;comment:达成;"`  // 达成
 }
 
 func (Target) WhereCondition(db *gorm.DB, query *types.TargetWhere) *gorm.DB {
@@ -96,16 +97,29 @@ func (Target) Preloads(db *gorm.DB) *gorm.DB {
 }
 
 type TargetGroup struct {
-	Model
+	SoftDelete
 
 	TargetId string `json:"target_id" gorm:"index;type:varchar(255);comment:目标ID;"`               // 目标ID
 	Target   Target `json:"target,omitzero" gorm:"foreignKey:TargetId;references:Id;comment:目标;"` // 目标
 
 	Name string `json:"name" gorm:"type:varchar(255);comment:名称;"` // 名称
+
+	Personals []TargetPersonal `json:"personals" gorm:"foreignKey:GroupId;references:Id;comment:个人;"` // 个人
+}
+
+func (TargetGroup) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Target")
+	db = db.Preload("Personals", func(tx *gorm.DB) *gorm.DB {
+		tx = tx.Preload("Staff")
+		tx = tx.Preload("Group")
+		return tx
+	})
+
+	return db
 }
 
 type TargetPersonal struct {
-	Model
+	SoftDelete
 
 	TargetId string `json:"target_id" gorm:"index;type:varchar(255);comment:目标ID;"`               // 目标ID
 	Target   Target `json:"target,omitzero" gorm:"foreignKey:TargetId;references:Id;comment:目标;"` // 目标
@@ -116,8 +130,86 @@ type TargetPersonal struct {
 	GroupId string      `json:"group_id" gorm:"index;type:varchar(255);comment:分组ID;"`              // 分组ID
 	Group   TargetGroup `json:"group,omitzero" gorm:"foreignKey:GroupId;references:Id;comment:分组;"` // 分组
 
-	IsLeader bool            `json:"is_leader" gorm:"type:tinyint(1);comment:是否组长;"` // 是否组长
-	Purpose  decimal.Decimal `json:"purpose" gorm:"type:decimal(10,2);comment:目标量;"` // 目标量
+	IsLeader bool            `json:"is_leader" gorm:"type:tinyint(1);comment:是否组长;"`  // 是否组长
+	Purpose  decimal.Decimal `json:"purpose" gorm:"type:decimal(10,2);comment:目标量;"`  // 目标量
+	Achieve  decimal.Decimal `json:"achieved" gorm:"type:decimal(10,2);comment:达成量;"` // 达成量
+}
+
+func (TargetPersonal) Preloads(db *gorm.DB) *gorm.DB {
+	db = db.Preload("Target")
+	db = db.Preload("Staff")
+	db = db.Preload("Group")
+
+	return db
+}
+
+type TargetAchieve struct {
+	SoftDelete
+
+	TargetId string `json:"target_id" gorm:"index;type:varchar(255);comment:目标ID;"`               // 目标ID
+	Target   Target `json:"target,omitzero" gorm:"foreignKey:TargetId;references:Id;comment:目标;"` // 目标
+
+	OrderId string     `json:"order_id" gorm:"index;type:varchar(255);comment:订单ID;"`              // 订单ID
+	Order   OrderSales `json:"order,omitzero" gorm:"foreignKey:OrderId;references:Id;comment:订单;"` // 订单
+
+	StaffId string `json:"staff_id" gorm:"index;type:varchar(255);comment:员工ID;"`              // 员工ID
+	Staff   Staff  `json:"staff,omitzero" gorm:"foreignKey:StaffId;references:Id;comment:员工;"` // 员工
+
+	Achieve decimal.Decimal `json:"achieved" gorm:"type:decimal(10,2);comment:达成量;"` // 达成量
+}
+
+func TargetAddAchieve(tx *gorm.DB, order_id, store_id, staff_id string, amount decimal.Decimal, quantity int64) error {
+	var (
+		personals []TargetPersonal
+	)
+	tdb := tx.Model(&Target{})
+	tdb = tdb.Where("store_id =?", store_id)
+	tdb = tdb.Where("start_time <= ? AND end_time >= ?", time.Now(), time.Now())
+
+	tpdb := tx.Model(&TargetPersonal{})
+	tpdb = tpdb.Where("staff_id =?", staff_id)
+	tpdb = tpdb.Where("target_id IN (?)", tdb.Select("id"))
+	tpdb = tpdb.Preload("Target")
+	if err := tpdb.Find(&personals).Error; err != nil {
+		return err
+	}
+
+	for _, personal := range personals {
+		switch personal.Target.Method {
+		case enums.TargetMethodAmount:
+			{
+				if err := tx.Model(&TargetPersonal{}).Where("id = ?", personal.Id).Update("achieve", personal.Achieve.Add(amount)).Error; err != nil {
+					return err
+				}
+				achieve := TargetAchieve{
+					TargetId: personal.TargetId,
+					OrderId:  order_id,
+					StaffId:  personal.StaffId,
+					Achieve:  amount,
+				}
+				if err := tx.Create(&achieve).Error; err != nil {
+					return err
+				}
+			}
+		case enums.TargetMethodQuantity:
+			{
+				if err := tx.Model(&TargetPersonal{}).Where("id = ?", personal.Id).Update("achieve", personal.Achieve.Add(decimal.NewFromInt(quantity))).Error; err != nil {
+					return err
+				}
+				achieve := TargetAchieve{
+					TargetId: personal.TargetId,
+					OrderId:  order_id,
+					StaffId:  personal.StaffId,
+					Achieve:  decimal.NewFromInt(quantity),
+				}
+				if err := tx.Create(&achieve).Error; err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func init() {

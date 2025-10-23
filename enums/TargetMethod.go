@@ -7,13 +7,13 @@ import "errors"
 type TargetMethod int
 
 const (
-	TargetMethodAmount TargetMethod = iota + 1 // 金额
-	TargetMethodNum                            // 件数
+	TargetMethodAmount   TargetMethod = iota + 1 // 金额
+	TargetMethodQuantity                         // 件数
 )
 
 var TargetMethodMap = map[TargetMethod]string{
-	TargetMethodAmount: "金额",
-	TargetMethodNum:    "件数",
+	TargetMethodAmount:   "金额",
+	TargetMethodQuantity: "件数",
 }
 
 func (p TargetMethod) ToMap() any {

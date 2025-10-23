@@ -619,9 +619,20 @@ func Api(g *gin.Engine) {
 			targets.GET("/where_personal", target.TargetController{}.WherePersonal) // 销售目标个人筛选
 			targets.Use(middlewares.JWTMiddleware())
 			{
-				targets.POST("/create", target.TargetController{}.Create) // 创建销售目标
-				targets.POST("/list", target.TargetController{}.List)     // 销售目标列表
-				targets.POST("/info", target.TargetController{}.Info)     // 销售目标详情
+				targets.POST("/list", target.TargetController{}.List) // 销售目标列表
+				targets.POST("/info", target.TargetController{}.Info) // 销售目标详情
+
+				targets.POST("/create", target.TargetController{}.Create)                  // 创建销售目标
+				targets.POST("/create_group", target.TargetController{}.CreateGroup)       // 创建销售目标分组
+				targets.POST("/create_personal", target.TargetController{}.CreatePersonal) // 创建销售目标个人
+
+				targets.PUT("/update", target.TargetController{}.Update)                  // 销售目标更新
+				targets.PUT("/update_group", target.TargetController{}.UpdateGroup)       // 销售目标分组更新
+				targets.PUT("/update_personal", target.TargetController{}.UpdatePersonal) // 销售目标个人更新
+
+				targets.DELETE("/delete", target.TargetController{}.Delete)                  // 销售目标删除
+				targets.DELETE("/delete_group", target.TargetController{}.DeleteGroup)       // 销售目标分组删除
+				targets.DELETE("/delete_personal", target.TargetController{}.DeletePersonal) // 销售目标个人删除
 			}
 		}
 

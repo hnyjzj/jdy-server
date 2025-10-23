@@ -35,36 +35,6 @@ func (con TargetController) WherePersonal(ctx *gin.Context) {
 	con.Success(ctx, "ok", where)
 }
 
-// 创建
-func (con TargetController) Create(ctx *gin.Context) {
-	var (
-		req   types.TargetCreateReq
-		logic target.Logic
-	)
-
-	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
-		return
-	} else {
-		logic.Staff = staff
-		logic.Ctx = ctx
-	}
-
-	// 校验参数
-	if err := ctx.ShouldBind(&req); err != nil {
-		con.Exception(ctx, errors.ErrInvalidParam.Error())
-		return
-	}
-
-	// 创建目标
-	if err := logic.Create(&req); err != nil {
-		con.Exception(ctx, err.Error())
-		return
-	}
-
-	con.Success(ctx, "ok", nil)
-}
-
 // 列表
 func (con TargetController) List(ctx *gin.Context) {
 	var (

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 
@@ -49,7 +50,7 @@ type OrderRepair struct {
 
 func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gorm.DB {
 	if req.Id != "" {
-		db = db.Where("id = ?", req.Id)
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
@@ -58,7 +59,7 @@ func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gor
 		db = db.Where("receptionist_id = ?", req.ReceptionistId)
 	}
 	if req.Name != "" {
-		db = db.Where("name LIKE ?", "%"+req.Name+"%")
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", req.Name))
 	}
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
@@ -79,7 +80,7 @@ func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gor
 		db = db.Where("area = ?", req.Area)
 	}
 	if req.Address != "" {
-		db = db.Where("address LIKE ?", "%"+req.Address+"%")
+		db = db.Where("address LIKE ?", fmt.Sprintf("%%%s%%", req.Address))
 	}
 	if req.StartDate != nil {
 		db = db.Where("created_at >= ?", req.StartDate)

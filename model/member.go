@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 
@@ -44,7 +45,7 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 		db = db.Where("phone = ?", query.Phone)
 	}
 	if query.Name != "" {
-		db = db.Where("name like ?", "%"+query.Name+"%")
+		db = db.Where("name like ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
 	if query.Gender != 0 {
 		db = db.Where("gender = ?", query.Gender)
@@ -56,7 +57,7 @@ func (Member) WhereCondition(db *gorm.DB, query *types.MemberWhere) *gorm.DB {
 		db = db.Where("anniversary = ?", query.Anniversary)
 	}
 	if query.Nickname != "" {
-		db = db.Where("nickname like ?", "%"+query.Nickname+"%")
+		db = db.Where("nickname like ?", fmt.Sprintf("%%%s%%", query.Nickname))
 	}
 	if query.Level != 0 {
 		db = db.Where("level = ?", query.Level)

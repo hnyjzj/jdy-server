@@ -10,6 +10,7 @@ type WhereForm struct {
 	Find      bool             `json:"find"`      // 查询是否显示
 	Create    bool             `json:"create"`    // 创建是否显示
 	Update    bool             `json:"update"`    // 更新是否显示
+	List      bool             `json:"list"`      // 列表是否显示
 	Info      bool             `json:"info"`      // 详情是否显示
 	Preset    any              `json:"preset"`    // 预设：[value1, value2]|{value1: label1, value2: label2}|{value1: {label1: label2}}
 	Condition []WhereCondition `json:"condition"` // 条件：[{key: string, value: string, operator: string}]

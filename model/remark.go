@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/types"
 
 	"gorm.io/gorm"
@@ -19,15 +20,15 @@ type Remark struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP地址;"`               // IP地址
 }
 
-func (Remark) WhereCondition(db *gorm.DB, query *types.RemarkWhere) *gorm.DB {
-	if query.Id != "" {
-		db = db.Where("id = ?", query.Id)
+func (Remark) WhereCondition(db *gorm.DB, req *types.RemarkWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
-	if query.StoreId != "" {
-		db = db.Where("store_id = ?", query.StoreId)
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
 	}
-	if query.Content != "" {
-		db = db.Where("content LIKE ?", "%"+query.Content+"%")
+	if req.Content != "" {
+		db = db.Where("content LIKE ?", fmt.Sprintf("%%%s%%", req.Content))
 	}
 
 	return db

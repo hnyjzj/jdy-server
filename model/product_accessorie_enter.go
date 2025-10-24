@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 
@@ -27,27 +28,27 @@ type ProductAccessorieEnter struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"`                 // IP
 }
 
-func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, query *types.ProductAccessorieEnterWhere) *gorm.DB {
-	if query.Id != "" {
-		db = db.Where("id = ?", query.Id)
+func (ProductAccessorieEnter) WhereCondition(db *gorm.DB, req *types.ProductAccessorieEnterWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
-	if query.StoreId != "" {
-		db = db.Where("store_id = ?", query.StoreId)
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
 	}
-	if query.Status != 0 {
-		db = db.Where("status = ?", query.Status)
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
 	}
-	if query.Remark != "" {
-		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")
+	if req.Remark != "" {
+		db = db.Where("remark LIKE ?", fmt.Sprintf("%%%s%%", req.Remark))
 	}
-	if query.Name != "" {
-		db = db.Where("id IN (SELECT enter_id FROM product_accessorie_enter_products WHERE name LIKE ?)", "%"+query.Name+"%")
+	if req.Name != "" {
+		db = db.Where("id IN (SELECT enter_id FROM product_accessorie_enter_products WHERE name LIKE ?)", fmt.Sprintf("%%%s%%", req.Name))
 	}
-	if query.StartTime != nil {
-		db = db.Where("created_at >= ?", query.StartTime)
+	if req.StartTime != nil {
+		db = db.Where("created_at >= ?", req.StartTime)
 	}
-	if query.EndTime != nil {
-		db = db.Where("created_at <= ?", query.EndTime)
+	if req.EndTime != nil {
+		db = db.Where("created_at <= ?", req.EndTime)
 	}
 
 	return db

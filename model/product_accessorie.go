@@ -26,30 +26,30 @@ type ProductAccessorie struct {
 	Status enums.ProductAccessorieStatus `json:"status" gorm:"type:int(11);default:1;comment:状态;"` // 状态
 }
 
-func (ProductAccessorie) WhereCondition(db *gorm.DB, query *types.ProductAccessorieWhere) *gorm.DB {
-	if query.Id != "" {
-		db = db.Where("id = ?", query.Id)
+func (ProductAccessorie) WhereCondition(db *gorm.DB, req *types.ProductAccessorieWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
-	if query.StoreId != "" {
-		db = db.Where("store_id = ?", query.StoreId)
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
 	}
-	if query.Name != "" {
-		db = db.Where("name LIKE (?)", fmt.Sprintf("%%%s%%", query.Name))
+	if req.Name != "" {
+		db = db.Where("name LIKE (?)", fmt.Sprintf("%%%s%%", req.Name))
 	}
-	if query.Type != 0 {
-		db = db.Where("type = ?", query.Type)
+	if req.Type != 0 {
+		db = db.Where("type = ?", req.Type)
 	}
-	if query.RetailType != 0 {
-		db = db.Where("retail_type = ?", query.RetailType)
+	if req.RetailType != 0 {
+		db = db.Where("retail_type = ?", req.RetailType)
 	}
-	if query.Remark != "" {
-		db = db.Where("remark LIKE (?)", fmt.Sprintf("%%%s%%", query.Remark))
+	if req.Remark != "" {
+		db = db.Where("remark LIKE (?)", fmt.Sprintf("%%%s%%", req.Remark))
 	}
-	if query.Stock != 0 {
-		db = db.Where("stock >= ?", query.Stock)
+	if req.Stock != 0 {
+		db = db.Where("stock >= ?", req.Stock)
 	}
-	if query.Status != 0 {
-		db = db.Where("status = ?", query.Status)
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
 	}
 
 	return db

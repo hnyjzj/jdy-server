@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 	"time"
@@ -73,7 +74,7 @@ type ProductInventoryProduct struct {
 
 func (ProductInventory) WhereCondition(db *gorm.DB, req *types.ProductInventoryWhere) *gorm.DB {
 	if req.Id != "" {
-		db = db.Where("id = ?", req.Id)
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)

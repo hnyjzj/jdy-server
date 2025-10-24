@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 
@@ -46,55 +47,55 @@ type ProductAllocate struct {
 	Receiver   *Staff `json:"receiver" gorm:"foreignKey:ReceiverId;references:Id;comment:接收人;"` // 接收人
 }
 
-func (ProductAllocate) WhereCondition(db *gorm.DB, query *types.ProductAllocateWhere, staff *Staff) *gorm.DB {
-	if query.Id != "" {
-		db = db.Where("id = ?", query.Id)
+func (ProductAllocate) WhereCondition(db *gorm.DB, req *types.ProductAllocateWhere, staff *Staff) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
-	if query.Method != 0 {
-		db = db.Where("method = ?", query.Method)
+	if req.Method != 0 {
+		db = db.Where("method = ?", req.Method)
 	}
-	if query.Type != 0 {
-		db = db.Where("type = ?", query.Type)
+	if req.Type != 0 {
+		db = db.Where("type = ?", req.Type)
 	}
-	if query.Reason != 0 {
-		db = db.Where("reason = ?", query.Reason)
+	if req.Reason != 0 {
+		db = db.Where("reason = ?", req.Reason)
 	}
 	switch {
-	case query.FromStoreId == "" && query.ToStoreId == "" && query.StoreId != "":
+	case req.FromStoreId == "" && req.ToStoreId == "" && req.StoreId != "":
 		{
-			db = db.Where("(from_store_id = ? OR to_store_id = ?)", query.StoreId, query.StoreId)
+			db = db.Where("(from_store_id = ? OR to_store_id = ?)", req.StoreId, req.StoreId)
 		}
-	case query.FromStoreId != "" && query.ToStoreId != "":
+	case req.FromStoreId != "" && req.ToStoreId != "":
 		{
-			db = db.Where("(from_store_id = ? AND to_store_id = ?)", query.FromStoreId, query.ToStoreId)
+			db = db.Where("(from_store_id = ? AND to_store_id = ?)", req.FromStoreId, req.ToStoreId)
 		}
-	case query.FromStoreId != "" && query.ToStoreId == "":
+	case req.FromStoreId != "" && req.ToStoreId == "":
 		{
-			db = db.Where("from_store_id = ?", query.FromStoreId)
+			db = db.Where("from_store_id = ?", req.FromStoreId)
 		}
-	case query.FromStoreId == "" && query.ToStoreId != "":
+	case req.FromStoreId == "" && req.ToStoreId != "":
 		{
-			db = db.Where("to_store_id = ?", query.ToStoreId)
+			db = db.Where("to_store_id = ?", req.ToStoreId)
 		}
 	default:
 		{
 			db = db.Where("(from_store_id IN (?) OR to_store_id IN (?))", staff.StoreIds, staff.StoreIds)
 		}
 	}
-	if query.Status != 0 {
-		db = db.Where("status = ?", query.Status)
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
 	}
-	if query.StartTime != nil {
-		db = db.Where("created_at >= ?", query.StartTime)
+	if req.StartTime != nil {
+		db = db.Where("created_at >= ?", req.StartTime)
 	}
-	if query.EndTime != nil {
-		db = db.Where("created_at <= ?", query.EndTime)
+	if req.EndTime != nil {
+		db = db.Where("created_at <= ?", req.EndTime)
 	}
-	if query.InitiatorId != "" {
-		db = db.Where("initiator_id = ?", query.InitiatorId)
+	if req.InitiatorId != "" {
+		db = db.Where("initiator_id = ?", req.InitiatorId)
 	}
-	if query.ReceiverId != "" {
-		db = db.Where("receiver_id = ?", query.ReceiverId)
+	if req.ReceiverId != "" {
+		db = db.Where("receiver_id = ?", req.ReceiverId)
 	}
 
 	return db

@@ -25,12 +25,12 @@ type Target struct {
 	Scope  enums.TargetScope  `json:"scope" gorm:"type:tinyint(1);comment:统计范围;"`  // 统计范围
 	Object enums.TargetObject `json:"object" gorm:"type:tinyint(1);comment:统计对象;"` // 统计对象
 
-	Class    []enums.ProductClassFinished `json:"class" gorm:"column:class;type:text;serializer:json;comment:产品大类;"`       // 产品大类
-	Material []enums.ProductMaterial      `json:"material" gorm:"column:material;type:text;serializer:json;comment:产品材质;"` // 产品材质
-	Quality  []enums.ProductQuality       `json:"quality" gorm:"column:quality;type:text;serializer:json;comment:产品成色;"`   // 产品成色
-	Category []enums.ProductCategory      `json:"category" gorm:"column:category;type:text;serializer:json;comment:产品品类;"` // 产品品类
-	Gem      []enums.ProductGem           `json:"gem" gorm:"column:gem;type:text;serializer:json;comment:产品主石;"`           // 产品主石
-	Craft    []enums.ProductCraft         `json:"craft" gorm:"column:craft;type:text;serializer:json;comment:产品工艺;"`       // 产品工艺
+	Class    []enums.ProductClassFinished `json:"class" gorm:"column:class;type:json;serializer:json;comment:产品大类;"`       // 产品大类
+	Material []enums.ProductMaterial      `json:"material" gorm:"column:material;type:json;serializer:json;comment:产品材质;"` // 产品材质
+	Quality  []enums.ProductQuality       `json:"quality" gorm:"column:quality;type:json;serializer:json;comment:产品成色;"`   // 产品成色
+	Category []enums.ProductCategory      `json:"category" gorm:"column:category;type:json;serializer:json;comment:产品品类;"` // 产品品类
+	Gem      []enums.ProductGem           `json:"gem" gorm:"column:gem;type:json;serializer:json;comment:产品主石;"`           // 产品主石
+	Craft    []enums.ProductCraft         `json:"craft" gorm:"column:craft;type:json;serializer:json;comment:产品工艺;"`       // 产品工艺
 
 	Groups    []TargetGroup    `json:"groups" gorm:"foreignKey:TargetId;references:Id;comment:分组;"`    // 分组
 	Personals []TargetPersonal `json:"personals" gorm:"foreignKey:TargetId;references:Id;comment:个人;"` // 个人
@@ -66,22 +66,22 @@ func (Target) WhereCondition(db *gorm.DB, query *types.TargetWhere) *gorm.DB {
 		db = db.Where("store_id = ?", query.StoreId)
 	}
 	if query.Class != 0 {
-		db = db.Where("FIND_IN_SET(?, class)", query.Class)
+		db = db.Where("JSON_CONTAINS(class, ?)", fmt.Sprintf("[%d]", query.Class))
 	}
 	if query.Material != 0 {
-		db = db.Where("FIND_IN_SET(?, material)", query.Material)
+		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
 	}
 	if query.Quality != 0 {
-		db = db.Where("FIND_IN_SET(?, quality)", query.Quality)
+		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
 	}
 	if query.Category != 0 {
-		db = db.Where("FIND_IN_SET(?, category)", query.Category)
+		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
 	}
 	if query.Gem != 0 {
-		db = db.Where("FIND_IN_SET(?, gem)", query.Gem)
+		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
 	}
 	if query.Craft != 0 {
-		db = db.Where("FIND_IN_SET(?, craft)", query.Craft)
+		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
 	}
 
 	return db

@@ -38,6 +38,9 @@ type Target struct {
 }
 
 func (Target) WhereCondition(db *gorm.DB, query *types.TargetWhere) *gorm.DB {
+	if query.Id != "" {
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", query.Id))
+	}
 	if query.Name != "" {
 		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}

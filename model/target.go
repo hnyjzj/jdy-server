@@ -91,6 +91,9 @@ func (Target) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Store")
 	db = db.Preload("Groups")
 	db = db.Preload("Personals", func(tx *gorm.DB) *gorm.DB {
+		tx = tx.Order("Achieve desc")
+		tx = tx.Order("Purpose desc")
+
 		tx = tx.Preload("Staff")
 		tx = tx.Preload("Group")
 		return tx

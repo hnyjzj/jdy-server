@@ -9,27 +9,28 @@ import (
 )
 
 type TargetWhere struct {
-	StoreId string `json:"store_id" label:"门店" sort:"1" find:"false" create:"false" update:"false" list:"true" info:"true" input:"text" type:"string" required:"true"` // 门店
+	StoreId string `json:"store_id" label:"门店" sort:"1" find:"false" create:"false" update:"false" list:"false" info:"true" input:"text" type:"string" required:"true"` // 门店
 
-	Id   string `json:"id" label:"编号" sort:"1" find:"true" create:"false" update:"false" list:"true" info:"true" input:"text" type:"string" required:"false"` // 编号
-	Name string `json:"name" label:"名称" sort:"2" find:"true" create:"true" update:"true" list:"true" info:"true" input:"text" type:"string" required:"true"`  // 名称
+	Id   string `json:"id" label:"编号" sort:"1" find:"true" create:"false" update:"false" list:"false" info:"true" input:"text" type:"string" required:"false"` // 编号
+	Name string `json:"name" label:"名称" sort:"2" find:"true" create:"true" update:"true" list:"true" info:"true" input:"text" type:"string" required:"true"`   // 名称
 
 	IsDefault *bool `json:"is_default" label:"是否默认" sort:"3" find:"true" create:"true" update:"true" list:"true" info:"true" input:"switch" type:"boolean" required:"true"` // 是否默认
 
-	StartTime *time.Time `json:"start_time" label:"开始时间" sort:"4" find:"true" create:"true" update:"true" list:"true" info:"true" input:"date" type:"date" required:"true"`   // 开始时间
-	EndTime   *time.Time `json:"end_time" label:"结束时间" sort:"5" find:"true" create:"true" update:"true" list:"true" info:"true" input:"datetime" type:"date" required:"true"` // 结束时间
+	StartTime *time.Time `json:"start_time" label:"开始时间" sort:"4" find:"true" create:"true" update:"true" list:"true" info:"true" input:"date" type:"date" required:"true"`        // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" sort:"5" find:"true" create:"true" update:"true" list:"true" info:"true" input:"datetime" type:"date" required:"true"`      // 结束时间
+	CreatedAt *time.Time `json:"created_at" label:"创建时间" sort:"6" find:"true" create:"false" update:"false" list:"true" info:"true" input:"datetime" type:"date" required:"false"` // 创建时间
 
-	Method enums.TargetMethod `json:"method" label:"统计方式" sort:"6" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"` // 统计方式
+	Method enums.TargetMethod `json:"method" label:"统计方式" sort:"7" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"` // 统计方式
 
-	Scope    enums.TargetScope          `json:"scope" label:"统计范围" sort:"7" find:"true" create:"true" update:"false" list:"false" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"`                                                                         // 统计范围
-	Class    enums.ProductClassFinished `json:"class" label:"产品大类" sort:"8" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":1}]"`     // 产品大类
-	Material enums.ProductMaterial      `json:"material" label:"产品材质" sort:"9" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`  // 产品材质
-	Quality  enums.ProductQuality       `json:"quality" label:"产品成色" sort:"10" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`  // 产品成色
-	Category enums.ProductCategory      `json:"category" label:"产品品类" sort:"11" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"` // 产品品类
-	Gem      enums.ProductGem           `json:"gem" label:"产品主石" sort:"12" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`      // 产品主石
-	Craft    enums.ProductCraft         `json:"craft" label:"产品工艺" sort:"13" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`    // 产品工艺
+	Scope    enums.TargetScope          `json:"scope" label:"统计范围" sort:"8" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"`                                                                          // 统计范围
+	Class    enums.ProductClassFinished `json:"class" label:"产品大类" sort:"9" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":1}]"`     // 产品大类
+	Material enums.ProductMaterial      `json:"material" label:"产品材质" sort:"10" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"` // 产品材质
+	Quality  enums.ProductQuality       `json:"quality" label:"产品成色" sort:"11" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`  // 产品成色
+	Category enums.ProductCategory      `json:"category" label:"产品品类" sort:"12" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"` // 产品品类
+	Gem      enums.ProductGem           `json:"gem" label:"产品主石" sort:"13" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`      // 产品主石
+	Craft    enums.ProductCraft         `json:"craft" label:"产品工艺" sort:"14" find:"true" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`    // 产品工艺
 
-	Object enums.TargetObject `json:"object" label:"统计对象" sort:"14" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"` // 统计对象
+	Object enums.TargetObject `json:"object" label:"统计对象" sort:"15" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"` // 统计对象
 }
 
 type TargetWhereGroup struct {

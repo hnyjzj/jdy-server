@@ -16,8 +16,8 @@ type TargetWhere struct {
 
 	IsDefault *bool `json:"is_default" label:"是否默认" sort:"3" find:"true" create:"true" update:"true" list:"true" info:"true" input:"switch" type:"boolean" required:"true"` // 是否默认
 
-	StartTime *time.Time `json:"start_time" label:"开始时间" sort:"4" find:"true" create:"true" update:"true" list:"true" info:"true" input:"date" type:"date" required:"true"` // 开始时间
-	EndTime   *time.Time `json:"end_time" label:"结束时间" sort:"5" find:"true" create:"true" update:"true" list:"true" info:"true" input:"date" type:"date" required:"true"`   // 结束时间
+	StartTime *time.Time `json:"start_time" label:"开始时间" sort:"4" find:"true" create:"true" update:"true" list:"true" info:"true" input:"date" type:"date" required:"true"`   // 开始时间
+	EndTime   *time.Time `json:"end_time" label:"结束时间" sort:"5" find:"true" create:"true" update:"true" list:"true" info:"true" input:"datetime" type:"date" required:"true"` // 结束时间
 
 	Method enums.TargetMethod `json:"method" label:"统计方式" sort:"6" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"` // 统计方式
 

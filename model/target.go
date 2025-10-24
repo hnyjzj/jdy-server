@@ -175,37 +175,32 @@ func TargetAddAchieve(tx *gorm.DB, order_id, store_id, staff_id string, amount d
 	}
 
 	for _, personal := range personals {
+		achieve := TargetAchieve{
+			TargetId: personal.TargetId,
+			OrderId:  order_id,
+			StaffId:  personal.StaffId,
+		}
+
 		switch personal.Target.Method {
 		case enums.TargetMethodAmount:
 			{
-				if err := tx.Model(&TargetPersonal{}).Where("id = ?", personal.Id).Update("achieve", personal.Achieve.Add(amount)).Error; err != nil {
-					return err
-				}
-				achieve := TargetAchieve{
-					TargetId: personal.TargetId,
-					OrderId:  order_id,
-					StaffId:  personal.StaffId,
-					Achieve:  amount,
-				}
-				if err := tx.Create(&achieve).Error; err != nil {
-					return err
-				}
+				achieve.Achieve = amount
 			}
 		case enums.TargetMethodQuantity:
 			{
-				if err := tx.Model(&TargetPersonal{}).Where("id = ?", personal.Id).Update("achieve", personal.Achieve.Add(decimal.NewFromInt(quantity))).Error; err != nil {
-					return err
-				}
-				achieve := TargetAchieve{
-					TargetId: personal.TargetId,
-					OrderId:  order_id,
-					StaffId:  personal.StaffId,
-					Achieve:  decimal.NewFromInt(quantity),
-				}
-				if err := tx.Create(&achieve).Error; err != nil {
-					return err
-				}
+				achieve.Achieve = decimal.NewFromInt(quantity)
 			}
+		}
+
+		if achieve.Achieve.IsZero() {
+			continue
+		}
+
+		if err := tx.Model(&TargetPersonal{}).Where("id = ?", personal.Id).UpdateColumn("achieve", gorm.Expr("achieve + ?", achieve.Achieve)).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(&achieve).Error; err != nil {
+			return err
 		}
 	}
 
@@ -218,11 +213,13 @@ func init() {
 		&Target{},
 		&TargetGroup{},
 		&TargetPersonal{},
+		&TargetAchieve{},
 	)
 	// 重置表
 	RegisterRefreshModels(
 	// &Target{},
 	// &TargetGroup{},
 	// &TargetPersonal{},
+	// &TargetAchieve{},
 	)
 }

@@ -96,17 +96,15 @@ func (req *OrderSalesCreateReq) Validate() error {
 		if finished.Price.LessThan(decimal.NewFromFloat(0)) {
 			return errors.New("成品金额错误")
 		}
-		// 抹零不能大于应付金额
-		if finished.RoundOff.GreaterThan(finished.Price) {
-			return errors.New("抹零不能大于应付金额")
-		}
 		// 折扣不能小于 0
 		if finished.DiscountFinal.LessThan(decimal.NewFromFloat(0)) {
 			return errors.New("折扣错误")
 		}
+		// 固定折扣不能小于 0
 		if finished.DiscountFixed.LessThan(decimal.NewFromFloat(0)) {
 			return errors.New("固定折扣错误")
 		}
+		// 会员折扣不能小于 0
 		if finished.DiscountMember.LessThan(decimal.NewFromFloat(0)) {
 			return errors.New("会员折扣错误")
 		}

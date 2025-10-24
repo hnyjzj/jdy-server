@@ -43,9 +43,9 @@ type ProductFinishedWhere struct {
 	Remark         string              `json:"remark" label:"备注" find:"true" info:"true" create:"true" update:"true" sort:"28" type:"string" input:"textarea"`                  // 备注
 	Status         enums.ProductStatus `json:"status" label:"状态" find:"true" info:"true" create:"false" update:"false" sort:"29" type:"number" input:"select" preset:"typeMap"` // 状态
 
-	StoreId     string   `json:"store_id" label:"门店" find:"false" create:"true" update:"false" sort:"30" type:"string" input:"text"`     // 门店
-	Certificate []string `json:"certificate" label:"证书" find:"false" create:"true" update:"true" sort:"31" type:"string[]" input:"list"` // 证书
-	Images      []string `json:"images" label:"图片" find:"false" create:"false" update:"true" sort:"32" type:"string[]" input:"list"`     // 图片
+	StoreId     string   `json:"store_id" label:"门店" find:"false" create:"true" update:"false" sort:"30" type:"string" input:"text"`                 // 门店
+	Certificate []string `json:"certificate" label:"证书" find:"false" create:"true" update:"true" info:"true" sort:"31" type:"string[]" input:"list"` // 证书
+	Images      []string `json:"images" label:"图片" find:"false" create:"false" update:"true" sort:"32" type:"string[]" input:"list"`                 // 图片
 
 	EnterId   string    `json:"enter_id" label:"入库单" find:"true" info:"true" sort:"33" type:"string" input:"text"` // 产品入库单ID
 	EnterTime time.Time `json:"enter_time" label:"入库时间" find:"false" sort:"34" type:"date" input:"date"`           // 产品入库时间

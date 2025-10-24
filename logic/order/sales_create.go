@@ -524,12 +524,12 @@ func (l *OrderSalesCreateLogic) getProductAccessory(product_id string, quantity 
 	db = db.Preload("Store")
 
 	if err := db.First(&product).Error; err != nil {
-		return nil, errors.New("产品不存在")
+		return nil, errors.New("配件不存在")
 	}
 
 	// 判断商品状态
 	if product.Stock < quantity {
-		return nil, errors.New("配件库存不足")
+		return nil, errors.New(product.Name + "库存不足")
 	}
 
 	return &product, nil

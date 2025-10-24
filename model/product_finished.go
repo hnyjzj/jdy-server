@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 	"time"
@@ -58,7 +59,7 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 		db = db.Where("code = ?", query.Code) // 编码
 	}
 	if query.Name != "" {
-		db = db.Where("name LIKE ?", "%"+query.Name+"%") // 名称
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name)) // 名称
 	}
 	if query.AccessFee != nil {
 		db = db.Where("access_fee = ?", query.AccessFee) // 入网费
@@ -70,16 +71,16 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 		db = db.Where("labor_fee = ?", query.LaborFee) // 工费
 	}
 	if query.Style != "" {
-		db = db.Where("style LIKE (?)", "%"+query.Style+"%") // 款式
+		db = db.Where("style LIKE (?)", fmt.Sprintf("%%%s%%", query.Style)) // 风格
 	}
 	if query.WeightTotal != nil {
 		db = db.Where("weight_total = ?", query.WeightTotal) // 总重
 	}
 	if query.Size != "" {
-		db = db.Where("size LIKE (?)", "%"+query.Size+"%") // 手寸
+		db = db.Where("size LIKE (?)", fmt.Sprintf("%%%s%%", query.Size)) // 手寸
 	}
 	if query.ColorMetal != "" {
-		db = db.Where("color_metal LIKE (?)", "%"+query.ColorMetal+"%") // 贵金属颜色
+		db = db.Where("color_metal LIKE (?)", fmt.Sprintf("%%%s%%", query.ColorMetal)) // 贵金属颜色
 	}
 	if query.WeightMetal != nil {
 		db = db.Where("weight_metal = ?", query.WeightMetal) // 金重
@@ -124,10 +125,10 @@ func (ProductFinished) WhereCondition(db *gorm.DB, query *types.ProductFinishedW
 		db = db.Where("clarity = ?", query.Clarity) // 主石净度
 	}
 	if query.Series != "" {
-		db = db.Where("series LIKE (?)", "%"+query.Series+"%") // 系列
+		db = db.Where("series LIKE (?)", fmt.Sprintf("%%%s%%", query.Series)) // 系列
 	}
 	if query.Remark != "" {
-		db = db.Where("remark LIKE (?)", "%"+query.Remark+"%") // 备注
+		db = db.Where("remark LIKE (?)", fmt.Sprintf("%%%s%%", query.Remark)) // 备注
 	}
 	if query.Brand != 0 {
 		db = db.Where("brand = ?", query.Brand) // 品牌
@@ -290,21 +291,21 @@ type ProductFinishedEnter struct {
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP;"`                 // IP
 }
 
-func (ProductFinishedEnter) WhereCondition(db *gorm.DB, query *types.ProductFinishedEnterWhere) *gorm.DB {
-	if query.Id != "" {
-		db = db.Where("id = ?", query.Id)
+func (ProductFinishedEnter) WhereCondition(db *gorm.DB, req *types.ProductFinishedEnterWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
-	if query.StoreId != "" {
-		db = db.Where("store_id = ?", query.StoreId)
+	if req.StoreId != "" {
+		db = db.Where("store_id = ?", req.StoreId)
 	}
-	if query.Status != 0 {
-		db = db.Where("status = ?", query.Status)
+	if req.Status != 0 {
+		db = db.Where("status = ?", req.Status)
 	}
-	if query.Remark != "" {
-		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")
+	if req.Remark != "" {
+		db = db.Where("remark LIKE ?", fmt.Sprintf("%%%s%%", req.Remark))
 	}
-	if query.StartAt != nil && query.EndAt != nil {
-		db = db.Where("created_at BETWEEN ? AND ?", query.StartAt, query.EndAt)
+	if req.StartAt != nil && req.EndAt != nil {
+		db = db.Where("created_at BETWEEN ? AND ?", req.StartAt, req.EndAt)
 	}
 	return db
 }

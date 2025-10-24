@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 
@@ -57,7 +58,7 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 		db = db.Where("(code = ? OR code_finished = ?)", query.Code, query.Code)
 	}
 	if query.Name != "" {
-		db = db.Where("name LIKE ?", "%"+query.Name+"%")
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
 	if query.Class != 0 {
 		db = db.Where("class = ?", query.Class)
@@ -114,7 +115,7 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 		db = db.Where("num_other = ?", query.NumOther)
 	}
 	if query.Remark != "" {
-		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")
+		db = db.Where("remark LIKE ?", fmt.Sprintf("%%%s%%", query.Remark))
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)

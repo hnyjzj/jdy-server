@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 
@@ -38,7 +39,7 @@ type OrderOther struct {
 
 func (OrderOther) WhereCondition(db *gorm.DB, req *types.OrderOtherWhere) *gorm.DB {
 	if req.Id != "" {
-		db = db.Where("id = ?", req.Id)
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
 	if req.StoreId != "" {
 		db = db.Where("store_id = ?", req.StoreId)
@@ -47,7 +48,7 @@ func (OrderOther) WhereCondition(db *gorm.DB, req *types.OrderOtherWhere) *gorm.
 		db = db.Where("type = ?", req.Type)
 	}
 	if req.Content != "" {
-		db = db.Where("content LIKE ?", "%"+req.Content+"%")
+		db = db.Where("content LIKE ?", fmt.Sprintf("%%%s%%", req.Content))
 	}
 	if req.Source != 0 {
 		db = db.Where("source = ?", req.Source)

@@ -468,6 +468,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		Store:                   *l.Store,
 		RecycleMethod:           p.RecycleMethod,
 		RecycleType:             p.RecycleType,
+		ExchangeFinisheds:       p.ExchangeFinisheds,
 		RecyclePriceGold:        p.RecyclePriceGold,
 		RecyclePriceLabor:       p.RecyclePriceLabor,
 		RecyclePriceLaborMethod: p.RecyclePriceLaborMethod,

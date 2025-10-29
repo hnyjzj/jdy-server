@@ -127,6 +127,9 @@ func (req *OrderSalesCreateReq) Validate() error {
 				if len(req.ProductFinisheds) == 0 {
 					return errors.New("旧料兑换时，必须有且最少有一个成品")
 				}
+				if len(old.ExchangeFinisheds) == 0 {
+					return errors.New("旧料兑换时，必须选择要兑换的成品")
+				}
 			}
 		case enums.ProductRecycleTypeRecycle:
 			{
@@ -186,6 +189,7 @@ type OrderSalesCreateReqProductOld struct {
 	IsOur                   bool                       `json:"is_our" binding:"required"`         // 是否本司货品
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method" binding:"required"` // 回收方式
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type" binding:"required"`   // 回收类型
+	ExchangeFinisheds       []string                   `json:"exchange_finisheds"`                // 兑换成品
 	Code                    string                     `json:"code"`                              // 条码
 	Material                enums.ProductMaterial      `json:"material" binding:"required"`       // 材质
 	Quality                 enums.ProductQuality       `json:"quality" binding:"required"`        // 成色

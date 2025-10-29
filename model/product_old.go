@@ -42,6 +42,7 @@ type ProductOld struct {
 	IsOur                   bool                       `json:"is_our" gorm:"index;comment:是否本司货品;"`                                                  // 是否本司货品
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:int(11);comment:回收方式;"`                           // 回收方式
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:int(11);comment:回收类型;"`                             // 回收类型
+	ExchangeFinisheds       []string                   `json:"exchange_finisheds" gorm:"type:text;serializer:json;comment:兑换成品条码;"`                  // 兑换成品条码
 	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                           // 回收金价
 	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                          // 回收工费
 	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:int(11);comment:回收工费方式;"`             // 回收工费方式

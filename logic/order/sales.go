@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -226,13 +225,6 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 					}).Error; err != nil {
 						return errors.New("更新成品状态失败")
 					}
-
-					for _, clerk := range order.Clerks {
-						achieve := product.Finished.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
-						if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve, 1); err != nil {
-							return err
-						}
-					}
 				}
 			case enums.ProductTypeOld:
 				{
@@ -241,24 +233,6 @@ func (l *OrderSalesLogic) Pay(req *types.OrderSalesPayReq) error {
 						Status: enums.ProductStatusNormal,
 					}).Error; err != nil {
 						return errors.New("更新旧料状态失败")
-					}
-
-					if product.Old.Product.RecycleType == enums.ProductRecycleTypeExchange {
-						for _, clerk := range order.Clerks {
-							achieve := product.Old.RecyclePrice.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
-							if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve.Neg(), 0); err != nil {
-								return err
-							}
-						}
-					}
-				}
-			case enums.ProductTypeAccessorie:
-				{
-					for _, clerk := range order.Clerks {
-						achieve := product.Accessorie.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
-						if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve, 0); err != nil {
-							return err
-						}
 					}
 				}
 			}
@@ -400,13 +374,6 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				data.Quantity = 1
 				data.Price = req.Price
 				data.PriceOriginal = p.Finished.Price
-
-				for _, clerk := range order.Clerks {
-					achieve := req.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
-					if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve.Neg(), -1); err != nil {
-						return err
-					}
-				}
 			}
 
 		case enums.ProductTypeOld:
@@ -455,15 +422,6 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				data.Quantity = 1
 				data.Price = req.Price
 				data.PriceOriginal = p.Old.RecyclePrice
-
-				if p.Old.Product.RecycleType == enums.ProductRecycleTypeExchange {
-					for _, clerk := range order.Clerks {
-						achieve := req.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
-						if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve, 0); err != nil {
-							return err
-						}
-					}
-				}
 			}
 		case enums.ProductTypeAccessorie:
 			{
@@ -510,13 +468,6 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				data.Quantity = p.Accessorie.Quantity
 				data.Price = req.Price
 				data.PriceOriginal = p.Accessorie.Price
-
-				for _, clerk := range order.Clerks {
-					achieve := req.Price.Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
-					if err := model.TargetAddAchieve(tx, order.Id, order.StoreId, clerk.SalesmanId, achieve.Neg(), 0); err != nil {
-						return err
-					}
-				}
 			}
 		}
 

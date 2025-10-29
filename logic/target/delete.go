@@ -51,10 +51,6 @@ func (l *Logic) DeletePersonal(req *types.TargetDeletePersonalReq) error {
 		return errors.New("个人目标不存在")
 	}
 
-	if personal.Achieve.IsPositive() {
-		return errors.New("有业绩，无法删除")
-	}
-
 	if err := model.DB.Where("id = ?", req.Id).Delete(&personal).Error; err != nil {
 		return errors.New("删除个人目标失败")
 	}

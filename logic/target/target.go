@@ -11,6 +11,8 @@ import (
 type Logic struct {
 	Ctx   *gin.Context
 	Staff *model.Staff
+
+	Target *model.Target
 }
 
 func (l *Logic) List(req *types.TargetListReq) (*types.PageRes[model.Target], error) {
@@ -50,6 +52,13 @@ func (l *Logic) Info(req *types.TargetInfoReq) (*model.Target, error) {
 	if err := db.First(&target, "id = ?", req.Id).Error; err != nil {
 		return nil, errors.New("获取目标详情失败")
 	}
+
+	l.Target = &target
+	tg, err := l.GetAchieve(target.Id)
+	if err != nil {
+		return nil, errors.New("获取目标详情失败")
+	}
+	target = *tg
 
 	return &target, nil
 }

@@ -3,19 +3,21 @@ package enums
 import "errors"
 
 /* 销售目标统计范围 */
-// 大类、其他、全部
+// 大类、分类、配件、全部
 type TargetScope int
 
 const (
-	TargetScopeClass TargetScope = iota + 1 // 大类
-	TargetScopeOther                        // 其他
-	TargetScopeAll                          // 全部
+	TargetScopeClass      TargetScope = iota + 1 // 大类
+	TargetScopeCategory                          // 分类
+	TargetScopeAccessorie                        // 配件
+	TargetScopeAll                               // 全部
 )
 
 var TargetScopeMap = map[TargetScope]string{
-	TargetScopeClass: "大类",
-	TargetScopeOther: "其他",
-	TargetScopeAll:   "全部",
+	TargetScopeClass:      "大类",
+	TargetScopeCategory:   "分类",
+	TargetScopeAccessorie: "配件",
+	TargetScopeAll:        "全部",
 }
 
 func (p TargetScope) ToMap() any {

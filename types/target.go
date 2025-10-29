@@ -22,13 +22,13 @@ type TargetWhere struct {
 
 	Method enums.TargetMethod `json:"method" label:"统计方式" sort:"7" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"` // 统计方式
 
-	Scope    enums.TargetScope          `json:"scope" label:"统计范围" sort:"8" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"`                                                                           // 统计范围
-	Class    enums.ProductClassFinished `json:"class" label:"产品大类" sort:"9" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":1}]"`     // 产品大类
-	Material enums.ProductMaterial      `json:"material" label:"产品材质" sort:"10" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"` // 产品材质
-	Quality  enums.ProductQuality       `json:"quality" label:"产品成色" sort:"11" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`  // 产品成色
-	Category enums.ProductCategory      `json:"category" label:"产品品类" sort:"12" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"` // 产品品类
-	Gem      enums.ProductGem           `json:"gem" label:"产品主石" sort:"13" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`      // 产品主石
-	Craft    enums.ProductCraft         `json:"craft" label:"产品工艺" sort:"14" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`    // 产品工艺
+	Scope    enums.TargetScope          `json:"scope" label:"统计范围" sort:"8" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"`                                                                            // 统计范围
+	Class    enums.ProductClassFinished `json:"class" label:"产品大类" sort:"9" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"true" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":1}]"`      // 产品大类
+	Material enums.ProductMaterial      `json:"material" label:"产品材质" sort:"10" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"false" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"` // 产品材质
+	Quality  enums.ProductQuality       `json:"quality" label:"产品成色" sort:"11" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"false" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`  // 产品成色
+	Category enums.ProductCategory      `json:"category" label:"产品品类" sort:"12" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"false" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"` // 产品品类
+	Gem      enums.ProductGem           `json:"gem" label:"产品主石" sort:"13" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"false" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`      // 产品主石
+	Craft    enums.ProductCraft         `json:"craft" label:"产品工艺" sort:"14" find:"false" create:"true" update:"false" list:"false" info:"true" input:"multiple" type:"number" required:"false" preset:"typeMap" condition:"[{\"key\":\"scope\",\"operator\":\"=\",\"value\":2}]"`    // 产品工艺
 
 	Object enums.TargetObject `json:"object" label:"统计对象" sort:"15" find:"true" create:"true" update:"false" list:"true" info:"true" input:"radio" type:"number" required:"true" preset:"typeMap"` // 统计对象
 }
@@ -77,24 +77,6 @@ func (req *TargetCreateReq) Validate() error {
 		{
 			if len(req.Class) == 0 {
 				return errors.New("产品大类不能为空")
-			}
-		}
-	case enums.TargetScopeOther:
-		{
-			if len(req.Material) == 0 {
-				return errors.New("产品材质不能为空")
-			}
-			if len(req.Quality) == 0 {
-				return errors.New("产品成色不能为空")
-			}
-			if len(req.Category) == 0 {
-				return errors.New("产品品类不能为空")
-			}
-			if len(req.Gem) == 0 {
-				return errors.New("产品主石不能为空")
-			}
-			if len(req.Craft) == 0 {
-				return errors.New("产品工艺不能为空")
 			}
 		}
 	}

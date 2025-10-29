@@ -67,29 +67,30 @@ func (req *OrderSalesCreateReq) Validate() error {
 	// 主导购数量
 	var mainSalesmanCount int
 	// 检查导购员
-	for i, salesman := range req.Clerks {
+	for _, salesman := range req.Clerks {
+		// 佣金比例不能小于等于 0
+		if salesman.PerformanceRate.LessThanOrEqual(decimal.NewFromFloat(0)) {
+			return errors.New("佣金比例不能小于等于0")
+		}
+		// 佣金比例不能大于 100
+		if salesman.PerformanceRate.GreaterThan(decimal.NewFromFloat(100)) {
+			return errors.New("佣金比例不能大于100")
+		}
+		// 增加总佣金比例
 		totalPerformanceRate = totalPerformanceRate.Add(salesman.PerformanceRate)
 		if salesman.IsMain {
 			mainSalesmanCount++
 		}
-
-		if !salesman.PerformanceRate.IsZero() {
-			if salesman.PerformanceRate.LessThan(decimal.NewFromFloat(0)) || salesman.PerformanceRate.GreaterThan(decimal.NewFromFloat(100)) {
-				return errors.New("佣金比例错误")
-			}
-		} else {
-			req.Clerks[i].PerformanceRate = decimal.NewFromFloat(10)
-		}
 	}
-	// 总佣金比例必须等于100
+	// 总佣金比例必须与 100 相等
 	if totalPerformanceRate.Cmp(decimal.NewFromFloat(100)) != 0 {
-		return errors.New("总佣金比例必须等于100%")
+		return errors.New("导购员佣金比例之和必须为100%")
 	}
 	// 主导购数量必须等于1
 	if mainSalesmanCount != 1 {
 		return errors.New("必须有且仅有一个主导购员")
 	}
-
+    
 	// 检查成品
 	for _, finished := range req.ProductFinisheds {
 		// 应付金额不能小于0

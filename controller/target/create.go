@@ -29,6 +29,12 @@ func (con TargetController) Create(ctx *gin.Context) {
 		return
 	}
 
+	// 验证参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	// 创建目标
 	data, err := logic.Create(&req)
 	if err != nil {

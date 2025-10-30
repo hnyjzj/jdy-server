@@ -342,6 +342,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 						return errors.New("更新成品状态失败")
 					}
 
+					p.Finished.Product.Status = enums.ProductStatusNormal
 					log.NewValue = p.Finished.Product
 					if err := tx.Create(&log).Error; err != nil {
 						return errors.New("创建成品历史失败")
@@ -411,6 +412,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 					return errors.New("更新旧料状态失败")
 				}
 
+				p.Old.Product.Status = enums.ProductStatusNoStock
 				log.NewValue = p.Old.Product
 				if err := tx.Create(&log).Error; err != nil {
 					return errors.New("创建旧料历史失败")
@@ -458,6 +460,10 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				}).Update("stock", gorm.Expr("stock + ?", p.Accessorie.Quantity)).Error; err != nil {
 					return errors.New("更新配件状态失败")
 				}
+
+				p.Accessorie.Product.Status = enums.ProductAccessorieStatusNormal
+				p.Accessorie.Product.Stock += p.Accessorie.Quantity
+
 				log.NewValue = p.Accessorie.Product
 				if err := tx.Create(&log).Error; err != nil {
 					return errors.New("创建配件历史失败")

@@ -49,7 +49,7 @@ func (l *Logic) Update(req *types.TargetUpdateReq) error {
 func (l *Logic) UpdateGroup(req *types.TargetUpdateGroupReq) error {
 	var group model.TargetGroup
 	if err := model.DB.Where("id = ?", req.Id).First(&group).Error; err != nil {
-		return errors.New("目标不存在")
+		return errors.New("分组不存在")
 	}
 
 	// 验证参数
@@ -73,9 +73,8 @@ func (l *Logic) UpdatePersonal(req *types.TargetUpdatePersonalReq) error {
 	db := model.DB.Model(model.TargetPersonal{})
 	db = personal.Preloads(db)
 	if err := db.First(&personal, "id = ?", req.Id).Error; err != nil {
-		return errors.New("目标不存在")
+		return errors.New("个人目标不存在")
 	}
-
 	// 验证参数
 	data, err := utils.StructToStruct[model.TargetPersonal](req)
 	if err != nil {

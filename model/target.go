@@ -71,16 +71,16 @@ func (Target) WhereCondition(db *gorm.DB, query *types.TargetWhere) *gorm.DB {
 		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
 	}
 	if query.Quality != 0 {
-		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
+		db = db.Where("JSON_CONTAINS(quality, ?)", fmt.Sprintf("[%d]", query.Quality))
 	}
 	if query.Category != 0 {
-		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
+		db = db.Where("JSON_CONTAINS(category, ?)", fmt.Sprintf("[%d]", query.Category))
 	}
 	if query.Gem != 0 {
-		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
+		db = db.Where("JSON_CONTAINS(gem, ?)", fmt.Sprintf("[%d]", query.Gem))
 	}
 	if query.Craft != 0 {
-		db = db.Where("JSON_CONTAINS(material, ?)", fmt.Sprintf("[%d]", query.Material))
+		db = db.Where("JSON_CONTAINS(craft, ?)", fmt.Sprintf("[%d]", query.Craft))
 	}
 
 	return db

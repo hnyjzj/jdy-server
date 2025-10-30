@@ -56,7 +56,11 @@ func (l *StatisticLogic) Target(req *types.StatisticTargetReq) (*types.Statistic
 		}
 	}
 
-	resp.AchieveRate = fmt.Sprintf("%s %%", Achieve.Div(purpose).Mul(decimal.NewFromInt(100)).StringFixed(2))
+	if purpose.IsZero() {
+		resp.AchieveRate = "0.00 %"
+	} else {
+		resp.AchieveRate = fmt.Sprintf("%s %%", Achieve.Div(purpose).Mul(decimal.NewFromInt(100)).StringFixed(2))
+	}
 
 	return &resp, nil
 }

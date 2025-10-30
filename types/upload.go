@@ -8,6 +8,7 @@ func (s UploadModel) String() string {
 }
 
 const (
+	UploadModelCommon    UploadModel = "common"    // 通用
 	UploadModelAvatar    UploadModel = "avatar"    // 头像
 	UploadModelWorkbench UploadModel = "workbench" // 工作台
 	UploadModelStore     UploadModel = "store"     // 门店

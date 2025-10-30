@@ -89,6 +89,12 @@ func (con TargetController) UpdatePersonal(ctx *gin.Context) {
 		return
 	}
 
+	// 验证参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
 	// 更新个人
 	if err := logic.UpdatePersonal(&req); err != nil {
 		con.Exception(ctx, err.Error())

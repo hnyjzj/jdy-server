@@ -93,10 +93,18 @@ type TargetGroupCreateReq struct {
 type TargetPersonalCreateReq struct {
 	TargetId string `json:"target_id" binding:"required"` // 目标编号
 
-	StaffId  string           `json:"staff_id" binding:"required"`     // 员工编号
-	GroupId  string           `json:"group_id"`                        // 组别编号
-	IsLeader bool             `json:"is_leader"`                       // 是否组长
-	Purpose  *decimal.Decimal `json:"purpose" binding:"required,gt=0"` // 目标
+	StaffId  string           `json:"staff_id" binding:"required"` // 员工编号
+	GroupId  string           `json:"group_id"`                    // 组别编号
+	IsLeader bool             `json:"is_leader"`                   // 是否组长
+	Purpose  *decimal.Decimal `json:"purpose" binding:"required"`  // 目标
+}
+
+func (req *TargetPersonalCreateReq) Validate() error {
+	if req.Purpose == nil || (req.Purpose != nil && req.Purpose.LessThanOrEqual(decimal.Zero)) {
+		return errors.New("目标必须大于 0")
+	}
+
+	return nil
 }
 
 type TargetListReq struct {
@@ -130,8 +138,16 @@ type TargetUpdateGroupReq struct {
 type TargetUpdatePersonalReq struct {
 	Id string `json:"id" binding:"required"` // 目标编号
 
-	IsLeader bool             `json:"is_leader"`                       // 是否组长
-	Purpose  *decimal.Decimal `json:"purpose" binding:"required,gt=0"` // 目标
+	IsLeader bool             `json:"is_leader"`                  // 是否组长
+	Purpose  *decimal.Decimal `json:"purpose" binding:"required"` // 目标
+}
+
+func (req *TargetUpdatePersonalReq) Validate() error {
+	if req.Purpose == nil || (req.Purpose != nil && req.Purpose.LessThanOrEqual(decimal.Zero)) {
+		return errors.New("目标必须大于 0")
+	}
+
+	return nil
 }
 
 type TargetDeleteReq struct {

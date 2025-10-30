@@ -47,11 +47,13 @@ func (l *StatisticLogic) Target(req *types.StatisticTargetReq) (*types.Statistic
 	case enums.TargetMethodAmount:
 		{
 			resp.Purpose = fmt.Sprintf("%s 元", purpose.StringFixed(2))
+			resp.Achieve = fmt.Sprintf("%s 元", Achieve.StringFixed(2))
 			resp.Remainder = fmt.Sprintf("%s 元", purpose.Sub(Achieve).StringFixed(2))
 		}
 	case enums.TargetMethodQuantity:
 		{
 			resp.Purpose = fmt.Sprintf("%s 件", purpose.StringFixed(2))
+			resp.Achieve = fmt.Sprintf("%s 件", Achieve.StringFixed(2))
 			resp.Remainder = fmt.Sprintf("%s 件", purpose.Sub(Achieve).StringFixed(2))
 		}
 	}

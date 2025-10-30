@@ -89,8 +89,15 @@ func (con TargetController) CreatePersonal(ctx *gin.Context) {
 		logic.Ctx = ctx
 	}
 
+	// 校验参数
 	if err := ctx.ShouldBind(&req); err != nil {
 		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 验证参数
+	if err := req.Validate(); err != nil {
+		con.Exception(ctx, err.Error())
 		return
 	}
 

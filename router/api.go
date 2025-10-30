@@ -17,6 +17,7 @@ import (
 	"jdy/controller/statistic/stock"
 	"jdy/controller/statistic/today"
 	"jdy/controller/store"
+	"jdy/controller/target"
 	"jdy/controller/workbench"
 	"jdy/middlewares"
 
@@ -182,6 +183,7 @@ func Api(g *gin.Engine) {
 			statistics.Use(middlewares.JWTMiddleware())
 			{
 				statistics.POST("/sales_detail_daily", statistic.StatisticController{}.SalesDetailDaily) // 销售明细日报
+				statistics.POST("/target", statistic.StatisticController{}.Target)                       // 销售目标
 			}
 		}
 
@@ -607,6 +609,31 @@ func Api(g *gin.Engine) {
 					other.PUT("/update", order.OrderOtherController{}.Update)    // 订单修改
 					other.DELETE("/delete", order.OrderOtherController{}.Delete) // 订单删除
 				}
+			}
+		}
+
+		// 销售目标
+		targets := r.Group("/target")
+		{
+			targets.GET("/where", target.TargetController{}.Where)                  // 销售目标筛选
+			targets.GET("/where_group", target.TargetController{}.WhereGroup)       // 销售目标分组筛选
+			targets.GET("/where_personal", target.TargetController{}.WherePersonal) // 销售目标个人筛选
+			targets.Use(middlewares.JWTMiddleware())
+			{
+				targets.POST("/list", target.TargetController{}.List) // 销售目标列表
+				targets.POST("/info", target.TargetController{}.Info) // 销售目标详情
+
+				targets.POST("/create", target.TargetController{}.Create)                  // 创建销售目标
+				targets.POST("/create_group", target.TargetController{}.CreateGroup)       // 创建销售目标分组
+				targets.POST("/create_personal", target.TargetController{}.CreatePersonal) // 创建销售目标个人
+
+				targets.PUT("/update", target.TargetController{}.Update)                  // 销售目标更新
+				targets.PUT("/update_group", target.TargetController{}.UpdateGroup)       // 销售目标分组更新
+				targets.PUT("/update_personal", target.TargetController{}.UpdatePersonal) // 销售目标个人更新
+
+				targets.DELETE("/delete", target.TargetController{}.Delete)                  // 销售目标删除
+				targets.DELETE("/delete_group", target.TargetController{}.DeleteGroup)       // 销售目标分组删除
+				targets.DELETE("/delete_personal", target.TargetController{}.DeletePersonal) // 销售目标个人删除
 			}
 		}
 

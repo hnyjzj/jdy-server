@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 
@@ -41,6 +42,7 @@ type ProductOld struct {
 	IsOur                   bool                       `json:"is_our" gorm:"index;comment:是否本司货品;"`                                                  // 是否本司货品
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:int(11);comment:回收方式;"`                           // 回收方式
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:int(11);comment:回收类型;"`                             // 回收类型
+	ExchangeFinisheds       []string                   `json:"exchange_finisheds" gorm:"type:text;serializer:json;comment:兑换成品条码;"`                  // 兑换成品条码
 	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                           // 回收金价
 	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                          // 回收工费
 	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:int(11);comment:回收工费方式;"`             // 回收工费方式
@@ -57,7 +59,7 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 		db = db.Where("(code = ? OR code_finished = ?)", query.Code, query.Code)
 	}
 	if query.Name != "" {
-		db = db.Where("name LIKE ?", "%"+query.Name+"%")
+		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}
 	if query.Class != 0 {
 		db = db.Where("class = ?", query.Class)
@@ -114,7 +116,7 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 		db = db.Where("num_other = ?", query.NumOther)
 	}
 	if query.Remark != "" {
-		db = db.Where("remark LIKE ?", "%"+query.Remark+"%")
+		db = db.Where("remark LIKE ?", fmt.Sprintf("%%%s%%", query.Remark))
 	}
 	if query.StoreId != "" {
 		db = db.Where("store_id = ?", query.StoreId)

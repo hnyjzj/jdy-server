@@ -36,6 +36,13 @@
                 "false"
             ]
         },
+        "list": {
+            "cases": [],
+            "options": [
+                "true",
+                "false"
+            ]
+        },
         "info": {
             "cases": [],
             "options": [

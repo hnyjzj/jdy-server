@@ -16,14 +16,16 @@ import (
 )
 
 type OrderSalesCreateLogic struct {
-	Ctx   *gin.Context
-	Tx    *gorm.DB
-	Staff *model.Staff
-	Store *model.Store
+	Ctx *gin.Context // 上下文
+	Tx  *gorm.DB     // 事务
 
-	Req *types.OrderSalesCreateReq
+	Staff *model.Staff // 员工
+	Store *model.Store // 门店
 
-	Order *model.OrderSales
+	Req *types.OrderSalesCreateReq // 参数
+
+	Order       *model.OrderSales // 订单
+	performance decimal.Decimal   // 业绩
 }
 
 // 创建订单
@@ -76,7 +78,7 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 			return err
 		}
 
-		// 计算业绩
+		// 保存业绩
 		if err := l.getPerformance(); err != nil {
 			return err
 		}
@@ -239,6 +241,9 @@ func (l *OrderSalesCreateLogic) loopFinished(p *types.OrderSalesCreateReqProduct
 	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Finished.PriceOriginal)
 	l.Order.Integral = l.Order.Integral.Add(order_product.Finished.Integral)
 
+	// 添加业绩
+	l.performance = l.performance.Add(order_product.Finished.Price)
+
 	return nil
 }
 
@@ -289,10 +294,16 @@ func (l *OrderSalesCreateLogic) loopOld(p *types.OrderSalesCreateReqProductOld, 
 	if err := l.Tx.Create(&log).Error; err != nil {
 		return errors.New("旧料记录添加失败")
 	}
+
 	// 计算总金额(减少)
 	l.Order.Price = l.Order.Price.Sub(order_product.Old.RecyclePrice)
 	l.Order.PriceOriginal = l.Order.PriceOriginal.Sub(order_product.Old.RecyclePrice)
 	l.Order.Integral = l.Order.Integral.Sub(order_product.Old.Integral)
+
+	// 添加业绩
+	if old.RecycleType == enums.ProductRecycleTypeExchange {
+		l.performance = l.performance.Sub(order_product.Old.RecyclePrice)
+	}
 
 	return nil
 }
@@ -348,15 +359,20 @@ func (l *OrderSalesCreateLogic) loopAccessory(p *types.OrderSalesCreateReqProduc
 	}).Update("stock", stock).Error; err != nil {
 		return errors.New("配件状态更新失败")
 	}
+
 	// 添加记录
 	log.NewValue = accessory
 	if err := l.Tx.Create(&log).Error; err != nil {
 		return errors.New("配件记录添加失败")
 	}
+
 	// 计算总金额
 	l.Order.Price = l.Order.Price.Add(order_product.Accessorie.Price)
 	l.Order.PriceOriginal = l.Order.PriceOriginal.Add(order_product.Accessorie.Price)
 	l.Order.Integral = l.Order.Integral.Add(order_product.Accessorie.Integral)
+
+	// 添加业绩
+	l.performance = l.performance.Add(order_product.Accessorie.Price)
 
 	return nil
 }
@@ -395,6 +411,9 @@ func (l *OrderSalesCreateLogic) loopOrderDeposit(order *model.OrderDeposit) erro
 		// 计算总金额
 		l.Order.Price = l.Order.Price.Sub(product.Price)
 		l.Order.PriceDeposit = l.Order.PriceDeposit.Add(product.Price)
+
+		// 添加业绩
+		l.performance = l.performance.Sub(product.Price)
 	}
 
 	return nil
@@ -449,6 +468,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 		Store:                   *l.Store,
 		RecycleMethod:           p.RecycleMethod,
 		RecycleType:             p.RecycleType,
+		ExchangeFinisheds:       p.ExchangeFinisheds,
 		RecyclePriceGold:        p.RecyclePriceGold,
 		RecyclePriceLabor:       p.RecyclePriceLabor,
 		RecyclePriceLaborMethod: p.RecyclePriceLaborMethod,
@@ -563,14 +583,11 @@ func (l *OrderSalesCreateLogic) getPerformance() error {
 			return err
 		}
 
-		// 计算业绩 佣金 = 佣金率/100 * 订单金额
-		performance := l.Order.Price.Mul(s.PerformanceRate).Div(decimal.NewFromFloat(100))
-
 		// 添加导购员业绩
 		l.Order.Clerks = append(l.Order.Clerks, model.OrderSalesClerk{
 			SalesmanId:        salesman.Id,
 			PerformanceRate:   s.PerformanceRate,
-			PerformanceAmount: performance,
+			PerformanceAmount: l.performance.Mul(s.PerformanceRate).Div(decimal.NewFromFloat(100)),
 			IsMain:            s.IsMain,
 		})
 	}

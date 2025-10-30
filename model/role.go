@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"jdy/enums"
 	"jdy/types"
 	"jdy/utils"
@@ -45,12 +46,12 @@ func (Role) Default(Identity enums.Identity) (*Role, error) {
 	return &role, nil
 }
 
-func (Role) WhereCondition(db *gorm.DB, query *types.RoleWhere) *gorm.DB {
-	if query.Id != "" {
-		db = db.Where("id = ?", query.Id)
+func (Role) WhereCondition(db *gorm.DB, req *types.RoleWhere) *gorm.DB {
+	if req.Id != "" {
+		db = db.Where("id LIKE ?", fmt.Sprintf("%%%s%%", req.Id))
 	}
-	if query.Identity != 0 {
-		db = db.Where("identity = ?", query.Identity)
+	if req.Identity != 0 {
+		db = db.Where("identity = ?", req.Identity)
 	}
 
 	return db

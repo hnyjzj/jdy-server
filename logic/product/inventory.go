@@ -571,3 +571,40 @@ func (l *ProductInventoryLogic) Change(req *types.ProductInventoryChangeReq) err
 
 	return nil
 }
+
+// 修复盘点
+func (l *ProductInventoryLogic) Repair(req *types.ProductInventoryRepairReq) error {
+	var (
+		inventory model.ProductInventory
+	)
+	db := model.DB.Where("id = ?", req.Id)
+	db = inventory.Preloads(db, nil, false)
+
+	if err := db.First(&inventory).Error; err != nil {
+		return errors.New("获取失败")
+	}
+
+	if inventory.Status != enums.ProductInventoryStatusAbnormal {
+		return errors.New("当前状态不允许这样操作")
+	}
+
+	if inventory.InspectorId != l.Staff.Id {
+		return errors.New("仅限监盘人操作")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("id = ?", inventory.Id).Updates(&model.ProductInventory{
+			RepairReason: req.RepairReason,
+			RepairImages: req.RepairImages,
+			Status:       enums.ProductInventoryStatusAbnormalRepair,
+		}).Error; err != nil {
+			return errors.New("更新失败")
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}

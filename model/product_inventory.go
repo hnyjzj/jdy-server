@@ -53,6 +53,9 @@ type ProductInventory struct {
 	CountWeightMetal decimal.Decimal `json:"count_weight_metal" gorm:"type:decimal(15,4);comment:总重量;"` // 总重量
 	CountPrice       decimal.Decimal `json:"count_price" gorm:"type:decimal(10,2);comment:总价值;"`        // 总价值
 	CountQuantity    int64           `json:"count_quantity" gorm:"type:int(11);comment:总件数;"`           // 总件数
+
+	RepairReason string   `json:"repair_reason" gorm:"type:text;comment:修复原因;"`                 // 修复原因
+	RepairImages []string `json:"repair_images" gorm:"type:json;serializer:json;comment:修复图片;"` // 修复图片
 }
 
 // 产品盘点产品

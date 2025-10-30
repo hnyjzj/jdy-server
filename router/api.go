@@ -183,6 +183,7 @@ func Api(g *gin.Engine) {
 			statistics.Use(middlewares.JWTMiddleware())
 			{
 				statistics.POST("/sales_detail_daily", statistic.StatisticController{}.SalesDetailDaily) // 销售明细日报
+				statistics.POST("/target", statistic.StatisticController{}.Target)                       // 销售目标
 			}
 		}
 

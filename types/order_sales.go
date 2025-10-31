@@ -50,12 +50,8 @@ type OrderSalesCreateReq struct {
 }
 
 func (req *OrderSalesCreateReq) Validate() error {
-	if !req.DiscountRate.IsZero() {
-		if req.DiscountRate.LessThan(decimal.NewFromFloat(0)) || req.DiscountRate.GreaterThan(decimal.NewFromFloat(100)) {
-			return errors.New("整单折扣错误")
-		}
-	} else {
-		req.DiscountRate = decimal.NewFromFloat(10)
+	if req.DiscountRate.LessThan(decimal.NewFromFloat(0)) || req.DiscountRate.GreaterThan(decimal.NewFromFloat(100)) {
+		return errors.New("整单折扣错误")
 	}
 
 	// 检查导购员数量
@@ -90,7 +86,7 @@ func (req *OrderSalesCreateReq) Validate() error {
 	if mainSalesmanCount != 1 {
 		return errors.New("必须有且仅有一个主导购员")
 	}
-    
+
 	// 检查成品
 	for _, finished := range req.ProductFinisheds {
 		// 应付金额不能小于0
@@ -192,6 +188,7 @@ type OrderSalesCreateReqProductOld struct {
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type" binding:"required"`   // 回收类型
 	ExchangeFinisheds       []string                   `json:"exchange_finisheds"`                // 兑换成品
 	Code                    string                     `json:"code"`                              // 条码
+	CodeFinished            string                     `json:"code_finished"`                     // 成品条码
 	Material                enums.ProductMaterial      `json:"material" binding:"required"`       // 材质
 	Quality                 enums.ProductQuality       `json:"quality" binding:"required"`        // 成色
 	Gem                     enums.ProductGem           `json:"gem" binding:"required"`            // 主石
@@ -277,4 +274,8 @@ func (req *OrderSalesRefundReq) Validate() error {
 	}
 
 	return nil
+}
+
+type OrderSalesRetreatReq struct {
+	Id string `json:"id" required:"true"` // 订单ID
 }

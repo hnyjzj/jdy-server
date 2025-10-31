@@ -445,7 +445,7 @@ func (l *OrderSalesCreateLogic) getProductFinished(product_id string) (*model.Pr
 func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderSalesCreateReqProductOld) (*model.ProductOld, error) {
 	old := model.ProductOld{
 		Code:                    strings.TrimSpace(strings.ToUpper("JL" + utils.RandomCode(8))),
-		CodeFinished:            strings.TrimSpace(strings.ToUpper(p.Code)),
+		CodeFinished:            strings.TrimSpace(strings.ToUpper(p.CodeFinished)),
 		Name:                    p.Name,
 		LabelPrice:              p.LabelPrice,
 		Brand:                   p.Brand,
@@ -486,7 +486,7 @@ func (l *OrderSalesCreateLogic) getProductOld(product_id string, p *types.OrderS
 			// 获取商品信息
 			db := l.Tx.Model(&model.ProductFinished{})
 			db = db.Where("id = ?", product_id)
-			db = db.Or("code = ?", strings.TrimSpace(strings.ToUpper(p.Code)))
+			db = db.Or("code = ?", strings.TrimSpace(strings.ToUpper(p.CodeFinished)))
 			db = db.Where(&model.ProductFinished{
 				Status: enums.ProductStatusSold,
 			})
@@ -560,7 +560,7 @@ func (l *OrderSalesCreateLogic) getOrderDeposit(order_id string) (*model.OrderDe
 // 计算整单优惠
 func (l *OrderSalesCreateLogic) getDiscount() error {
 	// 整单折扣
-	l.Order.DiscountRate = decimal.NewFromFloat(1).Sub(l.Req.DiscountRate.Div(decimal.NewFromFloat(10)))
+	l.Order.DiscountRate = l.Req.DiscountRate
 	// 积分抵扣
 	l.Order.IntegralDeduction = l.Req.IntegralDeduction
 	// 抹零

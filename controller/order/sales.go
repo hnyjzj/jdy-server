@@ -232,3 +232,36 @@ func (con OrderSalesController) Refund(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+// 退单
+func (con OrderSalesController) Retreat(ctx *gin.Context) {
+	var (
+		req types.OrderSalesRetreatReq
+
+		logic = order.OrderSalesLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	err := logic.Retreat(&req)
+	if err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

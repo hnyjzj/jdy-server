@@ -10,6 +10,7 @@ import (
 	"jdy/types"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -394,6 +395,7 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				}).Error; err != nil {
 					return errors.New("更新订单旧料状态失败")
 				}
+
 				// 添加历史
 				log := model.ProductHistory{
 					Action:     enums.ProductActionReturn,
@@ -543,6 +545,149 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 			log.Printf("发送通知失败: %s", err.Error())
 		}
 	}()
+
+	return nil
+}
+
+func (l *OrderSalesLogic) Retreat(req *types.OrderSalesRetreatReq) error {
+	var (
+		order model.OrderSales
+	)
+
+	db := model.DB.Model(&order)
+	db = order.Preloads(db)
+	db = db.Where("id = ?", req.Id)
+	if err := db.First(&order).Error; err != nil {
+		return errors.New("获取订单详情失败")
+	}
+
+	if order.Status != enums.OrderSalesStatusComplete {
+		return errors.New("订单状态不正确")
+	}
+
+	if order.CreatedAt.Format(time.DateOnly) != time.Now().Format(time.DateOnly) {
+		return errors.New("只能退当天订单")
+	}
+
+	if order.OperatorId != l.Staff.Id && order.CashierId != l.Staff.Id {
+		return errors.New("订单只能由开单人或收银员退回")
+	}
+
+	if err := model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&model.OrderSales{}).Where("id = ?", order.Id).Updates(&model.OrderSales{
+			Status: enums.OrderSalesStatusRevoke,
+		}).Error; err != nil {
+			return errors.New("更新订单状态失败")
+		}
+
+		for _, p := range order.Products {
+			if p.Status != enums.OrderSalesStatusComplete {
+				return errors.New("配件订单状态不正确")
+			}
+			// 更新订单成品状态
+			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
+				Status: enums.OrderSalesStatusRevoke,
+			}).Error; err != nil {
+				return errors.New("更新订单成品状态失败")
+			}
+
+			switch p.Type {
+			case enums.ProductTypeFinished:
+				{
+					// 添加历史
+					log := model.ProductHistory{
+						Action:     enums.ProductActionOrderCancel,
+						Type:       enums.ProductTypeFinished,
+						OldValue:   p.Finished.Product,
+						ProductId:  p.Finished.Product.Id,
+						StoreId:    p.Finished.Product.StoreId,
+						SourceId:   p.Finished.Product.Id,
+						OperatorId: l.Staff.Id,
+						IP:         l.Ctx.ClientIP(),
+					}
+					if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Finished.Product.Id).Updates(&model.ProductFinished{
+						Status: enums.ProductStatusNormal,
+					}).Error; err != nil {
+						return errors.New("更新成品状态失败")
+					}
+
+					p.Finished.Product.Status = enums.ProductStatusNormal
+					log.NewValue = p.Finished.Product
+					if err := tx.Create(&log).Error; err != nil {
+						return errors.New("创建成品历史失败")
+					}
+				}
+			case enums.ProductTypeOld:
+				{
+					// 添加历史
+					log := model.ProductHistory{
+						Action:     enums.ProductActionOrderCancel,
+						Type:       enums.ProductTypeOld,
+						OldValue:   p.Old.Product,
+						ProductId:  p.Old.Product.Id,
+						StoreId:    p.Old.Product.StoreId,
+						SourceId:   p.Old.Product.Id,
+						OperatorId: l.Staff.Id,
+						IP:         l.Ctx.ClientIP(),
+					}
+
+					if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Old.Product.Id).Updates(&model.ProductOld{
+						Status: enums.ProductStatusNoStock,
+					}).Error; err != nil {
+						return errors.New("更新旧料状态失败")
+					}
+
+					p.Old.Product.Status = enums.ProductStatusNoStock
+					log.NewValue = p.Old.Product
+					if err := tx.Create(&log).Error; err != nil {
+						return errors.New("创建旧料历史失败")
+					}
+				}
+			case enums.ProductTypeAccessorie:
+				{
+					// 添加历史
+					log := model.ProductHistory{
+						Action:     enums.ProductActionOrderCancel,
+						Type:       enums.ProductTypeAccessorie,
+						OldValue:   p.Accessorie.Product,
+						ProductId:  p.Accessorie.Product.Id,
+						StoreId:    p.Accessorie.Product.StoreId,
+						SourceId:   p.Accessorie.Product.Id,
+						OperatorId: l.Staff.Id,
+						IP:         l.Ctx.ClientIP(),
+					}
+
+					// 更新配件状态
+					if err := tx.Model(&model.ProductAccessorie{}).Where("id = ?", p.Accessorie.Product.Id).Updates(&model.ProductAccessorie{
+						Status: enums.ProductAccessorieStatusNormal,
+					}).Update("stock", gorm.Expr("stock + ?", p.Accessorie.Quantity)).Error; err != nil {
+						return errors.New("更新配件状态失败")
+					}
+
+					p.Accessorie.Product.Status = enums.ProductAccessorieStatusNormal
+					p.Accessorie.Product.Stock += p.Accessorie.Quantity
+					log.NewValue = p.Accessorie.Product
+					if err := tx.Create(&log).Error; err != nil {
+						return errors.New("创建配件历史失败")
+					}
+				}
+			}
+
+			// 处理支付记录
+			if err := tx.Model(&model.OrderPayment{}).
+				Where(&model.OrderPayment{OrderId: order.Id}).
+				Select("status").
+				Updates(model.OrderPayment{
+					Status: false,
+				}).Error; err != nil {
+				return errors.New("更新支付记录失败")
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
 
 	return nil
 }

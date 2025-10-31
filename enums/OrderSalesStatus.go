@@ -14,6 +14,7 @@ const (
 	OrderSalesStatusComplete                             // 已完成
 	OrderSalesStatusRefund                               // 有退货
 	OrderSalesStatusReturn                               // 已退
+	OrderSalesStatusRevoke                               // 已撤销
 )
 
 var OrderSalesStatusMap = map[OrderSalesStatus]string{
@@ -22,6 +23,7 @@ var OrderSalesStatusMap = map[OrderSalesStatus]string{
 	OrderSalesStatusComplete: "已完成",
 	OrderSalesStatusRefund:   "有退货",
 	OrderSalesStatusReturn:   "已退",
+	OrderSalesStatusRevoke:   "已撤销",
 }
 
 func (p OrderSalesStatus) ToMap() any {

@@ -541,6 +541,7 @@ func Api(g *gin.Engine) {
 						root.PUT("/revoked", order.OrderSalesController{}.Revoked) // 订单撤销
 						root.PUT("/pay", order.OrderSalesController{}.Pay)         // 订单支付
 						root.PUT("/refund", order.OrderSalesController{}.Refund)   // 退货
+						root.PUT("/retreat", order.OrderSalesController{}.Retreat) // 退单
 					}
 				}
 

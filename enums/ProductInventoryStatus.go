@@ -6,25 +6,27 @@ import (
 )
 
 /* 盘点状态 */
-// 草稿、盘点中、待验证、盘点完成、盘点异常、盘点取消
+// 草稿、盘点中、待验证、盘点完成、盘点异常、盘点取消、异常修复
 type ProductInventoryStatus int
 
 const (
-	ProductInventoryStatusDraft        ProductInventoryStatus = iota + 1 // 草稿
-	ProductInventoryStatusInventorying                                   // 盘点中
-	ProductInventoryStatusToBeVerified                                   // 待验证
-	ProductInventoryStatusCompleted                                      // 盘点完成
-	ProductInventoryStatusAbnormal                                       // 盘点异常
-	ProductInventoryStatusCancelled                                      // 盘点取消
+	ProductInventoryStatusDraft          ProductInventoryStatus = iota + 1 // 草稿
+	ProductInventoryStatusInventorying                                     // 盘点中
+	ProductInventoryStatusToBeVerified                                     // 待验证
+	ProductInventoryStatusCompleted                                        // 盘点完成
+	ProductInventoryStatusAbnormal                                         // 盘点异常
+	ProductInventoryStatusCancelled                                        // 盘点取消
+	ProductInventoryStatusAbnormalRepair                                   // 异常修复
 )
 
 var ProductInventoryStatusMap = map[ProductInventoryStatus]string{
-	ProductInventoryStatusDraft:        "草稿",
-	ProductInventoryStatusInventorying: "盘点中",
-	ProductInventoryStatusToBeVerified: "待验证",
-	ProductInventoryStatusCompleted:    "盘点完成",
-	ProductInventoryStatusAbnormal:     "盘点异常",
-	ProductInventoryStatusCancelled:    "盘点取消",
+	ProductInventoryStatusDraft:          "草稿",
+	ProductInventoryStatusInventorying:   "盘点中",
+	ProductInventoryStatusToBeVerified:   "待验证",
+	ProductInventoryStatusCompleted:      "盘点完成",
+	ProductInventoryStatusAbnormal:       "盘点异常",
+	ProductInventoryStatusCancelled:      "盘点取消",
+	ProductInventoryStatusAbnormalRepair: "异常修复",
 }
 
 func (p ProductInventoryStatus) ToMap() any {
@@ -48,6 +50,7 @@ func (p ProductInventoryStatus) IsOver() bool {
 		ProductInventoryStatusCompleted,
 		ProductInventoryStatusAbnormal,
 		ProductInventoryStatusCancelled,
+		ProductInventoryStatusAbnormalRepair,
 	}, p)
 }
 
@@ -69,8 +72,9 @@ func (p ProductInventoryStatus) CanTransitionTo(n ProductInventoryStatus) error 
 			ProductInventoryStatusCancelled, // 盘点取消
 		},
 		ProductInventoryStatusAbnormal: { // 盘点异常->
-			ProductInventoryStatusInventorying, // 盘点中
-			ProductInventoryStatusCancelled,    // 盘点取消
+			ProductInventoryStatusInventorying,   // 盘点中
+			ProductInventoryStatusCancelled,      // 盘点取消
+			ProductInventoryStatusAbnormalRepair, // 异常修复
 		},
 		ProductInventoryStatusCancelled: { // 盘点取消->
 			ProductInventoryStatusInventorying, // 盘点中
@@ -108,6 +112,8 @@ func (p ProductInventoryStatus) CanEdit(status ProductInventoryStatus, StaffId s
 	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusCompleted}: // 盘点完成: 待验证->盘点完成 : 监盘人
 		return StaffId == InspectorId
 	case Condition{ProductInventoryStatusToBeVerified, ProductInventoryStatusAbnormal}: // 盘点异常: 待验证->盘点异常 : 监盘人
+		return StaffId == InspectorId
+	case Condition{ProductInventoryStatusAbnormal, ProductInventoryStatusAbnormalRepair}: // 异常修复: 盘点异常->异常修复 : 监盘人
 		return StaffId == InspectorId
 	}
 

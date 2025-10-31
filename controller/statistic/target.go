@@ -21,7 +21,7 @@ func (con StatisticController) Target(ctx *gin.Context) {
 
 	// 获取当前登录用户
 	if staff, err := con.GetStaff(ctx); err != nil {
-		con.ExceptionWithAuth(ctx, err)
+		con.Exception(ctx, "无法获取")
 		return
 	} else {
 		logic.Staff = staff

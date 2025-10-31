@@ -51,6 +51,7 @@ func Api(g *gin.Engine) {
 			{
 				uploads.Use(middlewares.JWTMiddleware())
 				{
+					uploads.POST("/common", common.UploadController{}.Common)       // 上传通用图片
 					uploads.POST("/avatar", common.UploadController{}.Avatar)       // 上传头像
 					uploads.POST("/workbench", common.UploadController{}.Workbench) // 上传工作台图片
 					uploads.POST("/store", common.UploadController{}.Store)         // 上传门店图片
@@ -467,6 +468,7 @@ func Api(g *gin.Engine) {
 					inventory.POST("/add_batch", product.ProductInventoryController{}.AddBatch) // 批量添加产品
 					inventory.PUT("/remove", product.ProductInventoryController{}.Remove)       // 移除产品
 					inventory.PUT("/change", product.ProductInventoryController{}.Change)       // 盘点单变化
+					inventory.PUT("/repair", product.ProductInventoryController{}.Repair)       // 盘点单修复
 				}
 			}
 

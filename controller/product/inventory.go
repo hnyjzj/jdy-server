@@ -251,3 +251,34 @@ func (con ProductInventoryController) Change(ctx *gin.Context) {
 
 	con.Success(ctx, "ok", nil)
 }
+
+func (con ProductInventoryController) Repair(ctx *gin.Context) {
+	var (
+		req types.ProductInventoryRepairReq
+
+		logic = product.ProductInventoryLogic{
+			Ctx: ctx,
+		}
+	)
+
+	if staff, err := con.GetStaff(ctx); err != nil {
+		con.ExceptionWithAuth(ctx, err)
+		return
+	} else {
+		logic.Staff = staff
+	}
+
+	// 校验参数
+	if err := ctx.ShouldBind(&req); err != nil {
+		con.Exception(ctx, errors.ErrInvalidParam.Error())
+		return
+	}
+
+	// 调用逻辑层
+	if err := logic.Repair(&req); err != nil {
+		con.Exception(ctx, err.Error())
+		return
+	}
+
+	con.Success(ctx, "ok", nil)
+}

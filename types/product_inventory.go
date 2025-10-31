@@ -116,3 +116,10 @@ type ProductInventoryChangeReq struct {
 
 	Status enums.ProductInventoryStatus `json:"status" binding:"required"`
 }
+
+type ProductInventoryRepairReq struct {
+	Id string `json:"id" binding:"required"`
+
+	RepairReason string   `json:"repair_reason" binding:"required"` // 原因
+	RepairImages []string `json:"repair_images"`                    // 图片
+}

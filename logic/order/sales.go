@@ -91,7 +91,7 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 			return errors.New("撤销订单失败")
 		}
 
-		// 撤销成品
+		// 处理订单产品
 		for _, product := range order.Products {
 			// 更新订单状态
 			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", product.Id).Updates(&model.OrderSalesProduct{
@@ -211,7 +211,7 @@ func (l *OrderSalesLogic) Revoked(req *types.OrderSalesRevokedReq) error {
 
 			// 清空与销售单的关联
 			if err := tx.Model(&deposit).Association("OrderSales").Clear(); err != nil {
-				return errors.New("区域管理员离职失败")
+				return errors.New("清空定金单关联失败")
 			}
 		}
 
@@ -624,9 +624,10 @@ func (l *OrderSalesLogic) Retreat(req *types.OrderSalesRetreatReq) error {
 			return errors.New("更新订单状态失败")
 		}
 
+		// 处理订单产品
 		for _, p := range order.Products {
 			if p.Status != enums.OrderSalesStatusComplete {
-				return errors.New("配件订单状态不正确")
+				return errors.New("产品订单状态不正确")
 			}
 			// 更新订单成品状态
 			if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
@@ -716,60 +717,60 @@ func (l *OrderSalesLogic) Retreat(req *types.OrderSalesRetreatReq) error {
 					}
 				}
 			}
+		}
 
-			// 处理定金单
-			for _, deposit := range order.OrderDeposits {
-				// 循环产品
-				for _, product := range deposit.Products {
-					old_product := product
-					if old_product.IsOur {
-						log := model.ProductHistory{
-							Action:     enums.ProductActionOrderCancel,
-							Type:       enums.ProductTypeFinished,
-							OldValue:   old_product.ProductFinished,
-							ProductId:  old_product.ProductFinished.Id,
-							StoreId:    old_product.ProductFinished.StoreId,
-							SourceId:   order.Id,
-							OperatorId: l.Staff.Id,
-							IP:         l.Ctx.ClientIP(),
-						}
-						// 更新商品状态
-						if err := tx.Model(&model.ProductFinished{}).Where("id = ?", old_product.ProductFinished.Id).Updates(model.ProductFinished{
-							Status: enums.ProductStatusReturn,
-						}).Error; err != nil {
-							return errors.New("配件状态更新失败")
-						}
-						// 添加记录
-						old_product.ProductFinished.Status = enums.ProductStatusReturn
-						log.NewValue = old_product.ProductFinished
-						if err := tx.Create(&log).Error; err != nil {
-							return errors.New("配件记录添加失败")
-						}
+		// 处理定金单
+		for _, deposit := range order.OrderDeposits {
+			// 循环产品
+			for _, product := range deposit.Products {
+				old_product := product
+				if old_product.IsOur {
+					log := model.ProductHistory{
+						Action:     enums.ProductActionOrderCancel,
+						Type:       enums.ProductTypeFinished,
+						OldValue:   old_product.ProductFinished,
+						ProductId:  old_product.ProductFinished.Id,
+						StoreId:    old_product.ProductFinished.StoreId,
+						SourceId:   order.Id,
+						OperatorId: l.Staff.Id,
+						IP:         l.Ctx.ClientIP(),
+					}
+					// 更新商品状态
+					if err := tx.Model(&model.ProductFinished{}).Where("id = ?", old_product.ProductFinished.Id).Updates(model.ProductFinished{
+						Status: enums.ProductStatusReturn,
+					}).Error; err != nil {
+						return errors.New("配件状态更新失败")
+					}
+					// 添加记录
+					old_product.ProductFinished.Status = enums.ProductStatusReturn
+					log.NewValue = old_product.ProductFinished
+					if err := tx.Create(&log).Error; err != nil {
+						return errors.New("配件记录添加失败")
 					}
 				}
-
-				// 更新定金单状态
-				if err := tx.Model(&model.OrderDeposit{}).Where("id = ?", deposit.Id).Updates(model.OrderDeposit{
-					Status: enums.OrderDepositStatusBooking,
-				}).Error; err != nil {
-					return errors.New("更新定金单状态失败")
-				}
-
-				// 清空与销售单的关联
-				if err := tx.Model(&deposit).Association("OrderSales").Clear(); err != nil {
-					return errors.New("区域管理员离职失败")
-				}
 			}
 
-			// 处理支付记录
-			if err := tx.Model(&model.OrderPayment{}).
-				Where(&model.OrderPayment{OrderId: order.Id}).
-				Select("status").
-				Updates(model.OrderPayment{
-					Status: false,
-				}).Error; err != nil {
-				return errors.New("更新支付记录失败")
+			// 更新定金单状态
+			if err := tx.Model(&model.OrderDeposit{}).Where("id = ?", deposit.Id).Updates(model.OrderDeposit{
+				Status: enums.OrderDepositStatusBooking,
+			}).Error; err != nil {
+				return errors.New("更新定金单状态失败")
 			}
+
+			// 清空与销售单的关联
+			if err := tx.Model(&deposit).Association("OrderSales").Clear(); err != nil {
+				return errors.New("清空定金单关联失败")
+			}
+		}
+
+		// 处理支付记录
+		if err := tx.Model(&model.OrderPayment{}).
+			Where(&model.OrderPayment{OrderId: order.Id}).
+			Select("status").
+			Updates(model.OrderPayment{
+				Status: false,
+			}).Error; err != nil {
+			return errors.New("更新支付记录失败")
 		}
 
 		return nil

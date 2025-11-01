@@ -5,9 +5,9 @@ go 1.25.0
 require (
 	github.com/ArtisanCloud/PowerWeChat/v3 v3.4.28
 	github.com/mcuadros/go-defaults v1.2.0
-	github.com/redis/go-redis/v9 v9.14.0
+	github.com/redis/go-redis/v9 v9.16.0
 	github.com/spf13/viper v1.21.0
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.70
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.71
 )
 
 require (
@@ -56,7 +56,7 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.27.0
+	github.com/go-playground/validator/v10 v10.28.0
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/jinzhu/inflection v1.0.0 // indirect

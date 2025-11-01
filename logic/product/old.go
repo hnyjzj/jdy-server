@@ -124,14 +124,14 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 		// 转换成品状态
 		if err := tx.Model(&model.ProductFinished{}).Where("id = ?", finished_product.Id).
 			Update("status", enums.ProductStatusNormal).
-			Update("store_id", old_product.RecycleStoreId).
+			Update("store_id", old_product.StoreId).
 			Error; err != nil {
 			return errors.New("更新成品状态失败")
 		}
 
 		// 添加日志
-		finished_product.StoreId = old_product.RecycleStoreId
-		finished_product.Store = old_product.RecycleStore
+		finished_product.StoreId = old_product.StoreId
+		finished_product.Store = old_product.Store
 		finished_product.Status = enums.ProductStatusNormal
 		log.NewValue = finished_product
 		if err := tx.Create(log).Error; err != nil {

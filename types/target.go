@@ -9,7 +9,7 @@ import (
 )
 
 type TargetWhere struct {
-	StoreId string `json:"store_id" label:"门店" sort:"1" find:"false" create:"false" update:"false" list:"false" info:"true" input:"text" type:"string" required:"true"` // 门店
+	StoreId string `json:"store_id" label:"门店" sort:"1" find:"false" create:"false" update:"false" list:"true" info:"true" input:"text" type:"string" required:"true"` // 门店
 
 	Id   string `json:"id" label:"编号" sort:"1" find:"true" create:"false" update:"false" list:"false" info:"true" input:"text" type:"string" required:"false"` // 编号
 	Name string `json:"name" label:"名称" sort:"2" find:"true" create:"true" update:"true" list:"true" info:"true" input:"text" type:"string" required:"true"`   // 名称

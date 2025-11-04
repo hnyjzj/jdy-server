@@ -4,6 +4,7 @@ import (
 	"errors"
 	"jdy/model"
 	"jdy/types"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 )
@@ -59,6 +60,15 @@ func (l *Logic) Info(req *types.TargetInfoReq) (*model.Target, error) {
 		return nil, errors.New("获取目标详情失败")
 	}
 	target = *tg
+
+	// 按照达成量、目标量排序
+	sort.Slice(target.Personals, func(i, j int) bool {
+		// 先按照目标量排序，再按照达成量排序
+		if target.Personals[i].Purpose.Equal(target.Personals[j].Purpose) {
+			return target.Personals[i].Achieve.GreaterThan(target.Personals[j].Achieve)
+		}
+		return target.Personals[i].Purpose.GreaterThan(target.Personals[j].Purpose)
+	})
 
 	return &target, nil
 }

@@ -321,11 +321,11 @@ func (l *achieveLogic) addAchieve(staff_id string, amount, quantity decimal.Deci
 			switch l.Target.Method {
 			case enums.TargetMethodAmount:
 				{
-					l.Target.Personals[i].Achieve = personal.Achieve.Add(amount)
+					l.Target.Personals[i].Achieve = personal.Achieve.Add(amount.Round(2))
 				}
 			case enums.TargetMethodQuantity:
 				{
-					l.Target.Personals[i].Achieve = personal.Achieve.Add(quantity)
+					l.Target.Personals[i].Achieve = personal.Achieve.Add(quantity.Round(2))
 				}
 			}
 		}

@@ -235,8 +235,8 @@ func (l *achieveLogic) calculateOld(old *model.ProductOld, clerk *model.OrderSal
 				continue
 			}
 
-			amount = price.Div(decimal.NewFromInt(int64(len(old.ExchangeFinisheds)))).Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
-			quantity = decimal.NewFromInt(1).Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100))
+			amount = amount.Add(price.Div(decimal.NewFromInt(int64(len(old.ExchangeFinisheds)))).Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
+			quantity = quantity.Add(decimal.NewFromInt(1).Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
 
 			continue
 		}

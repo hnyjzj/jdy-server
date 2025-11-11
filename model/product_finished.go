@@ -244,7 +244,8 @@ func (p *ProductFinished) GetClass() enums.ProductClassFinished {
 		{
 			return enums.ProductClassFinishedCoral
 		}
-	case p.Material == enums.ProductMaterialGem &&
+	case (p.Material == enums.ProductMaterialGem ||
+		(p.Material == enums.ProductMaterialGold && p.Quality == enums.ProductQuality750)) &&
 		(p.Gem == enums.ProductGemPearl || p.Gem == enums.ProductGemPearlMother):
 		{
 			return enums.ProductClassFinishedPearl

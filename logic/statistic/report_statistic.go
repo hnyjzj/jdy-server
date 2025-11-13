@@ -122,6 +122,7 @@ func (con StatisticLogic) SendReportStatistic() {
 							}
 						}
 						req.TodayOld = req.TodayOld.Add(price)
+						req.TodayFinished = req.TodayFinished.Add(price.Neg())
 					}
 				case enums.ProductTypeAccessorie:
 					{
@@ -193,6 +194,7 @@ func (con StatisticLogic) SendReportStatistic() {
 							}
 						}
 						req.MonthOld = req.MonthOld.Add(price)
+						req.MonthFinished = req.MonthFinished.Add(price.Neg())
 					}
 				case enums.ProductTypeAccessorie:
 					{

@@ -52,7 +52,11 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 			if !ok {
 				item = decimal.Decimal{}
 			}
-			item = item.Add(v.(decimal.Decimal))
+			val, ok := v.(decimal.Decimal)
+			if !ok {
+				continue
+			}
+			item = item.Add(val)
 			total[k] = item
 		}
 	}

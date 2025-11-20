@@ -432,6 +432,9 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				if p.Status != enums.OrderSalesStatusComplete {
 					return errors.New("旧料订单状态不正确")
 				}
+				if p.Old.Product.Status != enums.ProductStatusNormal {
+					return errors.New("旧料已不在库，已无法退货")
+				}
 
 				// 更新订单旧料状态
 				if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{

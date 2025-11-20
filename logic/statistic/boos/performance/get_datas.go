@@ -34,7 +34,35 @@ func (l *Logic) GetDatas(req *DataReq) (any, error) {
 		return nil, err
 	}
 
-	return logic.get_data()
+	data, err := logic.get_data()
+	if err != nil {
+		return nil, err
+	}
+
+	// 总计
+	total := map[string]any{
+		"name": "总计",
+	}
+	for _, row := range data {
+		for k, v := range row {
+			if k == "name" {
+				continue
+			}
+			item, ok := total[k].(decimal.Decimal)
+			if !ok {
+				item = decimal.Decimal{}
+			}
+			item = item.Add(v.(decimal.Decimal))
+			total[k] = item
+		}
+	}
+
+	res := map[string]any{
+		"list":  data,
+		"total": total,
+	}
+
+	return res, nil
 }
 
 // 获取门店列表
@@ -120,7 +148,7 @@ func (r *dataLogic) get_refunds(req *DataReq) error {
 }
 
 // 销售额
-func (r *dataLogic) get_data() (any, error) {
+func (r *dataLogic) get_data() ([]map[string]any, error) {
 	var data []map[string]any
 
 	for _, store := range r.Stores {
@@ -282,5 +310,5 @@ func (r *dataLogic) get_data() (any, error) {
 		data = append(data, row)
 	}
 
-	return &data, nil
+	return data, nil
 }

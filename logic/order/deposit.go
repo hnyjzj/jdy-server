@@ -54,11 +54,29 @@ func (l *OrderDepositLogic) Create(req *types.OrderDepositCreateReq) (*model.Ord
 
 				data.ProductId = product.Id
 
+				log := model.ProductHistory{
+					Action:     enums.ProductActionDirectOut,
+					Type:       enums.ProductTypeFinished,
+					OldValue:   product,
+					ProductId:  product.Id,
+					StoreId:    product.StoreId,
+					SourceId:   product.Id,
+					OperatorId: l.Staff.Id,
+					IP:         l.Ctx.ClientIP(),
+				}
+				status := enums.ProductStatusReturn
+				product.Status = status
 				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.Id).Updates(model.ProductFinished{
-					Status: enums.ProductStatusReturn,
+					Status: status,
 				}).Error; err != nil {
 					return errors.New("更新商品状态失败")
 				}
+
+				log.NewValue = product
+				if err := tx.Create(&log).Error; err != nil {
+					return errors.New("创建商品日志失败")
+				}
+
 			} else {
 				data.ProductDemand = model.ProductFinished{
 					Name:        p.Name,
@@ -174,11 +192,28 @@ func (l *OrderDepositLogic) Revoked(req *types.OrderDepositRevokedReq) error {
 			}
 
 			if product.IsOur && product.ProductFinished.Id != "" {
-				// 更新成品状态
-				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.ProductFinished.Id).Updates(&model.ProductFinished{
-					Status: enums.ProductStatusNormal,
-				}).Error; err != nil {
-					return errors.New("更新成品状态失败")
+				if product.ProductFinished.Status == enums.ProductStatusReturn {
+					log := model.ProductHistory{
+						Action:     enums.ProductActionDirectOutCancel,
+						Type:       enums.ProductTypeFinished,
+						OldValue:   product.ProductFinished,
+						ProductId:  product.ProductFinished.Id,
+						StoreId:    product.ProductFinished.StoreId,
+						SourceId:   product.ProductFinished.Id,
+						OperatorId: l.Staff.Id,
+					}
+					status := enums.ProductStatusNormal
+					product.ProductFinished.Status = status
+					// 更新成品状态
+					if err := tx.Model(&model.ProductFinished{}).Where("id = ?", product.ProductFinished.Id).Updates(&model.ProductFinished{
+						Status: status,
+					}).Error; err != nil {
+						return errors.New("更新成品状态失败")
+					}
+					log.NewValue = product.ProductFinished
+					if err := tx.Create(&log).Error; err != nil {
+						return errors.New("创建成品日志失败")
+					}
 				}
 			}
 		}
@@ -300,9 +335,12 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 		} else {
 			data.Name = p.ProductFinished.Name
 			data.Code = strings.TrimSpace(strings.ToUpper(p.ProductFinished.Code))
+		}
+
+		if p.ProductFinished.Status == enums.ProductStatusReturn {
 			// 添加历史
 			log := model.ProductHistory{
-				Action:     enums.ProductActionReturn,
+				Action:     enums.ProductActionDirectOutCancel,
 				Type:       enums.ProductTypeFinished,
 				OldValue:   p.ProductFinished,
 				ProductId:  p.ProductFinished.Id,
@@ -311,8 +349,10 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 				OperatorId: l.Staff.Id,
 				IP:         l.Ctx.ClientIP(),
 			}
+			status := enums.ProductStatusNormal
+			p.ProductFinished.Status = status
 			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.ProductFinished.Id).Updates(&model.ProductFinished{
-				Status: enums.ProductStatusNormal,
+				Status: status,
 			}).Error; err != nil {
 				return errors.New("更新成品状态失败")
 			}

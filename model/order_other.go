@@ -29,7 +29,7 @@ type OrderOther struct {
 	OrderId string     `json:"order_id" gorm:"index;type:varchar(255);comment:销售单ID;"`       // 销售单ID
 	Order   OrderSales `json:"order" gorm:"foreignKey:OrderId;references:Id;comment:关联销售单;"` // 关联销售单
 
-	Amount   decimal.Decimal `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:金额;"`          // 金额
+	Amount   decimal.Decimal `json:"amount" gorm:"type:decimal(15,4);not NULL;comment:金额;"`          // 金额
 	Payments []OrderPayment  `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"` // 支付信息
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID

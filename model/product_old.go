@@ -18,7 +18,7 @@ type ProductOld struct {
 	Images       []string              `json:"images" gorm:"type:text;serializer:json;comment:图片;"`         // 图片
 	Status       enums.ProductStatus   `json:"status" gorm:"type:int(11);comment:状态;"`                      // 状态
 	Class        enums.ProductClassOld `json:"class" gorm:"type:int(11);not NULL;comment:旧料大类;"`            // 旧料大类
-	LabelPrice   decimal.Decimal       `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
+	LabelPrice   decimal.Decimal       `json:"label_price" gorm:"type:decimal(15,4);not NULL;comment:标签价;"` // 标签价
 	Brand        enums.ProductBrand    `json:"brand" gorm:"type:int(11);comment:品牌;"`                       // 品牌
 	Material     enums.ProductMaterial `json:"material" gorm:"type:int(11);not NULL;comment:材质;"`           // 材质
 	Quality      enums.ProductQuality  `json:"quality" gorm:"type:int(11);not NULL;comment:成色;"`            // 成色
@@ -43,10 +43,10 @@ type ProductOld struct {
 	RecycleMethod           enums.ProductRecycleMethod `json:"recycle_method,omitempty" gorm:"type:int(11);comment:回收方式;"`                           // 回收方式
 	RecycleType             enums.ProductRecycleType   `json:"recycle_type,omitempty" gorm:"type:int(11);comment:回收类型;"`                             // 回收类型
 	ExchangeFinisheds       []string                   `json:"exchange_finisheds" gorm:"type:text;serializer:json;comment:兑换成品条码;"`                  // 兑换成品条码
-	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`                           // 回收金价
-	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`                          // 回收工费
+	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(15,4);comment:回收金价;"`                           // 回收金价
+	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(15,4);comment:回收工费;"`                          // 回收工费
 	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:int(11);comment:回收工费方式;"`             // 回收工费方式
-	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收金额;"`                                // 回收金额
+	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(15,4);comment:回收金额;"`                                // 回收金额
 	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                                // 实际成色
 	RecycleSource           enums.ProductRecycleSource `json:"recycle_source,omitempty" gorm:"type:int(11);comment:回收来源;"`                           // 回收来源
 	RecycleSourceId         string                     `json:"recycle_source_id" gorm:"type:varchar(255);comment:回收来源ID;"`                           // 回收来源ID

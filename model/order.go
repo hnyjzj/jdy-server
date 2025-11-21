@@ -28,7 +28,7 @@ type OrderPayment struct {
 	OrderRefund  OrderRefund     `json:"order_refund,omitempty" gorm:"foreignKey:OrderId;references:Id;comment:退单;"`   // 退单
 
 	PaymentMethod enums.OrderPaymentMethod `json:"payment_method" gorm:"index;type:int(11);not NULL;comment:支付方式;"` // 支付方式
-	Amount        decimal.Decimal          `json:"amount" gorm:"type:decimal(10,2);not NULL;comment:金额;"`           // 金额
+	Amount        decimal.Decimal          `json:"amount" gorm:"type:decimal(15,4);not NULL;comment:金额;"`           // 金额
 }
 
 func (OrderPayment) Preloads(db *gorm.DB) *gorm.DB {
@@ -62,8 +62,8 @@ type OrderRefund struct {
 	Remark  string            `json:"remark" gorm:"type:varchar(255);not NULL;comment:备注;"` // 备注
 
 	Quantity      int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`              // 数量
-	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:实退金额;"`         // 实退金额
-	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(10,2);not NULL;comment:原金额;"` // 原金额
+	Price         decimal.Decimal `json:"price" gorm:"type:decimal(15,4);not NULL;comment:实退金额;"`         // 实退金额
+	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(15,4);not NULL;comment:原金额;"` // 原金额
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`               // 操作员ID
 	Operator   Staff  `json:"operator,omitempty" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员

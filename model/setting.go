@@ -12,7 +12,7 @@ type GoldPrice struct {
 	SoftDelete
 
 	StoreId         string                 `json:"store_id" gorm:"index:idx_gold_price_smt,priority:1;type:varchar(255);comment:店铺ID;"`    // 店铺ID
-	Price           decimal.Decimal        `json:"price" gorm:"type:decimal(10,2);comment:金价;"`                                            // 金价
+	Price           decimal.Decimal        `json:"price" gorm:"type:decimal(15,4);comment:金价;"`                                            // 金价
 	ProductMaterial enums.ProductMaterial  `json:"product_material" gorm:"index:idx_gold_price_smt,priority:2;type:int(11);comment:产品材质;"` // 产品材质
 	ProductType     enums.ProductTypeUsed  `json:"product_type" gorm:"index:idx_gold_price_smt,priority:3;type:int(11);comment:产品类型;"`     // 产品类型
 	ProductBrand    []enums.ProductBrand   `json:"product_brand" gorm:"type:text;serializer:json;comment:产品品牌;"`                           // 产品品牌
@@ -57,7 +57,7 @@ type OpenOrder struct {
 	StoreId string `json:"store_id" gorm:"index;type:varchar(255);comment:店铺ID;"`               // 店铺ID
 	Store   Store  `json:"store,omitempty" gorm:"foreignKey:StoreId;references:Id;comment:店铺;"` // 店铺
 
-	DiscountRate decimal.Decimal    `json:"discount_rate" gorm:"type:decimal(10,2);comment:积分抵扣比例;"` // 积分抵扣比例
+	DiscountRate decimal.Decimal    `json:"discount_rate" gorm:"type:decimal(15,4);comment:积分抵扣比例;"` // 积分抵扣比例
 	DecimalPoint enums.DecimalPoint `json:"decimal_point" gorm:"type:int(11);comment:金额小数点控制;"`      // 金额小数点控制
 	Rounding     enums.Rounding     `json:"rounding" gorm:"type:int(11);comment:金额进位控制;"`            // 金额进位控制
 	UseConfirm   bool               `json:"use_confirm" gorm:"type:int(11);comment:积分使用二次确认;"`       // 积分使用二次确认

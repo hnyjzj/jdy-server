@@ -28,8 +28,8 @@ type OrderDeposit struct {
 
 	Products []OrderDepositProduct `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:成品;"` // 成品
 
-	Price    decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`     // 应付金额
-	PricePay decimal.Decimal `json:"price_pay" gorm:"type:decimal(10,2);not NULL;comment:实付金额;"` // 实付金额
+	Price    decimal.Decimal `json:"price" gorm:"type:decimal(15,4);not NULL;comment:应付金额;"`     // 应付金额
+	PricePay decimal.Decimal `json:"price_pay" gorm:"type:decimal(15,4);not NULL;comment:实付金额;"` // 实付金额
 
 	Remarks  []string       `json:"remarks" gorm:"type:text;not NULL;serializer:json;comment:订单备注;"` // 订单备注
 	Payments []OrderPayment `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"`  // 支付信息
@@ -103,8 +103,8 @@ type OrderDepositProduct struct {
 	ProductFinished ProductFinished `json:"product_finished,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:系统货品;"` // 系统货品
 	ProductDemand   ProductFinished `json:"product_demand,omitempty" gorm:"type:text;serializer:json;comment:手动添加;"`            // 手动添加
 
-	PriceGold decimal.Decimal `json:"price_gold" gorm:"type:decimal(10,2);not NULL;comment:金价;"` // 金价
-	Price     decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`    // 应付金额
+	PriceGold decimal.Decimal `json:"price_gold" gorm:"type:decimal(15,4);not NULL;comment:金价;"` // 金价
+	Price     decimal.Decimal `json:"price" gorm:"type:decimal(15,4);not NULL;comment:应付金额;"`    // 应付金额
 }
 
 func init() {

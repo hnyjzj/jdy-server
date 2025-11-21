@@ -28,25 +28,25 @@ type OrderSales struct {
 	Member   Member `json:"member" gorm:"foreignKey:MemberId;references:Id;comment:会员;"`     // 会员
 
 	HasIntegral       bool            `json:"has_integral" gorm:"type:int(11);not NULL;comment:是否积分;"`             // 是否积分
-	DiscountRate      decimal.Decimal `json:"discount_rate" gorm:"type:decimal(10,2);not NULL;comment:整单折扣;"`      // 整单折扣
-	IntegralDeduction decimal.Decimal `json:"integral_deduction" gorm:"type:decimal(10,2);not NULL;comment:积分抵扣;"` // 积分抵扣
-	RoundOff          decimal.Decimal `json:"round_off" gorm:"type:decimal(10,2);not NULL;comment:抹零;"`            // 抹零
+	DiscountRate      decimal.Decimal `json:"discount_rate" gorm:"type:decimal(15,4);not NULL;comment:整单折扣;"`      // 整单折扣
+	IntegralDeduction decimal.Decimal `json:"integral_deduction" gorm:"type:decimal(15,4);not NULL;comment:积分抵扣;"` // 积分抵扣
+	RoundOff          decimal.Decimal `json:"round_off" gorm:"type:decimal(15,4);not NULL;comment:抹零;"`            // 抹零
 
-	ProductFinishedPrice   decimal.Decimal `json:"product_finished_price" gorm:"type:decimal(10,2);not NULL;comment:货品金额;"`   // 货品金额
-	ProductOldPrice        decimal.Decimal `json:"product_old_price" gorm:"type:decimal(10,2);not NULL;comment:旧料抵扣;"`        // 旧料抵扣
-	ProductAccessoriePrice decimal.Decimal `json:"product_accessorie_price" gorm:"type:decimal(10,2);not NULL;comment:配件礼品;"` // 配件礼品
+	ProductFinishedPrice   decimal.Decimal `json:"product_finished_price" gorm:"type:decimal(15,4);not NULL;comment:货品金额;"`   // 货品金额
+	ProductOldPrice        decimal.Decimal `json:"product_old_price" gorm:"type:decimal(15,4);not NULL;comment:旧料抵扣;"`        // 旧料抵扣
+	ProductAccessoriePrice decimal.Decimal `json:"product_accessorie_price" gorm:"type:decimal(15,4);not NULL;comment:配件礼品;"` // 配件礼品
 
 	Products []OrderSalesProduct `json:"products" gorm:"foreignKey:OrderId;references:Id;comment:货品;"` // 货品
 
 	// 定金单
 	OrderDeposits []OrderDeposit  `json:"order_deposits" gorm:"many2many:order_sales_deposits;"`
-	PriceDeposit  decimal.Decimal `json:"price_deposit" gorm:"type:decimal(10,2);not NULL;comment:定金抵扣;"`
+	PriceDeposit  decimal.Decimal `json:"price_deposit" gorm:"type:decimal(15,4);not NULL;comment:定金抵扣;"`
 
-	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"`   // 原价
-	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`          // 应付金额
-	PricePay      decimal.Decimal `json:"price_pay" gorm:"type:decimal(10,2);not NULL;comment:实付金额;"`      // 实付金额
-	PriceDiscount decimal.Decimal `json:"price_discount" gorm:"type:decimal(10,2);not NULL;comment:优惠金额;"` // 优惠金额
-	Integral      decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"`         // 积分
+	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(15,4);not NULL;comment:原价;"`   // 原价
+	Price         decimal.Decimal `json:"price" gorm:"type:decimal(15,4);not NULL;comment:应付金额;"`          // 应付金额
+	PricePay      decimal.Decimal `json:"price_pay" gorm:"type:decimal(15,4);not NULL;comment:实付金额;"`      // 实付金额
+	PriceDiscount decimal.Decimal `json:"price_discount" gorm:"type:decimal(15,4);not NULL;comment:优惠金额;"` // 优惠金额
+	Integral      decimal.Decimal `json:"integral" gorm:"type:decimal(15,4);not NULL;comment:积分;"`         // 积分
 
 	Remarks  []string       `json:"remarks" gorm:"type:text;serializer:json;comment:订单备注;"`         // 订单备注
 	Payments []OrderPayment `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"` // 支付信息
@@ -218,17 +218,17 @@ type OrderSalesProductFinished struct {
 	ProductId string          `json:"product_id" gorm:"index;type:varchar(255);not NULL;comment:产品ID;"`        // 产品ID
 	Product   ProductFinished `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
-	PriceGold         decimal.Decimal `json:"price_gold" gorm:"type:decimal(10,2);not NULL;comment:金价;"`           // 金价
-	LaborFee          decimal.Decimal `json:"labor_fee" gorm:"type:decimal(10,2);not NULL;comment:工费;"`            // 工费
-	DiscountFixed     decimal.Decimal `json:"discount_fixed" gorm:"type:decimal(10,2);not NULL;comment:固定折扣;"`     // 固定折扣
-	IntegralDeduction decimal.Decimal `json:"integral_deduction" gorm:"type:decimal(10,2);not NULL;comment:积分抵扣;"` // 积分抵扣
-	DiscountMember    decimal.Decimal `json:"discount_member" gorm:"type:decimal(10,2);not NULL;comment:会员折扣;"`    // 会员折扣
-	RoundOff          decimal.Decimal `json:"round_off" gorm:"type:decimal(10,2);not NULL;comment:抹零;"`            // 抹零
-	Integral          decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"`             // 积分
+	PriceGold         decimal.Decimal `json:"price_gold" gorm:"type:decimal(15,4);not NULL;comment:金价;"`           // 金价
+	LaborFee          decimal.Decimal `json:"labor_fee" gorm:"type:decimal(15,4);not NULL;comment:工费;"`            // 工费
+	DiscountFixed     decimal.Decimal `json:"discount_fixed" gorm:"type:decimal(15,4);not NULL;comment:固定折扣;"`     // 固定折扣
+	IntegralDeduction decimal.Decimal `json:"integral_deduction" gorm:"type:decimal(15,4);not NULL;comment:积分抵扣;"` // 积分抵扣
+	DiscountMember    decimal.Decimal `json:"discount_member" gorm:"type:decimal(15,4);not NULL;comment:会员折扣;"`    // 会员折扣
+	RoundOff          decimal.Decimal `json:"round_off" gorm:"type:decimal(15,4);not NULL;comment:抹零;"`            // 抹零
+	Integral          decimal.Decimal `json:"integral" gorm:"type:decimal(15,4);not NULL;comment:积分;"`             // 积分
 
-	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"` // 原价
-	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`        // 应付金额
-	DiscountFinal decimal.Decimal `json:"discount_final" gorm:"type:decimal(10,2);not NULL;comment:折扣;"` // 折扣
+	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(15,4);not NULL;comment:原价;"` // 原价
+	Price         decimal.Decimal `json:"price" gorm:"type:decimal(15,4);not NULL;comment:应付金额;"`        // 应付金额
+	DiscountFinal decimal.Decimal `json:"discount_final" gorm:"type:decimal(15,4);not NULL;comment:折扣;"` // 折扣
 }
 
 // 销售单旧料
@@ -247,13 +247,13 @@ type OrderSalesProductOld struct {
 	Product   ProductOld `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
 	WeightMetal             decimal.Decimal            `json:"weight_metal" gorm:"type:decimal(15,4);comment:金重;"`                       // 金重
-	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(10,2);comment:回收金价;"`               // 回收金价
-	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(10,2);comment:回收工费;"`              // 回收工费
+	RecyclePriceGold        decimal.Decimal            `json:"recycle_price_gold" gorm:"type:decimal(15,4);comment:回收金价;"`               // 回收金价
+	RecyclePriceLabor       decimal.Decimal            `json:"recycle_price_labor" gorm:"type:decimal(15,4);comment:回收工费;"`              // 回收工费
 	RecyclePriceLaborMethod enums.ProductRecycleMethod `json:"recycle_price_labor_method,omitempty" gorm:"type:int(11);comment:回收工费方式;"` // 回收工费方式
 	QualityActual           decimal.Decimal            `json:"quality_actual" gorm:"type:decimal(3,2);comment:实际成色;"`                    // 实际成色
-	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(10,2);comment:回收金额;"`                    // 回收金额
+	RecyclePrice            decimal.Decimal            `json:"recycle_price" gorm:"type:decimal(15,4);comment:回收金额;"`                    // 回收金额
 
-	Integral decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"` // 积分
+	Integral decimal.Decimal `json:"integral" gorm:"type:decimal(15,4);not NULL;comment:积分;"` // 积分
 }
 
 // 销售单配件
@@ -272,9 +272,9 @@ type OrderSalesProductAccessorie struct {
 	Product   ProductAccessorie `json:"product,omitempty" gorm:"foreignKey:ProductId;references:Id;comment:产品;"` // 产品
 
 	Quantity      int64           `json:"quantity" gorm:"type:int(11);not NULL;comment:数量;"`             // 数量
-	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(10,2);not NULL;comment:原价;"` // 原价
-	Price         decimal.Decimal `json:"price" gorm:"type:decimal(10,2);not NULL;comment:应付金额;"`        // 应付金额
-	Integral      decimal.Decimal `json:"integral" gorm:"type:decimal(10,2);not NULL;comment:积分;"`       // 积分
+	PriceOriginal decimal.Decimal `json:"price_original" gorm:"type:decimal(15,4);not NULL;comment:原价;"` // 原价
+	Price         decimal.Decimal `json:"price" gorm:"type:decimal(15,4);not NULL;comment:应付金额;"`        // 应付金额
+	Integral      decimal.Decimal `json:"integral" gorm:"type:decimal(15,4);not NULL;comment:积分;"`       // 积分
 }
 
 // 销售单导购员
@@ -287,7 +287,7 @@ type OrderSalesClerk struct {
 	SalesmanId string `json:"salesman_id" gorm:"index;type:varchar(255);not NULL;comment:导购员ID;"`         // 导购员ID
 	Salesman   Staff  `json:"salesman,omitempty" gorm:"foreignKey:SalesmanId;references:Id;comment:导购员;"` // 导购员
 
-	PerformanceAmount decimal.Decimal `json:"performance_amount" gorm:"type:decimal(10,2);not NULL;comment:业绩金额;"` // 业绩金额
+	PerformanceAmount decimal.Decimal `json:"performance_amount" gorm:"type:decimal(15,4);not NULL;comment:业绩金额;"` // 业绩金额
 	PerformanceRate   decimal.Decimal `json:"performance_rate" gorm:"type:decimal(5,2);not NULL;comment:业绩比例;"`    // 业绩比例
 
 	IsMain bool `json:"is_main" gorm:"index;type:int(11);not NULL;comment:是否主导购员;"` // 是否主导购员

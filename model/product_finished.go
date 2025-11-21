@@ -19,10 +19,10 @@ type ProductFinished struct {
 	Status      enums.ProductStatus        `json:"status" gorm:"index:idx_pf_store_status_time,priority:2;type:int(11);comment:状态;"` // 状态
 	Images      []string                   `json:"images" gorm:"type:text;serializer:json;comment:图片;"`                              // 图片
 	Class       enums.ProductClassFinished `json:"class" gorm:"type:int(11);comment:大类;"`                                            // 大类
-	AccessFee   decimal.Decimal            `json:"access_fee" gorm:"type:decimal(10,2);not NULL;comment:入网费;"`                       // 入网费
+	AccessFee   decimal.Decimal            `json:"access_fee" gorm:"type:decimal(15,4);not NULL;comment:入网费;"`                       // 入网费
 	RetailType  enums.ProductRetailType    `json:"retail_type" gorm:"type:int(11);not NULL;comment:零售方式;"`                           // 零售方式
-	LabelPrice  decimal.Decimal            `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"`                      // 标签价
-	LaborFee    decimal.Decimal            `json:"labor_fee" gorm:"type:decimal(10,2);not NULL;comment:工费;"`                         // 工费
+	LabelPrice  decimal.Decimal            `json:"label_price" gorm:"type:decimal(15,4);not NULL;comment:标签价;"`                      // 标签价
+	LaborFee    decimal.Decimal            `json:"labor_fee" gorm:"type:decimal(15,4);not NULL;comment:工费;"`                         // 工费
 	Style       string                     `json:"style" gorm:"type:varchar(255);comment:款式;"`                                       // 款式
 	Supplier    enums.ProductSupplier      `json:"supplier" gorm:"type:int(11);not NULL;comment:供应商;"`                               // 供应商
 	Brand       enums.ProductBrand         `json:"brand" gorm:"type:int(11);comment:品牌;"`                                            // 品牌
@@ -284,8 +284,8 @@ type ProductFinishedEnter struct {
 	Products                []ProductFinished `json:"products" gorm:"foreignKey:EnterId;references:Id;comment:成品;"`                 // 成品
 	ProductCount            int64             `json:"product_count" gorm:"type:int(11);not NULL;comment:成品数量;"`                     // 成品数量
 	ProductTotalWeightMetal decimal.Decimal   `json:"product_total_weight_metal" gorm:"type:decimal(15,4);not NULL;comment:成品总重;"`  // 成品总重
-	ProductTotalLabelPrice  decimal.Decimal   `json:"product_total_label_price" gorm:"type:decimal(10,2);not NULL;comment:成品总标签价;"` // 成品总标签价
-	ProductTotalAccessFee   decimal.Decimal   `json:"product_total_access_fee" gorm:"type:decimal(10,2);not NULL;comment:成品总加工费;"`  // 成品总加工费
+	ProductTotalLabelPrice  decimal.Decimal   `json:"product_total_label_price" gorm:"type:decimal(15,4);not NULL;comment:成品总标签价;"` // 成品总标签价
+	ProductTotalAccessFee   decimal.Decimal   `json:"product_total_access_fee" gorm:"type:decimal(15,4);not NULL;comment:成品总加工费;"`  // 成品总加工费
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作人ID;"`     // 操作人ID
 	Operator   *Staff `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作人;"` // 操作人

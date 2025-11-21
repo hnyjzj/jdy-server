@@ -135,7 +135,7 @@ type TargetPersonal struct {
 	Group   TargetGroup `json:"group,omitzero" gorm:"foreignKey:GroupId;references:Id;comment:分组;"` // 分组
 
 	IsLeader bool            `json:"is_leader" gorm:"type:tinyint(1);comment:是否组长;"` // 是否组长
-	Purpose  decimal.Decimal `json:"purpose" gorm:"type:decimal(10,2);comment:目标量;"` // 目标量
+	Purpose  decimal.Decimal `json:"purpose" gorm:"type:decimal(15,4);comment:目标量;"` // 目标量
 
 	Achieve decimal.Decimal `json:"achieved" gorm:"-"` // 达成量
 }

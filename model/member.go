@@ -22,7 +22,7 @@ type Member struct {
 	IDCard      string       `json:"id_card" gorm:"column:id_card;size:255;comment:身份证号;"`        // 身份证号
 
 	Level      enums.MemberLevel `json:"level" gorm:"column:level;type:int(11);not NULL;default:0;comment:会员等级;"`             // 会员等级
-	Integral   decimal.Decimal   `json:"integral" gorm:"column:integral;type:decimal(10,2);not NULL;default:0;comment:积分;"`   // 积分
+	Integral   decimal.Decimal   `json:"integral" gorm:"column:integral;type:decimal(15,4);not NULL;default:0;comment:积分;"`   // 积分
 	BuyCount   int               `json:"buy_count" gorm:"column:buy_count;type:int(11);not NULL;default:0;comment:购买次数;"`     // 购买次数
 	EventCount int               `json:"event_count" gorm:"column:event_count;type:int(11);not NULL;default:0;comment:活动次数;"` // 活动次数
 

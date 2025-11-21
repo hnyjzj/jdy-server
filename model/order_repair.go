@@ -39,8 +39,8 @@ type OrderRepair struct {
 
 	Images []string `json:"images" gorm:"type:text;not NULL;serializer:json;comment:图片;"` // 图片
 
-	Expense  decimal.Decimal `json:"expense" gorm:"type:decimal(10,2);not NULL;comment:维修费;"`        // 维修费
-	Cost     decimal.Decimal `json:"cost" gorm:"type:decimal(10,2);not NULL;comment:维修成本;"`          // 维修成本
+	Expense  decimal.Decimal `json:"expense" gorm:"type:decimal(15,4);not NULL;comment:维修费;"`        // 维修费
+	Cost     decimal.Decimal `json:"cost" gorm:"type:decimal(15,4);not NULL;comment:维修成本;"`          // 维修成本
 	Payments []OrderPayment  `json:"payments" gorm:"foreignKey:OrderId;references:Id;comment:支付信息;"` // 支付信息
 
 	OperatorId string `json:"operator_id" gorm:"type:varchar(255);not NULL;comment:操作员ID;"`     // 操作员ID
@@ -119,7 +119,7 @@ type OrderRepairProduct struct {
 
 	Code        string                `json:"code" gorm:"type:varchar(255);comment:条码;"`                   // 条码
 	Name        string                `json:"name" gorm:"type:varchar(255);comment:名称;"`                   // 名称
-	LabelPrice  decimal.Decimal       `json:"label_price" gorm:"type:decimal(10,2);not NULL;comment:标签价;"` // 标签价
+	LabelPrice  decimal.Decimal       `json:"label_price" gorm:"type:decimal(15,4);not NULL;comment:标签价;"` // 标签价
 	Brand       enums.ProductBrand    `json:"brand" gorm:"type:int(11);comment:品牌;"`                       // 品牌
 	Material    enums.ProductMaterial `json:"material" gorm:"type:int(11);not NULL;comment:材质;"`           // 材质
 	Quality     enums.ProductQuality  `json:"quality" gorm:"type:int(11);not NULL;comment:成色;"`            // 成色

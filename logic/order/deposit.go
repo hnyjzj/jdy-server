@@ -311,8 +311,12 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 				OperatorId: l.Staff.Id,
 				IP:         l.Ctx.ClientIP(),
 			}
+			status := enums.ProductStatusNormal
+			if p.ProductFinished.Status != enums.ProductStatusReturn {
+				status = p.ProductFinished.Status
+			}
 			if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.ProductFinished.Id).Updates(&model.ProductFinished{
-				Status: enums.ProductStatusNormal,
+				Status: status,
 			}).Error; err != nil {
 				return errors.New("更新成品状态失败")
 			}

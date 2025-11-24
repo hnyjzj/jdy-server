@@ -56,6 +56,7 @@ func (l *OrderSalesLogic) Info(req *types.OrderSalesInfoReq) (*model.OrderSales,
 	db := model.DB.Model(&order)
 
 	db = order.Preloads(db)
+	db = db.Preload("OrderRefunds")
 
 	db = db.Where("id = ?", req.Id)
 	if err := db.First(&order).Error; err != nil {

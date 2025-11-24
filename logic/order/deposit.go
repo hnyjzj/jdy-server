@@ -154,6 +154,7 @@ func (l *OrderDepositLogic) Info(req *types.OrderDepositInfoReq) (*model.OrderDe
 	db := model.DB.Model(&order)
 
 	db = order.Preloads(db)
+	db = db.Preload("OrderRefunds")
 
 	db = db.Where("id = ?", req.Id)
 	if err := db.First(&order).Error; err != nil {

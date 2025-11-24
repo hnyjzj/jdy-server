@@ -38,7 +38,8 @@ type OrderDeposit struct {
 	Operator   Staff  `json:"operator" gorm:"foreignKey:OperatorId;references:Id;comment:操作员;"` // 操作员
 	IP         string `json:"ip" gorm:"type:varchar(255);not NULL;comment:IP地址;"`               // IP地址
 
-	OrderSales []OrderSales `json:"order_sales" gorm:"many2many:order_sales_deposits;"`
+	OrderSales   []OrderSales  `json:"order_sales" gorm:"many2many:order_sales_deposits;"`                 // 销售单
+	OrderRefunds []OrderRefund `json:"order_refunds" gorm:"foreignKey:OrderId;references:Id;comment:退款单;"` // 退款单
 }
 
 func (OrderDeposit) WhereCondition(db *gorm.DB, req *types.OrderDepositWhere) *gorm.DB {

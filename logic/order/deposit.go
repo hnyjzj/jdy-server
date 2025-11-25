@@ -364,7 +364,7 @@ func (l *OrderDepositLogic) Refund(req *types.OrderDepositRefundReq) error {
 			}
 		}
 
-		data.Type = enums.ProductTypeOld
+		data.Type = enums.ProductTypeFinished
 		data.Quantity = 1
 		data.Price = p.Price
 		data.PriceOriginal = p.Price

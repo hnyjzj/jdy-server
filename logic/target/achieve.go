@@ -202,6 +202,24 @@ func (l *achieveLogic) calculateFinished(finished *model.ProductFinished, clerk 
 
 // 计算旧料（仅限当前订单范围）
 func (l *achieveLogic) calculateOld(order *model.OrderSales, old *model.ProductOld, clerk *model.OrderSalesClerk, price decimal.Decimal) (amount, quantity decimal.Decimal) {
+	// 判断统计范围
+	scopes := []enums.TargetScope{
+		enums.TargetScopeClass,
+		enums.TargetScopeCategory,
+		enums.TargetScopeAll,
+	}
+	if in := utils.ArrayFindIn(scopes, l.Target.Scope); !in {
+		return
+	}
+
+	if old.RecycleType != enums.ProductRecycleTypeExchange {
+		return
+	}
+
+	if len(old.ExchangeFinisheds) == 0 {
+		return
+	}
+
 	for _, p := range order.Products {
 		if p.Type != enums.ProductTypeFinished {
 			continue
@@ -215,10 +233,13 @@ func (l *achieveLogic) calculateOld(order *model.OrderSales, old *model.ProductO
 		if a.IsZero() && q.IsZero() {
 			continue
 		}
+
 		amount = price.Div(decimal.NewFromInt(int64(len(old.ExchangeFinisheds)))).Mul(clerk.PerformanceRate).Div(decimal.NewFromInt(100))
 		quantity = decimal.NewFromInt(1).Mul(clerk.PerformanceRate).Div(decimal.NewFromInt(100))
+
 		break
 	}
+
 	return
 }
 

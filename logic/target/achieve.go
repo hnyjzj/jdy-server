@@ -316,6 +316,9 @@ func (l *achieveLogic) Refund() error {
 
 // 添加业绩
 func (l *achieveLogic) addAchieve(staff_id string, amount, quantity decimal.Decimal) {
+	if amount.IsZero() && quantity.IsZero() {
+		return
+	}
 	for i, personal := range l.Target.Personals {
 		if personal.StaffId == staff_id {
 			switch l.Target.Method {

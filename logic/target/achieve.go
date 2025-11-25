@@ -130,7 +130,7 @@ func (l *achieveLogic) Calculate() error {
 					}
 				case enums.ProductTypeOld:
 					{
-						amount, quantity := l.calculateOld(&product.Old.Product, &clerk, product.Old.RecyclePrice)
+						amount, quantity := l.calculateOld(&order, &product.Old.Product, &clerk, product.Old.RecyclePrice)
 						l.addAchieve(clerk.SalesmanId, amount.Neg(), quantity.Neg())
 					}
 				case enums.ProductTypeAccessorie:
@@ -200,48 +200,25 @@ func (l *achieveLogic) calculateFinished(finished *model.ProductFinished, clerk 
 	return
 }
 
-// 计算旧料
-func (l *achieveLogic) calculateOld(old *model.ProductOld, clerk *model.OrderSalesClerk, price decimal.Decimal) (amount, quantity decimal.Decimal) {
-	// 判断统计范围
-	scopes := []enums.TargetScope{
-		enums.TargetScopeClass,
-		enums.TargetScopeCategory,
-		enums.TargetScopeAll,
-	}
-	if in := utils.ArrayFindIn(scopes, l.Target.Scope); !in {
-		return
-	}
-
-	if old.RecycleType != enums.ProductRecycleTypeExchange {
-		return
-	}
-
-	if len(old.ExchangeFinisheds) == 0 {
-		return
-	}
-
-	for _, order := range l.Sales {
-		for _, p := range order.Products {
-			if p.Type != enums.ProductTypeFinished {
-				continue
-			}
-
-			if in := utils.ArrayFindIn(old.ExchangeFinisheds, p.Code); !in {
-				continue
-			}
-
-			a, q := l.calculateFinished(&p.Finished.Product, clerk, p.Finished.Price)
-			if a.IsZero() && q.IsZero() {
-				continue
-			}
-
-			amount = amount.Add(price.Div(decimal.NewFromInt(int64(len(old.ExchangeFinisheds)))).Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
-			quantity = quantity.Add(decimal.NewFromInt(1).Mul(clerk.PerformanceRate).Div(decimal.NewFromFloat(100)))
-
+// 计算旧料（仅限当前订单范围）
+func (l *achieveLogic) calculateOld(order *model.OrderSales, old *model.ProductOld, clerk *model.OrderSalesClerk, price decimal.Decimal) (amount, quantity decimal.Decimal) {
+	for _, p := range order.Products {
+		if p.Type != enums.ProductTypeFinished {
 			continue
 		}
-	}
 
+		if in := utils.ArrayFindIn(old.ExchangeFinisheds, p.Code); !in {
+			continue
+		}
+
+		a, q := l.calculateFinished(&p.Finished.Product, clerk, p.Finished.Price)
+		if a.IsZero() && q.IsZero() {
+			continue
+		}
+		amount = price.Div(decimal.NewFromInt(int64(len(old.ExchangeFinisheds)))).Mul(clerk.PerformanceRate).Div(decimal.NewFromInt(100))
+		quantity = decimal.NewFromInt(1).Mul(clerk.PerformanceRate).Div(decimal.NewFromInt(100))
+		break
+	}
 	return
 }
 
@@ -297,7 +274,7 @@ func (l *achieveLogic) Refund() error {
 				}
 
 				for _, clerk := range order.Clerks {
-					amount, quantity := l.calculateOld(&product, &clerk, refund.Price)
+					amount, quantity := l.calculateOld(&order, &product, &clerk, refund.Price)
 					l.addAchieve(clerk.SalesmanId, amount, quantity)
 				}
 			}

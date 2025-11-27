@@ -90,7 +90,9 @@ func (Target) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Store")
 	db = db.Preload("Groups")
 	db = db.Preload("Personals", func(tx *gorm.DB) *gorm.DB {
-		tx = tx.Preload("Staff")
+		tx = tx.Preload("Staff", func(tt *gorm.DB) *gorm.DB {
+			return tt.Unscoped()
+		})
 		tx = tx.Preload("Group")
 
 		tx = tx.Order("Purpose desc")
@@ -114,7 +116,9 @@ type TargetGroup struct {
 func (TargetGroup) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Target")
 	db = db.Preload("Personals", func(tx *gorm.DB) *gorm.DB {
-		tx = tx.Preload("Staff")
+		tx = tx.Preload("Staff", func(tt *gorm.DB) *gorm.DB {
+			return tt.Unscoped()
+		})
 		tx = tx.Preload("Group")
 		return tx
 	})
@@ -142,7 +146,9 @@ type TargetPersonal struct {
 
 func (TargetPersonal) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Target")
-	db = db.Preload("Staff")
+	db = db.Preload("Staff", func(tt *gorm.DB) *gorm.DB {
+		return tt.Unscoped()
+	})
 	db = db.Preload("Group")
 
 	return db

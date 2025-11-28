@@ -65,11 +65,18 @@ func (l *dataLogic) get_finisheds() error {
 	db = db.Where(&model.ProductFinished{
 		StoreId: l.storeId,
 	})
-	db = db.Where("enter_time <= ?", l.endtime)
-	db = db.Where("status IN (?)", []enums.ProductStatus{
-		enums.ProductStatusNormal,
-		enums.ProductStatusAllocate,
-	})
+	db = db.Where(
+		db.Where("enter_time <= ?", l.endtime).Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusNormal,
+			enums.ProductStatusAllocate,
+		}),
+	).Or(
+		db.Where("updated_at <= ?", l.endtime).Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusSold,
+			enums.ProductStatusDamage,
+			enums.ProductStatusCheck,
+		}),
+	)
 
 	if err := db.Find(&l.Finisheds).Error; err != nil {
 		return err
@@ -84,11 +91,18 @@ func (l *dataLogic) get_olds() error {
 	db = db.Where(&model.ProductOld{
 		StoreId: l.storeId,
 	})
-	db = db.Where("created_at <= ?", l.endtime)
-	db = db.Where("status IN (?)", []enums.ProductStatus{
-		enums.ProductStatusNormal,
-		enums.ProductStatusAllocate,
-	})
+	db = db.Where(
+		db.Where("created_at <= ?", l.endtime).Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusNormal,
+			enums.ProductStatusAllocate,
+		}),
+	).Or(
+		db.Where("updated_at <= ?", l.endtime).Where("status IN (?)", []enums.ProductStatus{
+			enums.ProductStatusSold,
+			enums.ProductStatusDamage,
+			enums.ProductStatusCheck,
+		}),
+	)
 
 	if err := db.Find(&l.Olds).Error; err != nil {
 		return err

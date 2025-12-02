@@ -2,6 +2,7 @@ package target
 
 import (
 	"errors"
+	"jdy/enums"
 	"jdy/model"
 	"jdy/types"
 	"sort"
@@ -61,14 +62,35 @@ func (l *Logic) Info(req *types.TargetInfoReq) (*model.Target, error) {
 	}
 	target = *tg
 
-	// 按照达成量、目标量排序
-	sort.Slice(target.Personals, func(i, j int) bool {
-		// 先按照目标量排序，再按照达成量排序
-		if target.Personals[i].Purpose.Equal(target.Personals[j].Purpose) {
-			return target.Personals[i].Achieve.GreaterThan(target.Personals[j].Achieve)
+	switch target.Object {
+	case enums.TargetObjectPersonal:
+		{
+			// 按照达成量排序
+			sort.Slice(target.Personals, func(i, j int) bool {
+				return target.Personals[i].Achieve.GreaterThan(target.Personals[j].Achieve)
+			})
 		}
-		return target.Personals[i].Purpose.GreaterThan(target.Personals[j].Purpose)
-	})
+	case enums.TargetObjectGroup:
+		{
+			for _, p := range target.Personals {
+				for gi := range target.Groups {
+					for pi := range target.Groups[gi].Personals {
+						if target.Groups[gi].Personals[pi].Id == p.Id {
+							target.Groups[gi].Personals[pi].Achieve = p.Achieve
+							break
+						}
+					}
+				}
+			}
+
+			for gi := range target.Groups {
+				// 按照达成量排序
+				sort.Slice(target.Groups[gi].Personals, func(i, j int) bool {
+					return target.Groups[gi].Personals[i].Achieve.GreaterThan(target.Groups[gi].Personals[j].Achieve)
+				})
+			}
+		}
+	}
 
 	return &target, nil
 }

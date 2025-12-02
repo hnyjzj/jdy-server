@@ -123,12 +123,12 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 		}
 
 		// 转换成品状态
-		if err := tx.Model(&model.ProductFinished{}).Where("id = ?", finished_product.Id).
-			Update("status", enums.ProductStatusNormal).
-			Update("enter_time", time.Now()).
-			Update("remark", "旧料转换").
-			Update("store_id", old_product.StoreId).
-			Error; err != nil {
+		if err := tx.Model(&model.ProductFinished{}).Where("id = ?", finished_product.Id).Updates(map[string]any{
+			"status":     enums.ProductStatusNormal,
+			"enter_time": time.Now(),
+			"remark":     "旧料转换",
+			"store_id":   old_product.StoreId,
+		}).Error; err != nil {
 			return errors.New("更新成品状态失败")
 		}
 

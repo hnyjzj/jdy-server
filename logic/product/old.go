@@ -6,6 +6,7 @@ import (
 	"jdy/model"
 	"jdy/types"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -122,10 +123,12 @@ func (l *ProductOldLogic) Conversion(req *types.ProductConversionReq) *errors.Er
 		}
 
 		// 转换成品状态
-		if err := tx.Model(&model.ProductFinished{}).Where("id = ?", finished_product.Id).
-			Update("status", enums.ProductStatusNormal).
-			Update("store_id", old_product.StoreId).
-			Error; err != nil {
+		if err := tx.Model(&model.ProductFinished{}).Where("id = ?", finished_product.Id).Updates(map[string]any{
+			"status":     enums.ProductStatusNormal,
+			"enter_time": time.Now(),
+			"remark":     "旧料转换",
+			"store_id":   old_product.StoreId,
+		}).Error; err != nil {
 			return errors.New("更新成品状态失败")
 		}
 

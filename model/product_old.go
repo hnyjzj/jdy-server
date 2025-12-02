@@ -58,6 +58,9 @@ func (ProductOld) WhereCondition(db *gorm.DB, query *types.ProductOldWhere) *gor
 	if query.Code != "" {
 		db = db.Where("(code = ? OR code_finished = ?)", query.Code, query.Code)
 	}
+	if query.CodeFinished != "" {
+		db = db.Where("code_finished = ?", query.CodeFinished)
+	}
 	if query.Name != "" {
 		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", query.Name))
 	}

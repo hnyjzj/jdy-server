@@ -88,7 +88,18 @@ func (Target) WhereCondition(db *gorm.DB, query *types.TargetWhere) *gorm.DB {
 
 func (Target) Preloads(db *gorm.DB) *gorm.DB {
 	db = db.Preload("Store")
-	db = db.Preload("Groups")
+	db = db.Preload("Groups", func(txx *gorm.DB) *gorm.DB {
+		txx = txx.Preload("Personals", func(tx *gorm.DB) *gorm.DB {
+			tx = tx.Preload("Staff", func(tt *gorm.DB) *gorm.DB {
+				return tt.Unscoped()
+			})
+			tx = tx.Preload("Group")
+
+			tx = tx.Order("Purpose desc")
+			return tx
+		})
+		return txx
+	})
 	db = db.Preload("Personals", func(tx *gorm.DB) *gorm.DB {
 		tx = tx.Preload("Staff", func(tt *gorm.DB) *gorm.DB {
 			return tt.Unscoped()

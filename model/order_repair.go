@@ -58,6 +58,9 @@ func (OrderRepair) WhereCondition(db *gorm.DB, req *types.OrderRepairWhere) *gor
 	if req.ReceptionistId != "" {
 		db = db.Where("receptionist_id = ?", req.ReceptionistId)
 	}
+	if req.CashierId != "" {
+		db = db.Where("cashier_id = ?", req.CashierId)
+	}
 	if req.Name != "" {
 		db = db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", req.Name))
 	}

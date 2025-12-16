@@ -53,14 +53,10 @@ func (l *PaymentLogic) get_payments() error {
 }
 
 func (l *PaymentLogic) get_data() error {
-	if len(l.Payments) == 0 {
-		l.Res["收入金额"] = decimal.Decimal{}
-		l.Res["收入笔数"] = decimal.Decimal{}
-		l.Res["支出金额"] = decimal.Decimal{}
-		l.Res["支出笔数"] = decimal.Decimal{}
-
-		return nil
-	}
+	l.Res["收入金额"] = decimal.Decimal{}
+	l.Res["收入笔数"] = decimal.Decimal{}
+	l.Res["支出金额"] = decimal.Decimal{}
+	l.Res["支出笔数"] = decimal.Decimal{}
 
 	for _, payment := range l.Payments {
 		switch payment.Type {

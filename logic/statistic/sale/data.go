@@ -22,8 +22,8 @@ type DataRes struct {
 	Trend            map[string]map[string]any `json:"trend"`             // 趋势
 	FinishedClass    map[string]any            `json:"finished_class"`    // 成品大类
 	FinishedCategory map[string]map[string]any `json:"finished_category"` // 成品品类
-	OldExchange      map[string]any            `json:"old_exchange"`      // 旧料兑换
-	OldRecycle       map[string]any            `json:"old_recycle"`       // 旧料回收
+	OldExchange      map[string]any            `json:"old_exchange"`      // 旧料兑换金额
+	OldRecycle       map[string]any            `json:"old_recycle"`       // 旧料回收金额
 	Accessorie       map[string]any            `json:"accessorie"`        // 配件
 	List             map[string]any            `json:"list"`              // 列表
 }
@@ -109,9 +109,9 @@ func (l *dataLogic) get_overview() map[string]any {
 
 	data["成品金额"] = decimal.Zero
 	data["成品件数"] = 0
-	data["旧料兑换"] = decimal.Zero
-	data["旧料回收"] = decimal.Zero
-	data["配件礼品"] = decimal.Zero
+	data["旧料兑换金额"] = decimal.Zero
+	data["旧料回收金额"] = decimal.Zero
+	data["配件礼品金额"] = decimal.Zero
 
 	data["退款金额"] = decimal.Zero
 	data["退款单数"] = 0
@@ -164,11 +164,11 @@ func (l *dataLogic) get_overview() map[string]any {
 		}
 		data["成品件数"] = count
 
-		old_exchange, ok := data["旧料兑换"].(decimal.Decimal)
+		old_exchange, ok := data["旧料兑换金额"].(decimal.Decimal)
 		if !ok {
 			old_exchange = decimal.Zero
 		}
-		old_recycle, ok := data["旧料回收"].(decimal.Decimal)
+		old_recycle, ok := data["旧料回收金额"].(decimal.Decimal)
 		if !ok {
 			old_recycle = decimal.Zero
 		}
@@ -213,10 +213,10 @@ func (l *dataLogic) get_overview() map[string]any {
 				}
 			}
 		}
-		data["旧料兑换"] = old_exchange
-		data["旧料回收"] = old_recycle
+		data["旧料兑换金额"] = old_exchange
+		data["旧料回收金额"] = old_recycle
 
-		accessorie, ok := data["配件礼品"].(decimal.Decimal)
+		accessorie, ok := data["配件礼品金额"].(decimal.Decimal)
 		if !ok {
 			accessorie = decimal.Zero
 		}
@@ -237,7 +237,7 @@ func (l *dataLogic) get_overview() map[string]any {
 				accessorie = accessorie.Sub(refund.Price)
 			}
 		}
-		data["配件礼品"] = accessorie
+		data["配件礼品金额"] = accessorie
 	}
 
 	for _, r := range l.Refunds {
@@ -859,7 +859,7 @@ func (l *dataLogic) get_list() map[string]any {
 			if !ok {
 				finished_num = 0
 			}
-			old_exchange_price, ok := row["旧料抵扣"].(decimal.Decimal)
+			old_exchange_price, ok := row["旧料抵扣金额"].(decimal.Decimal)
 			if !ok {
 				old_exchange_price = decimal.NewFromInt(0)
 			}
@@ -867,7 +867,7 @@ func (l *dataLogic) get_list() map[string]any {
 			if !ok {
 				old_exchange_num = 0
 			}
-			old_recycle_price, ok := row["旧料回收"].(decimal.Decimal)
+			old_recycle_price, ok := row["旧料回收金额"].(decimal.Decimal)
 			if !ok {
 				old_recycle_price = decimal.NewFromInt(0)
 			}
@@ -984,9 +984,9 @@ func (l *dataLogic) get_list() map[string]any {
 			row["业绩"] = performance
 			row["成品销售额"] = finished_price
 			row["成品件数"] = finished_num
-			row["旧料抵扣"] = old_exchange_price
+			row["旧料抵扣金额"] = old_exchange_price
 			row["旧料抵扣件数"] = old_exchange_num
-			row["旧料回收"] = old_recycle_price
+			row["旧料回收金额"] = old_recycle_price
 			row["旧料回收件数"] = old_recycle_num
 			row["配件销售额"] = accessorie_price
 			row["配件件数"] = accessorie_num

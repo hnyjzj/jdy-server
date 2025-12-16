@@ -101,12 +101,11 @@ func (l *dataLogic) get_olds() error {
 func (l *dataLogic) get_overview() map[string]any {
 	data := make(map[string]any)
 
-	if len(l.Finisheds) == 0 {
-		data["成品总件数"] = decimal.Zero
-		data["成品总金重"] = decimal.Zero
-		data["成品总标签价"] = decimal.Zero
-		data["成品滞销件数"] = decimal.Zero
-	}
+	data["成品总件数"] = decimal.Zero
+	data["成品总金重"] = decimal.Zero
+	data["成品总标签价"] = decimal.Zero
+	data["成品滞销件数"] = decimal.Zero
+
 	for _, finished := range l.Finisheds {
 		number, ok := data["成品总件数"].(decimal.Decimal)
 		if !ok {
@@ -139,11 +138,9 @@ func (l *dataLogic) get_overview() map[string]any {
 		data["成品滞销件数"] = unsalable
 	}
 
-	if len(l.Olds) == 0 {
-		data["旧料总件数"] = decimal.Zero
-		data["旧料总金重"] = decimal.Zero
-		data["旧料总抵值"] = decimal.Zero
-	}
+	data["旧料总件数"] = decimal.Zero
+	data["旧料总金重"] = decimal.Zero
+	data["旧料总抵值"] = decimal.Zero
 
 	for _, old := range l.Olds {
 		number, ok := data["旧料总件数"].(decimal.Decimal)
@@ -538,11 +535,10 @@ func (l *dataLogic) get_finished_age() map[string]map[string]any {
 func (l *dataLogic) get_old_class() map[string]any {
 	data := make(map[string]any)
 
-	if len(l.Olds) == 0 {
-		data["件数"] = map[string]any{}
-		data["金重"] = map[string]any{}
-		data["标价"] = map[string]any{}
-	}
+	data["件数"] = map[string]any{}
+	data["金重"] = map[string]any{}
+	data["标价"] = map[string]any{}
+
 	for _, old := range l.Olds {
 		k := old.Class.String()
 

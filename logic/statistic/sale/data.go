@@ -107,18 +107,15 @@ func (l *dataLogic) get_refund(onlyself bool) error {
 func (l *dataLogic) get_overview() map[string]any {
 	data := make(map[string]any)
 
-	if len(l.Sales) == 0 {
-		data["成品金额"] = decimal.Zero
-		data["成品件数"] = 0
-		data["旧料兑换"] = decimal.Zero
-		data["旧料回收"] = decimal.Zero
-		data["配件礼品"] = decimal.Zero
-	}
-	if len(l.Refunds) == 0 {
-		data["退款金额"] = decimal.Zero
-		data["退款单数"] = 0
-		data["退款件数"] = 0
-	}
+	data["成品金额"] = decimal.Zero
+	data["成品件数"] = 0
+	data["旧料兑换"] = decimal.Zero
+	data["旧料回收"] = decimal.Zero
+	data["配件礼品"] = decimal.Zero
+
+	data["退款金额"] = decimal.Zero
+	data["退款单数"] = 0
+	data["退款件数"] = 0
 
 	for _, sales := range l.Sales {
 		price, ok := data["成品金额"].(decimal.Decimal)

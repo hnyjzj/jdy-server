@@ -66,12 +66,10 @@ func (l *datawLogic) get_payments() error {
 func (l *datawLogic) get_overview() map[string]any {
 	data := make(map[string]any)
 
-	if len(l.Payments) == 0 {
-		data["收入金额"] = decimal.Decimal{}
-		data["收入笔数"] = decimal.Decimal{}
-		data["支出金额"] = decimal.Decimal{}
-		data["支出笔数"] = decimal.Decimal{}
-	}
+	data["收入金额"] = decimal.Decimal{}
+	data["收入笔数"] = decimal.Decimal{}
+	data["支出金额"] = decimal.Decimal{}
+	data["支出笔数"] = decimal.Decimal{}
 
 	for _, payment := range l.Payments {
 		switch payment.Type {

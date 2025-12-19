@@ -6,17 +6,18 @@ import (
 )
 
 type OrderSalesDetailWhere struct {
-	OrderId string `json:"order_id" label:"订单号" find:"true" sort:"1" type:"string" input:"search" required:"true"` // 订单号
-	StoreId string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
-	Phone   string `json:"phone" label:"会员(手机号)" find:"true" create:"true" sort:"3" type:"string" input:"text"`    // 会员
+	OrderId    string `json:"order_id" label:"订单号" find:"true" sort:"1" type:"string" input:"search" required:"true"` // 订单号
+	StoreId    string `json:"store_id" label:"门店" find:"false" sort:"2" type:"string" input:"search" required:"true"` // 门店
+	Phone      string `json:"phone" label:"会员(手机号)" find:"true" create:"true" sort:"3" type:"string" input:"text"`    // 会员
+	SalesmanId string `json:"salesman_id" label:"导购员" find:"true" sort:"4" type:"string" input:"search"`              // 导购员
 
-	Type   enums.ProductType      `json:"type" label:"货品类型" find:"true" sort:"4" type:"number" input:"select" preset:"typeMap"`   // 货品类型
-	Status enums.OrderSalesStatus `json:"status" label:"货品状态" find:"true" sort:"5" type:"number" input:"select" preset:"typeMap"` // 货品状态
+	Type   enums.ProductType      `json:"type" label:"货品类型" find:"true" sort:"5" type:"number" input:"select" preset:"typeMap"`   // 货品类型
+	Status enums.OrderSalesStatus `json:"status" label:"货品状态" find:"true" sort:"6" type:"number" input:"select" preset:"typeMap"` // 货品状态
 
-	Code string `json:"code" label:"货品条码" find:"true" sort:"6" type:"string" input:"text"` // 货品条码
+	Code string `json:"code" label:"货品条码" find:"true" sort:"7" type:"string" input:"text"` // 货品条码
 
-	StartDate *time.Time `json:"start_date" label:"开始日期" find:"true" sort:"7" type:"string" input:"date"` // 开始日期
-	EndDate   *time.Time `json:"end_date" label:"结束日期" find:"true" sort:"8" type:"string" input:"date"`   // 结束日期
+	StartDate *time.Time `json:"start_date" label:"开始日期" find:"true" sort:"8" type:"string" input:"date"` // 开始日期
+	EndDate   *time.Time `json:"end_date" label:"结束日期" find:"true" sort:"9" type:"string" input:"date"`   // 结束日期
 }
 
 type OrderSalesDetailListReq struct {

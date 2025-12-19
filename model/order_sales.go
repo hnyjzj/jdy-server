@@ -160,6 +160,9 @@ func (OrderSalesProduct) WhereCondition(db *gorm.DB, req *types.OrderSalesDetail
 	if req.Phone != "" {
 		db = db.Where("member_id = (SELECT id FROM members WHERE phone = ?)", req.Phone)
 	}
+	if req.SalesmanId != "" {
+		db = db.Where("order_id IN (SELECT order_id FROM order_sales_clerks WHERE salesman_id = ?)", req.SalesmanId)
+	}
 	if req.Status != 0 {
 		db = db.Where("status = ?", req.Status)
 	}

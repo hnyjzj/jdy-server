@@ -499,7 +499,7 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 		return errors.New("调拨单状态异常")
 	}
 
-	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.FromStoreId) {
 		return errors.New("无权限操作")
 	}
 
@@ -597,7 +597,7 @@ func (p *ProductAllocateLogic) Clear(req *types.ProductAllocateClearReq) *errors
 		return errors.New("调拨单状态异常")
 	}
 
-	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.FromStoreId) {
 		return errors.New("无权限操作")
 	}
 
@@ -736,7 +736,7 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 		return errors.New("调拨单状态异常")
 	}
 
-	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.FromStoreId) {
 		return errors.New("无权限操作")
 	}
 

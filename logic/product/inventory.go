@@ -584,7 +584,10 @@ func (l *ProductInventoryLogic) Repair(req *types.ProductInventoryRepairReq) err
 		return errors.New("获取失败")
 	}
 
-	if inventory.Status != enums.ProductInventoryStatusAbnormal {
+	if !utils.ArrayFindIn([]enums.ProductInventoryStatus{
+		enums.ProductInventoryStatusAbnormal,       // 盘点异常
+		enums.ProductInventoryStatusAbnormalRepair, // 异常修复
+	}, inventory.Status) {
 		return errors.New("当前状态不允许这样操作")
 	}
 

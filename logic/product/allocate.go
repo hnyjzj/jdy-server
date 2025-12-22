@@ -363,7 +363,7 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		return errors.New("调拨单状态异常")
 	}
 
-	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.FromStoreId) {
 		return errors.New("无权限操作")
 	}
 
@@ -675,7 +675,7 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		return errors.New("调拨单状态异常")
 	}
 
-	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.FromStoreId) {
 		return errors.New("无权限操作")
 	}
 

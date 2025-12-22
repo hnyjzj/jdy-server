@@ -363,6 +363,10 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 		return errors.New("调拨单状态异常")
 	}
 
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+		return errors.New("无权限操作")
+	}
+
 	data := model.ProductAllocate{
 		ProductCount:             allocate.ProductCount,
 		ProductTotalWeightMetal:  allocate.ProductTotalWeightMetal,
@@ -495,6 +499,10 @@ func (p *ProductAllocateLogic) Remove(req *types.ProductAllocateRemoveReq) *erro
 		return errors.New("调拨单状态异常")
 	}
 
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+		return errors.New("无权限操作")
+	}
+
 	data := model.ProductAllocate{
 		ProductCount:             allocate.ProductCount,
 		ProductTotalWeightMetal:  allocate.ProductTotalWeightMetal,
@@ -589,6 +597,10 @@ func (p *ProductAllocateLogic) Clear(req *types.ProductAllocateClearReq) *errors
 		return errors.New("调拨单状态异常")
 	}
 
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+		return errors.New("无权限操作")
+	}
+
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		switch allocate.Type {
 		case enums.ProductTypeFinished:
@@ -663,6 +675,10 @@ func (p *ProductAllocateLogic) Confirm(req *types.ProductAllocateConfirmReq) *er
 		return errors.New("调拨单状态异常")
 	}
 
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+		return errors.New("无权限操作")
+	}
+
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 锁定产品
 		for _, product := range allocate.ProductFinisheds {
@@ -718,6 +734,10 @@ func (p *ProductAllocateLogic) Cancel(req *types.ProductAllocateCancelReq) *erro
 
 	if allocate.Status != enums.ProductAllocateStatusDraft && allocate.Status != enums.ProductAllocateStatusOnTheWay {
 		return errors.New("调拨单状态异常")
+	}
+
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+		return errors.New("无权限操作")
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
@@ -787,6 +807,10 @@ func (p *ProductAllocateLogic) Complete(req *types.ProductAllocateCompleteReq) *
 
 	if allocate.Status != enums.ProductAllocateStatusOnTheWay {
 		return errors.New("调拨单状态异常")
+	}
+
+	if !utils.ArrayFindIn(p.Staff.StoreIds, allocate.ToStoreId) {
+		return errors.New("无权限操作")
 	}
 
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {

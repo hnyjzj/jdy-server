@@ -25,26 +25,26 @@ type findRes[T any] struct {
 func ArrayFind[T comparable](array []T, find func(item T) bool) (res findRes[T]) {
 	if len(array) == 0 || array == nil {
 		return findRes[T]{
-			Err:   fmt.Errorf("array is empty"),
-			Index: 0,
 			Has:   false,
+			Index: -1,
+			Err:   fmt.Errorf("array is empty"),
 		}
 	}
 	for i, v := range array {
 		if find(v) {
 			return findRes[T]{
-				Index: i,
-				Item:  v,
 				Has:   true,
+				Item:  v,
+				Index: i,
 				Err:   nil,
 			}
 		}
 	}
 
 	return findRes[T]{
-		Err:   fmt.Errorf("array is empty"),
-		Index: 0,
 		Has:   false,
+		Index: -1,
+		Err:   fmt.Errorf("array is empty"),
 	}
 }
 

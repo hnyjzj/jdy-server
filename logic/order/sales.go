@@ -28,6 +28,10 @@ func (l *OrderSalesLogic) List(req *types.OrderSalesListReq) (*types.PageRes[mod
 		res types.PageRes[model.OrderSales]
 	)
 
+	if l.Staff.Identity <= enums.IdentityClerk && req.All {
+		return nil, errors.New("无权限")
+	}
+
 	db := model.DB.Model(&order)
 	db = order.WhereCondition(db, &req.Where)
 

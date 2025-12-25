@@ -1,6 +1,7 @@
 package order
 
 import (
+	"jdy/enums"
 	"jdy/errors"
 	"jdy/model"
 	"jdy/types"
@@ -19,6 +20,10 @@ func (l *OrderSalesDetailLogic) List(req *types.OrderSalesDetailListReq) (*types
 
 		res types.PageRes[model.OrderSalesProduct]
 	)
+
+	if l.Staff.Identity <= enums.IdentityClerk && req.All {
+		return nil, errors.New("无权限")
+	}
 
 	db := model.DB.Model(&product)
 	db = product.WhereCondition(db, &req.Where)

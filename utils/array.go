@@ -15,24 +15,45 @@ func ArrayToString[T comparable](array []T, sep string) string {
 }
 
 // 在数组中查找指定元素，返回元素索引和指针
-func ArrayFind[T comparable](array []T, find func(item T) bool) (item T, index int, err error) {
+type findRes[T any] struct {
+	Index int
+	Item  T
+	Has   bool
+	Err   error
+}
+
+func ArrayFind[T comparable](array []T, find func(item T) bool) (res findRes[T]) {
 	if len(array) == 0 || array == nil {
-		return item, -1, fmt.Errorf("empty array")
+		return findRes[T]{
+			Err:   fmt.Errorf("array is empty"),
+			Index: 0,
+			Has:   false,
+		}
 	}
 	for i, v := range array {
 		if find(v) {
-			return v, i, nil
+			return findRes[T]{
+				Index: i,
+				Item:  v,
+				Has:   true,
+				Err:   nil,
+			}
 		}
 	}
-	return item, -1, fmt.Errorf("not found")
+
+	return findRes[T]{
+		Err:   fmt.Errorf("array is empty"),
+		Index: 0,
+		Has:   false,
+	}
 }
 
 func ArrayFindIn[T comparable](array []T, item T) bool {
-	_, _, err := ArrayFind(array, func(i T) bool {
+	res := ArrayFind(array, func(i T) bool {
 		return i == item
 	})
 
-	return err == nil
+	return res.Has
 }
 
 // 根据下标删除数组元素

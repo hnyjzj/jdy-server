@@ -53,6 +53,11 @@ func (c *OrderSalesLogic) Create(req *types.OrderSalesCreateReq) (*model.OrderSa
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
 		l.Tx = tx
 
+		// 验证身份
+		if err := l.checkAuth(); err != nil {
+			return err
+		}
+
 		// 获取门店
 		if err := l.getStore(); err != nil {
 			return err
@@ -626,6 +631,20 @@ func (l *OrderSalesCreateLogic) getStore() error {
 
 	l.Store = &store
 	l.Order.Store = store
+
+	return nil
+}
+
+// 验证身份
+func (l *OrderSalesCreateLogic) checkAuth() error {
+	// 验证开单人是不是导购员
+	clerk := utils.ArrayFind(l.Req.Clerks, func(item types.OrderCreateReqClerks) bool {
+		return item.SalesmanId == l.Staff.Id
+	})
+	// 开单人既不是导购员也不是收银员
+	if l.Req.CashierId != l.Staff.Id && !clerk.Has {
+		return errors.New("无权限操作")
+	}
 
 	return nil
 }

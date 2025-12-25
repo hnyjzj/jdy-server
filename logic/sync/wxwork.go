@@ -251,7 +251,7 @@ func (l *SyncWxWorkContacts) getUsers(dept *kmodels.Department, users []*models.
 		}
 
 		// 判断是否是门店/区域负责人
-		_, index, _ := utils.ArrayFind(dept.DepartmentLeaders, func(item string) bool {
+		find := utils.ArrayFind(dept.DepartmentLeaders, func(item string) bool {
 			return item == user.UserID
 		})
 
@@ -263,7 +263,7 @@ func (l *SyncWxWorkContacts) getUsers(dept *kmodels.Department, users []*models.
 					log.Printf("关联员工与门店失败: %+v", err)
 					return errors.New("关联员工与门店失败")
 				}
-				if index != -1 {
+				if find.Has {
 					staff.Identity = enums.IdentityShopkeeper
 					if err := l.db.Model(&res.Store).Association("Superiors").Append(&staff); err != nil {
 						log.Printf("关联负责人与门店失败: %+v", err)
@@ -278,7 +278,7 @@ func (l *SyncWxWorkContacts) getUsers(dept *kmodels.Department, users []*models.
 					log.Printf("关联员工与区域失败: %+v", err)
 					return errors.New("关联员工与区域失败")
 				}
-				if index != -1 {
+				if find.Has {
 					if err := l.db.Model(&res.Region).Association("Superiors").Append(&staff); err != nil {
 						log.Printf("关联负责人与区域失败: %+v", err)
 						return errors.New("关联负责人与区域失败")
@@ -292,7 +292,7 @@ func (l *SyncWxWorkContacts) getUsers(dept *kmodels.Department, users []*models.
 					log.Printf("关联员工与总部失败: %+v", err)
 					return errors.New("关联员工与总部失败")
 				}
-				if index != -1 {
+				if find.Has {
 					if err := l.db.Model(&res.Store).Association("Superiors").Append(&staff); err != nil {
 						log.Printf("关联负责人与门店失败: %+v", err)
 						return errors.New("关联负责人与门店失败")

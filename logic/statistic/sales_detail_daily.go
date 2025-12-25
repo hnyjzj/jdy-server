@@ -614,18 +614,19 @@ func (l *StatisticSalesDetailDailyLogic) getOldSales() {
 			row := types.StatisticSalesDetailDailyOldSales{
 				Name: rowName,
 			}
+			var total types.StatisticSalesDetailDailyOldSales
 			// 查找统计行
-			total, index, err := utils.ArrayFind(block, func(item types.StatisticSalesDetailDailyOldSales) bool {
+			find := utils.ArrayFind(block, func(item types.StatisticSalesDetailDailyOldSales) bool {
 				return item.Name == totalName
 			})
 			// 如果没有找到统计行
-			if err != nil {
+			if find.Err != nil {
 				total = types.StatisticSalesDetailDailyOldSales{
 					Name: totalName,
 				}
 			} else {
 				// 如果找到了统计行,则删除统计行
-				block = utils.ArrayDeleteOfIndex(block, index)
+				block = utils.ArrayDeleteOfIndex(block, find.Index)
 			}
 
 			// 抵值
@@ -675,11 +676,11 @@ func (l *StatisticSalesDetailDailyLogic) getOldSales() {
 			surplusWeight = total.SurplusWeight.Add(row.WeightMetal)
 			total.SurplusWeight = &surplusWeight
 
-			if index == -1 {
+			if find.Index == -1 {
 				block = append(block, total)
 			} else {
 				// 将 block 放回原处
-				block = append(block[:index], append([]types.StatisticSalesDetailDailyOldSales{total}, block[index:]...)...)
+				block = append(block[:find.Index], append([]types.StatisticSalesDetailDailyOldSales{total}, block[find.Index:]...)...)
 			}
 			block = append(block, row)
 
@@ -933,18 +934,19 @@ func (l *StatisticSalesDetailDailyLogic) getOldSalesRefund() {
 		row := types.StatisticSalesDetailDailyOldSalesRefund{
 			Name: rowName,
 		}
+		var total types.StatisticSalesDetailDailyOldSalesRefund
 		// 查找统计行
-		total, index, err := utils.ArrayFind(block, func(item types.StatisticSalesDetailDailyOldSalesRefund) bool {
+		find := utils.ArrayFind(block, func(item types.StatisticSalesDetailDailyOldSalesRefund) bool {
 			return item.Name == totalName
 		})
 		// 如果没有找到统计行
-		if err != nil {
+		if find.Err != nil {
 			total = types.StatisticSalesDetailDailyOldSalesRefund{
 				Name: totalName,
 			}
 		} else {
 			// 如果找到了统计行,则删除统计行
-			block = utils.ArrayDeleteOfIndex(block, index)
+			block = utils.ArrayDeleteOfIndex(block, find.Index)
 		}
 
 		// 退款
@@ -968,11 +970,11 @@ func (l *StatisticSalesDetailDailyLogic) getOldSalesRefund() {
 		// 条码
 		row.Code = product.Code
 
-		if index == -1 {
+		if find.Index == -1 {
 			block = append(block, total)
 		} else {
 			// 将 block 放回原处
-			block = append(block[:index], append([]types.StatisticSalesDetailDailyOldSalesRefund{total}, block[index:]...)...)
+			block = append(block[:find.Index], append([]types.StatisticSalesDetailDailyOldSalesRefund{total}, block[find.Index:]...)...)
 		}
 		block = append(block, row)
 

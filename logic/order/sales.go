@@ -365,6 +365,10 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 					return errors.New("成品订单状态不正确")
 				}
 
+				if p.Finished.Product.StoreId != order.StoreId {
+					return errors.New("成品不在当前门店")
+				}
+
 				// 更新订单成品状态
 				if err := tx.Model(&model.OrderSalesProduct{}).Where("id = ?", p.Id).Updates(&model.OrderSalesProduct{
 					Status: enums.OrderSalesStatusReturn,
@@ -439,6 +443,9 @@ func (l *OrderSalesLogic) Refund(req *types.OrderSalesRefundReq) error {
 				}
 				if p.Old.Product.Status != enums.ProductStatusNormal {
 					return errors.New("旧料已不在库，已无法退货")
+				}
+				if p.Old.Product.StoreId != order.StoreId {
+					return errors.New("旧料不在当前门店")
 				}
 
 				// 更新订单旧料状态

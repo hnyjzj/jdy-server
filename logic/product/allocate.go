@@ -376,91 +376,86 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 	}
 	// 添加产品
 	if err := model.DB.Transaction(func(tx *gorm.DB) error {
-
 		switch allocate.Type {
 		case enums.ProductTypeFinished:
-			var product []model.ProductFinished
-			// 获取产品
-			db := tx.Model(&model.ProductFinished{})
-			db = db.Where("code in (?)", req.Codes)
-			db = db.Where(&model.ProductFinished{
-				StoreId: allocate.FromStoreId,
-				Status:  enums.ProductStatusNormal,
-			})
-			if err := db.Find(&product).Error; err != nil {
-				return errors.New("产品不存在")
-			}
-
-			if len(product) == 0 {
-				return errors.New("产品不存在")
-			}
-			if len(product) != len(req.Codes) {
-				return errors.New("有产品不存在")
-			}
-
-			for _, p := range product {
-				data.ProductCount++
-				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
-				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
-				data.ProductTotalAccessFee = data.ProductTotalAccessFee.Add(p.AccessFee)
-
-				// 更新产品状态
-				if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Id).Updates(&model.ProductFinished{
-					Status: enums.ProductStatusAllocate,
-				}).Error; err != nil {
-					return errors.New("更新产品状态失败")
+			{
+				var product []model.ProductFinished
+				// 获取产品
+				db := tx.Model(&model.ProductFinished{})
+				db = db.Where("code in (?)", req.Codes)
+				db = db.Where(&model.ProductFinished{
+					StoreId: allocate.FromStoreId,
+					Status:  enums.ProductStatusNormal,
+				})
+				if err := db.Find(&product).Error; err != nil {
+					if errors.Is(err, gorm.ErrRecordNotFound) {
+						return errors.New("没有可以调拨的产品")
+					}
+					return errors.New("查询产品失败")
 				}
-			}
-			// 添加产品
-			for _, p := range product {
-				if err := tx.Table("product_allocate_finished_products").Create(map[string]any{
-					"product_allocate_id": allocate.Id,
-					"product_finished_id": p.Id,
-				}).Error; err != nil {
-					return errors.New("添加产品失败")
+
+				for _, p := range product {
+					data.ProductCount++
+					data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
+					data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
+					data.ProductTotalAccessFee = data.ProductTotalAccessFee.Add(p.AccessFee)
+
+					// 更新产品状态
+					if err := tx.Model(&model.ProductFinished{}).Where("id = ?", p.Id).Updates(&model.ProductFinished{
+						Status: enums.ProductStatusAllocate,
+					}).Error; err != nil {
+						return errors.New("更新产品状态失败")
+					}
+				}
+				// 添加产品
+				for _, p := range product {
+					if err := tx.Table("product_allocate_finished_products").Create(map[string]any{
+						"product_allocate_id": allocate.Id,
+						"product_finished_id": p.Id,
+					}).Error; err != nil {
+						return errors.New("添加产品失败")
+					}
 				}
 			}
 		case enums.ProductTypeOld:
-			var product []model.ProductOld
-			// 获取产品
-			db := tx.Model(&model.ProductOld{})
-			db = db.Where("code in (?)", req.Codes)
-			db = db.Where(&model.ProductOld{
-				StoreId: allocate.FromStoreId,
-				Status:  enums.ProductStatusNormal,
-			})
-			if err := db.Find(&product).Error; err != nil {
-				return errors.New("产品不存在")
-			}
-
-			if len(product) == 0 {
-				return errors.New("产品不存在")
-			}
-			if len(product) != len(req.Codes) {
-				return errors.New("有产品不存在")
-			}
-
-			for _, p := range product {
-				data.ProductCount++
-				data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
-				data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
-				data.ProductTotalRecyclePrice = data.ProductTotalRecyclePrice.Add(p.RecyclePrice)
-
-				// 更新产品状态
-				if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Id).Updates(&model.ProductOld{
-					Status: enums.ProductStatusAllocate,
-				}).Error; err != nil {
-					return errors.New("更新产品状态失败")
+			{
+				var product []model.ProductOld
+				// 获取产品
+				db := tx.Model(&model.ProductOld{})
+				db = db.Where("code in (?)", req.Codes)
+				db = db.Where(&model.ProductOld{
+					StoreId: allocate.FromStoreId,
+					Status:  enums.ProductStatusNormal,
+				})
+				if err := db.Find(&product).Error; err != nil {
+					if errors.Is(err, gorm.ErrRecordNotFound) {
+						return errors.New("没有可以调拨的产品")
+					}
+					return errors.New("查询产品失败")
 				}
-			}
 
-			// 添加产品
-			for _, p := range product {
-				if err := tx.Table("product_allocate_old_products").Create(map[string]any{
-					"product_allocate_id": allocate.Id,
-					"product_old_id":      p.Id,
-				}).Error; err != nil {
-					return errors.New("添加产品失败")
+				for _, p := range product {
+					data.ProductCount++
+					data.ProductTotalWeightMetal = data.ProductTotalWeightMetal.Add(p.WeightMetal)
+					data.ProductTotalLabelPrice = data.ProductTotalLabelPrice.Add(p.LabelPrice)
+					data.ProductTotalRecyclePrice = data.ProductTotalRecyclePrice.Add(p.RecyclePrice)
+
+					// 更新产品状态
+					if err := tx.Model(&model.ProductOld{}).Where("id = ?", p.Id).Updates(&model.ProductOld{
+						Status: enums.ProductStatusAllocate,
+					}).Error; err != nil {
+						return errors.New("更新产品状态失败")
+					}
+				}
+
+				// 添加产品
+				for _, p := range product {
+					if err := tx.Table("product_allocate_old_products").Create(map[string]any{
+						"product_allocate_id": allocate.Id,
+						"product_old_id":      p.Id,
+					}).Error; err != nil {
+						return errors.New("添加产品失败")
+					}
 				}
 			}
 		}

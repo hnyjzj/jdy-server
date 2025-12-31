@@ -388,10 +388,10 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 					Status:  enums.ProductStatusNormal,
 				})
 				if err := db.Find(&product).Error; err != nil {
-					if errors.Is(err, gorm.ErrRecordNotFound) {
-						return errors.New("没有可以调拨的产品")
-					}
 					return errors.New("查询产品失败")
+				}
+				if len(product) == 0 {
+					return errors.New("没有可以调拨的产品")
 				}
 
 				for _, p := range product {
@@ -428,10 +428,10 @@ func (p *ProductAllocateLogic) Add(req *types.ProductAllocateAddReq) *errors.Err
 					Status:  enums.ProductStatusNormal,
 				})
 				if err := db.Find(&product).Error; err != nil {
-					if errors.Is(err, gorm.ErrRecordNotFound) {
-						return errors.New("没有可以调拨的产品")
-					}
 					return errors.New("查询产品失败")
+				}
+				if len(product) == 0 {
+					return errors.New("没有可以调拨的产品")
 				}
 
 				for _, p := range product {
